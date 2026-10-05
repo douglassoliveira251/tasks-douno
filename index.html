@@ -5307,7 +5307,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.099';
+const APP_VERSION = '1.10.100';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6763,7 +6763,51 @@ function renderPersonalizationPanel(panel){
   });
 }
 
+function importBackupFile(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if(!file) return;
+    try{
+      const parsed = JSON.parse(await file.text());
+      if(!(parsed && parsed.categories && Array.isArray(parsed.tasks))){
+        alert('Arquivo inválido para o DOUNO Tasks.');
+        return;
+      }
+      const summary = `${parsed.tasks.length} tarefas, ${(parsed.notes||[]).length} notas e ${(parsed.events||[]).length} agendas`;
+      if(!confirm(`Importar este backup (${summary})? Isso substitui tudo que está salvo na sua conta agora.`)) return;
+      state = parsed;
+      normalizeState();
+      applyTheme();
+      markDirty();
+    }catch(e){
+      console.error(e);
+      alert('Não foi possível ler esse arquivo.');
+    }
+  };
+  input.click();
+}
+
 function renderFilePanel(panel){
+  if(cloudSession){
+    panel.innerHTML = `
+      <h3 class="settings-section-title">Backup</h3>
+      <p class="settings-section-desc">Seus dados ficam salvos na nuvem. Baixe uma cópia em arquivo para guardar, ou importe uma cópia anterior (substitui o que está na conta).</p>
+      <div class="file-bar-name" style="margin-bottom:16px; font-size:13px;">
+        <span class="status-dot" id="statusDotSettings"></span><span id="statusTextSettings"></span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="file-bar-btn primary" id="downloadBackupBtn">Baixar backup</button>
+        <button class="file-bar-btn" id="importBackupBtn">Importar backup</button>
+      </div>
+    `;
+    document.getElementById('downloadBackupBtn').onclick = downloadFallback;
+    document.getElementById('importBackupBtn').onclick = importBackupFile;
+    updateFileStatus();
+    return;
+  }
   panel.innerHTML = `
     <h3 class="settings-section-title">Arquivo base</h3>
     <p class="settings-section-desc">Abra, salve ou troque o arquivo <code>douno-tasks.json</code> usado para guardar seus dados.</p>

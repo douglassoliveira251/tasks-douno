@@ -1,3 +1,19 @@
+## [1.10.100] - 2026-10-05 00:00
+
+### Added
+
+#### Configurações → Arquivo
+
+- Com a conta na nuvem conectada, a aba Arquivo agora mostra "Baixar backup" e "Importar backup". O "Salvar como..." usado antes ligava o autosave a um arquivo local no lugar da nuvem até a próxima recarga, então não servia como backup nesse modo. Importar pede confirmação e grava o conteúdo na conta.
+
+### Added
+
+#### Infraestrutura
+
+- Pasta `supabase/` com o SQL das tabelas, o código das duas funções (link de calendário e resumo diário) e o agendamento, pra montar o projeto Supabase dedicado do DOUNO Tasks. As funções leem os segredos do ambiente, sem valor fixo no código.
+
+
+
 ## [1.10.099] - 2026-10-02 00:00
 
 ### Fixed
