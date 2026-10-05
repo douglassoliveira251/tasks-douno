@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
-const SUPABASE_URL = 'https://ppbigpokjoahkjmacclu.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_2i5Tl-U2PeRgOgbbqe4ZzA_4hzTdXuS';
+const SUPABASE_URL = 'https://zwntzqwdhgplewgbidbs.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7hLrYE-Cmr1g0XI_hyq3wA_Z6QzAiyt';
 const MICROSOFT_CLIENT_ID = '553b6f2f-ee51-494a-8b3a-35aeab00c172';
 const MICROSOFT_TOKEN_URL = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
 const MICROSOFT_AUTHORIZE_URL = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize';

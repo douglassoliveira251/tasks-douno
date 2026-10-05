@@ -1,3 +1,13 @@
+## [1.10.101] - 2026-10-05 00:00
+
+### Changed
+
+#### Infraestrutura
+
+- O DOUNO Tasks passou a usar um projeto Supabase dedicado (separado do Dolfin): login, dados, link de calendário, resumo diário e integração com o Outlook. A lista de e-mails permitidos agora tem só a conta nova. Os dados do projeto antigo precisam ser importados pelo backup (Configurações → Arquivo → Importar backup) e o Outlook precisa ser reconectado uma vez.
+
+
+
 ## [1.10.100] - 2026-10-05 00:00
 
 ### Added
