@@ -1,3 +1,14 @@
+## [1.10.107] - 2026-10-06 00:00
+
+### Changed
+
+#### Celular
+
+- Cabeçalho das páginas (Tarefas, Notas, Calendário): ícone e título à esquerda, contagem resumida embaixo e o seletor de espaço como botão curto ("Todos") à direita, numa linha só.
+- Notas: a nota ocupa a largura toda. Um botão no topo mostra o caderno e a nota atuais e abre uma gaveta de cadernos (linhas maiores, fecha ao escolher a nota, ao tocar fora ou no X). O botão de expandir ativa o modo foco, que esconde o cabeçalho.
+- Título da nota não é mais cortado: os botões de ação ficam acima dele.
+
+
 ## [1.10.106] - 2026-10-06 00:00
 
 ### Fixed

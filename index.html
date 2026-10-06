@@ -451,6 +451,9 @@
   .space-selector-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0;}
   .space-selector-name{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;}
   .space-selector-chevron{width:11px; height:11px; flex-shrink:0;}
+  .notes-mbar-focus .ico-collapse{display:none;}
+  body.notes-focus .notes-mbar-focus .ico-expand{display:none;}
+  body.notes-focus .notes-mbar-focus .ico-collapse{display:block;}
   .space-selector-dropdown{
     position:absolute; top:calc(100% + 8px); left:0; width:220px; z-index:60;
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
@@ -1154,6 +1157,7 @@
     border:1px solid var(--primary); border-radius:5px; padding:2px 5px;
   }
 
+  .notes-mbar, .notes-drawer-backdrop, .notebooks-col-close{display:none;}
   .note-detail-col{
     flex:1; min-width:0; height:100%; overflow-y:auto;
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm);
@@ -1841,11 +1845,22 @@
     .topbar-profile-name, .topbar-profile-chevron{display:none;}
     .save-error-badge{width:38px; padding:0; justify-content:center;}
     .save-error-badge .badge-text{display:none;}
-    .page-header-card{margin:8px 16px 4px; padding:14px 16px; flex-wrap:wrap; gap:10px;}
+    .page-header-card{margin:8px 16px 4px; padding:11px 14px; flex-wrap:nowrap; gap:10px;}
     .page-header-icon{width:38px; height:38px; border-radius:10px;}
     .page-header-icon svg{width:18px; height:18px;}
     .view-title{font-size:19px;}
-    .page-header-stats{flex-wrap:wrap; row-gap:4px;}
+    .view-title-wrap{flex:1; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:8px; align-items:center;}
+    .space-selector-wrap{grid-column:2; grid-row:1 / span 2; margin:0; align-self:center;}
+    .space-selector-btn{padding:4px 9px 4px 8px; font-size:10.5px;}
+    .space-selector-name{max-width:96px;}
+    .ssn-extra{display:none;}
+    .space-selector-dropdown{left:auto; right:0;}
+    .view-title{grid-column:1; grid-row:1; line-height:1.15;}
+    .view-subtitle{grid-column:1; grid-row:2; margin-top:0;}
+    .page-header-stats{grid-column:1; grid-row:2; margin-top:1px; gap:0; flex-wrap:nowrap; overflow:hidden;}
+    .page-header-stat{font-size:11.5px; white-space:nowrap;}
+    .page-header-stat + .page-header-stat::before{content:'·'; margin:0 5px;}
+    .page-header-stat:nth-child(n+3){display:none;}
 
     .group-mode-bar{flex-wrap:wrap; row-gap:8px;}
     .cal-header{padding:10px 12px;}
@@ -1864,9 +1879,53 @@
     .settings-layout{grid-template-columns:1fr;}
     .settings-nav{display:flex; flex-wrap:wrap; gap:4px;}
     .settings-nav-item{width:auto;}
-    .notes-layout{flex-direction:column;}
-    .notebooks-col{width:100%; height:200px; flex-shrink:0;}
-    .note-detail-col{flex:1; min-height:0; padding:20px 20px;}
+    .notes-layout{flex-direction:column; gap:8px;}
+    .notes-mbar{display:flex; align-items:center; gap:8px; flex-shrink:0;}
+    .notes-mbar-pill{
+      flex:1; min-width:0; display:flex; align-items:center; gap:8px; height:42px; padding:0 12px;
+      background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-sm);
+      color:var(--ink); font-size:13px; font-weight:600; text-align:left;
+    }
+    .notes-mbar-pill svg{width:16px; height:16px; flex-shrink:0; color:var(--ink-soft);}
+    .notes-mbar-pill .mb-text{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .notes-mbar-pill .mb-note{color:var(--ink-faint); font-weight:500;}
+    .notes-mbar-pill .mb-chev{width:14px; height:14px; color:var(--ink-faint);}
+    .notes-mbar-focus{
+      width:42px; height:42px; flex-shrink:0; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); color:var(--ink-soft);
+    }
+    .notes-mbar-focus svg{width:17px; height:17px;}
+    body.notes-focus .topbar, body.notes-focus .page-header-card{display:none;}
+    body.notes-focus .notes-mbar-focus{color:var(--primary);}
+
+    .notebooks-col{
+      position:fixed; left:0; right:0; bottom:0; top:auto; z-index:80;
+      width:100% !important; height:auto; max-height:75vh; flex-shrink:0;
+      border-radius:22px 22px 0 0; border-bottom:none; padding:16px 14px 24px;
+      box-shadow:0 -12px 32px rgba(15,20,35,.28);
+      transform:translateY(105%); visibility:hidden; transition:transform .2s ease, visibility 0s linear .2s;
+    }
+    .notebooks-col.open{transform:none; visibility:visible; transition:transform .2s ease;}
+    .notes-drawer-backdrop{display:none; position:fixed; inset:0; z-index:79; background:rgba(15,20,35,.4);}
+    .notes-drawer-backdrop.open{display:block;}
+    .notebooks-col-resize-handle{display:none;}
+    .notebooks-col-header-row{padding:0 2px 10px 8px;}
+    .notebooks-col-header-row .notebook-new-btn-top{width:32px; height:32px; margin-left:auto;}
+    .notebook-new-btn-top svg{width:14px; height:14px;}
+    .notebooks-col-close{
+      display:flex; align-items:center; justify-content:center; width:32px; height:32px; margin-left:8px; flex-shrink:0;
+      border:none; border-radius:50%; background:var(--surface-2); color:var(--ink-soft);
+    }
+    .notebooks-col-close svg{width:14px; height:14px;}
+    .notebook-row{padding:13px 8px;}
+    .notebook-note-item{padding:12px 10px; font-size:14px;}
+    .notebook-add-note-btn{padding:11px 10px; font-size:13px;}
+    .note-detail-col{flex:1; min-height:0; padding:16px;}
+    .note-breadcrumb{display:none;}
+    .note-detail-header{flex-direction:column-reverse; align-items:stretch; gap:6px;}
+    .note-header-actions{align-self:flex-end; gap:6px; margin-top:0;}
+    .note-header-icon-btn{width:32px; height:32px;}
+    .note-composer-inline .note-title{font-size:21px; margin:0 0 12px;}
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -2106,6 +2165,8 @@ let creatingNewNote = false;
 let pendingNotePrefillTaskId = null;
 let pendingNoteNotebookId = null;
 const expandedNotebookIds = new Set();
+let notesDrawerOpen = false;
+let notesFocusMode = false;
 let draggedNoteId = null;
 let draggedNotebookId = null;
 let searchTerm = '';
@@ -2318,6 +2379,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.107', date:'06/10/2026', title:'Celular: títulos e notas', text:'O cabeçalho das páginas ficou numa linha só, como na Visão geral. Em Notas, a nota ocupa a tela e os cadernos abrem numa gaveta pelo botão do topo; o botão de expandir esconde o cabeçalho para ler e escrever com mais espaço.' },
   { version:'1.10.106', date:'06/10/2026', title:'Calendário no modo Dia', text:'Títulos, tags e categorias longos não empurram mais o conteúdo para fora do quadro. No celular, horário e categoria ficam numa linha e o título embaixo, inteiro.' },
   { version:'1.10.105', date:'06/10/2026', title:'Lista de tarefas mais limpa', text:'O número da tarefa saiu da lista e do painel. No celular, o nome ganha a linha toda e os detalhes ficam numa linha menor embaixo.' },
   { version:'1.10.104', date:'06/10/2026', title:'Fundo com degradê', text:'Um brilho azul no topo de todas as telas, nos modos claro e escuro, que some suavemente conforme você desce.' },
@@ -5474,7 +5536,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.106';
+const APP_VERSION = '1.10.107';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6557,10 +6619,14 @@ function renderNotes(){
       <button type="button" class="notebook-new-btn-top" id="newNotebookBtn" title="Novo caderno">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
       </button>
+      <button type="button" class="notebooks-col-close" id="notebooksColCloseBtn" title="Fechar" aria-label="Fechar cadernos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
     <div class="notebooks-list">${nbHtml}</div>
     <div class="notebooks-col-resize-handle" id="notebooksColResizeHandle" title="Arrastar para redimensionar"></div>
   `;
+  notebooksCol.classList.toggle('open', notesDrawerOpen);
   const resizeHandle = notebooksCol.querySelector('#notebooksColResizeHandle');
   resizeHandle.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -6601,11 +6667,44 @@ function renderNotes(){
     currentNoteComposerCommit = null;
     detailCol.innerHTML = `<div class="note-detail-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-      <p>Selecione uma nota ao lado, ou crie uma nova para começar.</p>
+      <p>Selecione uma nota na lista de cadernos, ou crie uma nova para começar.</p>
     </div>`;
   }
 
+  // barra do celular: caderno/nota atuais abrem a gaveta de cadernos; botão de modo foco
+  const barNotebook = activeNote ? state.notebooks.find(x => x.id === activeNote.notebookId)
+    : (creatingNewNote && pendingNoteNotebookId ? state.notebooks.find(x => x.id === pendingNoteNotebookId) : null);
+  const barNoteTitle = activeNote ? (activeNote.title || 'Sem título') : (creatingNewNote ? 'Nova nota' : '');
+  const mbar = document.createElement('div');
+  mbar.className = 'notes-mbar';
+  mbar.innerHTML = `
+    <button type="button" class="notes-mbar-pill" id="notesDrawerBtn" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span class="mb-text">${escapeHtml(barNotebook ? (barNotebook.name && barNotebook.name.trim() ? barNotebook.name : 'Caderno sem nome') : 'Cadernos')}${barNoteTitle ? ` <span class="mb-note">› ${escapeHtml(barNoteTitle)}</span>` : ''}</span>
+      <svg class="mb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <button type="button" class="notes-mbar-focus" id="notesFocusBtn" title="Modo foco" aria-label="Modo foco">
+      <svg class="ico-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      <svg class="ico-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+    </button>`;
+  const drawerBackdrop = document.createElement('div');
+  drawerBackdrop.className = 'notes-drawer-backdrop' + (notesDrawerOpen ? ' open' : '');
+  function setDrawer(open){
+    notesDrawerOpen = open;
+    notebooksCol.classList.toggle('open', open);
+    drawerBackdrop.classList.toggle('open', open);
+  }
+  mbar.querySelector('#notesDrawerBtn').onclick = () => setDrawer(!notesDrawerOpen);
+  mbar.querySelector('#notesFocusBtn').onclick = () => {
+    notesFocusMode = !notesFocusMode;
+    document.body.classList.toggle('notes-focus', notesFocusMode);
+  };
+  drawerBackdrop.onclick = () => setDrawer(false);
+  notebooksCol.querySelector('#notebooksColCloseBtn').onclick = () => setDrawer(false);
+
+  layout.appendChild(mbar);
   layout.appendChild(notebooksCol);
+  layout.appendChild(drawerBackdrop);
   layout.appendChild(detailCol);
   view.appendChild(layout);
   if(titleWasFocused){
@@ -6620,6 +6719,7 @@ function renderNotes(){
     if(currentNoteComposerCommit) currentNoteComposerCommit();
     activeNoteId = noteId;
     creatingNewNote = false;
+    notesDrawerOpen = false;
     state.lastActiveNoteBySpace[noteSpaceKey()] = noteId;
     markDirty();
     renderNotes();
@@ -6757,6 +6857,7 @@ function renderNotes(){
       pendingNotePrefillTaskId = null;
       pendingNoteNotebookId = btn.dataset.nbId;
       expandedNotebookIds.add(btn.dataset.nbId);
+      notesDrawerOpen = false;
       renderNotes();
     });
   });
@@ -7923,7 +8024,9 @@ function renderSpaceSelector(){
 
   const cat = activeCategoryFilter ? catById(activeCategoryFilter) : null;
   document.getElementById('spaceSelectorDot').style.background = cat ? cat.color : 'var(--ink-faint)';
-  document.getElementById('spaceSelectorName').textContent = cat ? cat.name : 'Todos os espaços';
+  const nameEl = document.getElementById('spaceSelectorName');
+  if(cat) nameEl.textContent = cat.name;
+  else nameEl.innerHTML = 'Todos<span class="ssn-extra"> os espaços</span>';
 }
 
 document.getElementById('spaceSelectorBtn').onclick = (e) => {
@@ -8215,6 +8318,8 @@ function render(){
     lastRenderedView = currentView;
     refreshFromCloudIfSafe();
   }
+  if(currentView !== 'notes') notesDrawerOpen = false;
+  document.body.classList.toggle('notes-focus', notesFocusMode && currentView === 'notes');
   renderSpaceSelector();
   document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
   document.getElementById('viewTitle').textContent = VIEW_TITLES[currentView];
