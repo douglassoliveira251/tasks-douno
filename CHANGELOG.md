@@ -1,3 +1,14 @@
+## [1.10.105] - 2026-10-06 00:00
+
+### Changed
+
+#### Tarefas
+
+- Removido o número da tarefa (0001, 0002...) da lista, do painel, do dashboard, dos seletores de vínculo e dos rótulos. O número continua existindo internamente e a busca de vínculo ainda encontra por ele.
+- Celular: o nome da tarefa ocupa a linha toda (até 2 linhas) e status, data, subtarefas e tag ficam numa linha menor embaixo, com fonte reduzida. Saem da linha o ícone de recorrência, o contador de comentários, as etiquetas Hoje/Vencida e o ícone do calendário. No desktop os ícones e alertas continuam.
+
+
+
 ## [1.10.104] - 2026-10-06 00:00
 
 ### Changed
