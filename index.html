@@ -18,9 +18,13 @@
     --ink-soft:#5B6472;
     --ink-faint:#9AA2AE;
     --border:#E1E4E9;
-    --primary:#2F6F5E;
-    --primary-dark:#234F42;
-    --primary-light:#E4F0EC;
+    --primary:#2F5F9E;
+    --primary-dark:#234573;
+    --primary-light:#E4ECF6;
+    /* Verde de estado (concluída, sincronizado, status): não faz parte da marca. */
+    --ok:#2F6F5E;
+    --ok-dark:#234F42;
+    --ok-light:#E4F0EC;
     --accent:#E2A83D;
     --accent-light:#FBF0D9;
     --danger:#C0453A;
@@ -54,9 +58,12 @@
     --ink-soft:#A3A6AE;
     --ink-faint:#6B6E76;
     --border:#26272D;
-    --primary:#10B981;
-    --primary-dark:#6EE7B7;
-    --primary-light:#12271F;
+    --primary:#3B82F6;
+    --primary-dark:#93C5FD;
+    --primary-light:#12203A;
+    --ok:#10B981;
+    --ok-dark:#6EE7B7;
+    --ok-light:#12271F;
     --accent:#EFBD5C;
     --accent-light:#332812;
     --danger:#E2685C;
@@ -73,7 +80,7 @@
     --shadow-md:0 8px 24px rgba(0,0,0,.7);
   }
   [data-theme="dark"] .status-dot{background:var(--ink-faint);}
-  [data-theme="dark"] .status-dot.saved{background:var(--primary);}
+  [data-theme="dark"] .status-dot.saved{background:var(--ok);}
   [data-theme="dark"] .status-dot.dirty{background:var(--accent);}
   [data-theme="dark"] img, [data-theme="dark"] .profile-avatar-img{filter:brightness(.92);}
   [data-theme="dark"] img.about-logo-img{filter:brightness(0) invert(1);}
@@ -138,9 +145,9 @@
     --ink-soft:#A3A6AE;
     --ink-faint:#6B6E76;
     --border:#26272D;
-    --primary:#10B981;
-    --primary-dark:#6EE7B7;
-    --primary-light:#12271F;
+    --primary:#3B82F6;
+    --primary-dark:#93C5FD;
+    --primary-light:#12203A;
     --accent:#EFBD5C;
     --accent-light:#332812;
     --danger:#E2685C;
@@ -174,7 +181,7 @@
     gap:4px;
   }
   .sidebar-mark-collapsed svg{width:34px; height:34px;}
-  .sidebar-mark-collapsed-sub{font-size:10px; font-weight:500; color:#10B981; line-height:1;}
+  .sidebar-mark-collapsed-sub{font-size:10px; font-weight:500; color:#3B82F6; line-height:1;}
   .sidebar-mark-expanded{
     display:none;
     flex-direction:column;
@@ -326,7 +333,7 @@
   }
   .nav-item svg{width:20px; height:20px; flex-shrink:0;}
   .nav-item:hover{background:var(--surface-2); color:var(--ink);}
-  .nav-item.active{background:rgba(16,185,129,.18); color:var(--primary-dark); font-weight:600;}
+  .nav-item.active{background:rgba(59,130,246,.18); color:var(--primary-dark); font-weight:600;}
   .nav-count{
     margin-left:auto;
     font-family:var(--font-body);
@@ -358,7 +365,7 @@
     margin-top:auto;
   }
   .status-dot{width:6px; height:6px; border-radius:50%; background:var(--ink-faint); flex-shrink:0;}
-  .status-dot.saved{background:var(--primary);}
+  .status-dot.saved{background:var(--ok);}
   .status-dot.dirty{background:var(--accent);}
 
   /* ---------- MAIN ---------- */
@@ -699,7 +706,7 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0; background:var(--surface);
   }
-  .task-check.done{background:var(--primary); border-color:var(--primary);}
+  .task-check.done{background:var(--ok); border-color:var(--ok);}
   .task-check svg{width:12px; height:12px; color:#fff; display:none;}
   .task-check.done svg{display:block;}
   .task-check-circle{border-radius:50%;}
@@ -906,7 +913,7 @@
   .tp-status-icon svg{width:100%; height:100%;}
   .tp-status-icon.status-nao_iniciado{color:var(--ink-faint);}
   .tp-status-icon.status-em_andamento{color:var(--ink-soft);}
-  .tp-status-icon.status-concluida{color:var(--primary);}
+  .tp-status-icon.status-concluida{color:var(--ok);}
   .tp-status-dropdown{
     position:absolute; top:calc(100% + 4px); left:0; z-index:20;
     min-width:100%; width:max-content; max-width:280px;
@@ -918,7 +925,7 @@
     white-space:nowrap;
   }
   .tp-status-option:hover{background:var(--surface-2);}
-  .tp-status-option.active{background:var(--primary-light);}
+  .tp-status-option.active{background:var(--ok-light);}
 
   .tp-tags-selected{display:flex; flex-wrap:wrap; align-items:center; gap:6px;}
   .tp-tag-chip{
@@ -1018,7 +1025,7 @@
     overflow:hidden; margin-bottom:4px;
   }
   .tp-subtask-progress-fill{
-    height:100%; background:#12E06A; border-radius:20px; transition:width .2s ease;
+    height:100%; background:var(--primary); border-radius:20px; transition:width .2s ease;
   }
   .tp-subtask-header-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .tp-subtask-progress-pct{
@@ -1207,7 +1214,7 @@
     color:var(--ink-soft); font-size:12.5px; font-family:var(--font-body);
   }
   .rt-btn:hover{background:var(--surface-2); color:var(--ink);}
-  .rt-btn.active{background:#BFE0D3; color:var(--primary-dark);}
+  .rt-btn.active{background:#C5D8F1; color:var(--primary-dark);}
   .rt-btn svg{width:14px; height:14px;}
   .rt-sep{width:1px; height:16px; background:var(--border); margin:0 5px; flex-shrink:0;}
   .rt-format-select{
@@ -1612,18 +1619,33 @@
   }
   .modal h3{font-family:var(--font-display); font-size:17px; margin-bottom:16px;}
   .whatsnew-dot{width:7px; height:7px; border-radius:50%; background:var(--primary); margin-left:auto; flex-shrink:0;}
-  .whatsnew-modal{position:relative; width:480px; max-height:80vh; display:flex; flex-direction:column; padding:22px 0 0;}
-  .whatsnew-head{padding:0 22px 14px; border-bottom:1px solid var(--border);}
-  .whatsnew-head h3{margin:0 0 2px;}
-  .whatsnew-head p{margin:0; font-size:12.5px; color:var(--ink-faint);}
-  .whatsnew-list{overflow-y:auto; padding:6px 22px 22px;}
-  .whatsnew-entry{padding:16px 0; border-bottom:1px solid var(--border);}
-  .whatsnew-entry:last-child{border-bottom:none;}
-  .whatsnew-meta{display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:11.5px; color:var(--ink-faint);}
-  .whatsnew-version{font-family:var(--font-mono); background:var(--surface-2); padding:2px 8px; border-radius:20px;}
-  .whatsnew-new{background:var(--primary-light); color:var(--primary-dark); font-weight:700; padding:2px 8px; border-radius:20px; font-size:10.5px; letter-spacing:.03em;}
-  .whatsnew-title{font-weight:600; font-size:14px; color:var(--ink); margin-bottom:2px;}
-  .whatsnew-text{font-size:13px; color:var(--ink-soft); line-height:1.55; margin:0;}
+  .whatsnew-modal{
+    position:relative; width:400px; padding:30px 28px 24px; border-radius:20px; text-align:left;
+    overflow:hidden;
+  }
+  .whatsnew-modal::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:120px; pointer-events:none;
+    background:linear-gradient(180deg, var(--primary-light) 0%, transparent 100%);
+  }
+  .whatsnew-modal > *{position:relative;}
+  .whatsnew-icon{
+    width:46px; height:46px; border-radius:14px; background:var(--surface); color:var(--primary);
+    display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(15,23,42,.08), 0 0 0 1px var(--border);
+  }
+  .whatsnew-icon svg{width:22px; height:22px;}
+  .whatsnew-eyebrow{
+    font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--primary); margin-bottom:6px;
+  }
+  .whatsnew-title{
+    font-family:var(--font-display); font-size:22px; font-weight:700; line-height:1.25;
+    color:var(--ink); margin:0 0 10px; text-wrap:balance;
+  }
+  .whatsnew-text{font-size:14px; line-height:1.65; color:var(--ink-soft); margin:0 0 24px;}
+  .whatsnew-foot{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .whatsnew-version{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint);}
+  .whatsnew-ok{padding:9px 22px; border-radius:10px; font-weight:600;}
   .about-close-btn{
     position:absolute; top:14px; right:14px; width:26px; height:26px;
     display:flex; align-items:center; justify-content:center; border-radius:50%;
@@ -1634,7 +1656,7 @@
   /* ---------- TELA DE LOGIN (split-screen, identidade Douno Tasks) ---------- */
   #loginOverlay.overlay{
     background:var(--surface); padding:0; align-items:stretch; justify-content:stretch;
-    --primary:#10B981; --primary-dark:#059669; --primary-light:#D1FAE5;
+    --primary:#2563EB; --primary-dark:#1D4ED8; --primary-light:#DBEAFE;
   }
   #loginOverlay.overlay.show{display:block;}
   #loginModalBody{width:100%; height:100vh; display:grid; grid-template-columns:1fr;}
@@ -1648,7 +1670,7 @@
   @media (min-width:960px){ .login-aside{display:flex;} }
   .login-brand-lockup{display:flex; flex-direction:column; align-items:center; gap:3px;}
   .login-brand-lockup .login-wordmark-img{display:block;}
-  .login-brand-lockup .login-brand-sub{font-size:13px; font-weight:500; color:#10B981; line-height:1;}
+  .login-brand-lockup .login-brand-sub{font-size:13px; font-weight:500; color:#3B82F6; line-height:1;}
   .login-aside-brand .login-wordmark-img{height:26px; filter:brightness(0) invert(1);}
   .login-aside-pitch{max-width:380px; position:relative; z-index:1;}
   .login-aside-pitch h2{
@@ -2237,7 +2259,7 @@ function openAboutModal(){
     </button>
     <div style="display:flex; flex-direction:column; align-items:center; gap:4px; margin-bottom:18px;">
       <img src="${DOUNO_WORDMARK_SRC}" alt="Douno" class="about-logo-img" style="height:32px; display:block;">
-      <div style="font-size:13px; font-weight:500; color:#10B981;">Tasks</div>
+      <div style="font-size:13px; font-weight:500; color:#3B82F6;">Tasks</div>
     </div>
     <div style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:16px;">
       Sistema pessoal de tarefas, notas, calendário e indicadores — sem servidor, seus dados ficam só no seu dispositivo.
@@ -2266,10 +2288,12 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
 });
 
 /* ===================== NOVIDADES ===================== */
-/* Mais recente primeiro. Ao lançar uma versão com algo que o usuário percebe,
-   acrescente uma entrada no topo (versão = APP_VERSION): é ela que decide se o
-   painel abre sozinho e se a bolinha aparece no menu. */
+/* Mais recente primeiro. O painel mostra só a primeira entrada. Ao lançar uma
+   versão com algo que o usuário percebe, acrescente uma no topo (versão =
+   APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
+   aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.103', date:'06/10/2026', title:'Visual em azul', text:'O verde da interface virou azul: logo, botões, menus e destaques. Prioridades, tags e status continuam com as mesmas cores.' },
   { version:'1.10.102', date:'05/10/2026', title:'Painel de novidades', text:'Este painel. Abre sozinho quando sai uma versão com mudanças e fica sempre à mão no menu da sua conta, em Novidades.' },
   { version:'1.10.101', date:'05/10/2026', title:'Banco de dados próprio', text:'O DOUNO Tasks agora roda num projeto separado, só dele. Seus dados foram importados e o Outlook, reconectado.' },
   { version:'1.10.100', date:'05/10/2026', title:'Backup dos seus dados', text:'Em Configurações → Arquivo você baixa uma cópia de tudo e importa depois, se precisar.' },
@@ -2302,33 +2326,27 @@ function updateWhatsNewDot(){
   if(dot) dot.style.display = hasUnseenWhatsNew() ? 'inline-block' : 'none';
 }
 function openWhatsNew(){
-  const seenBefore = getSeenVersion();
+  const n = WHATS_NEW[0];
   const body = document.getElementById('whatsNewModalBody');
   body.innerHTML = `
-    <button type="button" id="whatsNewCloseBtn" class="about-close-btn">
+    <button type="button" id="whatsNewCloseBtn" class="about-close-btn" aria-label="Fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
-    <div class="whatsnew-head">
-      <h3>Novidades</h3>
-      <p>O que mudou no DOUNO Tasks. Você está na versão ${APP_VERSION}.</p>
+    <div class="whatsnew-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4"/></svg>
     </div>
-    <div class="whatsnew-list">
-      ${WHATS_NEW.map(n => `
-        <div class="whatsnew-entry">
-          <div class="whatsnew-meta">
-            <span class="whatsnew-version">${n.version}</span>
-            <span>${n.date}</span>
-            ${(!seenBefore || compareVersions(n.version, seenBefore) > 0) ? '<span class="whatsnew-new">NOVO</span>' : ''}
-          </div>
-          <div class="whatsnew-title">${escapeHtml(n.title)}</div>
-          <p class="whatsnew-text">${escapeHtml(n.text)}</p>
-        </div>
-      `).join('')}
+    <div class="whatsnew-eyebrow">Novidade</div>
+    <h3 class="whatsnew-title">${escapeHtml(n.title)}</h3>
+    <p class="whatsnew-text">${escapeHtml(n.text)}</p>
+    <div class="whatsnew-foot">
+      <span class="whatsnew-version">v${n.version} · ${n.date}</span>
+      <button type="button" class="btn whatsnew-ok" id="whatsNewOkBtn">Entendi</button>
     </div>
   `;
   document.getElementById('whatsNewOverlay').classList.add('show');
   body.querySelector('#whatsNewCloseBtn').onclick = closeWhatsNew;
-  setSeenVersion(WHATS_NEW[0].version);
+  body.querySelector('#whatsNewOkBtn').onclick = closeWhatsNew;
+  setSeenVersion(n.version);
   updateWhatsNewDot();
 }
 function closeWhatsNew(){
@@ -2348,8 +2366,9 @@ document.getElementById('avatarMenuWhatsNewBtn').onclick = () => {
 /* Abre sozinho uma vez por versão, só quando o app já está utilizável (fora
    das telas de login e de vínculo de arquivo). */
 let whatsNewChecked = false;
+let appUnlocked = false; // vira true quando sai a tela de login (ou de vínculo de arquivo)
 function maybeShowWhatsNew(){
-  if(whatsNewChecked) return;
+  if(whatsNewChecked || !appUnlocked) return;
   if(document.getElementById('loginOverlay').classList.contains('show')) return;
   if(document.getElementById('linkOverlay').classList.contains('show')) return;
   whatsNewChecked = true;
@@ -2943,7 +2962,7 @@ function pinIconSvg(isPinned){
 
 function statusCircleSvg(statusKey){
   if(statusKey === 'concluida') return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.3" fill="currentColor"/></svg>';
-  if(statusKey === 'em_andamento') return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--ink-faint)" stroke-width="2.5"/><path d="M12 3a9 9 0 000 18z" fill="var(--primary-dark)"/></svg>';
+  if(statusKey === 'em_andamento') return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--ink-faint)" stroke-width="2.5"/><path d="M12 3a9 9 0 000 18z" fill="var(--ok-dark)"/></svg>';
   return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>';
 }
 
@@ -5429,7 +5448,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.102';
+const APP_VERSION = '1.10.103';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7493,7 +7512,7 @@ async function idbDeleteHandle(key){
 const FS_SUPPORTED = !!window.showOpenFilePicker && !!window.showSaveFilePicker;
 
 function openLinkOverlay(){ document.getElementById('linkOverlay').classList.add('show'); }
-function closeLinkOverlay(){ document.getElementById('linkOverlay').classList.remove('show'); }
+function closeLinkOverlay(){ appUnlocked = true; document.getElementById('linkOverlay').classList.remove('show'); }
 
 function renderLinkModal(mode, storedHandle, forced){
   const body = document.getElementById('linkModalBody');
@@ -7712,6 +7731,7 @@ function renderLoginGate(errorMsg){
 }
 
 function closeLoginGate(){
+  appUnlocked = true;
   document.getElementById('loginOverlay').classList.remove('show');
 }
 

@@ -1,3 +1,23 @@
+## [1.10.103] - 2026-10-06 00:00
+
+### Changed
+
+#### Geral
+
+- Cor da marca trocada de verde para azul, mantendo o tom: logo ("Tasks"), botão "+", botões e campos dos formulários, itens selecionados nos menus (cadernos, configurações, espaços), barra de progresso das subtarefas, gráficos e tela de login. Ficaram como estavam: cores de prioridade, tags e espaços, e o verde de estado (tarefa concluída, status da tarefa e indicador de sincronizado), que passou a usar tokens próprios (`--ok`).
+
+#### Novidades
+
+- O painel agora mostra só a última novidade, num card único e mais limpo, com botão "Entendi".
+
+### Fixed
+
+#### Novidades
+
+- O painel abria por cima da tela de login. Agora só abre depois que o app está liberado.
+
+
+
 ## [1.10.102] - 2026-10-05 00:00
 
 ### Added

@@ -5,9 +5,9 @@ test.describe('Painel de novidades', () => {
   test('abre sozinho na primeira vez e não repete depois de visto', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard', seenVersion: null });
     await expect(page.locator('#whatsNewOverlay')).toHaveClass(/show/);
-    await expect(page.locator('.whatsnew-entry').first()).toBeVisible();
+    await expect(page.locator('.whatsnew-title')).toBeVisible();
 
-    await page.locator('#whatsNewCloseBtn').click();
+    await page.locator('#whatsNewOkBtn').click();
     await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
 
     const seen = await page.evaluate(() => localStorage.getItem('dounoSeenVersion'));
@@ -19,21 +19,22 @@ test.describe('Painel de novidades', () => {
     await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
   });
 
-  test('só marca como NOVO o que veio depois da versão já vista', async ({ page }) => {
-    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.098' });
+  test('não abre por cima da tela de login', async ({ page }) => {
+    await page.addInitScript(() => { try { localStorage.removeItem('dounoSeenVersion'); } catch (e) {} });
+    await page.goto('/index.html');
+    await expect(page.locator('#loginOverlay')).toHaveClass(/show/);
+    await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
+  });
+
+  test('mostra só a última novidade, com a versão atual', async ({ page }) => {
+    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.050' });
     await expect(page.locator('#whatsNewOverlay')).toHaveClass(/show/);
 
-    const result = await page.evaluate(() => {
-      const entries = [...document.querySelectorAll('.whatsnew-entry')];
-      return entries.map((e) => ({
-        version: e.querySelector('.whatsnew-version').textContent,
-        isNew: !!e.querySelector('.whatsnew-new'),
-      }));
-    });
-    const novos = result.filter((r) => r.isNew).map((r) => r.version);
-    expect(novos).toEqual(expect.arrayContaining(['1.10.101', '1.10.100', '1.10.099']));
-    expect(novos).not.toContain('1.10.097');
-    expect(result.find((r) => r.version === '1.10.097').isNew).toBe(false);
+    await expect(page.locator('.whatsnew-title')).toHaveCount(1);
+    const latest = await page.evaluate(() => WHATS_NEW[0]);
+    await expect(page.locator('.whatsnew-title')).toHaveText(latest.title);
+    await expect(page.locator('.whatsnew-version')).toContainText(latest.version);
+    expect(latest.version).toBe(await page.evaluate(() => APP_VERSION));
   });
 
   test('versão já vista: não abre sozinho, bolinha some, e abre pelo menu', async ({ page }) => {
@@ -50,11 +51,10 @@ test.describe('Painel de novidades', () => {
   });
 
   test('bolinha aparece no menu quando há novidade não vista', async ({ page }) => {
-    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.098' });
-    await page.locator('#whatsNewCloseBtn').click();
-    await expect(page.locator('#whatsNewDot')).toBeHidden();
+    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.050' });
+    await page.locator('#whatsNewOkBtn').click();
 
-    await page.evaluate(() => { localStorage.setItem('dounoSeenVersion', '1.10.098'); updateWhatsNewDot(); });
+    await page.evaluate(() => { localStorage.setItem('dounoSeenVersion', '1.10.050'); updateWhatsNewDot(); });
     await page.locator('#topbarAvatarBtn').click();
     await expect(page.locator('#whatsNewDot')).toBeVisible();
   });
