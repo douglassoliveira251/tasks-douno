@@ -1611,6 +1611,19 @@
     box-shadow:var(--shadow-md); padding:22px;
   }
   .modal h3{font-family:var(--font-display); font-size:17px; margin-bottom:16px;}
+  .whatsnew-dot{width:7px; height:7px; border-radius:50%; background:var(--primary); margin-left:auto; flex-shrink:0;}
+  .whatsnew-modal{position:relative; width:480px; max-height:80vh; display:flex; flex-direction:column; padding:22px 0 0;}
+  .whatsnew-head{padding:0 22px 14px; border-bottom:1px solid var(--border);}
+  .whatsnew-head h3{margin:0 0 2px;}
+  .whatsnew-head p{margin:0; font-size:12.5px; color:var(--ink-faint);}
+  .whatsnew-list{overflow-y:auto; padding:6px 22px 22px;}
+  .whatsnew-entry{padding:16px 0; border-bottom:1px solid var(--border);}
+  .whatsnew-entry:last-child{border-bottom:none;}
+  .whatsnew-meta{display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:11.5px; color:var(--ink-faint);}
+  .whatsnew-version{font-family:var(--font-mono); background:var(--surface-2); padding:2px 8px; border-radius:20px;}
+  .whatsnew-new{background:var(--primary-light); color:var(--primary-dark); font-weight:700; padding:2px 8px; border-radius:20px; font-size:10.5px; letter-spacing:.03em;}
+  .whatsnew-title{font-weight:600; font-size:14px; color:var(--ink); margin-bottom:2px;}
+  .whatsnew-text{font-size:13px; color:var(--ink-soft); line-height:1.55; margin:0;}
   .about-close-btn{
     position:absolute; top:14px; right:14px; width:26px; height:26px;
     display:flex; align-items:center; justify-content:center; border-radius:50%;
@@ -1911,6 +1924,11 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
               Configurações
             </button>
+            <button type="button" class="avatar-dropdown-item" id="avatarMenuWhatsNewBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4"/></svg>
+              Novidades
+              <span class="whatsnew-dot" id="whatsNewDot" style="display:none;"></span>
+            </button>
             <button type="button" class="avatar-dropdown-item danger" id="avatarMenuLogoutBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
               Sair
@@ -1979,6 +1997,12 @@
 
 <div class="overlay" id="aboutOverlay">
   <div class="modal" id="aboutModalBody" style="width:360px; text-align:center;">
+    <!-- preenchido via JS -->
+  </div>
+</div>
+
+<div class="overlay" id="whatsNewOverlay">
+  <div class="modal whatsnew-modal" id="whatsNewModalBody">
     <!-- preenchido via JS -->
   </div>
 </div>
@@ -2221,9 +2245,13 @@ function openAboutModal(){
     <div style="display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); padding:5px 12px; border-radius:20px; font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);">
       Versão ${APP_VERSION}
     </div>
+    <div style="margin-top:14px;">
+      <button type="button" class="btn ghost small" id="aboutWhatsNewBtn">Ver novidades</button>
+    </div>
   `;
   document.getElementById('aboutOverlay').classList.add('show');
   body.querySelector('#aboutCloseBtn').onclick = closeAboutModal;
+  body.querySelector('#aboutWhatsNewBtn').onclick = () => { closeAboutModal(); openWhatsNew(); };
 }
 function closeAboutModal(){
   document.getElementById('aboutOverlay').classList.remove('show');
@@ -2236,6 +2264,97 @@ document.getElementById('aboutOverlay').addEventListener('mousedown', e => {
 document.getElementById('aboutOverlay').addEventListener('click', e => {
   if(e.target.id === 'aboutOverlay' && aboutOverlayMouseDownOnBackdrop) closeAboutModal();
 });
+
+/* ===================== NOVIDADES ===================== */
+/* Mais recente primeiro. Ao lançar uma versão com algo que o usuário percebe,
+   acrescente uma entrada no topo (versão = APP_VERSION): é ela que decide se o
+   painel abre sozinho e se a bolinha aparece no menu. */
+const WHATS_NEW = [
+  { version:'1.10.102', date:'05/10/2026', title:'Painel de novidades', text:'Este painel. Abre sozinho quando sai uma versão com mudanças e fica sempre à mão no menu da sua conta, em Novidades.' },
+  { version:'1.10.101', date:'05/10/2026', title:'Banco de dados próprio', text:'O DOUNO Tasks agora roda num projeto separado, só dele. Seus dados foram importados e o Outlook, reconectado.' },
+  { version:'1.10.100', date:'05/10/2026', title:'Backup dos seus dados', text:'Em Configurações → Arquivo você baixa uma cópia de tudo e importa depois, se precisar.' },
+  { version:'1.10.099', date:'02/10/2026', title:'Edição mais segura', text:'Ao entrar numa tela e começar a editar rápido, o app não apaga mais o que você acabou de digitar.' },
+  { version:'1.10.097', date:'01/10/2026', title:'Modo escuro renovado', text:'Fundo quase preto e cards com mais contraste.' },
+  { version:'1.10.095', date:'01/10/2026', title:'Anexos nas tarefas', text:'Anexe arquivos direto na tarefa, na seção Anexos (até 4 MB cada). Imagens mostram miniatura.' },
+  { version:'1.10.094', date:'01/10/2026', title:'Outlook mais estável', text:'A conexão fica guardada no servidor: não desconecta ao trocar de endereço e renova sozinha.' },
+  { version:'1.10.089', date:'30/09/2026', title:'Agenda no Outlook', text:'As agendas viram eventos de verdade no seu Outlook, editáveis e com categoria. Conecte em Configurações → Integrações.' },
+  { version:'1.10.088', date:'30/09/2026', title:'Sino de notificações', text:'Mostra tarefas atrasadas, as de hoje e a agenda do dia, com contador.' },
+  { version:'1.10.086', date:'30/09/2026', title:'Link de calendário', text:'Assine sua agenda em outros calendários, como o Google Agenda, por um link em Configurações → Integrações.' },
+  { version:'1.10.085', date:'30/09/2026', title:'Recorrência corrigida', text:'A próxima tarefa repetida sempre segue o "A partir de", mesmo que você conclua atrasado ou mude o prazo.' },
+];
+const WHATS_NEW_SEEN_KEY = 'dounoSeenVersion';
+function compareVersions(a, b){
+  const pa = String(a).split('.').map(Number), pb = String(b).split('.').map(Number);
+  for(let i = 0; i < 3; i++){
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if(d) return d;
+  }
+  return 0;
+}
+function getSeenVersion(){ try{ return localStorage.getItem(WHATS_NEW_SEEN_KEY); }catch(e){ return null; } }
+function setSeenVersion(v){ try{ localStorage.setItem(WHATS_NEW_SEEN_KEY, v); }catch(e){} }
+function hasUnseenWhatsNew(){
+  const seen = getSeenVersion();
+  return !seen || compareVersions(WHATS_NEW[0].version, seen) > 0;
+}
+function updateWhatsNewDot(){
+  const dot = document.getElementById('whatsNewDot');
+  if(dot) dot.style.display = hasUnseenWhatsNew() ? 'inline-block' : 'none';
+}
+function openWhatsNew(){
+  const seenBefore = getSeenVersion();
+  const body = document.getElementById('whatsNewModalBody');
+  body.innerHTML = `
+    <button type="button" id="whatsNewCloseBtn" class="about-close-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="whatsnew-head">
+      <h3>Novidades</h3>
+      <p>O que mudou no DOUNO Tasks. Você está na versão ${APP_VERSION}.</p>
+    </div>
+    <div class="whatsnew-list">
+      ${WHATS_NEW.map(n => `
+        <div class="whatsnew-entry">
+          <div class="whatsnew-meta">
+            <span class="whatsnew-version">${n.version}</span>
+            <span>${n.date}</span>
+            ${(!seenBefore || compareVersions(n.version, seenBefore) > 0) ? '<span class="whatsnew-new">NOVO</span>' : ''}
+          </div>
+          <div class="whatsnew-title">${escapeHtml(n.title)}</div>
+          <p class="whatsnew-text">${escapeHtml(n.text)}</p>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('whatsNewOverlay').classList.add('show');
+  body.querySelector('#whatsNewCloseBtn').onclick = closeWhatsNew;
+  setSeenVersion(WHATS_NEW[0].version);
+  updateWhatsNewDot();
+}
+function closeWhatsNew(){
+  document.getElementById('whatsNewOverlay').classList.remove('show');
+}
+let whatsNewOverlayMouseDownOnBackdrop = false;
+document.getElementById('whatsNewOverlay').addEventListener('mousedown', e => {
+  whatsNewOverlayMouseDownOnBackdrop = (e.target.id === 'whatsNewOverlay');
+});
+document.getElementById('whatsNewOverlay').addEventListener('click', e => {
+  if(e.target.id === 'whatsNewOverlay' && whatsNewOverlayMouseDownOnBackdrop) closeWhatsNew();
+});
+document.getElementById('avatarMenuWhatsNewBtn').onclick = () => {
+  document.getElementById('avatarDropdownMenu').style.display = 'none';
+  openWhatsNew();
+};
+/* Abre sozinho uma vez por versão, só quando o app já está utilizável (fora
+   das telas de login e de vínculo de arquivo). */
+let whatsNewChecked = false;
+function maybeShowWhatsNew(){
+  if(whatsNewChecked) return;
+  if(document.getElementById('loginOverlay').classList.contains('show')) return;
+  if(document.getElementById('linkOverlay').classList.contains('show')) return;
+  whatsNewChecked = true;
+  if(hasUnseenWhatsNew()) openWhatsNew();
+}
 
 document.getElementById('toggleThemeBtn').onclick = toggleTheme;
 
@@ -3873,6 +3992,10 @@ document.addEventListener('keydown', (e) => {
     closeEventComposer();
     return;
   }
+  if(document.getElementById('whatsNewOverlay').classList.contains('show')){
+    closeWhatsNew();
+    return;
+  }
   if(document.getElementById('aboutOverlay').classList.contains('show')){
     closeAboutModal();
     return;
@@ -5306,7 +5429,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.101';
+const APP_VERSION = '1.10.102';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8075,6 +8198,8 @@ function render(){
   addBtn.classList.toggle('shifted', currentView === 'tasks' && (activeTaskId || creatingNewTask));
   renderProfileCard();
   updateNotifBadge();
+  updateWhatsNewDot();
+  maybeShowWhatsNew();
   if(document.getElementById('helpPanel').classList.contains('show')) renderHelpPanelContent();
   renderSidebarCats();
   if(currentView === 'dashboard') renderDashboard();

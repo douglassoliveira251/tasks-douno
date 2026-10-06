@@ -1,3 +1,13 @@
+## [1.10.102] - 2026-10-05 00:00
+
+### Added
+
+#### Geral
+
+- Painel de Novidades: abre sozinho uma vez a cada versão com mudanças (marcando o que é novo desde a última vez que foi visto) e fica sempre acessível em Novidades, no menu da conta, ou em Sobre → Ver novidades. O item do menu mostra uma bolinha enquanto houver novidade não vista. O conteúdo é uma lista curada em `WHATS_NEW` no `index.html`, escrita em linguagem de usuário, e deve ganhar uma entrada a cada versão que muda algo visível.
+
+
+
 ## [1.10.101] - 2026-10-05 00:00
 
 ### Changed
