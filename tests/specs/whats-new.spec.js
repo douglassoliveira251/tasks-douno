@@ -66,6 +66,34 @@ test.describe('Painel de novidades', () => {
     await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
   });
 
+  test('acumula as novidades não vistas abaixo da mais recente', async ({ page }) => {
+    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.103' });
+    await expect(page.locator('#whatsNewOverlay')).toHaveClass(/show/);
+
+    const expected = await page.evaluate(() => WHATS_NEW.slice(1).filter(w => compareVersions(w.version, '1.10.103') > 0).length);
+    expect(expected).toBeGreaterThan(1);
+    await expect(page.locator('.whatsnew-title')).toHaveText(await page.evaluate(() => WHATS_NEW[0].title));
+    await expect(page.locator('.whatsnew-prev-label')).toBeVisible();
+    await expect(page.locator('.whatsnew-prev-list li')).toHaveCount(expected);
+
+    // a lista continua ao ir ao histórico e voltar, mesmo com a versão já gravada como vista
+    await page.locator('#whatsNewHistoryBtn').click();
+    await page.locator('#whatsNewBackBtn').click();
+    await expect(page.locator('.whatsnew-prev-list li')).toHaveCount(expected);
+
+    // reaberto depois de visto: só a mais recente
+    await page.locator('#whatsNewOkBtn').click();
+    await page.locator('#topbarAvatarBtn').click();
+    await page.locator('#avatarMenuWhatsNewBtn').click();
+    await expect(page.locator('.whatsnew-prev')).toHaveCount(0);
+  });
+
+  test('quem nunca abriu o sistema vê só a mais recente', async ({ page }) => {
+    await gotoApp(page, { view: 'dashboard', seenVersion: null });
+    await expect(page.locator('#whatsNewOverlay')).toHaveClass(/show/);
+    await expect(page.locator('.whatsnew-prev')).toHaveCount(0);
+  });
+
   test('bolinha aparece no menu quando há novidade não vista', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.050' });
     await page.locator('#whatsNewOkBtn').click();

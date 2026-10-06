@@ -1675,6 +1675,17 @@
   .whatsnew-foot{display:flex; align-items:center; justify-content:space-between; gap:12px;}
   .whatsnew-version{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint);}
   .whatsnew-ok{padding:9px 22px; border-radius:10px; font-weight:600;}
+  .whatsnew-prev{margin:0 0 16px; padding-top:14px; border-top:1px solid var(--border);}
+  .whatsnew-prev-label{
+    font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;
+  }
+  .whatsnew-prev-list{list-style:none; margin:0; padding:0 4px 0 0; max-height:168px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;}
+  .whatsnew-prev-item-meta{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint);}
+  .whatsnew-prev-item-title{font-size:12.5px; font-weight:600; color:var(--ink-soft); margin:1px 0 0;}
+  .whatsnew-prev-item-text{
+    font-size:12px; line-height:1.5; color:var(--ink-faint); margin:1px 0 0;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
   .whatsnew-history-link{
     display:inline-flex; align-items:center; gap:4px; margin:-8px 0 18px; padding:0; border:none; background:none;
     font-size:13px; font-weight:600; color:var(--primary); cursor:pointer;
@@ -2405,6 +2416,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.109', date:'06/10/2026', title:'Novidades acumuladas', text:'Ficou um tempo sem entrar? Agora o painel mostra a novidade mais recente em destaque e, logo abaixo, as que saíram desde a sua última visita.' },
   { version:'1.10.108', date:'06/10/2026', title:'Histórico de novidades', text:'No painel de Novidades, o link "Ver histórico completo" mostra todas as versões anteriores, da mais recente para a mais antiga.' },
   { version:'1.10.107', date:'06/10/2026', title:'Celular: títulos e notas', text:'O cabeçalho das páginas ficou numa linha só, como na Visão geral. Em Notas, a nota ocupa a tela e os cadernos abrem numa gaveta pelo botão do topo; o botão de expandir esconde o cabeçalho para ler e escrever com mais espaço.' },
   { version:'1.10.106', date:'06/10/2026', title:'Calendário no modo Dia', text:'Títulos, tags e categorias longos não empurram mais o conteúdo para fora do quadro. No celular, horário e categoria ficam numa linha e o título embaixo, inteiro.' },
@@ -2446,8 +2458,16 @@ const WHATS_NEW_CLOSE_BTN = `
     <button type="button" id="whatsNewCloseBtn" class="about-close-btn" aria-label="Fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>`;
-function openWhatsNew(){
+// novidades acumuladas desde a última visita (sem a mais recente, que fica em destaque)
+let whatsNewPending = [];
+function computePendingWhatsNew(){
+  const seen = getSeenVersion();
+  if(!seen) return [];
+  return WHATS_NEW.slice(1).filter(w => compareVersions(w.version, seen) > 0);
+}
+function openWhatsNew(keepPending){
   const n = WHATS_NEW[0];
+  if(keepPending !== true) whatsNewPending = computePendingWhatsNew();
   const body = document.getElementById('whatsNewModalBody');
   body.classList.remove('is-history');
   body.innerHTML = WHATS_NEW_CLOSE_BTN + `
@@ -2457,6 +2477,17 @@ function openWhatsNew(){
     <div class="whatsnew-eyebrow">Novidade</div>
     <h3 class="whatsnew-title">${escapeHtml(n.title)}</h3>
     <p class="whatsnew-text">${escapeHtml(n.text)}</p>
+    ${whatsNewPending.length ? `
+      <div class="whatsnew-prev">
+        <div class="whatsnew-prev-label">Também desde sua última visita</div>
+        <ul class="whatsnew-prev-list">
+          ${whatsNewPending.map(w => `<li>
+            <div class="whatsnew-prev-item-meta">v${w.version} · ${w.date}</div>
+            <div class="whatsnew-prev-item-title">${escapeHtml(w.title)}</div>
+            <p class="whatsnew-prev-item-text">${escapeHtml(w.text)}</p>
+          </li>`).join('')}
+        </ul>
+      </div>` : ''}
     ${WHATS_NEW.length > 1 ? `<button type="button" class="whatsnew-history-link" id="whatsNewHistoryBtn">Ver histórico completo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>` : ''}
     <div class="whatsnew-foot">
       <span class="whatsnew-version">v${n.version} · ${n.date}</span>
@@ -2494,7 +2525,7 @@ function openWhatsNewHistory(){
   `;
   body.querySelector('#whatsNewCloseBtn').onclick = closeWhatsNew;
   body.querySelector('#whatsNewOkBtn').onclick = closeWhatsNew;
-  body.querySelector('#whatsNewBackBtn').onclick = openWhatsNew;
+  body.querySelector('#whatsNewBackBtn').onclick = () => openWhatsNew(true);
 }
 function closeWhatsNew(){
   document.getElementById('whatsNewOverlay').classList.remove('show');
@@ -5593,7 +5624,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.108';
+const APP_VERSION = '1.10.109';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

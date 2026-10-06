@@ -1,3 +1,13 @@
+## [1.10.109] - 2026-10-06 00:00
+
+### Changed
+
+#### Novidades
+
+- O painel acumula as novidades que o usuário ainda não viu: a mais recente em destaque (ícone, título e texto) e, abaixo, a seção "Também desde sua última visita", em fonte menor e cinza, com texto limitado a 2 linhas e rolagem interna quando houver muitas.
+- Quem não tem nada novo, ou nunca abriu o sistema, vê só a mais recente (também ao abrir pelo menu). A lista pendente fica guardada enquanto o modal está aberto, então não some ao ir ao histórico e voltar.
+
+
 ## [1.10.108] - 2026-10-06 00:00
 
 ### Added
