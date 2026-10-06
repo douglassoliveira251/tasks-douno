@@ -1,3 +1,14 @@
+## [1.10.106] - 2026-10-06 00:00
+
+### Fixed
+
+#### Calendário
+
+- Modo Dia: tag e categoria longas, ou títulos com palavras compridas (links), empurravam o conteúdo para fora do quadro. Agora o texto quebra, e tag/categoria são cortadas com reticências.
+- Celular: horário e categoria na primeira linha, título na linha toda e tag embaixo.
+
+
+
 ## [1.10.105] - 2026-10-06 00:00
 
 ### Changed

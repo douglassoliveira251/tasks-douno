@@ -1593,8 +1593,17 @@
     box-shadow:var(--shadow-sm);
   }
   .cal-day-time{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); flex-shrink:0; width:110px;}
-  .cal-day-title{font-weight:600; flex:1;}
-  .cal-day-cat{font-size:12px; font-weight:600; flex-shrink:0;}
+  .cal-day-row{min-width:0;}
+  .cal-day-title{font-weight:600; flex:1; min-width:0; overflow-wrap:anywhere;}
+  .cal-day-cat{font-size:12px; font-weight:600; flex-shrink:0; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-day-row .cal-event-tag{max-width:200px; overflow:hidden; text-overflow:ellipsis; flex-shrink:1; min-width:0;}
+  @media (max-width:768px){
+    .cal-day-row{flex-wrap:wrap; align-items:center; gap:4px 10px; padding:10px 12px;}
+    .cal-day-time{order:1; width:auto; font-size:11.5px;}
+    .cal-day-cat{order:2; margin-left:auto; max-width:55%; font-size:11.5px;}
+    .cal-day-title{order:3; flex:1 1 100%; font-size:14px; line-height:1.3;}
+    .cal-day-row .cal-event-tag{order:4; max-width:100%;}
+  }
   .cal-day-add-btn{
     width:100%; padding:10px; border:1.5px dashed var(--border); border-radius:var(--radius);
     background:transparent; color:var(--ink-soft); font-size:13px; font-weight:600;
@@ -2309,6 +2318,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.106', date:'06/10/2026', title:'Calendário no modo Dia', text:'Títulos, tags e categorias longos não empurram mais o conteúdo para fora do quadro. No celular, horário e categoria ficam numa linha e o título embaixo, inteiro.' },
   { version:'1.10.105', date:'06/10/2026', title:'Lista de tarefas mais limpa', text:'O número da tarefa saiu da lista e do painel. No celular, o nome ganha a linha toda e os detalhes ficam numa linha menor embaixo.' },
   { version:'1.10.104', date:'06/10/2026', title:'Fundo com degradê', text:'Um brilho azul no topo de todas as telas, nos modos claro e escuro, que some suavemente conforme você desce.' },
   { version:'1.10.103', date:'06/10/2026', title:'Visual em azul', text:'O verde da interface virou azul: logo, botões, menus e destaques. Prioridades, tags e status continuam com as mesmas cores.' },
@@ -5464,7 +5474,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.105';
+const APP_VERSION = '1.10.106';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
