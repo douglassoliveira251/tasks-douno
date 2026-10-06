@@ -50,6 +50,22 @@ test.describe('Painel de novidades', () => {
     await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
   });
 
+  test('link "Ver histórico completo" lista todas as versões e volta', async ({ page }) => {
+    await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.050' });
+    await expect(page.locator('#whatsNewOverlay')).toHaveClass(/show/);
+
+    await page.locator('#whatsNewHistoryBtn').click();
+    const total = await page.evaluate(() => WHATS_NEW.length);
+    await expect(page.locator('.whatsnew-item')).toHaveCount(total);
+    await expect(page.locator('.whatsnew-item').first()).toContainText(await page.evaluate(() => WHATS_NEW[0].version));
+    await expect(page.locator('.whatsnew-item').last()).toContainText(await page.evaluate(() => WHATS_NEW[WHATS_NEW.length - 1].version));
+
+    await page.locator('#whatsNewBackBtn').click();
+    await expect(page.locator('.whatsnew-title')).toHaveText(await page.evaluate(() => WHATS_NEW[0].title));
+    await page.locator('#whatsNewOkBtn').click();
+    await expect(page.locator('#whatsNewOverlay')).not.toHaveClass(/show/);
+  });
+
   test('bolinha aparece no menu quando há novidade não vista', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard', seenVersion: '1.10.050' });
     await page.locator('#whatsNewOkBtn').click();

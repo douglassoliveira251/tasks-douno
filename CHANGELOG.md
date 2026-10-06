@@ -1,3 +1,12 @@
+## [1.10.108] - 2026-10-06 00:00
+
+### Added
+
+#### Novidades
+
+- Link "Ver histórico completo" no painel de Novidades: lista todas as versões anteriores (mais recente primeiro), com botão Voltar. Abrir o histórico não altera o que já foi visto.
+
+
 ## [1.10.107] - 2026-10-06 00:00
 
 ### Changed
