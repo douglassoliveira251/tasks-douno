@@ -25,6 +25,8 @@
     --ok:#2F6F5E;
     --ok-dark:#234F42;
     --ok-light:#E4F0EC;
+    /* Brilho azul no topo da tela: some até o fundo liso. */
+    --bg-glow:linear-gradient(180deg, rgba(47,95,158,.34) 0%, rgba(47,95,158,.13) 42%, rgba(47,95,158,0) 100%);
     --accent:#E2A83D;
     --accent-light:#FBF0D9;
     --danger:#C0453A;
@@ -64,6 +66,7 @@
     --ok:#10B981;
     --ok-dark:#6EE7B7;
     --ok-light:#12271F;
+    --bg-glow:linear-gradient(180deg, rgba(59,130,246,.30) 0%, rgba(59,130,246,.11) 42%, rgba(59,130,246,0) 100%);
     --accent:#EFBD5C;
     --accent-light:#332812;
     --danger:#E2685C;
@@ -89,7 +92,10 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
     font-family:var(--font-body);
-    background:var(--bg);
+    background-color:var(--bg);
+    background-image:var(--bg-glow);
+    background-repeat:no-repeat;
+    background-size:100% 560px;
     color:var(--ink);
     height:100vh;
     overflow:hidden;
@@ -373,7 +379,6 @@
   .topbar{
     display:flex; align-items:center; gap:14px;
     padding:20px 28px 8px;
-    background:var(--bg);
   }
   .page-header-card{
     display:flex; align-items:center; gap:14px;
@@ -2293,6 +2298,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.104', date:'06/10/2026', title:'Fundo com degradê', text:'Um brilho azul no topo de todas as telas, nos modos claro e escuro, que some suavemente conforme você desce.' },
   { version:'1.10.103', date:'06/10/2026', title:'Visual em azul', text:'O verde da interface virou azul: logo, botões, menus e destaques. Prioridades, tags e status continuam com as mesmas cores.' },
   { version:'1.10.102', date:'05/10/2026', title:'Painel de novidades', text:'Este painel. Abre sozinho quando sai uma versão com mudanças e fica sempre à mão no menu da sua conta, em Novidades.' },
   { version:'1.10.101', date:'05/10/2026', title:'Banco de dados próprio', text:'O DOUNO Tasks agora roda num projeto separado, só dele. Seus dados foram importados e o Outlook, reconectado.' },
@@ -5448,7 +5454,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.103';
+const APP_VERSION = '1.10.104';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

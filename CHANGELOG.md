@@ -1,3 +1,13 @@
+## [1.10.104] - 2026-10-06 00:00
+
+### Changed
+
+#### Geral
+
+- Fundo das telas com um degradê azul no topo (token `--bg-glow`, claro e escuro), que some até o fundo liso. A barra do topo passou a ser transparente pra o degradê passar por trás. O degradê fica fixo atrás da tela, e o conteúdo rola por cima.
+
+
+
 ## [1.10.103] - 2026-10-06 00:00
 
 ### Changed
