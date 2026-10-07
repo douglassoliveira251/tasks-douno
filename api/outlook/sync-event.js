@@ -22,7 +22,37 @@ function eventToGraphPayload(ev) {
     payload.start = { dateTime: `${ev.date}T${ev.startTime}:00`, timeZone: tz };
     payload.end = { dateTime: `${ev.endDate || ev.date}T${ev.endTime || ev.startTime}:00`, timeZone: tz };
   }
+  const recurrence = recurrenceToGraph(ev);
+  // PATCH com recurrence:null remove a repetição de um evento que deixou de ser recorrente
+  payload.recurrence = recurrence;
   return payload;
+}
+
+// na criação, recurrence:null não é necessário
+function forCreate(payload) {
+  if (payload.recurrence) return payload;
+  const { recurrence, ...rest } = payload;
+  return rest;
+}
+
+const DAYS_OF_WEEK = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+function recurrenceToGraph(ev) {
+  const unit = ev.recurrence;
+  if (!unit || unit === 'none' || !ev.date) return null;
+  const interval = Math.max(1, parseInt(ev.recurrenceInterval, 10) || 1);
+  const [y, m, d] = ev.date.split('-').map(Number);
+  let pattern;
+  if (unit === 'daily') pattern = { type: 'daily', interval };
+  else if (unit === 'weekly') {
+    pattern = { type: 'weekly', interval, daysOfWeek: [DAYS_OF_WEEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]] };
+  } else if (unit === 'monthly') pattern = { type: 'absoluteMonthly', interval, dayOfMonth: d };
+  else if (unit === 'yearly') pattern = { type: 'absoluteYearly', interval, dayOfMonth: d, month: m };
+  else return null;
+  const range = ev.recurrenceEndDate
+    ? { type: 'endDate', startDate: ev.date, endDate: ev.recurrenceEndDate }
+    : { type: 'noEnd', startDate: ev.date };
+  return { pattern, range };
 }
 
 module.exports = async (req, res) => {
@@ -67,7 +97,7 @@ module.exports = async (req, res) => {
         const createResp = await fetch('https://graph.microsoft.com/v1.0/me/events', {
           method: 'POST',
           headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(forCreate(payload)),
         });
         const data = await createResp.json();
         if (!createResp.ok) return res.status(502).json({ error: 'Erro ao criar evento no Outlook.', details: data });
@@ -83,7 +113,7 @@ module.exports = async (req, res) => {
     const resp = await fetch('https://graph.microsoft.com/v1.0/me/events', {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(forCreate(payload)),
     });
     const data = await resp.json();
     if (!resp.ok) return res.status(502).json({ error: 'Erro ao criar evento no Outlook.', details: data });

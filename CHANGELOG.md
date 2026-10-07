@@ -1,3 +1,25 @@
+## [1.10.110] - 2026-10-07 00:00
+
+### Fixed
+
+#### Calendário
+
+- Agendas recorrentes (dia, semana, mês, ano) não apareciam além da data de início. Agora as ocorrências são calculadas e aparecem no calendário (dia, semana e mês), na Visão geral e nas notificações, respeitando o intervalo e o "Até". Mês mais curto cai no último dia (ex.: dia 31 → 28).
+- Ao mudar o "A partir de" de uma agenda, o início da agenda acompanha.
+- Outlook: a recorrência da agenda agora é enviada ao Outlook (diária, semanal, mensal, anual, com data final).
+
+### Changed
+
+#### Notificações
+
+- O sino mostra só as tarefas atrasadas, as de hoje e a agenda do espaço selecionado (antes as tarefas vinham de todos os espaços).
+
+#### E-mail diário
+
+- Novo layout: cabeçalho com a identidade do DOUNO Tasks e cores azuis; um cartão por espaço, com Tarefas (atrasadas e de hoje) à esquerda e a agenda dos próximos 7 dias à direita (empilha no celular). Agendas recorrentes entram no resumo.
+- Logo servida em /assets/douno-tasks-logo.png.
+
+
 ## [1.10.109] - 2026-10-06 00:00
 
 ### Changed

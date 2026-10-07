@@ -2416,6 +2416,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.110', date:'07/10/2026', title:'Agendas recorrentes e notificações por espaço', text:'As agendas que se repetem (todo dia, semana, mês ou ano) agora aparecem em todas as datas no calendário, na Visão geral e nas notificações. O sino mostra só o espaço selecionado. O resumo por e-mail ficou em dois blocos e separado por espaço.' },
   { version:'1.10.109', date:'06/10/2026', title:'Novidades acumuladas', text:'Ficou um tempo sem entrar? Agora o painel mostra a novidade mais recente em destaque e, logo abaixo, as que saíram desde a sua última visita.' },
   { version:'1.10.108', date:'06/10/2026', title:'Histórico de novidades', text:'No painel de Novidades, o link "Ver histórico completo" mostra todas as versões anteriores, da mais recente para a mais antiga.' },
   { version:'1.10.107', date:'06/10/2026', title:'Celular: títulos e notas', text:'O cabeçalho das páginas ficou numa linha só, como na Visão geral. Em Notas, a nota ocupa a tela e os cadernos abrem numa gaveta pelo botão do topo; o botão de expandir esconde o cabeçalho para ler e escrever com mais espaço.' },
@@ -3898,7 +3899,7 @@ function renderRecurrencePortalContent(portal, task, onChange){
     if(e.target.checked){
       task.recurrence = (task.recurrence && task.recurrence !== 'none') ? task.recurrence : 'daily';
       if(!task.recurrenceInterval) task.recurrenceInterval = 1;
-      if(!task.recurrenceBaseDate) task.recurrenceBaseDate = task.dueDate || todayStr();
+      if(!task.recurrenceBaseDate) task.recurrenceBaseDate = task.dueDate || task.date || todayStr();
     } else {
       task.recurrence = 'none';
     }
@@ -3927,11 +3928,20 @@ function renderRecurrencePortalContent(portal, task, onChange){
     baseDateInput.addEventListener('click', e => e.stopPropagation());
     baseDateInput.addEventListener('change', e => {
       task.recurrenceBaseDate = e.target.value;
-      task.dueDate = e.target.value;
+      if(task.date !== undefined && task.dueDate === undefined){
+        // agenda: a recorrência parte do início da agenda
+        task.date = e.target.value;
+        const evDate = document.getElementById('evDate');
+        if(evDate) evDate.value = e.target.value;
+        const evEnd = document.getElementById('evEndDate');
+        if(evEnd) evEnd.value = e.target.value;
+      } else {
+        task.dueDate = e.target.value;
+        const dateField = document.getElementById('tpDate');
+        if(dateField) dateField.value = e.target.value;
+      }
       persistOnly();
       onChange();
-      const dateField = document.getElementById('tpDate');
-      if(dateField) dateField.value = e.target.value;
     });
   }
   const endDateInput = portal.querySelector('#recPopEndDate');
@@ -5624,7 +5634,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.109';
+const APP_VERSION = '1.10.110';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -5632,8 +5642,42 @@ const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Jul
 function eventsInScope(){
   return state.events.filter(ev => !activeCategoryFilter || ev.categoryId === activeCategoryFilter);
 }
+/* Uma agenda recorrente é salva uma vez só (na data de início). As ocorrências são
+   calculadas na hora: a partir de ev.date, a cada N dias/semanas/meses/anos, até
+   recurrenceEndDate (se houver). Mês/ano mais curto cai no último dia possível. */
+function eventOccursOn(ev, dateStr){
+  if(!ev.date || !dateStr) return false;
+  if(ev.date === dateStr) return true;
+  const rec = ev.recurrence;
+  if(!rec || rec === 'none' || dateStr < ev.date) return false;
+  if(ev.recurrenceEndDate && dateStr > ev.recurrenceEndDate) return false;
+  const n = Math.max(1, parseInt(ev.recurrenceInterval, 10) || 1);
+  const [ay, am, ad] = ev.date.split('-').map(Number);
+  const [dy, dm, dd] = dateStr.split('-').map(Number);
+  const daysBetween = Math.round((Date.UTC(dy, dm-1, dd) - Date.UTC(ay, am-1, ad)) / 86400000);
+  const lastDayOf = (y, m) => new Date(y, m, 0).getDate();
+  switch(rec){
+    case 'daily': return daysBetween % n === 0;
+    case 'weekly': return daysBetween % (7*n) === 0;
+    case 'monthly': return ((dy-ay)*12 + (dm-am)) % n === 0 && dd === Math.min(ad, lastDayOf(dy, dm));
+    case 'yearly': return (dy-ay) % n === 0 && dm === am && dd === Math.min(ad, lastDayOf(dy, dm));
+    default: return false;
+  }
+}
+function eventsOnDate(list, dateStr){
+  return list.filter(ev => eventOccursOn(ev, dateStr)).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
+}
+// próximas ocorrências a partir de fromStr, nos próximos "days" dias; cada item é a agenda com .date da ocorrência
+function upcomingEventOccurrences(list, fromStr, days){
+  const out = [];
+  for(let i = 0; i <= days; i++){
+    const d = addDaysStr(fromStr, i);
+    eventsOnDate(list, d).forEach(ev => out.push({ ...ev, date: d }));
+  }
+  return out;
+}
 function getEventsForDate(dateStr){
-  return eventsInScope().filter(ev => ev.date === dateStr).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
+  return eventsOnDate(eventsInScope(), dateStr);
 }
 function eventColor(ev){
   if(ev.tagIds && ev.tagIds.length){
@@ -5710,7 +5754,7 @@ function renderDashboard(){
   const noDue = open.filter(t => !t.dueDate);
   const overdueOrToday = overdue.concat(dueToday).sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
   const criticalOverdue = overdue.filter(t => t.priority === 'critica');
-  const todayEvents = scopeEvents.filter(ev => ev.date === todayS).sort((a,b)=>(a.startTime||'').localeCompare(b.startTime||''));
+  const todayEvents = eventsOnDate(scopeEvents, todayS);
 
   // Card: Tarefas (concluídas consideram só os últimos 45 dias)
   const kpiTasksTotal = scopeTasks.length;
@@ -5817,7 +5861,7 @@ function renderDashboard(){
   const priorityCounts = PRIORITY_CONFIG.slice().reverse().map(p => ({ ...p, count: open.filter(t=>t.priority===p.key).length }));
   const maxPriorityCount = Math.max(1, ...priorityCounts.map(p=>p.count));
 
-  const upcomingEvents = scopeEvents.filter(ev => ev.date >= todayS).sort((a,b)=> (a.date+((a.startTime)||'00:00')).localeCompare(b.date+((b.startTime)||'00:00'))).slice(0,6);
+  const upcomingEvents = upcomingEventOccurrences(scopeEvents, todayS, 90).slice(0,6);
 
   const noTagOpen = open.filter(t => !(t.tagIds||[]).length);
   const activeRecurring = scopeTasks.filter(t => t.recurrence && t.recurrence !== 'none');
@@ -6597,6 +6641,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     ev.description = modal.querySelector('#evDescription').value;
     ev.updatedAt = Date.now();
     ev.wasEdited = isEditing;
+    if(ev.recurrence && ev.recurrence !== 'none') ev.recurrenceBaseDate = ev.date;
     if(!isEditing) state.events.push(ev);
     closeEventComposer();
     markDirty();
@@ -8258,11 +8303,11 @@ function renderSearchResultsDropdown(){
 }
 function computeNotifItems(){
   const today = todayStr();
-  const overdueTasks = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < today)
+  const inSpace = x => !activeCategoryFilter || x.categoryId === activeCategoryFilter;
+  const overdueTasks = state.tasks.filter(t => inSpace(t) && !t.done && t.dueDate && t.dueDate < today)
     .sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
-  const todayTasks = state.tasks.filter(t => !t.done && t.dueDate === today);
-  const todayEvents = eventsInScope().filter(ev => ev.date === today)
-    .sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
+  const todayTasks = state.tasks.filter(t => inSpace(t) && !t.done && t.dueDate === today);
+  const todayEvents = getEventsForDate(today);
   return { overdueTasks, todayTasks, todayEvents };
 }
 function updateNotifBadge(){
