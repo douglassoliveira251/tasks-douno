@@ -448,6 +448,20 @@
     text-transform:uppercase; letter-spacing:.03em;
   }
   .space-selector-btn:hover{background:var(--border);}
+  /* no desktop o seletor fica na barra do topo, à esquerda do botão de ajuda (?) */
+  .space-selector-wrap.in-topbar{grid-column:auto; grid-row:auto; align-self:auto;}
+  .space-selector-tag{display:none;}
+  .space-selector-wrap.in-topbar .space-selector-btn{
+    height:38px; padding:0 13px 0 14px; gap:8px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm);
+  }
+  .space-selector-wrap.in-topbar .space-selector-tag{
+    display:inline; font-size:10.5px; font-weight:600; letter-spacing:.04em; color:var(--ink-faint);
+    padding-right:9px; border-right:1px solid var(--border);
+  }
+  .space-selector-wrap.in-topbar .space-selector-dot{width:9px; height:9px;}
+  .space-selector-wrap.in-topbar .space-selector-name{max-width:150px; color:var(--ink);}
+  .space-selector-wrap.in-topbar .ssn-extra{display:none;}
+  .space-selector-wrap.in-topbar .space-selector-btn:hover{background:var(--surface-2);}
   .space-selector-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0;}
   .space-selector-name{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;}
   .space-selector-chevron{width:11px; height:11px; flex-shrink:0;}
@@ -2119,7 +2133,8 @@
       <div class="page-header-icon" id="pageHeaderIcon"></div>
       <div class="view-title-wrap">
         <div class="space-selector-wrap" id="spaceSelectorWrap" style="display:none;">
-          <button class="space-selector-btn" id="spaceSelectorBtn">
+          <button class="space-selector-btn" id="spaceSelectorBtn" title="Escolher espaço" aria-label="Escolher espaço">
+            <span class="space-selector-tag">Espaço</span>
             <span class="space-selector-dot" id="spaceSelectorDot"></span>
             <span class="space-selector-name" id="spaceSelectorName">Todos os espaços</span>
             <svg class="space-selector-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
@@ -2453,6 +2468,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.116', date:'07/10/2026', title:'Espaço na barra do topo', text:'No computador, o seletor de espaço agora fica na barra do topo, à esquerda do botão de ajuda (?), com o rótulo "Espaço" e a bolinha na cor do espaço escolhido. No celular continua no cartão do título.' },
   { version:'1.10.114', date:'07/10/2026', title:'Espaço no cartão do título', text:'O seletor de espaço mudou para a direita do cartão do título de cada página, igual ao celular. O título e a contagem ficam sozinhos à esquerda.' },
   { version:'1.10.113', date:'07/10/2026', title:'Histórico de e-mails e baixar anexos', text:'No campo "Para" da agenda, os e-mails já usados aparecem enquanto você digita, e o "×" tira um da lista. Nos anexos da tarefa há agora um botão para baixar o arquivo.' },
   { version:'1.10.112', date:'07/10/2026', title:'Tarefas por horário', text:'Dentro de cada grupo, as tarefas agora ficam em ordem de horário, da mais cedo para a mais tarde. Tarefas sem hora vão para o fim do dia.' },
@@ -5696,7 +5712,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.114';
+const APP_VERSION = '1.10.116';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8298,9 +8314,27 @@ function closeSpaceSelectorDropdown(){
   if(dd) dd.style.display = 'none';
 }
 
+const spaceSelectorMobileMQ = window.matchMedia('(max-width:768px)');
+function placeSpaceSelector(){
+  const wrap = document.getElementById('spaceSelectorWrap');
+  if(!wrap) return;
+  const mobile = spaceSelectorMobileMQ.matches;
+  if(mobile){
+    const titleWrap = document.querySelector('.view-title-wrap');
+    if(titleWrap && wrap.parentElement !== titleWrap) titleWrap.insertBefore(wrap, titleWrap.firstChild);
+  } else {
+    const group = document.querySelector('.topbar-right-group');
+    const help = document.getElementById('helpBtn');
+    if(group && wrap.parentElement !== group) group.insertBefore(wrap, help);
+  }
+  wrap.classList.toggle('in-topbar', !mobile);
+}
+if(spaceSelectorMobileMQ.addEventListener) spaceSelectorMobileMQ.addEventListener('change', placeSpaceSelector);
+
 function renderSpaceSelector(){
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
+  placeSpaceSelector();
   const showOn = (currentView === 'tasks' || currentView === 'notes' || currentView === 'calendar');
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }

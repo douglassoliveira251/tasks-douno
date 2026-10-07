@@ -1,3 +1,12 @@
+## [1.10.116] - 2026-10-07 00:00
+
+### Changed
+
+#### Páginas
+
+- No computador, o seletor de espaço foi para a barra do topo, à esquerda do botão de ajuda (?), com o mesmo estilo dos outros botões da barra. No celular continua à direita do cartão do título (a barra do topo não comporta). Troca de lugar sozinho ao redimensionar a janela. O botão mostra o rótulo "Espaço", a bolinha na cor do espaço e o nome ("Todos" quando nenhum está filtrado), com a mesma altura dos outros botões.
+
+
 ## [1.10.114] - 2026-10-07 00:00
 
 ### Changed
