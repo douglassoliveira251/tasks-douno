@@ -441,10 +441,10 @@
     display:none; position:fixed; inset:0; z-index:64; background:rgba(15,23,42,.08);
   }
   .help-panel-backdrop.show{display:block;}
-  .space-selector-wrap{position:relative; margin-bottom:6px;}
+  .space-selector-wrap{position:relative; grid-column:2; grid-row:1 / span 2; margin:0; align-self:center;}
   .space-selector-btn{
     display:flex; align-items:center; gap:6px; border:none; background:var(--surface-2);
-    color:var(--ink-soft); padding:4px 10px 4px 9px; border-radius:999px; font-size:11px; font-weight:700;
+    color:var(--ink-soft); height:36px; padding:0 14px 0 12px; border-radius:999px; font-size:11px; font-weight:700;
     text-transform:uppercase; letter-spacing:.03em;
   }
   .space-selector-btn:hover{background:var(--border);}
@@ -455,7 +455,7 @@
   body.notes-focus .notes-mbar-focus .ico-expand{display:none;}
   body.notes-focus .notes-mbar-focus .ico-collapse{display:block;}
   .space-selector-dropdown{
-    position:absolute; top:calc(100% + 8px); left:0; width:220px; z-index:60;
+    position:absolute; top:calc(100% + 8px); right:0; left:auto; width:220px; z-index:60;
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
     box-shadow:var(--shadow-md); padding:8px; display:flex; flex-direction:column; gap:1px;
   }
@@ -473,7 +473,13 @@
   .space-selector-item.action{color:var(--ink-soft); font-weight:500;}
   .space-selector-item.action svg{width:15px; height:15px; flex-shrink:0; color:var(--ink-faint);}
   .space-selector-divider{height:1px; background:var(--border); margin:6px 4px;}
-  .view-title-wrap{display:flex; flex-direction:column; justify-content:center;}
+  /* título à esquerda; seletor de espaço à direita do cartão, na mesma linha */
+  .view-title-wrap{
+    flex:1; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto;
+    column-gap:12px; align-items:center;
+  }
+  .view-title-wrap .view-title{grid-column:1; grid-row:1;}
+  .view-title-wrap .view-subtitle, .view-title-wrap .page-header-stats{grid-column:1; grid-row:2;}
   .view-title{font-family:var(--font-display); font-weight:700; font-size:22px;}
   .view-subtitle{font-size:12px; color:var(--ink-faint); text-transform:capitalize; margin-top:1px;}
   .topbar-right-group{display:flex; align-items:center; gap:14px; margin-left:auto;}
@@ -1916,7 +1922,7 @@
     .view-title{font-size:19px;}
     .view-title-wrap{flex:1; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:8px; align-items:center;}
     .space-selector-wrap{grid-column:2; grid-row:1 / span 2; margin:0; align-self:center;}
-    .space-selector-btn{padding:4px 9px 4px 8px; font-size:10.5px;}
+    .space-selector-btn{height:auto; padding:4px 9px 4px 8px; font-size:10.5px;}
     .space-selector-name{max-width:96px;}
     .ssn-extra{display:none;}
     .space-selector-dropdown{left:auto; right:0;}
@@ -2447,6 +2453,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.114', date:'07/10/2026', title:'Espaço no cartão do título', text:'O seletor de espaço mudou para a direita do cartão do título de cada página, igual ao celular. O título e a contagem ficam sozinhos à esquerda.' },
   { version:'1.10.113', date:'07/10/2026', title:'Histórico de e-mails e baixar anexos', text:'No campo "Para" da agenda, os e-mails já usados aparecem enquanto você digita, e o "×" tira um da lista. Nos anexos da tarefa há agora um botão para baixar o arquivo.' },
   { version:'1.10.112', date:'07/10/2026', title:'Tarefas por horário', text:'Dentro de cada grupo, as tarefas agora ficam em ordem de horário, da mais cedo para a mais tarde. Tarefas sem hora vão para o fim do dia.' },
   { version:'1.10.111', date:'07/10/2026', title:'Convites e categorias no Outlook', text:'A agenda ganhou o campo "Para": informe e-mails e ligue "Enviar convite pelo Outlook" para o convite sair ao salvar. As categorias no Outlook agora seguem as tags da agenda. O resumo por e-mail também ganhou um visual novo, claro e por espaço.' },
@@ -5689,7 +5696,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.113';
+const APP_VERSION = '1.10.114';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

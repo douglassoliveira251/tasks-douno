@@ -1,3 +1,12 @@
+## [1.10.114] - 2026-10-07 00:00
+
+### Changed
+
+#### Páginas
+
+- O seletor de espaço (Tarefas, Notas, Calendário) saiu de cima do título e foi para a direita do cartão do título, na mesma linha, igual ao celular. A lista de espaços abre alinhada à direita.
+
+
 ## [1.10.113] - 2026-10-07 00:00
 
 ### Added
