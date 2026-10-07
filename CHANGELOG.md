@@ -1,3 +1,16 @@
+## [1.10.113] - 2026-10-07 00:00
+
+### Added
+
+#### Calendário
+
+- Campo "Para" da agenda guarda o histórico de e-mails usados (até 100, mais recentes primeiro, sincronizado com o resto dos dados). Ao digitar, sugere os e-mails que combinam; cada sugestão tem um "×" no fim da linha para excluir aquele e-mail do histórico.
+
+#### Tarefas
+
+- Anexos da tarefa ganharam o botão de baixar o arquivo, ao lado do remover.
+
+
 ## [1.10.112] - 2026-10-07 00:00
 
 ### Changed

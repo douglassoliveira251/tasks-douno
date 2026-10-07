@@ -655,6 +655,22 @@
   }
   .completed-toggle input:checked + .completed-toggle-track{background:var(--primary);}
   .completed-toggle input:checked + .completed-toggle-track .completed-toggle-thumb{transform:translateX(15px);}
+  .ev-suggest-wrap{position:relative;}
+  .ev-suggest{
+    display:none; position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:30;
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-md); padding:4px; max-height:220px; overflow-y:auto;
+  }
+  .ev-suggest.show{display:block;}
+  .ev-suggest-item{display:flex; align-items:center; gap:8px; padding:7px 8px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--ink);}
+  .ev-suggest-item:hover, .ev-suggest-item.active{background:var(--surface-2);}
+  .ev-suggest-item span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .ev-suggest-del{
+    border:none; background:transparent; color:var(--ink-faint); width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:15px; line-height:1; flex-shrink:0; cursor:pointer;
+  }
+  .ev-suggest-del:hover{background:var(--danger-light); color:var(--danger);}
+  .ev-suggest-label{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:4px 8px 2px;}
   .ev-invite-row{
     display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:10px; cursor:pointer;
     padding:10px 12px; background:var(--surface-2); border-radius:var(--radius-sm);
@@ -1316,6 +1332,12 @@
   }
   .tp-attach-file-icon svg{width:15px; height:15px;}
   .tp-attach-name{flex:1; min-width:0; font-size:12.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tp-attach-dl{
+    border:none; background:transparent; color:var(--ink-faint); width:24px; height:24px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;
+  }
+  .tp-attach-dl svg{width:14px; height:14px;}
+  .tp-attach-dl:hover{background:var(--primary-light); color:var(--primary);}
   .tp-attach-del{
     border:none; background:transparent; color:var(--ink-faint); width:20px; height:20px; border-radius:50%;
     display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; flex-shrink:0;
@@ -2425,6 +2447,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.113', date:'07/10/2026', title:'Histórico de e-mails e baixar anexos', text:'No campo "Para" da agenda, os e-mails já usados aparecem enquanto você digita, e o "×" tira um da lista. Nos anexos da tarefa há agora um botão para baixar o arquivo.' },
   { version:'1.10.112', date:'07/10/2026', title:'Tarefas por horário', text:'Dentro de cada grupo, as tarefas agora ficam em ordem de horário, da mais cedo para a mais tarde. Tarefas sem hora vão para o fim do dia.' },
   { version:'1.10.111', date:'07/10/2026', title:'Convites e categorias no Outlook', text:'A agenda ganhou o campo "Para": informe e-mails e ligue "Enviar convite pelo Outlook" para o convite sair ao salvar. As categorias no Outlook agora seguem as tags da agenda. O resumo por e-mail também ganhou um visual novo, claro e por espaço.' },
   { version:'1.10.110', date:'07/10/2026', title:'Agendas recorrentes e notificações por espaço', text:'As agendas que se repetem (todo dia, semana, mês ou ano) agora aparecem em todas as datas no calendário, na Visão geral e nas notificações. O sino mostra só o espaço selecionado. O resumo por e-mail ficou em dois blocos e separado por espaço.' },
@@ -2668,6 +2691,7 @@ document.getElementById('helpPanelBackdrop').onclick = closeHelpPanel;
 function normalizeState(){
   if(!state.profile) state.profile = { name:'', email:'', avatar:null };
   if(!state.tags) state.tags = [];
+  if(!Array.isArray(state.emailHistory)) state.emailHistory = [];
   if(!state.tasks) state.tasks = [];
   if(!state.notes) state.notes = [];
   if(!state.events) state.events = [];
@@ -3278,6 +3302,14 @@ function compareTasksInGroup(a, b){
   const ta = a.dueTime || '99:99', tb = b.dueTime || '99:99';
   if(ta !== tb) return ta < tb ? -1 : 1;
   return (a.createdAt || 0) - (b.createdAt || 0);
+}
+function downloadAttachment(att){
+  const a = document.createElement('a');
+  a.href = att.dataUrl;
+  a.download = att.name || 'anexo';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 function renderTasks(){
   const view = document.getElementById('tasksView');
@@ -4630,8 +4662,10 @@ function renderTaskPanel(panel){
       row.innerHTML = `
         ${isImage ? `<img src="${att.dataUrl}" alt="" class="tp-attach-thumb-img">` : `<span class="tp-attach-file-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></span>`}
         <span class="tp-attach-name" title="${escapeHtml(att.name||'')}">${escapeHtml(att.name||'Arquivo')}</span>
+        <button type="button" class="tp-attach-dl" title="Baixar anexo" aria-label="Baixar anexo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>
         <button type="button" class="tp-attach-del" title="Remover">×</button>
       `;
+      row.querySelector('.tp-attach-dl').onclick = () => downloadAttachment(att);
       row.querySelector(isImage ? '.tp-attach-thumb-img' : '.tp-attach-file-icon').onclick = () => window.open(att.dataUrl, '_blank');
       row.querySelector('.tp-attach-del').onclick = () => {
         tpAttachments = tpAttachments.filter(a => a.id !== att.id);
@@ -5655,7 +5689,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.112';
+const APP_VERSION = '1.10.113';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6483,7 +6517,10 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     </div>
     <div class="tp-field">
       <label class="tp-label">Para <span style="font-weight:400; color:var(--ink-faint);">(convidados, separados por vírgula)</span></label>
-      <input type="text" class="tp-input" id="evAttendees" placeholder="nome@empresa.com, outra@empresa.com" value="${escapeHtml((ev.attendees||[]).join(', '))}">
+      <div class="ev-suggest-wrap">
+        <input type="text" class="tp-input" id="evAttendees" autocomplete="off" placeholder="nome@empresa.com, outra@empresa.com" value="${escapeHtml((ev.attendees||[]).join(', '))}">
+        <div class="ev-suggest" id="evAttendeesSuggest" role="listbox"></div>
+      </div>
       <p id="evAttendeesError" style="display:none; font-size:11.5px; color:var(--danger); margin-top:4px;"></p>
       <label class="ev-invite-row" for="evSendInvite">
         <span>
@@ -6564,6 +6601,51 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       onChanged: () => renderEvTagsSelected()
     });
   };
+
+  // histórico de e-mails: sugere enquanto digita; "×" tira o e-mail do histórico
+  (function setupAttendeeSuggest(){
+    const input = modal.querySelector('#evAttendees');
+    const box = modal.querySelector('#evAttendeesSuggest');
+    function tokenInfo(){
+      const v = input.value;
+      const cut = Math.max(v.lastIndexOf(','), v.lastIndexOf(';'));
+      return { head: v.slice(0, cut + 1), token: v.slice(cut + 1).trim() };
+    }
+    function chosenEmails(){
+      return input.value.split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean);
+    }
+    function renderSuggestions(){
+      const t = tokenInfo().token.toLowerCase();
+      const taken = new Set(chosenEmails());
+      const items = (state.emailHistory || []).filter(e => !taken.has(e) && (!t || e.includes(t))).slice(0, 8);
+      if(!items.length){ box.classList.remove('show'); box.innerHTML = ''; return; }
+      box.innerHTML = '<div class="ev-suggest-label">E-mails usados antes</div>' + items.map(e =>
+        `<div class="ev-suggest-item" data-email="${escapeHtml(e)}" role="option"><span>${escapeHtml(e)}</span><button type="button" class="ev-suggest-del" data-del="${escapeHtml(e)}" title="Excluir do histórico" aria-label="Excluir ${escapeHtml(e)} do histórico">×</button></div>`).join('');
+      box.classList.add('show');
+    }
+    // mousedown (e não click) para o campo não perder o foco antes da escolha
+    box.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const del = e.target.closest('.ev-suggest-del');
+      if(del){
+        state.emailHistory = state.emailHistory.filter(x => x !== del.dataset.del);
+        persistOnly();
+        renderSuggestions();
+        return;
+      }
+      const item = e.target.closest('.ev-suggest-item');
+      if(!item) return;
+      const { head } = tokenInfo();
+      const sep = head && !/\s$/.test(head) ? ' ' : '';
+      input.value = head + sep + item.dataset.email + ', ';
+      renderSuggestions();
+      input.focus();
+    });
+    input.addEventListener('input', renderSuggestions);
+    input.addEventListener('focus', renderSuggestions);
+    input.addEventListener('blur', () => { box.classList.remove('show'); });
+    input.addEventListener('keydown', (e) => { if(e.key === 'Escape' && box.classList.contains('show')){ e.stopPropagation(); box.classList.remove('show'); } });
+  })();
 
   function refreshInviteDesc(){
     const d = modal.querySelector('#evInviteDesc');
@@ -6691,6 +6773,8 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     }
     errEl.style.display = 'none';
     ev.attendees = Array.from(new Set(rawAttendees.map(x => x.toLowerCase())));
+    // histórico de e-mails: os mais recentes primeiro, sem repetir (até 100)
+    state.emailHistory = ev.attendees.concat((state.emailHistory || []).filter(x => !ev.attendees.includes(x))).slice(0, 100);
     ev.sendInvite = modal.querySelector('#evSendInvite').checked && ev.attendees.length > 0;
     ev.title = modal.querySelector('#evTitle').value.trim();
     ev.date = modal.querySelector('#evDate').value || todayStr();
