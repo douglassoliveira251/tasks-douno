@@ -2425,6 +2425,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.112', date:'07/10/2026', title:'Tarefas por horário', text:'Dentro de cada grupo, as tarefas agora ficam em ordem de horário, da mais cedo para a mais tarde. Tarefas sem hora vão para o fim do dia.' },
   { version:'1.10.111', date:'07/10/2026', title:'Convites e categorias no Outlook', text:'A agenda ganhou o campo "Para": informe e-mails e ligue "Enviar convite pelo Outlook" para o convite sair ao salvar. As categorias no Outlook agora seguem as tags da agenda. O resumo por e-mail também ganhou um visual novo, claro e por espaço.' },
   { version:'1.10.110', date:'07/10/2026', title:'Agendas recorrentes e notificações por espaço', text:'As agendas que se repetem (todo dia, semana, mês ou ano) agora aparecem em todas as datas no calendário, na Visão geral e nas notificações. O sino mostra só o espaço selecionado. O resumo por e-mail ficou em dois blocos e separado por espaço.' },
   { version:'1.10.109', date:'06/10/2026', title:'Novidades acumuladas', text:'Ficou um tempo sem entrar? Agora o painel mostra a novidade mais recente em destaque e, logo abaixo, as que saíram desde a sua última visita.' },
@@ -3268,6 +3269,16 @@ function quickAddDueDateFor(key){
   return todayS;
 }
 
+/* Dentro de cada grupo: pendentes antes das concluídas, depois por data e,
+   no mesmo dia, pela hora (da menor para a maior; sem hora vai por último). */
+function compareTasksInGroup(a, b){
+  if(!!a.done !== !!b.done) return a.done ? 1 : -1;
+  const da = a.dueDate || '9999', db = b.dueDate || '9999';
+  if(da !== db) return da < db ? -1 : 1;
+  const ta = a.dueTime || '99:99', tb = b.dueTime || '99:99';
+  if(ta !== tb) return ta < tb ? -1 : 1;
+  return (a.createdAt || 0) - (b.createdAt || 0);
+}
 function renderTasks(){
   const view = document.getElementById('tasksView');
   view.innerHTML = '';
@@ -3461,7 +3472,7 @@ function renderTasks(){
   let anyTask = false;
 
   function buildBucket(group, isCompletedGroup){
-    group.tasks.sort((a,b) => (a.done - b.done) || ((a.dueDate||'9999') > (b.dueDate||'9999') ? 1 : -1));
+    group.tasks.sort(compareTasksInGroup);
     if(group.tasks.length === 0) return;
     anyTask = anyTask || group.tasks.length > 0;
 
@@ -5644,7 +5655,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.111';
+const APP_VERSION = '1.10.112';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

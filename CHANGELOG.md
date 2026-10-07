@@ -1,3 +1,12 @@
+## [1.10.112] - 2026-10-07 00:00
+
+### Changed
+
+#### Tarefas
+
+- Dentro de cada grupo, a lista agora segue a ordem de horário (da menor para a maior) no mesmo dia; tarefas sem hora vão por último. A ordem anterior só olhava a data e podia embaralhar tarefas do mesmo dia.
+
+
 ## [1.10.111] - 2026-10-07 00:00
 
 ### Added
