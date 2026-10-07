@@ -655,6 +655,12 @@
   }
   .completed-toggle input:checked + .completed-toggle-track{background:var(--primary);}
   .completed-toggle input:checked + .completed-toggle-track .completed-toggle-thumb{transform:translateX(15px);}
+  .ev-invite-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:10px; cursor:pointer;
+    padding:10px 12px; background:var(--surface-2); border-radius:var(--radius-sm);
+  }
+  .ev-invite-title{display:block; font-size:13px; font-weight:600; color:var(--ink);}
+  .ev-invite-desc{display:block; font-size:11.5px; color:var(--ink-faint); line-height:1.4; margin-top:1px;}
   .recurrence-toggle-row{
     display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; color:var(--ink);
     cursor:pointer; user-select:none; font-weight:600;
@@ -2263,6 +2269,9 @@ async function syncEventToOutlook(ev){
   if(!outlookStatusCache) await refreshOutlookStatus();
   if(!outlookStatusCache || !outlookStatusCache.connected) return;
   const cat = catById(ev.categoryId);
+  // categorias do Outlook = tags da agenda; sem tag, usa o nome do espaço
+  const tagNames = (ev.tagIds || []).map(id => state.tags.find(t => t.id === id)).filter(Boolean).map(t => t.name);
+  const categoryNames = tagNames.length ? tagNames : (cat ? [cat.name] : []);
   try{
     const result = await outlookApi('/api/outlook/sync-event', {
       method: 'POST',
@@ -2270,7 +2279,7 @@ async function syncEventToOutlook(ev){
       body: JSON.stringify({
         action: 'sync',
         outlookEventId: ev.outlookEventId || null,
-        event: { ...ev, categoryName: cat ? cat.name : null },
+        event: { ...ev, categoryName: cat ? cat.name : null, categoryNames },
       }),
     });
     if(result.outlookEventId && result.outlookEventId !== ev.outlookEventId){
@@ -2416,6 +2425,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.111', date:'07/10/2026', title:'Convites e categorias no Outlook', text:'A agenda ganhou o campo "Para": informe e-mails e ligue "Enviar convite pelo Outlook" para o convite sair ao salvar. As categorias no Outlook agora seguem as tags da agenda. O resumo por e-mail também ganhou um visual novo, claro e por espaço.' },
   { version:'1.10.110', date:'07/10/2026', title:'Agendas recorrentes e notificações por espaço', text:'As agendas que se repetem (todo dia, semana, mês ou ano) agora aparecem em todas as datas no calendário, na Visão geral e nas notificações. O sino mostra só o espaço selecionado. O resumo por e-mail ficou em dois blocos e separado por espaço.' },
   { version:'1.10.109', date:'06/10/2026', title:'Novidades acumuladas', text:'Ficou um tempo sem entrar? Agora o painel mostra a novidade mais recente em destaque e, logo abaixo, as que saíram desde a sua última visita.' },
   { version:'1.10.108', date:'06/10/2026', title:'Histórico de novidades', text:'No painel de Novidades, o link "Ver histórico completo" mostra todas as versões anteriores, da mais recente para a mais antiga.' },
@@ -5634,7 +5644,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.110';
+const APP_VERSION = '1.10.111';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6460,6 +6470,21 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
         <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </button>
     </div>
+    <div class="tp-field">
+      <label class="tp-label">Para <span style="font-weight:400; color:var(--ink-faint);">(convidados, separados por vírgula)</span></label>
+      <input type="text" class="tp-input" id="evAttendees" placeholder="nome@empresa.com, outra@empresa.com" value="${escapeHtml((ev.attendees||[]).join(', '))}">
+      <p id="evAttendeesError" style="display:none; font-size:11.5px; color:var(--danger); margin-top:4px;"></p>
+      <label class="ev-invite-row" for="evSendInvite">
+        <span>
+          <span class="ev-invite-title">Enviar convite pelo Outlook</span>
+          <span class="ev-invite-desc" id="evInviteDesc"></span>
+        </span>
+        <span class="completed-toggle" style="margin-left:0;">
+          <input type="checkbox" id="evSendInvite" ${ev.sendInvite?'checked':''}>
+          <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
+        </span>
+      </label>
+    </div>
     <div class="modal-footer">
       ${isEditing ? `<button type="button" class="btn ghost small" id="evDeleteBtn" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>` : ''}
       ${isEditing ? `<button type="button" class="btn ghost small" id="evDuplicateBtn" title="Duplicar agenda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>` : ''}
@@ -6528,6 +6553,17 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       onChanged: () => renderEvTagsSelected()
     });
   };
+
+  function refreshInviteDesc(){
+    const d = modal.querySelector('#evInviteDesc');
+    if(!d) return;
+    const connected = !!(outlookStatusCache && outlookStatusCache.connected);
+    d.textContent = connected
+      ? 'Ao salvar, o Outlook envia o convite aos convidados e avisa quando a agenda mudar ou for excluída.'
+      : 'Conecte o Outlook em Configurações → Integrações para o convite ser enviado.';
+  }
+  refreshInviteDesc();
+  if(!outlookStatusCache && cloudSession) refreshOutlookStatus().then(refreshInviteDesc).catch(() => {});
 
   function syncTimeFieldsVisibility(){
     const show = !ev.allDay;
@@ -6633,6 +6669,18 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   }
 
   modal.querySelector('#evSaveBtn').onclick = () => {
+    const rawAttendees = modal.querySelector('#evAttendees').value.split(/[,;\s]+/).map(x => x.trim()).filter(Boolean);
+    const badEmails = rawAttendees.filter(x => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x));
+    const errEl = modal.querySelector('#evAttendeesError');
+    if(badEmails.length){
+      errEl.textContent = 'E-mail inválido: ' + badEmails.join(', ');
+      errEl.style.display = 'block';
+      modal.querySelector('#evAttendees').focus();
+      return;
+    }
+    errEl.style.display = 'none';
+    ev.attendees = Array.from(new Set(rawAttendees.map(x => x.toLowerCase())));
+    ev.sendInvite = modal.querySelector('#evSendInvite').checked && ev.attendees.length > 0;
     ev.title = modal.querySelector('#evTitle').value.trim();
     ev.date = modal.querySelector('#evDate').value || todayStr();
     ev.endDate = modal.querySelector('#evEndDate').value || ev.date;

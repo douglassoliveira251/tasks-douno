@@ -1,3 +1,19 @@
+## [1.10.111] - 2026-10-07 00:00
+
+### Added
+
+#### Calendário / Outlook
+
+- Campo "Para" na agenda (e-mails separados por vírgula, validados) e interruptor "Enviar convite pelo Outlook". Com ele ligado, ao salvar o Outlook envia o convite aos convidados e avisa sobre mudanças e cancelamento. Sem o interruptor, nada é enviado.
+- Categorias no Outlook agora seguem as tags da agenda (uma categoria por tag). Sem tag, usa o nome do espaço.
+
+### Changed
+
+#### E-mail diário
+
+- Novo visual, claro: bloco com o dia em destaque, resumo em etiquetas (atrasadas, tarefas, compromissos em 7 dias) e um cartão por espaço, com tarefas em caixas e agenda em linhas por dia.
+
+
 ## [1.10.110] - 2026-10-07 00:00
 
 ### Fixed

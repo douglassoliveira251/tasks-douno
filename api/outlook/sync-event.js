@@ -11,7 +11,9 @@ function eventToGraphPayload(ev) {
   const payload = {
     subject: ev.title || 'Sem título',
     body: { contentType: 'text', content: ev.description || '' },
-    categories: ev.categoryName ? [ev.categoryName] : [],
+    categories: Array.isArray(ev.categoryNames) && ev.categoryNames.length
+      ? ev.categoryNames.map(String).slice(0, 20)
+      : (ev.categoryName ? [ev.categoryName] : []),
   };
   if (ev.allDay || !ev.startTime) {
     payload.isAllDay = true;
@@ -21,6 +23,11 @@ function eventToGraphPayload(ev) {
     payload.isAllDay = false;
     payload.start = { dateTime: `${ev.date}T${ev.startTime}:00`, timeZone: tz };
     payload.end = { dateTime: `${ev.endDate || ev.date}T${ev.endTime || ev.startTime}:00`, timeZone: tz };
+  }
+  // convite: só quando o usuário ligou "Enviar convite" e informou convidados
+  const emails = Array.isArray(ev.attendees) ? ev.attendees.filter(isEmail) : [];
+  if (ev.sendInvite && emails.length) {
+    payload.attendees = emails.map((address) => ({ emailAddress: { address }, type: 'required' }));
   }
   const recurrence = recurrenceToGraph(ev);
   // PATCH com recurrence:null remove a repetição de um evento que deixou de ser recorrente
@@ -33,6 +40,10 @@ function forCreate(payload) {
   if (payload.recurrence) return payload;
   const { recurrence, ...rest } = payload;
   return rest;
+}
+
+function isEmail(x) {
+  return typeof x === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x);
 }
 
 const DAYS_OF_WEEK = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -123,3 +134,5 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Erro inesperado ao sincronizar com o Outlook.' });
   }
 };
+
+module.exports.eventToGraphPayload = eventToGraphPayload;
