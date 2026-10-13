@@ -56,6 +56,7 @@ test.describe('Templates de tarefa', () => {
     await page.locator('[data-action="template"]').click();
     await expect(page.locator('#tplName')).toHaveValue('Relatório semanal');
     await expect(page.locator('#tplPriority')).toHaveValue('critica');
+    await expect(page.locator('#tplSpaces .tpl-tag-chip.on')).toHaveCount(1);
     await expect(page.locator('#tplRec')).toHaveValue('weekly');
     await expect(page.locator('#tplSubtasks')).toHaveValue('Coletar dados');
   });
@@ -122,4 +123,19 @@ test('Nova tarefa: seletor de template cria a tarefa preenchida', async ({ page 
   expect(t.title).toBe('Tarefa do modelo');
   expect(t.subtasks.map(s => s.title)).toEqual(['Passo 1']);
   await expect(page.locator('#tpTemplateSelect')).toHaveCount(0); // painel agora é de edição
+});
+
+test('template só aparece nos espaços escolhidos', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  const r = await page.evaluate(() => {
+    if(state.categories.length < 2) state.categories.push({ id: 'cat_b', name: 'Outro', color: '#9B5DE5' });
+    const [a, b] = [state.categories[0].id, state.categories[1].id];
+    const mk = (id, ids, legacy) => Object.assign({ id, name: id, title: id, description: '', priority: 'media', tagIds: [], dueTime: '', recurrence: 'none', recurrenceInterval: 1, subtasks: [], events: [] }, legacy ? { categoryId: '' } : { categoryIds: ids });
+    state.taskTemplates = [mk('so-a', [a]), mk('so-b', [b]), mk('ambos', [a, b]), mk('antigo', [], true)];
+    const ids = c => templatesForSpace(c).map(t => t.id).sort();
+    return { a: ids(a), b: ids(b), todos: ids(null) };
+  });
+  expect(r.a).toEqual(['ambos', 'antigo', 'so-a']);
+  expect(r.b).toEqual(['ambos', 'antigo', 'so-b']);
+  expect(r.todos).toHaveLength(4);
 });

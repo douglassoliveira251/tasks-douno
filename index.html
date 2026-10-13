@@ -2598,6 +2598,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.123', date:'13/10/2026', title:'Templates por espaço', text:'Cada template agora é ligado a um ou mais espaços e só aparece neles. O espaço selecionado no momento decide quais templates você vê.' },
   { version:'1.10.122', date:'13/10/2026', title:'Projetos em lista', text:'A página Projetos agora é uma lista em tabela: progresso, etapa atual, entrega e status de cada projeto, com filtros por situação.' },
   { version:'1.10.121', date:'13/10/2026', title:'Projetos', text:'Nova página Projetos: crie projetos com etapas e prazos, veja a linha do tempo com progresso e atrasos, e ligue tarefas às etapas. Tarefas de projeto aparecem nas Tarefas com a etiqueta do projeto e podem ser filtradas.' },
   { version:'1.10.120', date:'13/10/2026', title:'Template ao criar tarefa', text:'No painel de Nova tarefa agora há "Começar de um template": escolha um e a tarefa nasce já preenchida.' },
@@ -4533,8 +4534,8 @@ function renderTaskPanel(panel){
     <div class="tp-field tp-template-row">
       <label class="tp-label">Começar de um template</label>
       <select class="tp-select" id="tpTemplateSelect" onchange="applyTemplateFromPanel(this.value)">
-        <option value="">${(state.taskTemplates||[]).length ? 'Escolher um template (opcional)' : 'Nenhum template criado ainda'}</option>
-        ${(state.taskTemplates||[]).map(tp => `<option value="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</option>`).join('')}
+        <option value="">${templatesForSpace(activeCategoryFilter).length ? 'Escolher um template (opcional)' : 'Nenhum template neste espaço'}</option>
+        ${templatesForSpace(activeCategoryFilter).map(tp => `<option value="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</option>`).join('')}
       </select>
     </div>` : ''}
 
@@ -5929,7 +5930,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.122';
+const APP_VERSION = '1.10.123';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7877,7 +7878,7 @@ function templateFromTask(task){
   const daysBetween = (a, b) => Math.round((Date.UTC(...a.split('-').map((n, i) => i === 1 ? n - 1 : +n)) - Date.UTC(...b.split('-').map((n, i) => i === 1 ? n - 1 : +n))) / 86400000);
   return {
     name: task.title || 'Novo template',
-    categoryId: task.categoryId || '',
+    categoryIds: task.categoryId ? [task.categoryId] : [],
     title: task.title || '',
     description: task.description || '',
     priority: task.priority || 'media',
@@ -7895,13 +7896,27 @@ function templateFromTask(task){
   };
 }
 
+/* Template pertence a um ou mais espaços (categoryIds). Template antigo sem espaço
+   definido continua valendo para todos até ser editado. */
+function templateSpaces(tpl){
+  if(Array.isArray(tpl.categoryIds) && tpl.categoryIds.length) return tpl.categoryIds.filter(id => catById(id));
+  if(tpl.categoryId && catById(tpl.categoryId)) return [tpl.categoryId];
+  return [];
+}
+function templatesForSpace(catId){
+  return (state.taskTemplates || []).filter(tp => {
+    const sp = templateSpaces(tp);
+    return !catId || sp.length === 0 || sp.includes(catId);
+  });
+}
 function applyTemplateFromPanel(id){
   const tpl = (state.taskTemplates || []).find(x => x.id === id);
   if(tpl) createTaskFromTemplate(tpl);
 }
 function createTaskFromTemplate(tpl){
-  const catId = (tpl.categoryId && catById(tpl.categoryId)) ? tpl.categoryId
-    : ((activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id);
+  const spaces = templateSpaces(tpl);
+  const catId = (activeCategoryFilter && spaces.includes(activeCategoryFilter)) ? activeCategoryFilter
+    : (spaces[0] || ((activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id));
   const today = todayStr();
   state.taskIdCounter = (state.taskIdCounter || 0) + 1;
   const t = {
@@ -7939,10 +7954,10 @@ function createTaskFromTemplate(tpl){
 
 function openTemplatePickMenu(anchorBtn){
   const portal = ensureTaskMenuPortal();
-  const list = state.taskTemplates || [];
+  const list = templatesForSpace(activeCategoryFilter);
   portal.innerHTML = (list.length
     ? list.map(tp => `<button type="button" class="task-menu-item" data-tpl="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</button>`).join('')
-    : '<div class="tpl-menu-empty">Nenhum template ainda. Crie em Configurações → Templates ou use "Salvar como template" no menu de uma tarefa.</div>')
+    : '<div class="tpl-menu-empty">Nenhum template para este espaço. Crie em Configurações → Templates ou use "Salvar como template" no menu de uma tarefa.</div>')
     + '<div class="tpl-menu-sep"></div><button type="button" class="task-menu-item" data-tpl-manage="1">Gerenciar templates…</button>';
   const rect = anchorBtn.getBoundingClientRect();
   portal.style.top = Math.round(rect.bottom + 6) + 'px';
@@ -7985,9 +8000,10 @@ function openTemplateEditor(existing, prefill){
   const modal = ov.querySelector('#templateModal');
   const tpl = existing
     ? JSON.parse(JSON.stringify(existing))
-    : Object.assign({ id: uid('tpl'), name: '', categoryId: '', title: '', description: '', priority: 'media', tagIds: [], dueTime: '', recurrence: 'none', recurrenceInterval: 1, subtasks: [], events: [] }, prefill || {});
+    : Object.assign({ id: uid('tpl'), name: '', categoryIds: (activeCategoryFilter && catById(activeCategoryFilter)) ? [activeCategoryFilter] : [state.categories[0].id], title: '', description: '', priority: 'media', tagIds: [], dueTime: '', recurrence: 'none', recurrenceInterval: 1, subtasks: [], events: [] }, prefill || {});
   if(!tpl.id) tpl.id = uid('tpl');
   const selectedTags = new Set(tpl.tagIds || []);
+  const selectedSpaces = new Set(templateSpaces(tpl).length ? templateSpaces(tpl) : (tpl.categoryIds === undefined && !tpl.categoryId && existing ? state.categories.map(c => c.id) : templateSpaces(tpl)));
   const events = (tpl.events || []).map(e => ({ ...e }));
 
   function eventsHtml(){
@@ -8010,11 +8026,11 @@ function openTemplateEditor(existing, prefill){
       <input type="text" class="tp-input" id="tplTitle" placeholder="Título que a tarefa nasce com" value="${escapeHtml(tpl.title || '')}"></div>
     <div class="tp-field"><label class="tp-label">Descrição</label>
       <textarea class="tp-textarea" id="tplDesc" rows="3">${escapeHtml(tpl.description || '')}</textarea></div>
+    <div class="tp-field"><label class="tp-label">Disponível nos espaços <span style="font-weight:400; color:var(--ink-faint);">(só aparece neles)</span></label>
+      <div class="tpl-tags" id="tplSpaces">${state.categories.map(c => `<span class="tpl-tag-chip ${selectedSpaces.has(c.id) ? 'on' : ''}" data-space="${c.id}" style="${selectedSpaces.has(c.id) ? 'background:' + c.color : ''}">${escapeHtml(c.name)}</span>`).join('')}</div></div>
     <div class="tpl-grid">
       <div class="tp-field"><label class="tp-label">Prioridade</label>
         <select class="tp-select" id="tplPriority">${PRIORITY_CONFIG.map(p => `<option value="${p.key}" ${tpl.priority === p.key ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
-      <div class="tp-field"><label class="tp-label">Espaço</label>
-        <select class="tp-select" id="tplCategory"><option value="">Espaço atual</option>${state.categories.map(c => `<option value="${c.id}" ${tpl.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
       <div class="tp-field"><label class="tp-label">Horário</label>
         <input type="time" class="tp-input" id="tplTime" value="${tpl.dueTime || ''}"></div>
       <div class="tp-field"><label class="tp-label">Repetição</label>
@@ -8056,17 +8072,25 @@ function openTemplateEditor(existing, prefill){
     if(selectedTags.has(id)){ selectedTags.delete(id); chip.classList.remove('on'); chip.style.background = ''; }
     else { selectedTags.add(id); chip.classList.add('on'); chip.style.background = tg ? tg.color : ''; }
   });
+  modal.querySelector('#tplSpaces').addEventListener('click', (e) => {
+    const chip = e.target.closest('.tpl-tag-chip'); if(!chip || !chip.dataset.space) return;
+    const id = chip.dataset.space;
+    const c = catById(id);
+    if(selectedSpaces.has(id)){ selectedSpaces.delete(id); chip.classList.remove('on'); chip.style.background = ''; }
+    else { selectedSpaces.add(id); chip.classList.add('on'); chip.style.background = c ? c.color : ''; }
+  });
   modal.querySelector('#tplCancel').onclick = () => ov.classList.remove('show');
   modal.querySelector('#tplSave').onclick = () => {
     const name = modal.querySelector('#tplName').value.trim();
     const err = modal.querySelector('#tplError');
+    if(!selectedSpaces.size){ err.textContent = 'Escolha pelo menos um espaço para o template.'; err.style.display = 'block'; return; }
     if(!name){ err.textContent = 'Dê um nome ao template.'; err.style.display = 'block'; modal.querySelector('#tplName').focus(); return; }
     const out = {
       id: tpl.id, name,
       title: modal.querySelector('#tplTitle').value.trim(),
       description: modal.querySelector('#tplDesc').value,
       priority: modal.querySelector('#tplPriority').value,
-      categoryId: modal.querySelector('#tplCategory').value,
+      categoryIds: Array.from(selectedSpaces),
       dueTime: modal.querySelector('#tplTime').value,
       recurrence: modal.querySelector('#tplRec').value,
       recurrenceInterval: Math.max(1, parseInt(modal.querySelector('#tplRecInterval').value, 10) || 1),
@@ -8087,7 +8111,7 @@ function openTemplateEditor(existing, prefill){
 
 function renderTemplatesPanel(panel){
   const list = state.taskTemplates || [];
-  const catName = id => { const c = catById(id); return c ? c.name : 'Espaço atual'; };
+  const spacesLabel = tp => { const sp = templateSpaces(tp); return sp.length ? sp.map(id => catById(id).name).join(', ') : 'Todos os espaços'; };
   panel.innerHTML = `
     <h3 class="settings-section-title">Templates de tarefa</h3>
     <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
@@ -8097,7 +8121,7 @@ function renderTemplatesPanel(panel){
         <div class="tpl-card" data-id="${tp.id}">
           <div class="tpl-card-main">
             <div class="tpl-card-name">${escapeHtml(tp.name || 'Sem nome')}</div>
-            <div class="tpl-card-meta">${escapeHtml(catName(tp.categoryId))} · ${(tp.subtasks||[]).length} subtarefa(s) · ${(tp.events||[]).length} agenda(s)${tp.recurrence && tp.recurrence !== 'none' ? ' · ' + RECURRENCE_LABELS[tp.recurrence].toLowerCase() : ''}</div>
+            <div class="tpl-card-meta">${escapeHtml(spacesLabel(tp))} · ${(tp.subtasks||[]).length} subtarefa(s) · ${(tp.events||[]).length} agenda(s)${tp.recurrence && tp.recurrence !== 'none' ? ' · ' + RECURRENCE_LABELS[tp.recurrence].toLowerCase() : ''}</div>
           </div>
           <div class="tpl-card-actions">
             <button type="button" class="btn ghost small" data-act="edit">Editar</button>

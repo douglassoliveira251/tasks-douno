@@ -1,3 +1,12 @@
+## [1.10.123] - 2026-10-13 00:00
+
+### Changed
+
+#### Templates
+
+- Templates passam a ser ligados a um ou mais espaços (padrão: o espaço atual) e só aparecem nos espaços escolhidos, no botão Template e no painel de Nova tarefa. Com "Todos" selecionado no topo, aparecem todos. Templates antigos sem espaço continuam valendo para todos até serem editados.
+
+
 ## [1.10.122] - 2026-10-13 00:00
 
 ### Changed
