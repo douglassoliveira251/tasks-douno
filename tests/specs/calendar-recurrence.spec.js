@@ -111,3 +111,17 @@ test.describe('Notificações por espaço', () => {
     expect(counts.onlyB).toBe(2);
   });
 });
+
+test.describe('Calendário: início da visão semanal', () => {
+  test('abre a partir das 7h', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 700 });
+    await gotoApp(page, { view: 'calendar' });
+    await page.evaluate(() => { calendarView = 'week'; calendarFocusDate = todayStr(); render(); });
+    const r = await page.evaluate(() => {
+      const wrap = document.querySelector('.cal-week-scroll') || [...document.querySelectorAll('#calendarView *')].find(e => e.scrollHeight > e.clientHeight + 200 && getComputedStyle(e).overflowY !== 'visible');
+      return { top: wrap ? wrap.scrollTop : null, hour: getCalHourHeight() };
+    });
+    expect(r.top).not.toBeNull();
+    expect(r.top).toBe(7 * r.hour);
+  });
+});

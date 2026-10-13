@@ -1612,7 +1612,7 @@
   }
   .cal-week-allday-cell.weekend{background:var(--surface-2);}
   .cal-week-scroll{
-    flex:1; overflow-y:auto; height:calc(100vh - 340px); min-height:360px;
+    flex:none; overflow-y:auto; height:calc(100vh - 340px); min-height:360px;
   }
   .cal-week-hourgrid{display:grid; grid-template-columns:52px repeat(7,1fr); position:relative;}
   .cal-week-gutter{border-right:1px solid var(--border);}
@@ -2468,6 +2468,8 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.118', date:'13/10/2026', title:'Calendário a partir das 7h', text:'A visão da semana sempre abre mostrando a partir das 7h, sem precisar rolar a madrugada.' },
+  { version:'1.10.117', date:'13/10/2026', title:'Várias abas sem perder alterações', text:'Se você usa o sistema em dois navegadores, o que foi alterado num não desfaz mais o que foi feito no outro: as mudanças das duas abas são combinadas ao salvar.' },
   { version:'1.10.116', date:'07/10/2026', title:'Espaço na barra do topo', text:'No computador, o seletor de espaço agora fica na barra do topo, à esquerda do botão de ajuda (?), com o rótulo "Espaço" e a bolinha na cor do espaço escolhido. No celular continua no cartão do título.' },
   { version:'1.10.114', date:'07/10/2026', title:'Espaço no cartão do título', text:'O seletor de espaço mudou para a direita do cartão do título de cada página, igual ao celular. O título e a contagem ficam sozinhos à esquerda.' },
   { version:'1.10.113', date:'07/10/2026', title:'Histórico de e-mails e baixar anexos', text:'No campo "Para" da agenda, os e-mails já usados aparecem enquanto você digita, e o "×" tira um da lista. Nos anexos da tarefa há agora um botão para baixar o arquivo.' },
@@ -2959,12 +2961,15 @@ async function refreshFromCloudIfSafe(){
     if(data && data.data && typeof data.data === 'object'){
       state = data.data;
       normalizeState();
+      adoptCloudRow(data);
       render();
     }
   }catch(e){ console.error('Erro ao atualizar dados da nuvem', e); }
   finally{ cloudRefreshInFlight = false; }
 }
 window.addEventListener('focus', refreshFromCloudIfSafe);
+// janela aberta mas sem foco (ex.: lado a lado com outra): confere a nuvem de tempos em tempos
+setInterval(() => { if(!document.hidden) refreshFromCloudIfSafe(); }, 45000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshFromCloudIfSafe(); });
 
 function updateFileStatus(){
@@ -5712,7 +5717,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.116';
+const APP_VERSION = '1.10.118';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6239,6 +6244,7 @@ function getCalHourStep(){
   return state.calendarHourDensity === 'normal' ? 1 : 2;
 }
 
+const CAL_START_HOUR = 7;
 function renderCalendarWeek(body){
   const start = startOfWeekStr(calendarFocusDate);
   const todayS = todayStr();
@@ -6348,8 +6354,18 @@ function renderCalendarWeek(body){
     pill.onclick = (e) => { e.stopPropagation(); const ev = state.events.find(x=>x.id===pill.dataset.eventId); if(ev) openEventComposer(ev); };
   });
 
-  const scrollToHour = Math.max(0, new Date().getHours() - 2);
-  scrollWrap.scrollTop = scrollToHour * hourHeight;
+  // a visão semanal sempre abre a partir das 7h (antes disso quase não há agendas).
+  // Em telas altas o dia inteiro cabe e não haveria o que rolar: um espaço no fim
+  // garante que dê para posicionar o início nas 7h.
+  const startOffset = CAL_START_HOUR * hourHeight;
+  const needed = startOffset + scrollWrap.clientHeight;
+  if(scrollWrap.clientHeight > 0 && scrollWrap.scrollHeight < needed){
+    const spacer = document.createElement('div');
+    spacer.style.height = (needed - scrollWrap.scrollHeight) + 'px';
+    spacer.setAttribute('aria-hidden', 'true');
+    scrollWrap.appendChild(spacer);
+  }
+  scrollWrap.scrollTop = startOffset;
 }
 
 function renderCalendarDay(body){
@@ -8010,31 +8026,167 @@ async function writeStateToFile(){
 async function fetchCloudStateRow(){
   const { data, error } = await sbClient
     .from('taskin_state')
-    .select('data')
+    .select('data, updated_at')
     .eq('user_id', cloudSession.user.id)
     .maybeSingle();
   if(error) throw error;
   return data;
 }
+
+/* ---------- Sincronização com mais de uma sessão aberta ----------
+   O estado inteiro é um único registro na nuvem. Antes, cada escrita
+   sobrescrevia tudo às cegas: abrir o sistema em dois navegadores, alterar
+   tarefas num e depois salvar qualquer coisa no outro (que ainda tinha a foto
+   antiga) desfazia as alterações do primeiro — tarefas voltavam ao status
+   anterior. Agora cada sessão lembra qual versão da nuvem ela leu
+   (cloudBaseUpdatedAt) e uma "foto" do que leu (cloudBaseSnapshot). Ao salvar:
+   1. se a nuvem mudou desde então, faz uma mesclagem de três vias, item a item
+      (o que só eu mudei fica, o que só o outro mudou entra, e os dois lados
+      são preservados);
+   2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
+      gravou no meio, repete. */
+const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks'];
+let cloudBaseUpdatedAt = null;
+let cloudBaseSnapshot = null;
+
+function syncHash(value){
+  const str = JSON.stringify(value === undefined ? null : value);
+  let h = 0x811c9dc5;
+  for(let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36) + ':' + str.length;
+}
+function makeSyncSnapshot(st){
+  const snap = { cols: {}, keys: {} };
+  SYNC_COLLECTIONS.forEach(c => {
+    const m = {};
+    (Array.isArray(st[c]) ? st[c] : []).forEach(it => { if(it && it.id !== undefined) m[it.id] = syncHash(it); });
+    snap.cols[c] = m;
+  });
+  Object.keys(st).forEach(k => { if(!SYNC_COLLECTIONS.includes(k)) snap.keys[k] = syncHash(st[k]); });
+  return snap;
+}
+function mergeStates(base, local, remote){
+  const out = {};
+  const isStrArr = v => Array.isArray(v) && v.every(x => typeof x === 'string');
+  const keys = new Set(Object.keys(local).concat(Object.keys(remote)).filter(k => !SYNC_COLLECTIONS.includes(k)));
+  keys.forEach(k => {
+    const hasL = k in local, hasR = k in remote;
+    const lh = hasL ? syncHash(local[k]) : null;
+    const rh = hasR ? syncHash(remote[k]) : null;
+    const bh = (base.keys && k in base.keys) ? base.keys[k] : null;
+    const lChanged = lh !== bh, rChanged = rh !== bh;
+    if(lChanged && !rChanged){ if(hasL) out[k] = local[k]; }
+    else if(rChanged && !lChanged){ if(hasR) out[k] = remote[k]; }
+    else if(hasL && hasR && isStrArr(local[k]) && isStrArr(remote[k])){
+      out[k] = Array.from(new Set(local[k].concat(remote[k])));
+    } else if(hasL){ out[k] = local[k]; }
+    else if(hasR){ out[k] = remote[k]; }
+  });
+  SYNC_COLLECTIONS.forEach(c => {
+    const localArr = Array.isArray(local[c]) ? local[c] : [];
+    const remoteArr = Array.isArray(remote[c]) ? remote[c] : [];
+    const L = new Map(localArr.filter(i => i && i.id !== undefined).map(i => [i.id, i]));
+    const R = new Map(remoteArr.filter(i => i && i.id !== undefined).map(i => [i.id, i]));
+    const B = (base.cols && base.cols[c]) || {};
+    const order = localArr.map(i => i && i.id).concat(remoteArr.map(i => i && i.id)).filter(id => id !== undefined && id !== null);
+    const seen = new Set();
+    const merged = [];
+    order.forEach(id => {
+      if(seen.has(id)) return;
+      seen.add(id);
+      const l = L.get(id), r = R.get(id);
+      const bh = Object.prototype.hasOwnProperty.call(B, id) ? B[id] : undefined;
+      if(l && r){
+        const lh = syncHash(l), rh = syncHash(r);
+        if(lh === rh){ merged.push(l); return; }
+        const lChanged = bh === undefined || lh !== bh;
+        const rChanged = bh === undefined || rh !== bh;
+        if(lChanged && !rChanged) merged.push(l);
+        else if(rChanged && !lChanged) merged.push(r);
+        else {
+          // os dois lados mudaram o mesmo item: vale o mais recente (empate: o daqui)
+          const lt = l.updatedAt || l.completedAt || l.createdAt || 0;
+          const rt = r.updatedAt || r.completedAt || r.createdAt || 0;
+          merged.push(rt > lt ? r : l);
+        }
+      } else if(l){
+        // sumiu na nuvem: se existia na base, outra sessão excluiu — só mantém se eu mexi nele
+        if(bh === undefined || syncHash(l) !== bh) merged.push(l);
+      } else if(r){
+        // não tenho: se existia na base, eu excluí aqui; senão, é novo de outra sessão
+        if(bh === undefined) merged.push(r);
+      }
+    });
+    out[c] = merged;
+  });
+  return out;
+}
+function normalizeRemoteData(data){
+  const saved = state;
+  state = data;
+  try{ normalizeState(); } finally { state = saved; }
+  return data;
+}
+function adoptCloudRow(row){
+  cloudBaseUpdatedAt = row ? row.updated_at : null;
+  cloudBaseSnapshot = makeSyncSnapshot(state);
+}
+
 async function loadStateFromCloud(){
-  const data = await fetchCloudStateRow();
-  if(data && data.data && typeof data.data === 'object'){
-    state = data.data;
+  const row = await fetchCloudStateRow();
+  if(row && row.data && typeof row.data === 'object'){
+    state = row.data;
   }
   normalizeState();
-  if(!data){
+  if(!row){
     await writeStateToCloud();
+  } else {
+    adoptCloudRow(row);
   }
 }
 
 async function writeStateToCloud(){
   if(!cloudSession) return;
-  const { error } = await sbClient.from('taskin_state').upsert({
-    user_id: cloudSession.user.id,
-    data: state,
-    updated_at: new Date().toISOString()
-  });
-  if(error) throw error;
+  const uid = cloudSession.user.id;
+  let mergedFromRemote = false;
+  for(let attempt = 0; attempt < 4; attempt++){
+    const row = await fetchCloudStateRow();
+    if(row && row.data && typeof row.data === 'object'){
+      const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
+      if(changedRemotely){
+        const remote = normalizeRemoteData(row.data);
+        const base = cloudBaseSnapshot || makeSyncSnapshot(remote);
+        state = mergeStates(base, state, remote);
+        normalizeState();
+        mergedFromRemote = true;
+        // a partir daqui a base passa a ser a versão da nuvem que acabou de ser mesclada
+        cloudBaseSnapshot = makeSyncSnapshot(remote);
+        cloudBaseUpdatedAt = row.updated_at;
+      }
+    }
+    const stamp = new Date().toISOString();
+    let result;
+    if(row){
+      result = await sbClient.from('taskin_state')
+        .update({ data: state, updated_at: stamp })
+        .eq('user_id', uid)
+        .eq('updated_at', row.updated_at)
+        .select('updated_at');
+    } else {
+      result = await sbClient.from('taskin_state')
+        .insert({ user_id: uid, data: state, updated_at: stamp })
+        .select('updated_at');
+    }
+    if(result.error) throw result.error;
+    if(row && (!result.data || result.data.length === 0)) continue; // alguém gravou no meio: mescla de novo
+    adoptCloudRow({ updated_at: (result.data && result.data[0] && result.data[0].updated_at) || stamp });
+    if(mergedFromRemote){
+      saveToLocalStorage();
+      if(!isEditingSomething()) render();
+    }
+    return;
+  }
+  throw new Error('Conflito de sincronização: não foi possível mesclar com a nuvem.');
 }
 
 async function startCloudSession(){

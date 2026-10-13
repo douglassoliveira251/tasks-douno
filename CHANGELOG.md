@@ -1,3 +1,23 @@
+## [1.10.118] - 2026-10-13 00:00
+
+### Changed
+
+#### Calendário
+
+- A visão da semana sempre abre a partir das 7h (antes abria 2 horas antes da hora atual, o que variava durante o dia).
+
+
+## [1.10.117] - 2026-10-13 00:00
+
+### Fixed
+
+#### Sincronização
+
+- Com o sistema aberto em dois navegadores, salvar numa aba podia desfazer o que a outra tinha alterado (tarefas voltavam ao status anterior), porque cada escrita sobrescrevia o estado inteiro. Agora cada aba lembra qual versão da nuvem leu; ao salvar, se a nuvem mudou, os dois lados são mesclados item a item (tarefas, notas, agendas, cadernos, tags e espaços) e a gravação só vale se ninguém gravou no meio.
+- Regras da mesclagem: o que só uma aba mudou vale; mudança nas duas no mesmo item vale a mais recente; item novo em outra aba entra; item excluído aqui continua excluído.
+- A aba sem foco confere a nuvem a cada 45 segundos, além de ao voltar para ela.
+
+
 ## [1.10.116] - 2026-10-07 00:00
 
 ### Changed
