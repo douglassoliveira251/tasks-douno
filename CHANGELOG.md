@@ -1,3 +1,13 @@
+## [1.10.125] - 2026-10-13 00:00
+
+### Changed
+
+#### Tarefas
+
+- Edição da tarefa: o campo Espaço mostra "Espaço  ● nome" e as tags na mesma linha; clicar no nome do espaço abre a troca (o ícone de pasta saiu).
+- Agendas ligadas à tarefa que já passaram (data final anterior a hoje; recorrentes só quando a repetição terminou) ficam ocultas, com o botão "Mostrar N anteriores". Nada é excluído.
+
+
 ## [1.10.124] - 2026-10-13 00:00
 
 ### Changed

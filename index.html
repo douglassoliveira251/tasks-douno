@@ -778,6 +778,11 @@
   .tpl-card-meta{font-size:12px; color:var(--ink-faint); margin-top:2px;}
   .tpl-card-actions{display:flex; gap:4px;}
   .tpl-menu-empty{padding:8px 10px; font-size:12.5px; color:var(--ink-faint); max-width:220px; line-height:1.4;}
+  .tp-space-line{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .tp-space-line > .tp-label{margin:0;}
+  .tp-space-line .cat-tags-combined-row{flex:1; min-width:0;}
+  .tp-space-chip{border:none; cursor:pointer; font-family:inherit;}
+  .tp-space-chip:hover{filter:brightness(.96);}
   .tpl-menu-sep{height:1px; background:var(--border); margin:4px 2px;}
   .tpl-menu-head{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:6px 10px 3px;}
   .tpl-menu-meta{margin-left:auto; font-size:11px; color:var(--ink-faint); padding-left:14px;}
@@ -1790,6 +1795,8 @@
   }
   .tp-task-agenda-row .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px;}
   .tp-task-agenda-body{flex:1; min-width:0;}
+  .tp-past-toggle{border:none; background:none; padding:4px 2px; font-size:11.5px; font-weight:600; color:var(--ink-faint); cursor:pointer;}
+  .tp-past-toggle:hover{color:var(--primary);}
   .tp-task-agenda-date{color:var(--ink-soft); font-size:10px; margin-bottom:2px;}
   .tp-task-agenda-title{font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
@@ -2600,6 +2607,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.125', date:'13/10/2026', title:'Espaço e agendas na tarefa', text:'Na edição da tarefa, o espaço virou um nome clicável na mesma linha das tags (clique para trocar). As agendas que já passaram ficam ocultas, com "Mostrar anteriores" para vê-las.' },
   { version:'1.10.124', date:'13/10/2026', title:'Menu ⋮ no painel da tarefa', text:'O painel da tarefa ganhou um menu "⋮": usar template, salvar como template, gerenciar templates, duplicar, mover de espaço e excluir. Os ícones soltos saíram.' },
   { version:'1.10.123', date:'13/10/2026', title:'Templates por espaço', text:'Cada template agora é ligado a um ou mais espaços e só aparece neles. O espaço selecionado no momento decide quais templates você vê.' },
   { version:'1.10.122', date:'13/10/2026', title:'Projetos em lista', text:'A página Projetos agora é uma lista em tabela: progresso, etapa atual, entrega e status de cada projeto, com filtros por situação.' },
@@ -4544,12 +4552,11 @@ function renderTaskPanel(panel){
       ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Tarefa concluída</div>` : ''}
     </div>
 
-    <div class="tp-field" style="position:relative;">
+    <div class="tp-field tp-space-line" style="position:relative;">
       <label class="tp-label">Espaço</label>
       <div class="cat-tags-combined-row">
         <div class="group-move-row">
-          <button type="button" class="move-group-btn" id="tpMoveGroupBtn" title="Mover de espaço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg></button>
-          <span class="group-current-chip" id="tpGroupChip"></span>
+          <button type="button" class="group-current-chip tp-space-chip" id="tpGroupChip" title="Clique para mudar de espaço"></button>
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
           ${(task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
@@ -4723,7 +4730,7 @@ function renderTaskPanel(panel){
     on('dup', () => { closeAllTaskMenus(); duplicateThisTask(); });
     on('move', () => {
       closeAllTaskMenus();
-      document.getElementById('tpMoveGroupBtn').click();
+      document.getElementById('tpGroupChip').click();
     });
     on('del', () => {
       closeAllTaskMenus();
@@ -4837,7 +4844,7 @@ function renderTaskPanel(panel){
     chip.innerHTML = `<span class="cat-swatch" style="background:${cat?cat.color:'var(--ink-faint)'}"></span>${escapeHtml(cat?cat.name:'Sem espaço')}`;
   }
   renderTpGroupChip();
-  document.getElementById('tpMoveGroupBtn').onclick = (e) => {
+  document.getElementById('tpGroupChip').onclick = (e) => {
     e.stopPropagation();
     openMoveGroupPortal(e.currentTarget, task.categoryId, (newCatId) => {
       const t = getOrCreateActiveTask(); if(!t) return;
@@ -4852,15 +4859,26 @@ function renderTaskPanel(panel){
     });
   };
 
+  let tpShowPastAgendas = false;
+  function agendaIsPast(ev){
+    const today = todayStr();
+    if(ev.recurrence && ev.recurrence !== 'none') return !!ev.recurrenceEndDate && ev.recurrenceEndDate < today;
+    return (ev.endDate || ev.date || '9999') < today;
+  }
   function renderTpAgendaList(){
     const box = document.getElementById('tpAgendaList');
     if(!box) return;
-    const linked = state.events.filter(ev => ev.linkedTaskId === task.id)
+    const all = state.events.filter(ev => ev.linkedTaskId === task.id)
       .sort((a,b) => (a.date||'').localeCompare(b.date||''));
-    if(linked.length === 0){
+    const past = all.filter(agendaIsPast);
+    const linked = tpShowPastAgendas ? all : all.filter(ev => !agendaIsPast(ev));
+    if(all.length === 0){
       box.innerHTML = '';
       return;
     }
+    const pastToggle = past.length
+      ? `<button type="button" class="tp-past-toggle" id="tpPastAgendasBtn">${tpShowPastAgendas ? 'Ocultar anteriores' : 'Mostrar ' + past.length + ' anterior' + (past.length > 1 ? 'es' : '')}</button>`
+      : '';
     box.innerHTML = linked.map(ev => `
       <div class="tp-task-agenda-row" data-event-id="${ev.id}">
         <span class="dot" style="background:${eventColor(ev)}"></span>
@@ -4869,7 +4887,9 @@ function renderTaskPanel(panel){
           <div class="tp-task-agenda-title">${escapeHtml(ev.title||'Sem título')}</div>
         </div>
       </div>
-    `).join('');
+    `).join('') + pastToggle;
+    const pastBtn = box.querySelector('#tpPastAgendasBtn');
+    if(pastBtn) pastBtn.onclick = (e) => { e.stopPropagation(); tpShowPastAgendas = !tpShowPastAgendas; renderTpAgendaList(); };
     box.querySelectorAll('.tp-task-agenda-row').forEach(row => {
       row.style.cursor = 'pointer';
       row.onclick = () => {
@@ -5981,7 +6001,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.124';
+const APP_VERSION = '1.10.125';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
