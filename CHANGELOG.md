@@ -1,3 +1,12 @@
+## [1.10.122] - 2026-10-13 00:00
+
+### Changed
+
+#### Projetos
+
+- A lista de projetos virou uma tabela (uma linha por projeto): progresso, etapa atual, entrega e status, com filtros Todos, Em andamento, Atrasados e Concluídos. No celular a linha vira compacta.
+
+
 ## [1.10.121] - 2026-10-13 00:00
 
 ### Added

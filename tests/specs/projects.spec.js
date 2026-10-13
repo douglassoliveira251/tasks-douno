@@ -63,11 +63,11 @@ test.describe('Projetos', () => {
     await page.locator('.nav-item[data-view="projects"]').click();
 
     await expect(page.locator('#viewTitle')).toHaveText('Projetos');
-    await expect(page.locator('.proj-card')).toHaveCount(1);
-    await expect(page.locator('.proj-card')).toContainText('Construção da casa');
-    await expect(page.locator('.proj-card')).toContainText('50%');
+    await expect(page.locator('.plist-row')).toHaveCount(1);
+    await expect(page.locator('.plist-row')).toContainText('Construção da casa');
+    await expect(page.locator('.plist-row')).toContainText('50%');
 
-    await page.locator('.proj-card').click();
+    await page.locator('.plist-row').click();
     await expect(page.locator('.gantt-row')).toHaveCount(3);
     await expect(page.locator('.gantt-bar.concluida')).toHaveCount(1);
     await expect(page.locator('.gantt-today')).toBeVisible();
@@ -119,4 +119,28 @@ test.describe('Projetos', () => {
     expect(t.projectId).toBe('p1');
     expect(t.stageId).toBe('s3');
   });
+});
+
+test('lista de projetos: filtros por situação', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const mk = (id, name, stages) => ({ id, name, categoryId: cat, description: '', startDate: today, endDate: '', createdAt: 1, stages });
+    state.tasks = [];
+    state.projects = [
+      mk('a', 'Atrasado', [{ id: 'a1', name: 'E1', start: addDaysStr(today, -20), end: addDaysStr(today, -2) }]),
+      mk('b', 'Em dia', [{ id: 'b1', name: 'E1', start: today, end: addDaysStr(today, 20) }]),
+      mk('c', 'Feito', [{ id: 'c1', name: 'E1', start: addDaysStr(today, -20), end: addDaysStr(today, -2), manualDone: true }]),
+    ];
+    projectListFilter = 'all'; activeProjectId = null; currentView = 'projects'; render();
+  });
+  await expect(page.locator('.plist-row')).toHaveCount(3);
+  await page.locator('.plist-chip[data-f="atrasado"]').click();
+  await expect(page.locator('.plist-row')).toHaveCount(1);
+  await expect(page.locator('.plist-row')).toContainText('Atrasado');
+  await page.locator('.plist-chip[data-f="concluido"]').click();
+  await expect(page.locator('.plist-row')).toContainText('Feito');
+  await page.locator('.plist-chip[data-f="andamento"]').click();
+  await expect(page.locator('.plist-row')).toContainText('Em dia');
 });
