@@ -1,3 +1,16 @@
+## [1.10.119] - 2026-10-13 00:00
+
+### Added
+
+#### Tarefas
+
+- Templates de tarefa: nome, título, descrição, prioridade, espaço, horário, repetição, tags, subtarefas e agendas (com dias em relação ao prazo). Gerenciados em Configurações → Templates; aplicados pelo botão "Template" na lista de Tarefas; "Salvar como template" no menu de cada tarefa. Sincronizam entre sessões.
+
+#### Ajuda
+
+- Botão "Enviar comentários" na Ajuda (?): escolha 👍 Algo bom ou 👎 Algo ruim, escreva e envie. Chega por e-mail (função send-feedback, que exige login) com versão, tela e navegador.
+
+
 ## [1.10.118] - 2026-10-13 00:00
 
 ### Changed

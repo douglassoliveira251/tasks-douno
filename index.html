@@ -675,6 +675,42 @@
   }
   .completed-toggle input:checked + .completed-toggle-track{background:var(--primary);}
   .completed-toggle input:checked + .completed-toggle-track .completed-toggle-thumb{transform:translateX(15px);}
+  .tpl-overlay-modal{width:560px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto;}
+  .tpl-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .tpl-tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .tpl-tag-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:99px; font-size:12px; font-weight:600;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer; user-select:none;
+  }
+  .tpl-tag-chip.on{color:#fff; border-color:transparent;}
+  .tpl-ev-row{display:grid; grid-template-columns:1fr 78px 90px 90px 28px; gap:6px; align-items:center; margin-bottom:6px;}
+  .tpl-ev-head{display:grid; grid-template-columns:1fr 78px 90px 90px 28px; gap:6px; font-size:10.5px; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;}
+  .tpl-ev-row .tp-input{padding:6px 8px; font-size:12.5px;}
+  .tpl-list{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+  .tpl-card{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface);
+    border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm);
+  }
+  .tpl-card-main{flex:1; min-width:0;}
+  .tpl-card-name{font-weight:700; font-size:14px; color:var(--ink);}
+  .tpl-card-meta{font-size:12px; color:var(--ink-faint); margin-top:2px;}
+  .tpl-card-actions{display:flex; gap:4px;}
+  .tpl-menu-empty{padding:8px 10px; font-size:12.5px; color:var(--ink-faint); max-width:220px; line-height:1.4;}
+  .tpl-menu-sep{height:1px; background:var(--border); margin:4px 2px;}
+  .fb-kinds{display:flex; gap:10px; margin:6px 0 14px;}
+  .fb-kind{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px;
+    border:1.5px solid var(--border); background:var(--surface); color:var(--ink-soft); font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+  .fb-kind svg{width:20px; height:20px;}
+  .fb-kind.on.good{border-color:var(--ok); background:var(--ok-light); color:var(--ok-dark);}
+  .fb-kind.on.bad{border-color:var(--danger); background:var(--danger-light); color:var(--danger);}
+  .help-feedback-btn{
+    display:flex; align-items:center; gap:8px; width:100%; margin-bottom:10px; padding:10px 12px; border-radius:10px;
+    border:1px solid var(--border); background:var(--surface); color:var(--primary); font-weight:600; font-size:13px; cursor:pointer;
+  }
+  .help-feedback-btn svg{width:16px; height:16px;}
+  .help-feedback-btn:hover{background:var(--primary-light);}
   .ev-suggest-wrap{position:relative;}
   .ev-suggest{
     display:none; position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:30;
@@ -2153,7 +2189,13 @@
         <button type="button" class="tp-close" id="helpCloseBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
       <div class="help-panel-body" id="helpPanelBody"></div>
-      <div class="help-panel-footer">Versão <span id="helpPanelVersion"></span></div>
+      <div class="help-panel-footer">
+        <button type="button" class="help-feedback-btn" id="helpFeedbackBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Enviar comentários
+        </button>
+        Versão <span id="helpPanelVersion"></span>
+      </div>
     </div>
     <div class="help-panel-backdrop" id="helpPanelBackdrop"></div>
 
@@ -2468,6 +2510,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.119', date:'13/10/2026', title:'Templates e comentários', text:'Crie templates de tarefa (descrição, subtarefas, tags, repetição e agendas) em Configurações → Templates e use pelo botão "Template" nas Tarefas. Na Ajuda (?), o botão "Enviar comentários" leva seu 👍 ou 👎 direto para nós.' },
   { version:'1.10.118', date:'13/10/2026', title:'Calendário a partir das 7h', text:'A visão da semana sempre abre mostrando a partir das 7h, sem precisar rolar a madrugada.' },
   { version:'1.10.117', date:'13/10/2026', title:'Várias abas sem perder alterações', text:'Se você usa o sistema em dois navegadores, o que foi alterado num não desfaz mais o que foi feito no outro: as mudanças das duas abas são combinadas ao salvar.' },
   { version:'1.10.116', date:'07/10/2026', title:'Espaço na barra do topo', text:'No computador, o seletor de espaço agora fica na barra do topo, à esquerda do botão de ajuda (?), com o rótulo "Espaço" e a bolinha na cor do espaço escolhido. No celular continua no cartão do título.' },
@@ -2717,6 +2760,7 @@ function normalizeState(){
   if(!state.profile) state.profile = { name:'', email:'', avatar:null };
   if(!state.tags) state.tags = [];
   if(!Array.isArray(state.emailHistory)) state.emailHistory = [];
+  if(!Array.isArray(state.taskTemplates)) state.taskTemplates = [];
   if(!state.tasks) state.tasks = [];
   if(!state.notes) state.notes = [];
   if(!state.events) state.events = [];
@@ -3418,6 +3462,10 @@ function renderTasks(){
       Limpar filtros
     </button>
     ` : ''}
+    <button type="button" class="tag-filter-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <span>Template</span>
+    </button>
     <label class="completed-toggle">
       <span>Mostrar concluídas</span>
       <input type="checkbox" id="showCompletedToggle" ${state.showCompletedTasks?'checked':''}>
@@ -3514,6 +3562,10 @@ function renderTasks(){
     });
   }
 
+  groupBar.querySelector('#useTemplateBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openTemplatePickMenu(e.currentTarget);
+  });
   groupBar.querySelector('#showCompletedToggle').addEventListener('change', e => {
     state.showCompletedTasks = e.target.checked;
     markDirty();
@@ -3676,6 +3728,7 @@ function openTaskRowMenu(task, btnEl, wrapEl){
     <button type="button" class="task-menu-item" data-action="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar</button>
     <button type="button" class="task-menu-item" data-action="duplicate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>
     <button type="button" class="task-menu-item" data-action="move"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg>Mover de espaço</button>
+    <button type="button" class="task-menu-item" data-action="template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Salvar como template</button>
     <button type="button" class="task-menu-item danger" data-action="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg>Excluir</button>
   `;
   const rect = btnEl.getBoundingClientRect();
@@ -3703,6 +3756,11 @@ function openTaskRowMenu(task, btnEl, wrapEl){
     (copy.comments||[]).forEach(c => c.id = uid('cmt'));
     state.tasks.push(copy);
     markDirty();
+  };
+  portal.querySelector('[data-action="template"]').onclick = (e) => {
+    e.stopPropagation();
+    closeAllTaskMenus();
+    openTemplateEditor(null, templateFromTask(task));
   };
   portal.querySelector('[data-action="move"]').onclick = (e) => {
     e.stopPropagation();
@@ -5717,7 +5775,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.118';
+const APP_VERSION = '1.10.119';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7285,8 +7343,9 @@ const SETTINGS_NAV_ICONS = {
   tags: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l5.6-5.59a2 2 0 000-2.82z"/><circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/></svg>',
   arquivo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>',
   integracoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2v4M16 2v4"/></svg>',
+  templates: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
 };
-const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', arquivo:'Arquivo', integracoes:'Integrações' };
+const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', templates:'Templates', arquivo:'Arquivo', integracoes:'Integrações' };
 function renderSettingsView(){
   const view = document.getElementById('settingsView');
   view.innerHTML = `
@@ -7306,11 +7365,327 @@ function renderSettingsView(){
   const panel = document.getElementById('settingsPanel');
   if(settingsTab === 'categorias') renderCategoriesPanel(panel);
   else if(settingsTab === 'tags') renderTagsPanel(panel);
+  else if(settingsTab === 'templates') renderTemplatesPanel(panel);
   else if(settingsTab === 'arquivo') renderFilePanel(panel);
   else if(settingsTab === 'personalizacao') renderPersonalizationPanel(panel);
   else if(settingsTab === 'integracoes') renderIntegrationsPanel(panel);
   else renderProfilePanel(panel);
 }
+
+/* ===================== TEMPLATES DE TAREFA ===================== */
+function templateFromTask(task){
+  const linked = state.events.filter(ev => ev.linkedTaskId === task.id && ev.date);
+  const due = task.dueDate || todayStr();
+  const daysBetween = (a, b) => Math.round((Date.UTC(...a.split('-').map((n, i) => i === 1 ? n - 1 : +n)) - Date.UTC(...b.split('-').map((n, i) => i === 1 ? n - 1 : +n))) / 86400000);
+  return {
+    name: task.title || 'Novo template',
+    categoryId: task.categoryId || '',
+    title: task.title || '',
+    description: task.description || '',
+    priority: task.priority || 'media',
+    tagIds: (task.tagIds || []).slice(),
+    dueTime: task.dueTime || '',
+    recurrence: task.recurrence || 'none',
+    recurrenceInterval: task.recurrenceInterval || 1,
+    subtasks: (task.subtasks || []).map(sub => ({ title: sub.title || '' })).filter(sub => sub.title),
+    events: linked.map(ev => ({
+      title: ev.title || '',
+      offsetDays: daysBetween(ev.date, due),
+      startTime: ev.allDay ? '' : (ev.startTime || ''),
+      endTime: ev.allDay ? '' : (ev.endTime || ''),
+    })),
+  };
+}
+
+function createTaskFromTemplate(tpl){
+  const catId = (tpl.categoryId && catById(tpl.categoryId)) ? tpl.categoryId
+    : ((activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id);
+  const today = todayStr();
+  state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+  const t = {
+    id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
+    title: tpl.title || tpl.name || '', categoryId: catId, done: false, status: 'nao_iniciado',
+    dueDate: today, dueTime: tpl.dueTime || DEFAULT_DUE_TIME, priority: tpl.priority || 'media',
+    description: tpl.description || '',
+    tagIds: (tpl.tagIds || []).filter(id => state.tags.some(tg => tg.id === id)),
+    recurrence: tpl.recurrence || 'none', recurrenceInterval: tpl.recurrenceInterval || 1,
+    recurrenceBaseDate: (tpl.recurrence && tpl.recurrence !== 'none') ? today : null,
+    subtasks: (tpl.subtasks || []).map(sub => ({ id: uid('sub'), title: sub.title, done: false })),
+    comments: [], attachments: [], createdAt: Date.now(),
+  };
+  state.tasks.push(t);
+  const created = [];
+  (tpl.events || []).forEach(e => {
+    const date = addDaysStr(today, parseInt(e.offsetDays, 10) || 0);
+    const allDay = !e.startTime;
+    const ev = {
+      id: uid('event'), title: e.title || t.title, categoryId: catId, tagIds: t.tagIds.slice(),
+      date, endDate: date, startTime: allDay ? '' : e.startTime, endTime: allDay ? '' : (e.endTime || addOneHourToTime(e.startTime)),
+      allDay, recurrence: 'none', recurrenceInterval: 1, recurrenceBaseDate: date,
+      linkedTaskId: t.id, description: '', createdAt: Date.now(),
+    };
+    state.events.push(ev);
+    created.push(ev);
+  });
+  currentView = 'tasks';
+  activeTaskId = t.id;
+  creatingNewTask = false;
+  markDirty();
+  created.forEach(ev => syncEventToOutlook(ev));
+  return t;
+}
+
+function openTemplatePickMenu(anchorBtn){
+  const portal = ensureTaskMenuPortal();
+  const list = state.taskTemplates || [];
+  portal.innerHTML = (list.length
+    ? list.map(tp => `<button type="button" class="task-menu-item" data-tpl="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</button>`).join('')
+    : '<div class="tpl-menu-empty">Nenhum template ainda. Crie em Configurações → Templates ou use "Salvar como template" no menu de uma tarefa.</div>')
+    + '<div class="tpl-menu-sep"></div><button type="button" class="task-menu-item" data-tpl-manage="1">Gerenciar templates…</button>';
+  const rect = anchorBtn.getBoundingClientRect();
+  portal.style.top = Math.round(rect.bottom + 6) + 'px';
+  portal.style.left = Math.round(Math.min(rect.left, window.innerWidth - 250)) + 'px';
+  portal.style.right = 'auto';
+  portal.classList.add('show');
+  portal.querySelectorAll('[data-tpl]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      closeAllTaskMenus();
+      const tpl = state.taskTemplates.find(x => x.id === btn.dataset.tpl);
+      if(tpl) createTaskFromTemplate(tpl);
+    };
+  });
+  portal.querySelector('[data-tpl-manage]').onclick = (e) => {
+    e.stopPropagation();
+    closeAllTaskMenus();
+    settingsTab = 'templates';
+    currentView = 'settings';
+    render();
+  };
+}
+
+function ensureTemplateOverlay(){
+  let ov = document.getElementById('templateOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.id = 'templateOverlay';
+    ov.innerHTML = '<div class="modal tpl-overlay-modal" id="templateModal"></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('mousedown', e => { ov._downOnBackdrop = (e.target === ov); });
+    ov.addEventListener('click', e => { if(e.target === ov && ov._downOnBackdrop) ov.classList.remove('show'); });
+  }
+  return ov;
+}
+
+function openTemplateEditor(existing, prefill){
+  const ov = ensureTemplateOverlay();
+  const modal = ov.querySelector('#templateModal');
+  const tpl = existing
+    ? JSON.parse(JSON.stringify(existing))
+    : Object.assign({ id: uid('tpl'), name: '', categoryId: '', title: '', description: '', priority: 'media', tagIds: [], dueTime: '', recurrence: 'none', recurrenceInterval: 1, subtasks: [], events: [] }, prefill || {});
+  if(!tpl.id) tpl.id = uid('tpl');
+  const selectedTags = new Set(tpl.tagIds || []);
+  const events = (tpl.events || []).map(e => ({ ...e }));
+
+  function eventsHtml(){
+    if(!events.length) return '<p style="font-size:12px; color:var(--ink-faint); margin-bottom:6px;">Nenhuma agenda. Adicione para criar compromissos junto com a tarefa.</p>';
+    return '<div class="tpl-ev-head"><span>Título</span><span>Dias do prazo</span><span>Início</span><span>Fim</span><span></span></div>' + events.map((e, i) => `
+      <div class="tpl-ev-row" data-i="${i}">
+        <input type="text" class="tp-input" data-f="title" placeholder="Título da agenda" value="${escapeHtml(e.title || '')}">
+        <input type="number" class="tp-input" data-f="offsetDays" value="${parseInt(e.offsetDays, 10) || 0}" title="0 = no dia; negativo = antes; positivo = depois">
+        <input type="time" class="tp-input" data-f="startTime" value="${e.startTime || ''}">
+        <input type="time" class="tp-input" data-f="endTime" value="${e.endTime || ''}">
+        <button type="button" class="tp-attach-del" data-del="${i}" title="Remover">×</button>
+      </div>`).join('');
+  }
+
+  modal.innerHTML = `
+    <h3 style="margin-bottom:14px;">${existing ? 'Editar template' : 'Novo template'}</h3>
+    <div class="tp-field"><label class="tp-label">Nome do template</label>
+      <input type="text" class="tp-input" id="tplName" placeholder="Ex.: Fechamento mensal" value="${escapeHtml(tpl.name || '')}"></div>
+    <div class="tp-field"><label class="tp-label">Título da tarefa</label>
+      <input type="text" class="tp-input" id="tplTitle" placeholder="Título que a tarefa nasce com" value="${escapeHtml(tpl.title || '')}"></div>
+    <div class="tp-field"><label class="tp-label">Descrição</label>
+      <textarea class="tp-textarea" id="tplDesc" rows="3">${escapeHtml(tpl.description || '')}</textarea></div>
+    <div class="tpl-grid">
+      <div class="tp-field"><label class="tp-label">Prioridade</label>
+        <select class="tp-select" id="tplPriority">${PRIORITY_CONFIG.map(p => `<option value="${p.key}" ${tpl.priority === p.key ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
+      <div class="tp-field"><label class="tp-label">Espaço</label>
+        <select class="tp-select" id="tplCategory"><option value="">Espaço selecionado na hora</option>${state.categories.map(c => `<option value="${c.id}" ${tpl.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
+      <div class="tp-field"><label class="tp-label">Horário</label>
+        <input type="time" class="tp-input" id="tplTime" value="${tpl.dueTime || ''}"></div>
+      <div class="tp-field"><label class="tp-label">Repetição</label>
+        <div class="tp-row2">
+          <select class="tp-select" id="tplRec">${Object.keys(RECURRENCE_LABELS).map(k => `<option value="${k}" ${tpl.recurrence === k ? 'selected' : ''}>${RECURRENCE_LABELS[k]}</option>`).join('')}</select>
+          <input type="number" class="tp-input" id="tplRecInterval" min="1" value="${tpl.recurrenceInterval || 1}" title="A cada N">
+        </div></div>
+    </div>
+    <div class="tp-field"><label class="tp-label">Tags</label>
+      <div class="tpl-tags" id="tplTags">${state.tags.length ? state.tags.map(tg => `<span class="tpl-tag-chip ${selectedTags.has(tg.id) ? 'on' : ''}" data-tag="${tg.id}" style="${selectedTags.has(tg.id) ? 'background:' + tg.color : ''}">${escapeHtml(tg.name)}</span>`).join('') : '<span style="font-size:12px; color:var(--ink-faint);">Nenhuma tag criada ainda.</span>'}</div></div>
+    <div class="tp-field"><label class="tp-label">Subtarefas <span style="font-weight:400; color:var(--ink-faint);">(uma por linha)</span></label>
+      <textarea class="tp-textarea" id="tplSubtasks" rows="4" placeholder="Etapa 1&#10;Etapa 2">${escapeHtml((tpl.subtasks || []).map(x => x.title).join('\n'))}</textarea></div>
+    <div class="tp-field"><label class="tp-label">Agendas <span style="font-weight:400; color:var(--ink-faint);">(criadas junto, em relação ao prazo da tarefa)</span></label>
+      <div id="tplEvents"></div>
+      <button type="button" class="btn ghost small" id="tplAddEvent">+ Adicionar agenda</button></div>
+    <p id="tplError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost small" id="tplCancel">Cancelar</button>
+      <button type="button" class="btn small" id="tplSave">Salvar template</button>
+    </div>`;
+
+  const evBox = modal.querySelector('#tplEvents');
+  function renderEvents(){ evBox.innerHTML = eventsHtml(); }
+  renderEvents();
+  evBox.addEventListener('input', (e) => {
+    const row = e.target.closest('.tpl-ev-row'); if(!row) return;
+    events[+row.dataset.i][e.target.dataset.f] = e.target.value;
+  });
+  evBox.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del]'); if(!del) return;
+    events.splice(+del.dataset.del, 1);
+    renderEvents();
+  });
+  modal.querySelector('#tplAddEvent').onclick = () => { events.push({ title: '', offsetDays: 0, startTime: '', endTime: '' }); renderEvents(); };
+  modal.querySelector('#tplTags').addEventListener('click', (e) => {
+    const chip = e.target.closest('.tpl-tag-chip'); if(!chip || !chip.dataset.tag) return;
+    const id = chip.dataset.tag;
+    const tg = state.tags.find(x => x.id === id);
+    if(selectedTags.has(id)){ selectedTags.delete(id); chip.classList.remove('on'); chip.style.background = ''; }
+    else { selectedTags.add(id); chip.classList.add('on'); chip.style.background = tg ? tg.color : ''; }
+  });
+  modal.querySelector('#tplCancel').onclick = () => ov.classList.remove('show');
+  modal.querySelector('#tplSave').onclick = () => {
+    const name = modal.querySelector('#tplName').value.trim();
+    const err = modal.querySelector('#tplError');
+    if(!name){ err.textContent = 'Dê um nome ao template.'; err.style.display = 'block'; modal.querySelector('#tplName').focus(); return; }
+    const out = {
+      id: tpl.id, name,
+      title: modal.querySelector('#tplTitle').value.trim(),
+      description: modal.querySelector('#tplDesc').value,
+      priority: modal.querySelector('#tplPriority').value,
+      categoryId: modal.querySelector('#tplCategory').value,
+      dueTime: modal.querySelector('#tplTime').value,
+      recurrence: modal.querySelector('#tplRec').value,
+      recurrenceInterval: Math.max(1, parseInt(modal.querySelector('#tplRecInterval').value, 10) || 1),
+      tagIds: Array.from(selectedTags),
+      subtasks: modal.querySelector('#tplSubtasks').value.split('\n').map(x => x.trim()).filter(Boolean).map(title => ({ title })),
+      events: events.filter(e => (e.title || '').trim()).map(e => ({
+        title: e.title.trim(), offsetDays: parseInt(e.offsetDays, 10) || 0, startTime: e.startTime || '', endTime: e.endTime || '',
+      })),
+    };
+    const i = state.taskTemplates.findIndex(x => x.id === out.id);
+    if(i >= 0) state.taskTemplates[i] = out; else state.taskTemplates.push(out);
+    ov.classList.remove('show');
+    markDirty();
+  };
+  ov.classList.add('show');
+  setTimeout(() => modal.querySelector('#tplName').focus(), 0);
+}
+
+function renderTemplatesPanel(panel){
+  const list = state.taskTemplates || [];
+  const catName = id => { const c = catById(id); return c ? c.name : 'Espaço selecionado na hora'; };
+  panel.innerHTML = `
+    <h3 class="settings-section-title">Templates de tarefa</h3>
+    <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
+    <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
+    <div class="tpl-list">
+      ${list.length ? list.map(tp => `
+        <div class="tpl-card" data-id="${tp.id}">
+          <div class="tpl-card-main">
+            <div class="tpl-card-name">${escapeHtml(tp.name || 'Sem nome')}</div>
+            <div class="tpl-card-meta">${escapeHtml(catName(tp.categoryId))} · ${(tp.subtasks||[]).length} subtarefa(s) · ${(tp.events||[]).length} agenda(s)${tp.recurrence && tp.recurrence !== 'none' ? ' · ' + RECURRENCE_LABELS[tp.recurrence].toLowerCase() : ''}</div>
+          </div>
+          <div class="tpl-card-actions">
+            <button type="button" class="btn ghost small" data-act="edit">Editar</button>
+            <button type="button" class="btn ghost small" data-act="dup">Duplicar</button>
+            <button type="button" class="btn ghost small" data-act="del" style="color:var(--danger);">Excluir</button>
+          </div>
+        </div>`).join('') : '<p class="settings-section-desc" style="margin-top:8px;">Nenhum template ainda.</p>'}
+    </div>`;
+  panel.querySelector('#tplNewBtn').onclick = () => openTemplateEditor(null);
+  panel.querySelectorAll('.tpl-card').forEach(card => {
+    const tpl = state.taskTemplates.find(x => x.id === card.dataset.id);
+    card.querySelector('[data-act="edit"]').onclick = () => openTemplateEditor(tpl);
+    card.querySelector('[data-act="dup"]').onclick = () => {
+      const copy = JSON.parse(JSON.stringify(tpl));
+      copy.id = uid('tpl'); copy.name = (tpl.name || 'Template') + ' (cópia)';
+      state.taskTemplates.push(copy);
+      markDirty();
+    };
+    card.querySelector('[data-act="del"]').onclick = () => {
+      if(!confirm('Excluir o template "' + (tpl.name || '') + '"?')) return;
+      state.taskTemplates = state.taskTemplates.filter(x => x.id !== tpl.id);
+      markDirty();
+    };
+  });
+}
+
+/* ===================== COMENTÁRIOS ===================== */
+function openFeedbackModal(){
+  closeHelpPanel();
+  let ov = document.getElementById('feedbackOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.id = 'feedbackOverlay';
+    ov.innerHTML = '<div class="modal" id="feedbackModal" style="width:440px; max-width:calc(100vw - 24px);"></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('mousedown', e => { ov._downOnBackdrop = (e.target === ov); });
+    ov.addEventListener('click', e => { if(e.target === ov && ov._downOnBackdrop) ov.classList.remove('show'); });
+  }
+  const modal = ov.querySelector('#feedbackModal');
+  let kind = 'good';
+  const up = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>';
+  const down = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>';
+  modal.innerHTML = `
+    <h3 style="margin-bottom:6px;">Enviar comentários</h3>
+    <p style="font-size:13px; color:var(--ink-soft); margin-bottom:12px;">Conte o que está bom ou o que pode melhorar. A mensagem chega direto para quem cuida do sistema.</p>
+    <div class="fb-kinds">
+      <button type="button" class="fb-kind good on" data-kind="good">${up}Algo bom</button>
+      <button type="button" class="fb-kind bad" data-kind="bad">${down}Algo ruim</button>
+    </div>
+    <textarea class="tp-textarea" id="fbMessage" rows="5" maxlength="2000" placeholder="Escreva aqui..."></textarea>
+    <p id="fbError" style="display:none; color:var(--danger); font-size:12.5px; margin:6px 0 0;"></p>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost small" id="fbCancel">Cancelar</button>
+      <button type="button" class="btn small" id="fbSend">Enviar</button>
+    </div>`;
+  modal.querySelectorAll('.fb-kind').forEach(b => {
+    b.onclick = () => {
+      kind = b.dataset.kind;
+      modal.querySelectorAll('.fb-kind').forEach(x => x.classList.toggle('on', x === b));
+    };
+  });
+  modal.querySelector('#fbCancel').onclick = () => ov.classList.remove('show');
+  modal.querySelector('#fbSend').onclick = async () => {
+    const err = modal.querySelector('#fbError');
+    const btn = modal.querySelector('#fbSend');
+    const message = modal.querySelector('#fbMessage').value.trim();
+    err.style.display = 'none';
+    if(!message){ err.textContent = 'Escreva um comentário antes de enviar.'; err.style.display = 'block'; return; }
+    if(!sbClient || !cloudSession){ err.textContent = 'Entre na sua conta para enviar comentários.'; err.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    try{
+      const { data, error } = await sbClient.functions.invoke('send-feedback', {
+        body: { kind, message, version: APP_VERSION, view: currentView, userAgent: navigator.userAgent },
+      });
+      if(error || (data && data.error)) throw (error || new Error(data.error));
+      ov.classList.remove('show');
+      closeHelpPanel();
+      showToast('Obrigado! Seu comentário foi enviado.');
+    }catch(e){
+      console.error(e);
+      err.textContent = 'Não foi possível enviar agora. Tente de novo em instantes.';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Enviar';
+    }
+  };
+  ov.classList.add('show');
+  setTimeout(() => modal.querySelector('#fbMessage').focus(), 0);
+}
+document.getElementById('helpFeedbackBtn').onclick = openFeedbackModal;
 
 function renderPersonalizationPanel(panel){
   const isDark = state.theme === 'dark';
@@ -8045,7 +8420,7 @@ async function fetchCloudStateRow(){
       são preservados);
    2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
       gravou no meio, repete. */
-const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks'];
+const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates'];
 let cloudBaseUpdatedAt = null;
 let cloudBaseSnapshot = null;
 
