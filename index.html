@@ -2510,6 +2510,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.120', date:'13/10/2026', title:'Template ao criar tarefa', text:'No painel de Nova tarefa agora há "Começar de um template": escolha um e a tarefa nasce já preenchida.' },
   { version:'1.10.119', date:'13/10/2026', title:'Templates e comentários', text:'Crie templates de tarefa (descrição, subtarefas, tags, repetição e agendas) em Configurações → Templates e use pelo botão "Template" nas Tarefas. Na Ajuda (?), o botão "Enviar comentários" leva seu 👍 ou 👎 direto para nós.' },
   { version:'1.10.118', date:'13/10/2026', title:'Calendário a partir das 7h', text:'A visão da semana sempre abre mostrando a partir das 7h, sem precisar rolar a madrugada.' },
   { version:'1.10.117', date:'13/10/2026', title:'Várias abas sem perder alterações', text:'Se você usa o sistema em dois navegadores, o que foi alterado num não desfaz mais o que foi feito no outro: as mudanças das duas abas são combinadas ao salvar.' },
@@ -4415,6 +4416,15 @@ function renderTaskPanel(panel){
   panel.innerHTML = `
     <div class="tp-top-flag ${topBarClass}"></div>
 
+    ${creatingNewTask ? `
+    <div class="tp-field tp-template-row">
+      <label class="tp-label">Começar de um template</label>
+      <select class="tp-select" id="tpTemplateSelect" onchange="applyTemplateFromPanel(this.value)">
+        <option value="">${(state.taskTemplates||[]).length ? 'Escolher um template (opcional)' : 'Nenhum template criado ainda'}</option>
+        ${(state.taskTemplates||[]).map(tp => `<option value="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</option>`).join('')}
+      </select>
+    </div>` : ''}
+
     <div class="tp-field">
       <div class="tp-name-row">
         <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
@@ -5775,7 +5785,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.119';
+const APP_VERSION = '1.10.120';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7397,6 +7407,10 @@ function templateFromTask(task){
   };
 }
 
+function applyTemplateFromPanel(id){
+  const tpl = (state.taskTemplates || []).find(x => x.id === id);
+  if(tpl) createTaskFromTemplate(tpl);
+}
 function createTaskFromTemplate(tpl){
   const catId = (tpl.categoryId && catById(tpl.categoryId)) ? tpl.categoryId
     : ((activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id);

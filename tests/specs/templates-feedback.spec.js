@@ -108,3 +108,18 @@ test.describe('Enviar comentários', () => {
     await expect(page.locator('#fbError')).toContainText('Entre na sua conta');
   });
 });
+
+test('Nova tarefa: seletor de template cria a tarefa preenchida', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    state.tasks = []; state.events = [];
+    state.taskTemplates = [{ id: 'tp1', name: 'Modelo', categoryId: '', title: 'Tarefa do modelo', description: 'x', priority: 'alta', tagIds: [], dueTime: '11:00', recurrence: 'none', recurrenceInterval: 1, subtasks: [{ title: 'Passo 1' }], events: [] }];
+    currentView = 'tasks'; render();
+    openNewTaskPanel();
+  });
+  await page.locator('#tpTemplateSelect').selectOption('tp1');
+  const t = await page.evaluate(() => state.tasks[0]);
+  expect(t.title).toBe('Tarefa do modelo');
+  expect(t.subtasks.map(s => s.title)).toEqual(['Passo 1']);
+  await expect(page.locator('#tpTemplateSelect')).toHaveCount(0); // painel agora é de edição
+});

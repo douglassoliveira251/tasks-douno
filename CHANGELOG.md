@@ -1,3 +1,12 @@
+## [1.10.120] - 2026-10-13 00:00
+
+### Added
+
+#### Tarefas
+
+- Painel de Nova tarefa: seletor "Começar de um template" no topo; ao escolher, a tarefa é criada já preenchida (subtarefas e agendas incluídas).
+
+
 ## [1.10.119] - 2026-10-13 00:00
 
 ### Added
