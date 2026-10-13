@@ -675,6 +675,62 @@
   }
   .completed-toggle input:checked + .completed-toggle-track{background:var(--primary);}
   .completed-toggle input:checked + .completed-toggle-track .completed-toggle-thumb{transform:translateX(15px);}
+  /* Projetos */
+  .proj-toolbar{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .proj-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+  .proj-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm);
+    padding:16px 18px; cursor:pointer; display:flex; flex-direction:column; gap:10px;
+  }
+  .proj-card:hover{box-shadow:var(--shadow-md);}
+  .proj-card-name{font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--ink);}
+  .proj-meta{font-size:12px; color:var(--ink-soft); display:flex; flex-wrap:wrap; gap:4px 12px;}
+  .proj-bar{height:8px; border-radius:4px; background:var(--surface-2); overflow:hidden;}
+  .proj-bar > i{display:block; height:100%; background:var(--primary); border-radius:4px;}
+  .proj-chip{font-size:10.5px; font-weight:700; border-radius:99px; padding:2px 9px; background:var(--surface-2); color:var(--ink-soft); display:inline-flex; gap:5px; align-items:center;}
+  .proj-chip.late{background:var(--danger-light); color:var(--danger);}
+  .proj-chip.ok{background:var(--ok-light); color:var(--ok-dark);}
+  .proj-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px;}
+  .proj-kpi{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow-sm);}
+  .proj-kpi small{display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint);}
+  .proj-kpi b{display:block; font-size:20px; margin-top:4px; font-family:var(--font-display);}
+  .proj-tabs{display:flex; gap:6px;}
+  .proj-tab{padding:7px 14px; border-radius:9px; font-size:12.5px; font-weight:600; color:var(--ink-soft); background:var(--surface-2); border:none; cursor:pointer;}
+  .proj-tab.on{background:var(--primary); color:#fff;}
+  .gantt-wrap{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow-x:auto;}
+  .gantt{min-width:760px; position:relative;}
+  .gantt-head, .gantt-row{display:grid; grid-template-columns:260px 1fr;}
+  .gantt-head{background:var(--surface-2); border-bottom:1px solid var(--border);}
+  .gantt-head .gl{padding:10px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);}
+  .gantt-months{display:flex;}
+  .gantt-months span{padding:10px 8px; font-size:11px; font-weight:700; color:var(--ink-soft); border-left:1px solid var(--border); overflow:hidden; white-space:nowrap;}
+  .gantt-row{border-bottom:1px solid var(--border); min-height:52px; cursor:pointer;}
+  .gantt-row:hover{background:var(--surface-2);}
+  .gantt-row:last-child{border-bottom:none;}
+  .gantt-row .gl{padding:8px 14px; display:flex; flex-direction:column; justify-content:center; gap:2px; min-width:0;}
+  .gantt-row .gl b{font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gantt-row .gl small{font-size:11.5px; color:var(--ink-faint);}
+  .gantt-track{position:relative;}
+  .gantt-bar{
+    position:absolute; top:14px; height:24px; border-radius:7px; color:#fff; font-size:11px; font-weight:700;
+    display:flex; align-items:center; padding:0 8px; overflow:hidden; white-space:nowrap; min-width:24px;
+  }
+  .gantt-bar .fill{position:absolute; left:0; top:0; bottom:0; background:rgba(255,255,255,.3);}
+  .gantt-bar span{position:relative;}
+  .gantt-bar.concluida{background:var(--ok);}
+  .gantt-bar.andamento{background:var(--primary);}
+  .gantt-bar.atrasada{background:var(--danger);}
+  .gantt-bar.nao_iniciada{background:#B8C4D6; color:#33405A;}
+  .gantt-today{position:absolute; top:0; bottom:0; width:2px; background:#E0584B; z-index:3; pointer-events:none;}
+  .gantt-today em{position:absolute; top:3px; left:-16px; background:#E0584B; color:#fff; font-size:10px; font-style:normal; font-weight:700; padding:1px 6px; border-radius:5px;}
+  .task-proj-pill{
+    display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; border-radius:7px; padding:2px 8px;
+    background:var(--primary-light); color:var(--primary-dark); white-space:nowrap; max-width:220px; overflow:hidden; text-overflow:ellipsis;
+  }
+  .task-row.is-project{background:linear-gradient(90deg, var(--primary-light) 0, transparent 60%);}
+  .stage-task{display:flex; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; margin-bottom:5px; cursor:pointer;}
+  .stage-task.done{opacity:.55; text-decoration:line-through;}
+  @media (max-width:768px){ .proj-kpis{grid-template-columns:repeat(2,1fr);} .gantt-head, .gantt-row{grid-template-columns:150px 1fr;} }
   .modal.tpl-overlay-modal{width:640px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto;}
   .tpl-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .tpl-tags{display:flex; flex-wrap:wrap; gap:6px;}
@@ -2082,6 +2138,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
         <span class="nav-label">Notas</span> <span class="nav-count" id="noteNavCount">0</span>
       </button>
+      <button class="nav-item" data-view="projects" title="Projetos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="21" cy="12" r="0.1"/><circle cx="15" cy="19" r="2"/></svg>
+        <span class="nav-label">Projetos</span>
+      </button>
       <button class="nav-item" data-view="calendar" title="Calendário">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span class="nav-label">Calendário</span>
@@ -2202,6 +2262,7 @@
     <div class="view" id="dashboardView"></div>
     <div class="view" id="tasksView" style="display:none;"></div>
     <div class="view" id="notesView" style="display:none;"></div>
+    <div class="view" id="projectsView" style="display:none;"></div>
     <div class="view" id="calendarView" style="display:none;"></div>
     <div class="view" id="settingsView" style="display:none;"></div>
     <button class="icon-add-btn fab" id="primaryAddBtn" title="Nova tarefa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -2286,6 +2347,7 @@ let activeEventId = null;
 let creatingNewEvent = false;
 let activeCategoryFilter = null;
 let activeTagFilters = [];
+let taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
 let activeCriticalityFilters = [];
 let criticalityFilterPopoverOpen = false;
 let activeNoteId = null;
@@ -2510,6 +2572,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.121', date:'13/10/2026', title:'Projetos', text:'Nova página Projetos: crie projetos com etapas e prazos, veja a linha do tempo com progresso e atrasos, e ligue tarefas às etapas. Tarefas de projeto aparecem nas Tarefas com a etiqueta do projeto e podem ser filtradas.' },
   { version:'1.10.120', date:'13/10/2026', title:'Template ao criar tarefa', text:'No painel de Nova tarefa agora há "Começar de um template": escolha um e a tarefa nasce já preenchida.' },
   { version:'1.10.119', date:'13/10/2026', title:'Templates e comentários', text:'Crie templates de tarefa (descrição, subtarefas, tags, repetição e agendas) em Configurações → Templates e use pelo botão "Template" nas Tarefas. Na Ajuda (?), o botão "Enviar comentários" leva seu 👍 ou 👎 direto para nós.' },
   { version:'1.10.118', date:'13/10/2026', title:'Calendário a partir das 7h', text:'A visão da semana sempre abre mostrando a partir das 7h, sem precisar rolar a madrugada.' },
@@ -2664,6 +2727,7 @@ const PAGE_HEADER_ICONS = {
   tasks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
   notes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>',
   calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  projects: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
 };
 function renderPageHeaderMeta(){
@@ -2686,6 +2750,13 @@ function renderPageHeaderMeta(){
     stats = [
       { n: scope.length, label: scope.length === 1 ? 'nota' : 'notas' },
       { n: updatedToday, label: updatedToday === 1 ? 'atualizada hoje' : 'atualizadas hoje' },
+    ];
+  } else if(currentView === 'projects'){
+    const list = projectsInScope();
+    const late = list.filter(p => projectStatus(p).late).length;
+    stats = [
+      { n: list.length, label: list.length === 1 ? 'projeto' : 'projetos' },
+      { n: late, label: late === 1 ? 'com atraso' : 'com atraso' },
     ];
   } else if(currentView === 'calendar'){
     const todayCount = getEventsForDate(todayStr()).length;
@@ -2762,6 +2833,8 @@ function normalizeState(){
   if(!state.tags) state.tags = [];
   if(!Array.isArray(state.emailHistory)) state.emailHistory = [];
   if(!Array.isArray(state.taskTemplates)) state.taskTemplates = [];
+  if(!Array.isArray(state.projects)) state.projects = [];
+  state.projects.forEach(p => { if(!Array.isArray(p.stages)) p.stages = []; });
   if(!state.tasks) state.tasks = [];
   if(!state.notes) state.notes = [];
   if(!state.events) state.events = [];
@@ -3299,6 +3372,9 @@ function computeTaskGroups(){
   if(term) pool = pool.filter(t => t.title.toLowerCase().includes(term));
   if(activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => activeTagFilters.includes(id)));
   if(activeCriticalityFilters.length) pool = pool.filter(t => activeCriticalityFilters.includes(t.priority||'media'));
+  if(taskProjectFilter === 'personal') pool = pool.filter(t => !t.projectId);
+  else if(taskProjectFilter === 'project') pool = pool.filter(t => !!t.projectId);
+  else if(taskProjectFilter !== 'all') pool = pool.filter(t => t.projectId === taskProjectFilter);
   pool = pool.filter(t => !t.done);
 
   if(taskGroupMode === 'prioridade'){
@@ -3463,6 +3539,13 @@ function renderTasks(){
       Limpar filtros
     </button>
     ` : ''}
+    ${(state.projects || []).length ? `
+    <select class="tp-select" id="taskProjectFilter" style="width:auto; padding:6px 28px 6px 10px; font-size:12.5px;" title="Filtrar por projeto">
+      <option value="all" ${taskProjectFilter==='all'?'selected':''}>Todas as tarefas</option>
+      <option value="personal" ${taskProjectFilter==='personal'?'selected':''}>Só pessoais</option>
+      <option value="project" ${taskProjectFilter==='project'?'selected':''}>Só de projetos</option>
+      ${state.projects.map(p => `<option value="${p.id}" ${taskProjectFilter===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
+    </select>` : ''}
     <button type="button" class="tag-filter-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
       <span>Template</span>
@@ -3563,6 +3646,8 @@ function renderTasks(){
     });
   }
 
+  const projFilterEl = groupBar.querySelector('#taskProjectFilter');
+  if(projFilterEl) projFilterEl.addEventListener('change', e => { taskProjectFilter = e.target.value; render(); });
   groupBar.querySelector('#useTemplateBtn').addEventListener('click', (e) => {
     e.stopPropagation();
     openTemplatePickMenu(e.currentTarget);
@@ -3660,6 +3745,7 @@ function renderTaskRow(t){
       <span class="task-status-label">${(STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
+      ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' · ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
     </div>
@@ -4452,6 +4538,21 @@ function renderTaskPanel(panel){
       </div>
     </div>
 
+    ${(state.projects || []).length ? `
+    <div class="tp-field">
+      <label class="tp-label">Projeto <span style="font-weight:400; color:var(--ink-faint);">(opcional)</span></label>
+      <div class="tp-row2">
+        <select class="tp-select" id="tpProject">
+          <option value="">Tarefa pessoal</option>
+          ${state.projects.map(p => `<option value="${p.id}" ${task.projectId===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
+        </select>
+        <select class="tp-select" id="tpStage" ${task.projectId ? '' : 'disabled'}>
+          <option value="">Etapa…</option>
+          ${(projectById(task.projectId)?.stages || []).map(st => `<option value="${st.id}" ${task.stageId===st.id?'selected':''}>${escapeHtml(st.name || 'Etapa')}</option>`).join('')}
+        </select>
+      </div>
+    </div>` : ''}
+
     <div class="tp-field">
       <label class="tp-label">Descrição</label>
       <textarea class="tp-textarea" id="tpDesc" rows="4" placeholder="Detalhes da tarefa...">${escapeHtml(task.description||'')}</textarea>
@@ -4738,6 +4839,22 @@ function renderTaskPanel(panel){
     openNoteComposer(null, t.id);
   };
 
+  const tpProject = document.getElementById('tpProject');
+  if(tpProject){
+    tpProject.addEventListener('change', e => {
+      const t = getOrCreateActiveTask(); if(!t) return;
+      t.projectId = e.target.value || null;
+      t.stageId = null;
+      const pr = projectById(t.projectId);
+      if(pr && pr.categoryId && catById(pr.categoryId)) t.categoryId = pr.categoryId;
+      markDirty();
+    });
+    document.getElementById('tpStage').addEventListener('change', e => {
+      const t = getOrCreateActiveTask(); if(!t) return;
+      t.stageId = e.target.value || null;
+      markDirty();
+    });
+  }
   document.getElementById('tpDesc').addEventListener('blur', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     t.description = e.target.value; markDirty();
@@ -5785,7 +5902,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.120';
+const APP_VERSION = '1.10.121';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7382,6 +7499,328 @@ function renderSettingsView(){
   else renderProfilePanel(panel);
 }
 
+/* ===================== PROJETOS ===================== */
+let activeProjectId = null;
+let projectTab = 'timeline';
+
+function projectById(id){ return id ? (state.projects || []).find(p => p.id === id) : null; }
+function projectsInScope(){
+  return (state.projects || []).filter(p => !activeCategoryFilter || p.categoryId === activeCategoryFilter);
+}
+function stageTasks(project, stage){
+  return state.tasks.filter(t => t.projectId === project.id && t.stageId === stage.id);
+}
+/* % da etapa: tarefas concluídas / tarefas da etapa. Sem tarefas, 0% (ou 100% se
+   a etapa foi marcada como concluída manualmente). */
+function stagePercent(project, stage){
+  const tasks = stageTasks(project, stage);
+  if(tasks.length) return Math.round(tasks.filter(t => t.done).length / tasks.length * 100);
+  return stage.manualDone ? 100 : 0;
+}
+function stageState(project, stage){
+  const pct = stagePercent(project, stage);
+  const today = todayStr();
+  if(pct >= 100) return 'concluida';
+  if(stage.end && stage.end < today) return 'atrasada';
+  if(pct > 0 || (stage.start && stage.start <= today)) return 'andamento';
+  return 'nao_iniciada';
+}
+const STAGE_STATE_LABELS = { concluida:'Concluída', andamento:'Em andamento', atrasada:'Atrasada', nao_iniciada:'Não iniciada' };
+function projectStatus(project){
+  const stages = project.stages || [];
+  const pcts = stages.map(st => stagePercent(project, st));
+  const pct = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+  const lateStages = stages.filter(st => stageState(project, st) === 'atrasada');
+  const ends = stages.map(st => st.end).filter(Boolean).concat(project.endDate ? [project.endDate] : []).sort();
+  const end = ends.length ? ends[ends.length - 1] : null;
+  const next = stages.filter(st => stageState(project, st) !== 'concluida' && st.end).sort((a, b) => a.end.localeCompare(b.end))[0] || null;
+  const done = stages.filter(st => stageState(project, st) === 'concluida').length;
+  return { pct, late: lateStages.length > 0, lateCount: lateStages.length, end, next, done, total: stages.length };
+}
+
+function ensureProjectOverlay(id){
+  let ov = document.getElementById(id);
+  if(!ov){
+    ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.id = id;
+    ov.innerHTML = '<div class="modal tpl-overlay-modal"></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('mousedown', e => { ov._downOnBackdrop = (e.target === ov); });
+    ov.addEventListener('click', e => { if(e.target === ov && ov._downOnBackdrop) ov.classList.remove('show'); });
+  }
+  return ov;
+}
+
+function openProjectEditor(project){
+  const ov = ensureProjectOverlay('projectOverlay');
+  const modal = ov.firstElementChild;
+  const p = project || { id: uid('proj'), name: '', categoryId: activeCategoryFilter || state.categories[0].id, description: '', startDate: todayStr(), endDate: '', stages: [], createdAt: Date.now() };
+  modal.innerHTML = `
+    <h3 style="margin-bottom:14px;">${project ? 'Editar projeto' : 'Novo projeto'}</h3>
+    <div class="tp-field"><label class="tp-label">Nome do projeto</label>
+      <input type="text" class="tp-input" id="prjName" placeholder="Ex.: Construção da casa" value="${escapeHtml(p.name || '')}"></div>
+    <div class="tp-field"><label class="tp-label">Espaço</label>
+      <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
+    <div class="tp-field"><label class="tp-label">Descrição</label>
+      <textarea class="tp-textarea" id="prjDesc" rows="3">${escapeHtml(p.description || '')}</textarea></div>
+    <div class="tpl-grid">
+      <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="prjStart" value="${p.startDate || ''}"></div>
+      <div class="tp-field"><label class="tp-label">Entrega prevista</label><input type="date" class="tp-input" id="prjEnd" value="${p.endDate || ''}"></div>
+    </div>
+    <p id="prjError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    <div class="modal-footer">
+      ${project ? '<button type="button" class="btn ghost small" id="prjDelete" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>' : ''}
+      <button type="button" class="btn ghost small" id="prjCancel">Cancelar</button>
+      <button type="button" class="btn small" id="prjSave">Salvar</button>
+    </div>`;
+  modal.querySelector('#prjCancel').onclick = () => ov.classList.remove('show');
+  if(project){
+    modal.querySelector('#prjDelete').onclick = () => {
+      const n = state.tasks.filter(t => t.projectId === p.id).length;
+      if(!confirm(`Excluir o projeto "${p.name}"? ${n ? n + ' tarefa(s) continuam, viram tarefas pessoais.' : ''}`)) return;
+      state.tasks.forEach(t => { if(t.projectId === p.id){ t.projectId = null; t.stageId = null; } });
+      state.projects = state.projects.filter(x => x.id !== p.id);
+      if(activeProjectId === p.id) activeProjectId = null;
+      ov.classList.remove('show');
+      markDirty();
+    };
+  }
+  modal.querySelector('#prjSave').onclick = () => {
+    const name = modal.querySelector('#prjName').value.trim();
+    const err = modal.querySelector('#prjError');
+    if(!name){ err.textContent = 'Dê um nome ao projeto.'; err.style.display = 'block'; return; }
+    p.name = name;
+    p.categoryId = modal.querySelector('#prjCategory').value;
+    p.description = modal.querySelector('#prjDesc').value;
+    p.startDate = modal.querySelector('#prjStart').value;
+    p.endDate = modal.querySelector('#prjEnd').value;
+    if(!project){ state.projects.push(p); activeProjectId = p.id; }
+    ov.classList.remove('show');
+    markDirty();
+  };
+  ov.classList.add('show');
+  setTimeout(() => modal.querySelector('#prjName').focus(), 0);
+}
+
+function openStageEditor(project, stage){
+  const ov = ensureProjectOverlay('stageOverlay');
+  const modal = ov.firstElementChild;
+  const st = stage || { id: uid('stage'), name: '', start: todayStr(), end: '', manualDone: false };
+  const tasks = stage ? stageTasks(project, stage) : [];
+  modal.innerHTML = `
+    <h3 style="margin-bottom:14px;">${stage ? 'Editar etapa' : 'Nova etapa'} <span style="font-weight:400; color:var(--ink-faint); font-size:13px;">· ${escapeHtml(project.name)}</span></h3>
+    <div class="tp-field"><label class="tp-label">Nome da etapa</label>
+      <input type="text" class="tp-input" id="stgName" placeholder="Ex.: Fundação" value="${escapeHtml(st.name || '')}"></div>
+    <div class="tpl-grid">
+      <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="stgStart" value="${st.start || ''}"></div>
+      <div class="tp-field"><label class="tp-label">Fim (prazo)</label><input type="date" class="tp-input" id="stgEnd" value="${st.end || ''}"></div>
+    </div>
+    ${stage ? `
+    <div class="tp-field"><label class="tp-label">Tarefas da etapa <span style="font-weight:400; color:var(--ink-faint);">(${tasks.filter(t => t.done).length}/${tasks.length} concluídas)</span></label>
+      <div id="stgTasks">${tasks.length ? tasks.map(t => `<div class="stage-task ${t.done ? 'done' : ''}" data-id="${t.id}"><span>${escapeHtml(t.title || 'Sem título')}</span><span style="margin-left:auto; color:var(--ink-faint); font-size:11.5px;">${t.dueDate ? fmtDate(t.dueDate) : ''}</span></div>`).join('') : '<p style="font-size:12px; color:var(--ink-faint);">Nenhuma tarefa ainda.</p>'}</div>
+      <button type="button" class="btn ghost small" id="stgNewTask" style="margin-top:6px;">+ Nova tarefa nesta etapa</button>
+      ${tasks.length ? '' : `<label class="completed-toggle" style="margin:10px 0 0;"><span>Marcar etapa como concluída</span><input type="checkbox" id="stgManual" ${st.manualDone ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></label>`}
+    </div>` : '<p style="font-size:12px; color:var(--ink-faint);">Depois de salvar, você poderá criar tarefas dentro da etapa.</p>'}
+    <p id="stgError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    <div class="modal-footer">
+      ${stage ? '<button type="button" class="btn ghost small" id="stgDelete" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>' : ''}
+      <button type="button" class="btn ghost small" id="stgCancel">Cancelar</button>
+      <button type="button" class="btn small" id="stgSave">Salvar</button>
+    </div>`;
+  modal.querySelector('#stgCancel').onclick = () => ov.classList.remove('show');
+  function commitFields(){
+    st.name = modal.querySelector('#stgName').value.trim();
+    st.start = modal.querySelector('#stgStart').value;
+    st.end = modal.querySelector('#stgEnd').value;
+    const manual = modal.querySelector('#stgManual');
+    if(manual) st.manualDone = manual.checked;
+  }
+  function validate(){
+    const err = modal.querySelector('#stgError');
+    const name = modal.querySelector('#stgName').value.trim();
+    const a = modal.querySelector('#stgStart').value, b = modal.querySelector('#stgEnd').value;
+    if(!name){ err.textContent = 'Dê um nome à etapa.'; err.style.display = 'block'; return false; }
+    if(a && b && b < a){ err.textContent = 'O fim não pode ser antes do início.'; err.style.display = 'block'; return false; }
+    err.style.display = 'none';
+    return true;
+  }
+  modal.querySelector('#stgSave').onclick = () => {
+    if(!validate()) return;
+    commitFields();
+    if(!stage) project.stages.push(st);
+    ov.classList.remove('show');
+    markDirty();
+  };
+  if(stage){
+    modal.querySelector('#stgDelete').onclick = () => {
+      if(!confirm(`Excluir a etapa "${st.name}"? As tarefas dela ficam no projeto, sem etapa.`)) return;
+      state.tasks.forEach(t => { if(t.stageId === st.id){ t.stageId = null; } });
+      project.stages = project.stages.filter(x => x.id !== st.id);
+      ov.classList.remove('show');
+      markDirty();
+    };
+    modal.querySelector('#stgNewTask').onclick = () => {
+      if(!validate()) return;
+      commitFields();
+      state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+      const t = {
+        id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: project.categoryId,
+        done: false, status: 'nao_iniciado', dueDate: st.end || todayStr(), dueTime: DEFAULT_DUE_TIME, priority: 'media',
+        description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
+        projectId: project.id, stageId: st.id,
+      };
+      state.tasks.push(t);
+      ov.classList.remove('show');
+      currentView = 'tasks';
+      activeTaskId = t.id;
+      creatingNewTask = false;
+      markDirty();
+    };
+    modal.querySelectorAll('.stage-task').forEach(el => {
+      el.onclick = () => { ov.classList.remove('show'); currentView = 'tasks'; activeTaskId = el.dataset.id; creatingNewTask = false; render(); };
+    });
+  }
+  ov.classList.add('show');
+  setTimeout(() => modal.querySelector('#stgName').focus(), 0);
+}
+
+function renderProjects(){
+  const view = document.getElementById('projectsView');
+  const project = activeProjectId ? projectById(activeProjectId) : null;
+  if(activeProjectId && !project) activeProjectId = null;
+  if(!project) return renderProjectList(view);
+  return renderProjectDetail(view, project);
+}
+
+function projectChipsHtml(status){
+  return (status.late ? `<span class="proj-chip late">${status.lateCount} etapa${status.lateCount > 1 ? 's' : ''} atrasada${status.lateCount > 1 ? 's' : ''}</span>` : '')
+    + (status.total && status.done === status.total ? '<span class="proj-chip ok">Concluído</span>' : '');
+}
+
+function renderProjectList(view){
+  const list = projectsInScope();
+  view.innerHTML = `
+    <div class="proj-toolbar"><button type="button" class="btn small" id="prjNewBtn">+ Novo projeto</button></div>
+    ${list.length ? `<div class="proj-grid">${list.map(p => {
+      const st = projectStatus(p);
+      const cat = catById(p.categoryId);
+      return `<div class="proj-card" data-id="${p.id}">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="proj-card-name">${escapeHtml(p.name || 'Projeto')}</span>
+          <span style="margin-left:auto; display:flex; gap:6px;">${projectChipsHtml(st)}</span>
+        </div>
+        <div class="proj-bar"><i style="width:${st.pct}%"></i></div>
+        <div class="proj-meta">
+          <span><b>${st.pct}%</b> concluído</span>
+          <span>${st.done} de ${st.total} etapas</span>
+          ${st.end ? `<span>Entrega ${fmtDate(st.end)}</span>` : ''}
+          ${cat ? `<span>${escapeHtml(cat.name)}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('')}</div>` : `
+      <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>
+      <p>Nenhum projeto ainda. Crie um para organizar etapas, prazos e tarefas num só lugar.</p></div>`}`;
+  view.querySelector('#prjNewBtn').onclick = () => openProjectEditor(null);
+  view.querySelectorAll('.proj-card').forEach(c => { c.onclick = () => { activeProjectId = c.dataset.id; projectTab = 'timeline'; render(); }; });
+}
+
+function renderProjectDetail(view, p){
+  const st = projectStatus(p);
+  const today = todayStr();
+  const stages = p.stages.slice().sort((a, b) => (a.start || a.end || '').localeCompare(b.start || b.end || ''));
+  const nextLabel = st.next ? `${escapeHtml(st.next.name)} · ${fmtDate(st.next.end)}` : '—';
+  let slip = '';
+  if(p.endDate && st.end && st.end > p.endDate){
+    const d = Math.round((new Date(st.end + 'T00:00:00') - new Date(p.endDate + 'T00:00:00')) / 86400000);
+    slip = `+${d} dia${d > 1 ? 's' : ''}`;
+  }
+  view.innerHTML = `
+    <div class="proj-toolbar">
+      <button type="button" class="btn ghost small" id="prjBack">‹ Projetos</button>
+      <b style="font-family:var(--font-display); font-size:18px;">${escapeHtml(p.name)}</b>
+      ${projectChipsHtml(st)}
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button type="button" class="btn ghost small" id="prjEdit">Editar projeto</button>
+        <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
+      </span>
+    </div>
+    <div class="proj-kpis">
+      <div class="proj-kpi"><small>Progresso</small><b>${st.pct}%</b><div class="proj-bar" style="margin-top:8px;"><i style="width:${st.pct}%"></i></div></div>
+      <div class="proj-kpi"><small>Etapas</small><b>${st.done} de ${st.total}</b></div>
+      <div class="proj-kpi"><small>Próxima entrega</small><b style="font-size:15px; margin-top:7px;">${nextLabel}</b></div>
+      <div class="proj-kpi"><small>Entrega prevista</small><b style="font-size:15px; margin-top:7px;">${p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')}${slip ? ` <span style="color:var(--danger); font-size:13px;">${slip}</span>` : ''}</b></div>
+    </div>
+    <div class="proj-tabs" style="margin-bottom:12px;">
+      <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+      <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+    </div>
+    <div id="prjBody"></div>`;
+  view.querySelector('#prjBack').onclick = () => { activeProjectId = null; render(); };
+  view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
+  view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
+  view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { projectTab = b.dataset.tab; render(); }; });
+  const body = view.querySelector('#prjBody');
+
+  if(!stages.length){
+    body.innerHTML = '<div class="empty-state"><p>Este projeto ainda não tem etapas. Use "+ Etapa" para começar.</p></div>';
+    return;
+  }
+
+  if(projectTab === 'lista'){
+    body.innerHTML = '<div class="tpl-list">' + stages.map(sg => {
+      const pct = stagePercent(p, sg), state_ = stageState(p, sg), n = stageTasks(p, sg);
+      return `<div class="tpl-card" data-id="${sg.id}" style="cursor:pointer;">
+        <div class="tpl-card-main">
+          <div class="tpl-card-name">${escapeHtml(sg.name)}</div>
+          <div class="tpl-card-meta">${sg.start ? fmtDate(sg.start) : '—'} → ${sg.end ? fmtDate(sg.end) : '—'} · ${n.filter(t => t.done).length}/${n.length} tarefas</div>
+          <div class="proj-bar" style="margin-top:8px;"><i style="width:${pct}%"></i></div>
+        </div>
+        <span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]} · ${pct}%</span>
+      </div>`;
+    }).join('') + '</div>';
+    body.querySelectorAll('.tpl-card').forEach(c => { c.onclick = () => openStageEditor(p, p.stages.find(x => x.id === c.dataset.id)); });
+    return;
+  }
+
+  // linha do tempo
+  const dates = [];
+  stages.forEach(sg => { if(sg.start) dates.push(sg.start); if(sg.end) dates.push(sg.end); });
+  if(p.startDate) dates.push(p.startDate);
+  if(p.endDate) dates.push(p.endDate);
+  dates.push(today);
+  dates.sort();
+  const first = new Date(dates[0] + 'T00:00:00');
+  const last = new Date(dates[dates.length - 1] + 'T00:00:00');
+  const rangeStart = new Date(first.getFullYear(), first.getMonth(), 1);
+  const rangeEnd = new Date(last.getFullYear(), last.getMonth() + 1, 1);
+  const total = Math.round((rangeEnd - rangeStart) / 86400000);
+  const pos = dateStr => Math.max(0, Math.min(100, (Math.round((new Date(dateStr + 'T00:00:00') - rangeStart) / 86400000)) / total * 100));
+  const months = [];
+  for(let d = new Date(rangeStart); d < rangeEnd; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)){
+    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    months.push({ label: MONTH_LABELS[d.getMonth()].slice(0, 3) + (d.getMonth() === 0 || months.length === 0 ? ' ' + String(d.getFullYear()).slice(2) : ''), w: (next - d) / 86400000 / total * 100 });
+  }
+  const todayPos = pos(today);
+  body.innerHTML = `
+    <div class="gantt-wrap"><div class="gantt">
+      <div class="gantt-head"><div class="gl">Etapa</div><div class="gantt-months">${months.map(m => `<span style="width:${m.w}%">${m.label}</span>`).join('')}</div></div>
+      <div class="gantt-body" style="position:relative;">
+        ${stages.map(sg => {
+          const state_ = stageState(p, sg), pct = stagePercent(p, sg);
+          const a = pos(sg.start || sg.end || today), b = pos(sg.end || sg.start || today);
+          const w = Math.max(b - a, 1.2);
+          return `<div class="gantt-row" data-id="${sg.id}">
+            <div class="gl"><b>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}</small></div>
+            <div class="gantt-track"><div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div></div>
+          </div>`;
+        }).join('')}
+        <div class="gantt-today" style="left:calc(260px + (100% - 260px) * ${todayPos / 100});"><em>Hoje</em></div>
+      </div>
+    </div></div>`;
+  body.querySelectorAll('.gantt-row').forEach(r => { r.onclick = () => openStageEditor(p, p.stages.find(x => x.id === r.dataset.id)); });
+}
+
 /* ===================== TEMPLATES DE TAREFA ===================== */
 function templateFromTask(task){
   const linked = state.events.filter(ev => ev.linkedTaskId === task.id && ev.date);
@@ -8434,7 +8873,7 @@ async function fetchCloudStateRow(){
       são preservados);
    2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
       gravou no meio, repete. */
-const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates'];
+const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects'];
 let cloudBaseUpdatedAt = null;
 let cloudBaseSnapshot = null;
 
@@ -8876,7 +9315,7 @@ function renderSpaceSelector(){
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
   placeSpaceSelector();
-  const showOn = (currentView === 'tasks' || currentView === 'notes' || currentView === 'calendar');
+  const showOn = (currentView === 'tasks' || currentView === 'notes' || currentView === 'calendar' || currentView === 'projects');
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }
 
@@ -8943,6 +9382,8 @@ document.getElementById('primaryAddBtn').onclick = () => {
     openNoteComposer();
   } else if(currentView === 'calendar'){
     openEventComposer(null, calendarFocusDate);
+  } else if(currentView === 'projects'){
+    openProjectEditor(null);
   }
 };
 
@@ -9154,7 +9595,7 @@ document.getElementById('avatarMenuLogoutBtn').onclick = (e) => {
 };
 
 /* ===================== RENDER PRINCIPAL ===================== */
-const VIEW_TITLES = { dashboard:'Visão geral', tasks:'Tarefas', notes:'Notas', calendar:'Calendário', settings:'Configurações' };
+const VIEW_TITLES = { dashboard:'Visão geral', tasks:'Tarefas', notes:'Notas', projects:'Projetos', calendar:'Calendário', settings:'Configurações' };
 function saveUiSession(){
   try{
     sessionStorage.setItem('taskinUiSession', JSON.stringify({ currentView, activeCategoryFilter }));
@@ -9194,6 +9635,7 @@ function render(){
   document.getElementById('tasksView').style.display = currentView === 'tasks' ? 'block' : 'none';
   document.getElementById('notesView').style.display = currentView === 'notes' ? 'block' : 'none';
   document.getElementById('calendarView').style.display = currentView === 'calendar' ? 'block' : 'none';
+  document.getElementById('projectsView').style.display = currentView === 'projects' ? 'block' : 'none';
   document.getElementById('settingsView').style.display = currentView === 'settings' ? 'block' : 'none';
   document.getElementById('searchWrap').style.display = 'flex';
   const addBtn = document.getElementById('primaryAddBtn');
@@ -9201,7 +9643,7 @@ function render(){
     addBtn.style.display = 'none';
   } else {
     addBtn.style.display = 'flex';
-    addBtn.title = currentView === 'tasks' ? 'Nova tarefa' : currentView === 'calendar' ? 'Nova agenda' : 'Nova nota';
+    addBtn.title = currentView === 'tasks' ? 'Nova tarefa' : currentView === 'calendar' ? 'Nova agenda' : currentView === 'projects' ? 'Novo projeto' : 'Nova nota';
   }
   addBtn.classList.toggle('shifted', currentView === 'tasks' && (activeTaskId || creatingNewTask));
   renderProfileCard();
@@ -9214,6 +9656,7 @@ function render(){
   else if(currentView === 'tasks') renderTasks();
   else if(currentView === 'notes') renderNotes();
   else if(currentView === 'calendar') renderCalendar();
+  else if(currentView === 'projects') renderProjects();
   else renderSettingsView();
   updateFileStatus();
 }

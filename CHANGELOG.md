@@ -1,3 +1,14 @@
+## [1.10.121] - 2026-10-13 00:00
+
+### Added
+
+#### Projetos
+
+- Nova página Projetos (menu lateral): lista de projetos por espaço, com progresso, etapas e entrega; detalhe com indicadores e linha do tempo (Gantt) com barras por etapa, % de conclusão, status (concluída, em andamento, atrasada, não iniciada) e linha de "Hoje"; aba Lista.
+- Etapas com início e fim; % calculado pelas tarefas concluídas da etapa. Dá para criar tarefas direto na etapa.
+- Tarefas: campo Projeto/Etapa no painel, etiqueta do projeto na linha e filtro (todas, pessoais, de projetos ou um projeto). Projetos sincronizam entre sessões.
+
+
 ## [1.10.120] - 2026-10-13 00:00
 
 ### Added
