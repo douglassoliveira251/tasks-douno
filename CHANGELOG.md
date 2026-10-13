@@ -1,3 +1,12 @@
+## [1.10.124] - 2026-10-13 00:00
+
+### Changed
+
+#### Tarefas
+
+- Painel da tarefa: os ícones de duplicar e excluir deram lugar a um menu "⋮" (vertical) com Template (Usar template…, Salvar como template, Gerenciar templates…), Duplicar, Mover de espaço e Excluir tarefa. Numa tarefa nova só aparecem as opções de template. O seletor "Começar de um template" do topo foi removido.
+
+
 ## [1.10.123] - 2026-10-13 00:00
 
 ### Changed

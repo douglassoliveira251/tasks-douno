@@ -118,11 +118,13 @@ test('Nova tarefa: seletor de template cria a tarefa preenchida', async ({ page 
     currentView = 'tasks'; render();
     openNewTaskPanel();
   });
-  await page.locator('#tpTemplateSelect').selectOption('tp1');
+  await page.locator('#tpMenuBtn').click();
+  await page.locator('[data-m="use"]').click();
+  await page.locator('[data-tpl="tp1"]').click();
   const t = await page.evaluate(() => state.tasks[0]);
   expect(t.title).toBe('Tarefa do modelo');
   expect(t.subtasks.map(s => s.title)).toEqual(['Passo 1']);
-  await expect(page.locator('#tpTemplateSelect')).toHaveCount(0); // painel agora é de edição
+  await expect(page.locator('#tpMenuBtn')).toBeVisible();
 });
 
 test('template só aparece nos espaços escolhidos', async ({ page }) => {
@@ -138,4 +140,26 @@ test('template só aparece nos espaços escolhidos', async ({ page }) => {
   expect(r.a).toEqual(['ambos', 'antigo', 'so-a']);
   expect(r.b).toEqual(['ambos', 'antigo', 'so-b']);
   expect(r.todos).toHaveLength(4);
+});
+
+test('menu ⋮ do painel: tarefa nova só tem as opções de template; existente tem duplicar/mover/excluir', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => { state.tasks = []; state.taskTemplates = []; currentView = 'tasks'; render(); openNewTaskPanel(); });
+  await page.locator('#tpMenuBtn').click();
+  await expect(page.locator('[data-m="use"]')).toBeVisible();
+  await expect(page.locator('[data-m="manage"]')).toBeVisible();
+  await expect(page.locator('[data-m="dup"]')).toHaveCount(0);
+  await expect(page.locator('[data-m="del"]')).toHaveCount(0);
+  await expect(page.locator('[data-m="save"]')).toHaveCount(0);
+
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => {
+    const cat = state.categories[0].id;
+    state.tasks = [{ id: 't9', title: 'Existente', done: false, status: 'nao_iniciado', priority: 'media', dueDate: todayStr(), dueTime: '09:00', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }];
+    activeTaskId = 't9'; creatingNewTask = false; currentView = 'tasks'; render();
+  });
+  await page.locator('#tpMenuBtn').click();
+  for (const k of ['use', 'save', 'manage', 'dup', 'move', 'del']) await expect(page.locator('[data-m="' + k + '"]')).toBeVisible();
+  await page.locator('[data-m="dup"]').click();
+  expect(await page.evaluate(() => state.tasks.length)).toBe(2);
 });
