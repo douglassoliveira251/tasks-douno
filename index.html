@@ -675,7 +675,7 @@
   }
   .completed-toggle input:checked + .completed-toggle-track{background:var(--primary);}
   .completed-toggle input:checked + .completed-toggle-track .completed-toggle-thumb{transform:translateX(15px);}
-  .tpl-overlay-modal{width:560px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto;}
+  .modal.tpl-overlay-modal{width:640px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto;}
   .tpl-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .tpl-tags{display:flex; flex-wrap:wrap; gap:6px;}
   .tpl-tag-chip{
@@ -683,8 +683,8 @@
     border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer; user-select:none;
   }
   .tpl-tag-chip.on{color:#fff; border-color:transparent;}
-  .tpl-ev-row{display:grid; grid-template-columns:1fr 78px 90px 90px 28px; gap:6px; align-items:center; margin-bottom:6px;}
-  .tpl-ev-head{display:grid; grid-template-columns:1fr 78px 90px 90px 28px; gap:6px; font-size:10.5px; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;}
+  .tpl-ev-row{display:grid; grid-template-columns:minmax(0,1.6fr) 64px minmax(96px,1fr) minmax(96px,1fr) 24px; gap:6px; align-items:center; margin-bottom:6px;}
+  .tpl-ev-head{display:grid; grid-template-columns:minmax(0,1.6fr) 64px minmax(96px,1fr) minmax(96px,1fr) 24px; gap:6px; font-size:10.5px; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;}
   .tpl-ev-row .tp-input{padding:6px 8px; font-size:12.5px;}
   .tpl-list{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
   .tpl-card{
@@ -7490,7 +7490,7 @@ function openTemplateEditor(existing, prefill){
 
   function eventsHtml(){
     if(!events.length) return '<p style="font-size:12px; color:var(--ink-faint); margin-bottom:6px;">Nenhuma agenda. Adicione para criar compromissos junto com a tarefa.</p>';
-    return '<div class="tpl-ev-head"><span>Título</span><span>Dias do prazo</span><span>Início</span><span>Fim</span><span></span></div>' + events.map((e, i) => `
+    return '<div class="tpl-ev-head"><span>Título</span><span>Dias</span><span>Início</span><span>Fim</span><span></span></div>' + events.map((e, i) => `
       <div class="tpl-ev-row" data-i="${i}">
         <input type="text" class="tp-input" data-f="title" placeholder="Título da agenda" value="${escapeHtml(e.title || '')}">
         <input type="number" class="tp-input" data-f="offsetDays" value="${parseInt(e.offsetDays, 10) || 0}" title="0 = no dia; negativo = antes; positivo = depois">
@@ -7512,7 +7512,7 @@ function openTemplateEditor(existing, prefill){
       <div class="tp-field"><label class="tp-label">Prioridade</label>
         <select class="tp-select" id="tplPriority">${PRIORITY_CONFIG.map(p => `<option value="${p.key}" ${tpl.priority === p.key ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
       <div class="tp-field"><label class="tp-label">Espaço</label>
-        <select class="tp-select" id="tplCategory"><option value="">Espaço selecionado na hora</option>${state.categories.map(c => `<option value="${c.id}" ${tpl.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
+        <select class="tp-select" id="tplCategory"><option value="">Espaço atual</option>${state.categories.map(c => `<option value="${c.id}" ${tpl.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
       <div class="tp-field"><label class="tp-label">Horário</label>
         <input type="time" class="tp-input" id="tplTime" value="${tpl.dueTime || ''}"></div>
       <div class="tp-field"><label class="tp-label">Repetição</label>
@@ -7585,7 +7585,7 @@ function openTemplateEditor(existing, prefill){
 
 function renderTemplatesPanel(panel){
   const list = state.taskTemplates || [];
-  const catName = id => { const c = catById(id); return c ? c.name : 'Espaço selecionado na hora'; };
+  const catName = id => { const c = catById(id); return c ? c.name : 'Espaço atual'; };
   panel.innerHTML = `
     <h3 class="settings-section-title">Templates de tarefa</h3>
     <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
