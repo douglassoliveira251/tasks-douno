@@ -1,3 +1,16 @@
+## [1.10.128] - 2026-10-15 00:00
+
+### Fixed
+
+#### Tarefas
+
+- Alterar qualquer campo da tarefa enquanto um comentário estava sendo escrito apagava o texto (o painel era redesenhado). O texto agora é guardado como rascunho por tarefa e restaurado; também sobrevive a trocar de tarefa e voltar.
+
+### Added
+
+- Fechar a tarefa (X, Esc ou clique fora) com um comentário não enviado abre um aviso com Enviar e fechar, Descartar ou Voltar.
+
+
 ## [1.10.127] - 2026-10-15 00:00
 
 ### Changed

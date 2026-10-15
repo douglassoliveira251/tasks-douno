@@ -2625,6 +2625,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.128', date:'15/10/2026', title:'Comentário não se perde mais', text:'O texto do comentário é mantido enquanto você preenche outros campos da tarefa. Se tentar fechar a tarefa com um comentário não enviado, o sistema pergunta se quer enviar, descartar ou voltar.' },
   { version:'1.10.127', date:'15/10/2026', title:'Pesquisa redesenhada', text:'Resultados em lista compacta, com abas (Tudo, Tarefas, Notas, Agenda), o termo destacado e o contexto de cada item (espaço, projeto, status, data). Dá para navegar com as setas e abrir com Enter.' },
   { version:'1.10.126', date:'15/10/2026', title:'Tags por espaço nos templates e na agenda', text:'No template, só aparecem as tags dos espaços escolhidos (e as gerais). Na agenda, as tags já existentes agora saem com um clique, e as mudanças só valem ao salvar — e atualizam as cores no calendário.' },
   { version:'1.10.125', date:'13/10/2026', title:'Espaço e agendas na tarefa', text:'Na edição da tarefa, o espaço virou um nome clicável na mesma linha das tags (clique para trocar). As agendas que já passaram ficam ocultas, com "Mostrar anteriores" para vê-las.' },
@@ -4432,7 +4433,53 @@ function openNewTaskPanel(){
   render();
 }
 
-function closeTaskPanel(){
+/* Comentário em digitação é guardado por tarefa ('__new__' = tarefa ainda não
+   criada). Antes, qualquer alteração de campo redesenhava o painel e o texto do
+   comentário sumia; agora ele é restaurado a cada redesenho. */
+const tpCommentDrafts = {};
+function currentCommentKey(){ return creatingNewTask ? '__new__' : activeTaskId; }
+function showUnsentCommentDialog(){
+  let ov = document.getElementById('unsentCommentOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.id = 'unsentCommentOverlay';
+    ov.style.zIndex = '120';
+    ov.innerHTML = `<div class="modal" style="width:420px; max-width:calc(100vw - 24px);">
+      <h3 style="margin-bottom:8px;">Comentário não enviado</h3>
+      <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:14px;">Você escreveu um comentário e ainda não enviou. O que deseja fazer?</p>
+      <div class="modal-footer" style="flex-wrap:wrap;">
+        <button type="button" class="btn ghost small" id="unsentBack">Voltar</button>
+        <button type="button" class="btn ghost small" id="unsentDiscard" style="color:var(--danger); border-color:var(--danger-light);">Descartar</button>
+        <button type="button" class="btn small" id="unsentSend">Enviar e fechar</button>
+      </div></div>`;
+    document.body.appendChild(ov);
+  }
+  const key = currentCommentKey();
+  const hide = () => ov.classList.remove('show');
+  ov.querySelector('#unsentBack').onclick = hide;
+  ov.querySelector('#unsentDiscard').onclick = () => { delete tpCommentDrafts[key]; hide(); closeTaskPanel(true); };
+  ov.querySelector('#unsentSend').onclick = () => {
+    const text = (tpCommentDrafts[key] || '').trim();
+    hide();
+    if(text){
+      const t = getOrCreateActiveTask();
+      if(t){
+        t.comments = t.comments || [];
+        t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
+      }
+    }
+    delete tpCommentDrafts[key];
+    closeTaskPanel(true);
+  };
+  ov.classList.add('show');
+  setTimeout(() => ov.querySelector('#unsentBack').focus(), 0);
+}
+function closeTaskPanel(force){
+  if(force !== true){
+    const draft = (tpCommentDrafts[currentCommentKey()] || '').trim();
+    if(draft){ showUnsentCommentDialog(); return; }
+  }
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
@@ -4525,6 +4572,7 @@ function getOrCreateActiveTask(){
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     state.tasks.push(t);
+    if(tpCommentDrafts['__new__'] !== undefined){ tpCommentDrafts[t.id] = tpCommentDrafts['__new__']; delete tpCommentDrafts['__new__']; }
     activeTaskId = t.id;
     creatingNewTask = false;
     return t;
@@ -4549,7 +4597,7 @@ function renderTaskPanel(panel){
     ? { title:'', categoryId:(activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id, dueDate:todayStr(), dueTime:DEFAULT_DUE_TIME, priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
     : state.tasks.find(x => x.id === activeTaskId);
 
-  if(!task){ closeTaskPanel(); return; }
+  if(!task){ closeTaskPanel(true); return; }
 
   const catOptions = state.categories.map(c => `<option value="${c.id}" ${c.id===task.categoryId?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
 
@@ -5215,13 +5263,25 @@ function renderTaskPanel(panel){
     };
     commentList.appendChild(row);
   });
+  {
+    const ta = document.getElementById('tpNewComment');
+    const key = currentCommentKey();
+    if(tpCommentDrafts[key]) ta.value = tpCommentDrafts[key];
+    ta.addEventListener('input', () => {
+      const k = currentCommentKey();
+      if(ta.value) tpCommentDrafts[k] = ta.value; else delete tpCommentDrafts[k];
+    });
+  }
   document.getElementById('tpAddCommentBtn').onclick = () => {
     const ta = document.getElementById('tpNewComment');
     const text = ta.value.trim();
     if(!text) return;
+    const keyBefore = currentCommentKey();
     const t = getOrCreateActiveTask(); if(!t) return;
     t.comments = t.comments || [];
     t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
+    delete tpCommentDrafts[keyBefore];
+    delete tpCommentDrafts[t.id];
     markDirty();
   };
   document.getElementById('tpNewComment').addEventListener('keydown', e => {
@@ -6021,7 +6081,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.127';
+const APP_VERSION = '1.10.128';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
