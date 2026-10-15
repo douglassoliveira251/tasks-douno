@@ -1,3 +1,19 @@
+## [1.10.126] - 2026-10-15 00:00
+
+### Fixed
+
+#### Calendário
+
+- Ao editar uma agenda, as tags que ela já tinha não saíam ao clicar (o clique só funcionava nas tags recém-adicionadas). Agora todas saem com um clique.
+- A edição da agenda passou a usar um rascunho: mudar tags ou campos e fechar sem salvar não altera mais a agenda; ao salvar, as tags novas atualizam as cores e etiquetas no calendário e as categorias no Outlook.
+
+### Changed
+
+#### Templates
+
+- No editor do template, a lista de tags mostra só as dos espaços escolhidos (mais as gerais) e se atualiza ao marcar/desmarcar espaços; tags que deixam de estar disponíveis saem da seleção.
+
+
 ## [1.10.125] - 2026-10-13 00:00
 
 ### Changed

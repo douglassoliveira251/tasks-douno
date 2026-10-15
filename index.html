@@ -2607,6 +2607,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.126', date:'15/10/2026', title:'Tags por espaço nos templates e na agenda', text:'No template, só aparecem as tags dos espaços escolhidos (e as gerais). Na agenda, as tags já existentes agora saem com um clique, e as mudanças só valem ao salvar — e atualizam as cores no calendário.' },
   { version:'1.10.125', date:'13/10/2026', title:'Espaço e agendas na tarefa', text:'Na edição da tarefa, o espaço virou um nome clicável na mesma linha das tags (clique para trocar). As agendas que já passaram ficam ocultas, com "Mostrar anteriores" para vê-las.' },
   { version:'1.10.124', date:'13/10/2026', title:'Menu ⋮ no painel da tarefa', text:'O painel da tarefa ganhou um menu "⋮": usar template, salvar como template, gerenciar templates, duplicar, mover de espaço e excluir. Os ícones soltos saíram.' },
   { version:'1.10.123', date:'13/10/2026', title:'Templates por espaço', text:'Cada template agora é ligado a um ou mais espaços e só aparece neles. O espaço selecionado no momento decide quais templates você vê.' },
@@ -6001,7 +6002,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.125';
+const APP_VERSION = '1.10.126';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6752,7 +6753,9 @@ function downloadEventAsICS(ev){
 function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   const isEditing = !!existingEvent;
   const defaultTimes = nextRoundedHourTimes();
-  const ev = existingEvent || {
+  /* Edita uma cópia (rascunho): mudar tags/campos e fechar sem salvar não altera a
+     agenda real. Ao salvar, o rascunho é aplicado de volta na agenda original. */
+  const ev = existingEvent ? JSON.parse(JSON.stringify(existingEvent)) : {
     id: uid('event'), title:'', categoryId: activeCategoryFilter || state.categories[0].id,
     tagIds: [], date: defaultDate || todayStr(), endDate: defaultDate || todayStr(),
     startTime: defaultTimes.start, endTime: defaultTimes.end, allDay:false,
@@ -6979,6 +6982,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       : 'Conecte o Outlook em Configurações → Integrações para o convite ser enviado.';
   }
   refreshInviteDesc();
+  renderEvTagsSelected(); // as tags já existentes passam a poder ser removidas com um clique
   if(!outlookStatusCache && cloudSession) refreshOutlookStatus().then(refreshInviteDesc).catch(() => {});
 
   function syncTimeFieldsVisibility(){
@@ -7108,10 +7112,17 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     ev.updatedAt = Date.now();
     ev.wasEdited = isEditing;
     if(ev.recurrence && ev.recurrence !== 'none') ev.recurrenceBaseDate = ev.date;
-    if(!isEditing) state.events.push(ev);
+    let target = ev;
+    if(isEditing){
+      target = existingEvent;
+      Object.keys(target).forEach(k => { if(!(k in ev)) delete target[k]; });
+      Object.assign(target, ev);
+    } else {
+      state.events.push(ev);
+    }
     closeEventComposer();
     markDirty();
-    syncEventToOutlook(ev);
+    syncEventToOutlook(target);
   };
 
   document.getElementById('eventComposerOverlay').classList.add('show');
@@ -8110,8 +8121,8 @@ function openTemplateEditor(existing, prefill){
           <input type="number" class="tp-input" id="tplRecInterval" min="1" value="${tpl.recurrenceInterval || 1}" title="A cada N">
         </div></div>
     </div>
-    <div class="tp-field"><label class="tp-label">Tags</label>
-      <div class="tpl-tags" id="tplTags">${state.tags.length ? state.tags.map(tg => `<span class="tpl-tag-chip ${selectedTags.has(tg.id) ? 'on' : ''}" data-tag="${tg.id}" style="${selectedTags.has(tg.id) ? 'background:' + tg.color : ''}">${escapeHtml(tg.name)}</span>`).join('') : '<span style="font-size:12px; color:var(--ink-faint);">Nenhuma tag criada ainda.</span>'}</div></div>
+    <div class="tp-field"><label class="tp-label">Tags <span style="font-weight:400; color:var(--ink-faint);">(dos espaços escolhidos e gerais)</span></label>
+      <div class="tpl-tags" id="tplTags"></div></div>
     <div class="tp-field"><label class="tp-label">Subtarefas <span style="font-weight:400; color:var(--ink-faint);">(uma por linha)</span></label>
       <textarea class="tp-textarea" id="tplSubtasks" rows="4" placeholder="Etapa 1&#10;Etapa 2">${escapeHtml((tpl.subtasks || []).map(x => x.title).join('\n'))}</textarea></div>
     <div class="tp-field"><label class="tp-label">Agendas <span style="font-weight:400; color:var(--ink-faint);">(criadas junto, em relação ao prazo da tarefa)</span></label>
@@ -8143,12 +8154,27 @@ function openTemplateEditor(existing, prefill){
     if(selectedTags.has(id)){ selectedTags.delete(id); chip.classList.remove('on'); chip.style.background = ''; }
     else { selectedTags.add(id); chip.classList.add('on'); chip.style.background = tg ? tg.color : ''; }
   });
+  // tags visíveis: gerais (sem espaço) + as dos espaços marcados
+  function visibleTplTags(){
+    return state.tags.filter(tg => !tg.categoryId || selectedSpaces.has(tg.categoryId));
+  }
+  function renderTplTags(){
+    const visible = visibleTplTags();
+    const visibleIds = new Set(visible.map(t => t.id));
+    Array.from(selectedTags).forEach(id => { if(!visibleIds.has(id)) selectedTags.delete(id); });
+    const box = modal.querySelector('#tplTags');
+    box.innerHTML = visible.length
+      ? visible.map(tg => `<span class="tpl-tag-chip ${selectedTags.has(tg.id) ? 'on' : ''}" data-tag="${tg.id}" style="${selectedTags.has(tg.id) ? 'background:' + tg.color : ''}">${escapeHtml(tg.name)}</span>`).join('')
+      : '<span style="font-size:12px; color:var(--ink-faint);">Nenhuma tag para os espaços escolhidos.</span>';
+  }
+  renderTplTags();
   modal.querySelector('#tplSpaces').addEventListener('click', (e) => {
     const chip = e.target.closest('.tpl-tag-chip'); if(!chip || !chip.dataset.space) return;
     const id = chip.dataset.space;
     const c = catById(id);
     if(selectedSpaces.has(id)){ selectedSpaces.delete(id); chip.classList.remove('on'); chip.style.background = ''; }
     else { selectedSpaces.add(id); chip.classList.add('on'); chip.style.background = c ? c.color : ''; }
+    renderTplTags();
   });
   modal.querySelector('#tplCancel').onclick = () => ov.classList.remove('show');
   modal.querySelector('#tplSave').onclick = () => {
