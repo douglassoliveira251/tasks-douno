@@ -519,6 +519,23 @@
     background:var(--surface); border:1px solid var(--border); border-radius:14px;
     box-shadow:var(--shadow-md); padding:8px; max-height:70vh; overflow-y:auto;
   }
+  .sr-tabs{display:flex; gap:4px; padding:2px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:4px; flex-wrap:wrap;}
+  .sr-tab{border:none; background:transparent; font-size:12px; font-weight:600; color:var(--ink-soft); padding:5px 11px; border-radius:8px; cursor:pointer;}
+  .sr-tab i{font-style:normal; opacity:.65; margin-left:5px; font-size:11px;}
+  .sr-tab.on{background:var(--primary); color:#fff;}
+  .sr-list{display:flex; flex-direction:column;}
+  .sr-row{display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer;}
+  .sr-row.on, .sr-row:hover{background:var(--surface-2);}
+  .sr-kind{font-size:9.5px; font-weight:800; letter-spacing:.04em; border-radius:5px; padding:3px 6px; margin-top:2px; flex-shrink:0; min-width:52px; text-align:center; background:var(--surface-2); color:var(--ink-soft);}
+  .sr-kind.t{background:var(--primary-light); color:var(--primary-dark);}
+  .sr-kind.n{background:#FFF1D6; color:#9A6200;}
+  .sr-kind.e{background:var(--ok-light); color:var(--ok-dark);}
+  .sr-main{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .sr-title{font-size:13.5px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sr-ctx{font-size:11.5px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sr-mark{background:#FFE8A3; color:inherit; border-radius:3px; padding:0 1px;}
+  .sr-foot{display:flex; gap:14px; padding:8px 10px 2px; margin-top:4px; border-top:1px solid var(--border); font-size:11px; color:var(--ink-faint);}
+  .sr-foot kbd{font-family:inherit; border:1px solid var(--border); border-bottom-width:2px; border-radius:5px; padding:0 5px; background:var(--surface); font-size:10.5px;}
   .search-results-group-label{
     font-size:10.5px; font-weight:700; color:var(--ink-faint); letter-spacing:.04em;
     text-transform:uppercase; padding:8px 10px 4px;
@@ -2607,6 +2624,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.127', date:'15/10/2026', title:'Pesquisa redesenhada', text:'Resultados em lista compacta, com abas (Tudo, Tarefas, Notas, Agenda), o termo destacado e o contexto de cada item (espaço, projeto, status, data). Dá para navegar com as setas e abrir com Enter.' },
   { version:'1.10.126', date:'15/10/2026', title:'Tags por espaço nos templates e na agenda', text:'No template, só aparecem as tags dos espaços escolhidos (e as gerais). Na agenda, as tags já existentes agora saem com um clique, e as mudanças só valem ao salvar — e atualizam as cores no calendário.' },
   { version:'1.10.125', date:'13/10/2026', title:'Espaço e agendas na tarefa', text:'Na edição da tarefa, o espaço virou um nome clicável na mesma linha das tags (clique para trocar). As agendas que já passaram ficam ocultas, com "Mostrar anteriores" para vê-las.' },
   { version:'1.10.124', date:'13/10/2026', title:'Menu ⋮ no painel da tarefa', text:'O painel da tarefa ganhou um menu "⋮": usar template, salvar como template, gerenciar templates, duplicar, mover de espaço e excluir. Os ícones soltos saíram.' },
@@ -6002,7 +6020,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.126';
+const APP_VERSION = '1.10.127';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9568,43 +9586,92 @@ function clearSearchTerm(){
   if(input) input.value = '';
   updateSearchClearBtnVisibility();
 }
+let searchTab = 'all';
+let searchActiveIdx = 0;
+const SEARCH_LIMIT = 8;
 function computeGlobalSearchResults(term){
   const t = term.trim().toLowerCase();
-  if(!t) return { tasks:[], notes:[], events:[] };
-  const tasks = state.tasks.filter(x => (x.title||'').toLowerCase().includes(t)).slice(0,5);
-  const notes = state.notes.filter(x => !x.archived && ((x.title||'')+' '+stripHtml(x.body||'')).toLowerCase().includes(t)).slice(0,5);
-  const events = state.events.filter(x => (x.title||'').toLowerCase().includes(t)).slice(0,5);
-  return { tasks, notes, events };
+  if(!t) return { tasks:[], notes:[], events:[], counts:{ tasks:0, notes:0, events:0 } };
+  const tasksAll = state.tasks.filter(x => (x.title||'').toLowerCase().includes(t));
+  const notesAll = state.notes.filter(x => !x.archived && ((x.title||'')+' '+stripHtml(x.body||'')).toLowerCase().includes(t));
+  const eventsAll = state.events.filter(x => (x.title||'').toLowerCase().includes(t));
+  return {
+    tasks: tasksAll.slice(0, SEARCH_LIMIT), notes: notesAll.slice(0, SEARCH_LIMIT), events: eventsAll.slice(0, SEARCH_LIMIT),
+    counts: { tasks: tasksAll.length, notes: notesAll.length, events: eventsAll.length },
+  };
 }
 function closeSearchResultsDropdown(){
   document.getElementById('searchResultsDropdown').style.display = 'none';
 }
+function highlightTerm(text, term){
+  const raw = String(text || '');
+  const t = term.trim();
+  if(!t) return escapeHtml(raw);
+  const i = raw.toLowerCase().indexOf(t.toLowerCase());
+  if(i < 0) return escapeHtml(raw);
+  return escapeHtml(raw.slice(0, i)) + '<mark class="sr-mark">' + escapeHtml(raw.slice(i, i + t.length)) + '</mark>' + escapeHtml(raw.slice(i + t.length));
+}
+function searchSnippet(note, term){
+  const body = stripHtml(note.body || '');
+  const i = body.toLowerCase().indexOf(term.trim().toLowerCase());
+  if(i < 0) return '';
+  const from = Math.max(0, i - 24);
+  return (from > 0 ? '…' : '') + body.slice(from, i + term.trim().length + 40).replace(/\s+/g, ' ');
+}
+function searchItemContext(kind, it){
+  const cat = catById(it.categoryId);
+  const parts = [];
+  if(cat) parts.push(escapeHtml(cat.name));
+  if(kind === 'tasks'){
+    const pr = it.projectId ? projectById(it.projectId) : null;
+    if(pr) parts.push(escapeHtml(pr.name));
+    parts.push(it.done ? 'Concluída' : ((STATUS_CONFIG.find(x => x.key === (it.status || 'nao_iniciado')) || STATUS_CONFIG[0]).label));
+    if(it.dueDate) parts.push(fmtDate(it.dueDate) + (it.dueTime ? ' ' + it.dueTime : ''));
+  } else if(kind === 'notes'){
+    const nb = it.notebookId ? state.notebooks.find(x => x.id === it.notebookId) : null;
+    if(nb) parts.push(escapeHtml(nb.name || 'Caderno'));
+    if(it.updatedAt) parts.push('atualizada ' + fmtDate(dateToStr(new Date(it.updatedAt))));
+  } else {
+    if(it.date) parts.push(fmtDate(it.date) + (it.allDay || !it.startTime ? '' : ' ' + it.startTime));
+  }
+  return parts.join(' · ');
+}
 function renderSearchResultsDropdown(){
   const dd = document.getElementById('searchResultsDropdown');
-  if(!searchTerm.trim()){ dd.style.display = 'none'; return; }
-  const { tasks, notes, events } = computeGlobalSearchResults(searchTerm);
-  if(!tasks.length && !notes.length && !events.length){
-    dd.innerHTML = `<div class="search-results-empty">Nenhum resultado para "${escapeHtml(searchTerm)}"</div>`;
+  const term = searchTerm;
+  if(!term.trim()){ dd.style.display = 'none'; return; }
+  const res = computeGlobalSearchResults(term);
+  const total = res.counts.tasks + res.counts.notes + res.counts.events;
+  if(!total){
+    dd.innerHTML = `<div class="search-results-empty">Nenhum resultado para "${escapeHtml(term)}"</div>`;
     dd.style.display = 'block';
     return;
   }
-  function group(label, items, iconKey, iconBg, iconColor, metaFn){
-    if(!items.length) return '';
-    return `
-      <div class="search-results-group-label">${label}</div>
-      ${items.map(it => `
-        <div class="search-result-row" data-kind="${iconKey}" data-id="${it.id}">
-          <span class="search-result-icon" style="background:${iconBg}; color:${iconColor};">${PAGE_HEADER_ICONS[iconKey]}</span>
-          <span class="search-result-title">${escapeHtml(it.title||'Sem título')}</span>
-          <span class="search-result-meta">${metaFn(it)}</span>
-        </div>
-      `).join('')}
-    `;
-  }
-  dd.innerHTML =
-    group('Tarefas', tasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => t.dueDate ? fmtDate(t.dueDate) : '') +
-    group('Notas', notes, 'notes', 'var(--accent-light)', 'var(--accent)', () => '') +
-    group('Eventos', events, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.date ? fmtDate(ev.date) : '');
+  const TABS = [['all', 'Tudo', total], ['tasks', 'Tarefas', res.counts.tasks], ['notes', 'Notas', res.counts.notes], ['events', 'Agenda', res.counts.events]];
+  if(searchTab !== 'all' && !res.counts[searchTab]) searchTab = 'all';
+  const KIND = { tasks: { label: 'TAREFA', cls: 't', icon: 'tasks' }, notes: { label: 'NOTA', cls: 'n', icon: 'notes' }, events: { label: 'AGENDA', cls: 'e', icon: 'calendar' } };
+  let items = [];
+  if(searchTab === 'all' || searchTab === 'tasks') items = items.concat(res.tasks.map(it => ({ kind: 'tasks', it })));
+  if(searchTab === 'all' || searchTab === 'notes') items = items.concat(res.notes.map(it => ({ kind: 'notes', it })));
+  if(searchTab === 'all' || searchTab === 'events') items = items.concat(res.events.map(it => ({ kind: 'events', it })));
+  if(searchActiveIdx >= items.length) searchActiveIdx = 0;
+  dd.innerHTML = `
+    <div class="sr-tabs">${TABS.map(tb => `<button type="button" class="sr-tab ${searchTab === tb[0] ? 'on' : ''}" data-tab="${tb[0]}">${tb[1]}<i>${tb[2]}</i></button>`).join('')}</div>
+    <div class="sr-list">
+      ${items.map((x, i) => {
+        const k = KIND[x.kind];
+        const snip = x.kind === 'notes' && !(x.it.title || '').toLowerCase().includes(term.trim().toLowerCase()) ? searchSnippet(x.it, term) : '';
+        return `<div class="sr-row ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">
+          <span class="sr-kind ${k.cls}">${k.label}</span>
+          <span class="sr-main">
+            <span class="sr-title">${highlightTerm(x.it.title || 'Sem título', term)}</span>
+            ${snip ? `<span class="sr-ctx">${highlightTerm(snip, term)}</span>` : ''}
+            <span class="sr-ctx">${searchItemContext(x.kind, x.it)}</span>
+          </span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="sr-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span></div>`;
   if(window.innerWidth <= 768){
     const wrapRect = document.getElementById('searchWrap').getBoundingClientRect();
     dd.style.position = 'fixed';
@@ -9617,26 +9684,53 @@ function renderSearchResultsDropdown(){
     dd.style.right = '';
     dd.style.top = '';
   }
-  dd.querySelectorAll('.search-result-row').forEach(row => {
-    row.onclick = () => {
-      const kind = row.dataset.kind;
-      const id = row.dataset.id;
-      clearSearchTerm();
-      closeSearchResultsDropdown();
-      if(kind === 'tasks'){
-        currentView = 'tasks'; activeTaskId = id; creatingNewTask = false; render();
-      } else if(kind === 'notes'){
-        currentView = 'notes'; render();
-        const n = state.notes.find(x => x.id === id);
-        if(n) openNoteComposer(n);
-      } else if(kind === 'calendar'){
-        const ev = state.events.find(x => x.id === id);
-        if(ev) openEventComposer(ev);
-      }
+  function openResult(row){
+    const kind = row.dataset.kind;
+    const id = row.dataset.id;
+    clearSearchTerm();
+    closeSearchResultsDropdown();
+    if(kind === 'tasks'){
+      currentView = 'tasks'; activeTaskId = id; creatingNewTask = false; render();
+    } else if(kind === 'notes'){
+      currentView = 'notes'; render();
+      const n = state.notes.find(x => x.id === id);
+      if(n) openNoteComposer(n);
+    } else if(kind === 'calendar'){
+      const ev = state.events.find(x => x.id === id);
+      if(ev) openEventComposer(ev);
+    }
+  }
+  dd._openResult = openResult;
+  dd.querySelectorAll('.sr-tab').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); searchTab = btn.dataset.tab; searchActiveIdx = 0; renderSearchResultsDropdown(); };
+  });
+  dd.querySelectorAll('.sr-row').forEach(row => {
+    row.onclick = () => openResult(row);
+    row.onmouseenter = () => {
+      searchActiveIdx = +row.dataset.i;
+      dd.querySelectorAll('.sr-row').forEach(r => r.classList.toggle('on', r === row));
     };
   });
   dd.style.display = 'block';
 }
+// teclado: setas, Enter e Esc dentro da busca
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  const dd = document.getElementById('searchResultsDropdown');
+  if(!dd || dd.style.display === 'none') return;
+  const rows = Array.from(dd.querySelectorAll('.sr-row'));
+  if(e.key === 'Escape'){ closeSearchResultsDropdown(); return; }
+  if(!rows.length) return;
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault();
+    searchActiveIdx = (searchActiveIdx + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+    rows.forEach((r, i) => r.classList.toggle('on', i === searchActiveIdx));
+    rows[searchActiveIdx].scrollIntoView({ block: 'nearest' });
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    const row = rows[searchActiveIdx] || rows[0];
+    if(row && dd._openResult) dd._openResult(row);
+  }
+});
 function computeNotifItems(){
   const today = todayStr();
   const inSpace = x => !activeCategoryFilter || x.categoryId === activeCategoryFilter;

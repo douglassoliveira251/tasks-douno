@@ -1,3 +1,13 @@
+## [1.10.127] - 2026-10-15 00:00
+
+### Changed
+
+#### Pesquisa
+
+- Resultados da barra de busca redesenhados: sem o quadrado de ícone; abas Tudo/Tarefas/Notas/Agenda com contagem; selo de tipo pequeno; termo destacado; segunda linha com o contexto (espaço, projeto, status, data ou caderno). Notas mostram o trecho do texto quando o termo está no corpo.
+- Teclado: ↑ ↓ navegam, Enter abre, Esc fecha. Até 8 resultados por tipo.
+
+
 ## [1.10.126] - 2026-10-15 00:00
 
 ### Fixed
