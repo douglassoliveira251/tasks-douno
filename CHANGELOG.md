@@ -1,3 +1,16 @@
+## [1.10.132] - 2026-10-19 00:00
+
+### Changed
+
+#### Visão geral
+
+- Resumo redesenhado em cartões: destaque "Hoje" (tarefas para hoje, retomadas, atrasadas, projetos em atraso, mini gráfico de conclusões e 3 indicadores), Próximos prazos (7 dias), um cartão por espaço (clicar abre as tarefas do espaço) e Projetos, Retomar hoje e Agenda de hoje; mantém Tarefas importantes e Atividades recentes.
+
+#### Modo escuro
+
+- Nova paleta azul-petróleo (fundo profundo com brilho azul, superfícies azuladas, destaque azul-claro) no conteúdo e no menu lateral, para as duas partes ficarem iguais.
+
+
 ## [1.10.131] - 2026-10-19 00:00
 
 ### Added

@@ -53,20 +53,22 @@
        e um verde mais apagado, diferentes dos do menu, e a costura entre os
        dois ficava visível no modo escuro (no claro isso não incomoda, já que
        o menu escuro contrasta de propósito com o conteúdo claro). */
-    --bg:#08090B;
-    --surface:#131418;
-    --surface-2:#1A1B20;
-    --ink:#F3F4F6;
-    --ink-soft:#A3A6AE;
-    --ink-faint:#6B6E76;
-    --border:#26272D;
-    --primary:#3B82F6;
-    --primary-dark:#93C5FD;
-    --primary-light:#12203A;
+    /* Azul-petróleo: fundo profundo com brilho azul no canto, superfícies em tom
+       azulado (não cinza neutro) e destaque azul-claro. */
+    --bg:#0A141D;
+    --surface:#0F1C28;
+    --surface-2:#142435;
+    --ink:#E8F0F6;
+    --ink-soft:#A8B9C8;
+    --ink-faint:#6C8296;
+    --border:#1B2D3E;
+    --primary:#4FA3F7;
+    --primary-dark:#A9D1FB;
+    --primary-light:#12304F;
     --ok:#10B981;
     --ok-dark:#6EE7B7;
-    --ok-light:#12271F;
-    --bg-glow:linear-gradient(180deg, rgba(59,130,246,.30) 0%, rgba(59,130,246,.11) 42%, rgba(59,130,246,0) 100%);
+    --ok-light:#0F2A25;
+    --bg-glow:radial-gradient(1100px 620px at 14% -8%, rgba(32,108,184,.55) 0%, rgba(20,72,124,.24) 42%, rgba(10,20,29,0) 100%);
     --accent:#EFBD5C;
     --accent-light:#332812;
     --danger:#E2685C;
@@ -79,8 +81,8 @@
     --priority-alta-light:#332413;
     --priority-critica:#FF6B85;
     --priority-critica-light:#38181F;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.6);
-    --shadow-md:0 8px 24px rgba(0,0,0,.7);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.45);
+    --shadow-md:0 8px 24px rgba(0,0,0,.55);
   }
   [data-theme="dark"] .status-dot{background:var(--ink-faint);}
   [data-theme="dark"] .status-dot.saved{background:var(--ok);}
@@ -144,16 +146,16 @@
 
   /* ---------- SIDEBAR ---------- */
   .sidebar{
-    --bg:#08090B;
-    --surface:#08090B;
-    --surface-2:#1A1B20;
-    --ink:#F3F4F6;
-    --ink-soft:#A3A6AE;
-    --ink-faint:#6B6E76;
-    --border:#26272D;
-    --primary:#3B82F6;
-    --primary-dark:#93C5FD;
-    --primary-light:#12203A;
+    --bg:#0A121A;
+    --surface:#0A121A;
+    --surface-2:#142435;
+    --ink:#E8F0F6;
+    --ink-soft:#A8B9C8;
+    --ink-faint:#6C8296;
+    --border:#1B2D3E;
+    --primary:#4FA3F7;
+    --primary-dark:#A9D1FB;
+    --primary-light:#12304F;
     --accent:#EFBD5C;
     --accent-light:#332812;
     --danger:#E2685C;
@@ -1547,6 +1549,54 @@
   .cat-tags-combined-row{display:flex; align-items:center; gap:10px;}
   .cat-tags-combined-row .tp-tags-selected{flex:1; min-width:0;}
   /* ===== Dashboard ===== */
+  /* Resumo em "bento" */
+  .rs-top{display:grid; grid-template-columns:1.9fr 1fr; gap:16px;}
+  .rs-card{background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px 20px; min-width:0; box-shadow:var(--shadow-sm);}
+  .rs-hero{
+    position:relative; overflow:hidden; padding:22px 26px; min-height:290px; display:flex; flex-direction:column;
+    background:linear-gradient(160deg, var(--primary-light) 0%, var(--surface) 70%);
+  }
+  .rs-label{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);}
+  .rs-chips{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .rs-tag{font-size:11px; font-weight:700; border-radius:8px; padding:3px 9px; background:var(--surface-2); color:var(--ink-soft);}
+  .rs-tag.warn{background:#FFF1D6; color:#8A5A00;} [data-theme="dark"] .rs-tag.warn{background:#3C2C12; color:#F6B25C;}
+  .rs-tag.late{background:var(--danger-light); color:var(--danger);}
+  .rs-tag.ok{background:var(--ok-light); color:var(--ok);}
+  .rs-big{font-family:var(--font-display); font-size:58px; font-weight:600; letter-spacing:-.03em; line-height:1; margin-top:34px;}
+  .rs-big small{font-size:22px; color:var(--ink-soft); font-weight:400; margin-left:6px; letter-spacing:0;}
+  .rs-sub{color:var(--ink-soft); margin-top:8px; font-size:13px;}
+  .rs-spark{position:absolute; right:22px; top:62px; width:min(46%, 420px); height:120px; pointer-events:none;}
+  .rs-stats{margin-top:auto; border:1px solid var(--border); border-radius:14px; padding:12px 16px; background:color-mix(in srgb, var(--surface) 70%, transparent); display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .rs-stats b{font-size:20px; font-family:var(--font-display);}
+  .rs-stats span{font-size:12px; color:var(--ink-soft);}
+  .rs-bar{height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden; margin-top:6px;}
+  .rs-bar i{display:block; height:100%; border-radius:3px; background:var(--primary);}
+  .rs-card h3{font-family:var(--font-display); font-size:16px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .rs-card h3 span{margin-left:auto; font-size:12px; font-weight:500; color:var(--ink-faint); font-family:var(--font-body);}
+  .rs-row{display:flex; align-items:center; gap:11px; padding:10px 4px; border-bottom:1px solid var(--border); cursor:pointer;}
+  .rs-row:last-child{border-bottom:none;}
+  .rs-row:hover{background:var(--surface-2); border-radius:10px;}
+  .rs-row .bar-pr{width:4px; height:28px; border-radius:2px; flex-shrink:0;}
+  .rs-row .tt{flex:1; min-width:0;}
+  .rs-row .tt b{display:block; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rs-row .tt small{display:block; font-size:11.5px; color:var(--ink-faint); margin-top:1px;}
+  .rs-row .dt{font-size:12px; color:var(--ink-faint); white-space:nowrap;}
+  .rs-row .dt.late{color:var(--danger); font-weight:700;}
+  .rs-spaces{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
+  .rs-space{display:flex; align-items:center; gap:14px; cursor:pointer;}
+  .rs-space:hover{border-color:var(--primary);}
+  .rs-space .sq{width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;}
+  .rs-space .tx{flex:1; min-width:0;}
+  .rs-space .tx small{display:block; color:var(--ink-soft); font-size:12px;}
+  .rs-space .tx b{font-size:16px; font-family:var(--font-display);}
+  .rs-add{display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; color:var(--primary); font-weight:700; font-size:12px; cursor:pointer; border-style:dashed;}
+  .rs-three{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:16px;}
+  .rs-two{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .rs-proj{padding:9px 0; cursor:pointer;}
+  .rs-proj .top{display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px;}
+  .rs-empty{color:var(--ink-faint); font-size:13px; padding:14px 2px;}
+  .rs-link{display:inline-block; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--primary); cursor:pointer;}
+  @media (max-width:1100px){ .rs-top, .rs-three, .rs-two{grid-template-columns:1fr;} .rs-spark{display:none;} }
   .dash-wrap{display:flex; flex-direction:column; gap:20px; padding-bottom:30px;}
 
   .dash-header-row{display:flex; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap; gap:12px;}
@@ -2645,6 +2695,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.132', date:'19/10/2026', title:'Novo Resumo e modo escuro azul-petróleo', text:'A Visão geral foi redesenhada: o que importa hoje em destaque, próximos prazos, um cartão por espaço, projetos, retomadas e agenda. O modo escuro ganhou um tom azul-petróleo, com mais personalidade e a mesma identidade do menu.' },
   { version:'1.10.131', date:'19/10/2026', title:'Retomar em', text:'Cada tarefa pode ter uma data para voltar a olhar, separada do prazo. Aparece como etiqueta laranja na lista, no sino e em "Agrupar por: Retomada". O prazo continua sendo o que conta para atraso.' },
   { version:'1.10.130', date:'19/10/2026', title:'Projeto na tarefa, só quando precisa', text:'O seletor de projeto saiu do topo da tarefa. Para ligar a um projeto use o menu ⋮ → Vincular a um projeto; a tarefa mostra uma etiqueta pequena com o projeto e a etapa. Criando pela página do projeto, já vem ligada.' },
   { version:'1.10.129', date:'19/10/2026', title:'Rascunho do comentário mais seguro', text:'Trocar de aba ou minimizar não envia mais o comentário sozinho: ele fica como rascunho, e continua lá mesmo se você recarregar a página.' },
@@ -6191,7 +6242,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.131';
+const APP_VERSION = '1.10.132';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6437,120 +6488,114 @@ function renderDashboard(){
     </div>`;
   }
 
+  /* ===== Resumo (bento) ===== */
+  const followToday = open.filter(t => t.followUpDate && t.followUpDate <= todayS)
+    .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
+  const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
+    .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99'))).slice(0, 5);
+  const prStatus = (state.projects || []).map(p => ({ p, st: projectStatus(p) }));
+  const lateProjects = prStatus.filter(x => x.st.late).length;
+  const spark14 = dayCounts;
+  const sparkMax = Math.max(1, ...spark14);
+  const sparkPts = spark14.map((v, i) => [(i / (spark14.length - 1)) * 420, 100 - (v / sparkMax) * 80 - 8]);
+  const sparkLine = sparkPts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const inProgress = open.filter(t => t.status === 'em_andamento').length;
+  const openPct = scopeTasks.length ? Math.round(open.length / scopeTasks.length * 100) : 0;
+  const spaceList = getOrderedCategories();
+  const priColor = k => (PRIORITY_CONFIG.find(x => x.key === k) || {}).color || 'var(--ink-faint)';
+
   view.innerHTML = `
     <div class="dash-wrap">
-      <div class="dash-alert-cards">
-        <div class="dash-alert-card">
-          <div class="dash-alert-card-top"><span class="dash-alert-icon info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="dash-alert-label">Tarefas</span></div>
-          <div class="dash-alert-num">${kpiTasksTotal}</div>
-          <div class="dash-alert-sub">${kpiTasksDone} concluídas · ${kpiTasksPending} pendentes</div>
-          <div class="dash-kpi-progress"><div class="dash-kpi-progress-fill" style="width:${kpiTasksPct}%;"></div></div>
-          <div class="dash-kpi-progress-label">${kpiTasksPct}%</div>
+      <div class="rs-top">
+        <div class="rs-card rs-hero">
+          <div class="rs-chips"><span class="rs-label">Hoje</span>
+            ${followToday.length ? `<span class="rs-tag warn">↻ ${followToday.length} para retomar</span>` : ''}
+            ${overdue.length ? `<span class="rs-tag late">${overdue.length} atrasada${overdue.length > 1 ? 's' : ''}</span>` : ''}
+            ${lateProjects ? `<span class="rs-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
+          </div>
+          <div class="rs-big">${dueToday.length}<small>tarefa${dueToday.length === 1 ? '' : 's'} para hoje</small></div>
+          <div class="rs-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} nos últimos 7 dias${trend ? ' (' + (trend > 0 ? '+' : '') + trend + ' vs. semana anterior)' : ''}</div>
+          <svg class="rs-spark" viewBox="0 0 420 110" preserveAspectRatio="none"><defs><linearGradient id="rsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".4"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs><path d="${sparkLine} L420 110 L0 110Z" fill="url(#rsg)"/><path d="${sparkLine}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          <div class="rs-stats">
+            <div><span>Concluídas (7 dias)</span><br><b>${completedLast7.length}</b></div>
+            <div><span>Em andamento</span><br><b>${inProgress}</b></div>
+            <div><span>Abertas</span><br><b>${open.length}</b><div class="rs-bar"><i style="width:${openPct}%"></i></div></div>
+          </div>
         </div>
-
-        <div class="dash-alert-card" id="dashKpiNotesCard">
-          <div class="dash-alert-card-top"><span class="dash-alert-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></span><span class="dash-alert-label">Notas</span></div>
-          <div class="dash-alert-num">${kpiNotesTotal}</div>
-          <div class="dash-alert-sub">${kpiNotesNew7} novas esta semana</div>
-          <div class="dash-kpi-spark">${svgSparkline(sparkCounts, 140, 34, '#8B5CF6')}</div>
-        </div>
-
-        <div class="dash-alert-card dash-kpi-clickable" id="dashKpiEventsCard">
-          <div class="dash-alert-card-top"><span class="dash-alert-icon info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="dash-alert-label">Eventos hoje</span></div>
-          <div class="dash-alert-num">${kpiTodayEvents.length}</div>
-          <div class="dash-alert-sub">${kpiNextEvent ? `Próximo: ${escapeHtml(kpiNextEvent.title||'Sem título')}${kpiNextEvent.startTime?' '+kpiNextEvent.startTime:''}` : 'Nenhum evento hoje'}</div>
-          <div class="dash-kpi-link">Ver calendário →</div>
-        </div>
-
-        <div class="dash-alert-card dash-kpi-clickable" id="dashKpiImportantCard">
-          <div class="dash-alert-card-top"><span class="dash-alert-icon danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span><span class="dash-alert-label">Itens importantes</span></div>
-          <div class="dash-alert-num">${kpiImportantTotal}</div>
-          <div class="dash-alert-sub">${importantTasks.length} tarefas · ${importantNotes.length} notas</div>
-          <div class="dash-kpi-link">Ver todas →</div>
+        <div class="rs-card">
+          <h3>Próximos prazos <span>7 dias</span></h3>
+          ${upcomingTasks.length ? upcomingTasks.map(t => { const cat = catById(t.categoryId), pr = t.projectId ? projectById(t.projectId) : null; return `
+            <div class="rs-row dash-list-row" data-task-id="${t.id}">
+              <span class="bar-pr" style="background:${priColor(t.priority)}"></span>
+              <span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${pr ? escapeHtml(pr.name) : (cat ? escapeHtml(cat.name) : '')}</small></span>
+              <span class="dt">${t.dueDate === todayS ? 'Hoje' : fmtDate(t.dueDate)}${t.dueTime ? ' ' + t.dueTime : ''}</span>
+            </div>`; }).join('') : '<div class="rs-empty">Nada com prazo nos próximos 7 dias.</div>'}
+          <span class="rs-link" id="dashSeeAllTasksLink">Ver todas as tarefas →</span>
         </div>
       </div>
 
-      <div class="dash-grid-main">
-        <div class="dash-section">
-          <h3 class="dash-section-title">Progresso</h3>
-          <div class="dash-priority-bars">
-            ${priorityCounts.map(p => `
-              <div>
-                <div class="dash-priority-row-top"><span class="dot" style="background:${p.color}"></span>${p.label}<span class="dash-priority-frac">${p.count}</span></div>
-                <div class="dash-priority-track"><div class="dash-priority-fill" style="width:${Math.round(p.count/maxPriorityCount*100)}%; background:${p.color};"></div></div>
-              </div>
-            `).join('')}
-          </div>
-          <div class="dash-prod-stat-row" style="margin-top:16px;">
-            <div class="dash-prod-stat-box"><div class="dash-prod-stat-value">${conclusionRate}%</div><div class="dash-prod-stat-label">Taxa de conclusão</div></div>
-            <div class="dash-prod-stat-box"><div class="dash-prod-stat-value">${overdue.length} / ${open.length}</div><div class="dash-prod-stat-label">Em atraso</div></div>
-            <div class="dash-prod-stat-box"><div class="dash-prod-stat-value">${createdLast30.length} / ${completedLast30.length}</div><div class="dash-prod-stat-label">Criadas / concluídas (30d)</div></div>
-          </div>
-          ${catLoadList.length ? `
-          <div class="dash-catload-row" style="margin-top:14px;">
-            ${catLoadList.map(x => `<span class="dash-catload-pill" style="background:${x.cat.color}22; color:${x.cat.color};"><span class="dot" style="background:${x.cat.color}"></span>${escapeHtml(x.cat.name)}: ${x.count}</span>`).join('')}
-          </div>` : ''}
-          <div class="dash-kpi-link" id="dashSeeAllTasksLink" style="margin-top:14px;">Ver todas as tarefas →</div>
-        </div>
+      <div class="rs-spaces">
+        ${spaceList.map(c => {
+          const o = open.filter(t => t.categoryId === c.id).length;
+          const d = completed.filter(t => t.categoryId === c.id).length;
+          const pct = (o + d) ? Math.round(d / (o + d) * 100) : 0;
+          return `<div class="rs-card rs-space" data-space="${c.id}" title="Ver as tarefas deste espaço">
+            <div class="sq" style="background:${c.color}2E; color:${c.color};">${escapeHtml((c.name || '?').charAt(0).toUpperCase())}</div>
+            <div class="tx"><small>${escapeHtml(c.name)}</small><b>${o} aberta${o === 1 ? '' : 's'}</b><div class="rs-bar"><i style="width:${pct}%; background:${c.color}"></i></div></div>
+          </div>`; }).join('')}
+        <div class="rs-card rs-add" id="rsAddSpace"><span style="font-size:20px; line-height:1">＋</span>Espaço</div>
+      </div>
 
-        <div class="dash-section">
-          <h3 class="dash-section-title">Atividades recentes</h3>
-          ${recentActivities.length ? `<div class="dash-activity-list">
-            ${recentActivities.map(a => `
-              <div class="dash-activity-row">
-                <span class="dash-activity-icon ${activityColors[a.type]}">${activityIcons[a.type]}</span>
-                <div class="dash-activity-body">
-                  <div class="dash-activity-msg">${escapeHtml(a.msg)}</div>
-                  <div class="dash-activity-meta">${a.cat?escapeHtml(a.cat.name):''}${a.cat?' · ':''}${a.module}</div>
-                </div>
-                <div class="dash-activity-time">${fmtActivityTime(a.ts)}</div>
-              </div>
-            `).join('')}
-          </div>` : emptyDashState('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>', 'Nenhuma atividade ainda.')}
-          <div class="dash-kpi-link" id="dashSeeAllActivityLink" style="margin-top:12px;">Ver todas as atividades →</div>
+      <div class="rs-three">
+        <div class="rs-card">
+          <h3>Projetos <span>${prStatus.length ? prStatus.length + ' ativo' + (prStatus.length > 1 ? 's' : '') : ''}</span></h3>
+          ${prStatus.length ? prStatus.slice(0, 4).map(x => `<div class="rs-proj" data-project="${x.p.id}">
+            <div class="top">${escapeHtml(x.p.name || 'Projeto')}<span class="rs-tag ${x.st.late ? 'late' : (x.st.total && x.st.done === x.st.total ? 'ok' : '')}" style="margin-left:auto">${x.st.late ? x.st.lateCount + ' etapa' + (x.st.lateCount > 1 ? 's' : '') + ' atrasada' + (x.st.lateCount > 1 ? 's' : '') : (x.st.total && x.st.done === x.st.total ? 'Concluído' : 'No prazo')}</span></div>
+            <div class="rs-bar"><i style="width:${x.st.pct}%"></i></div></div>`).join('')
+            : '<div class="rs-empty">Nenhum projeto ainda.</div>'}
+          <span class="rs-link" id="rsSeeProjects">Ver projetos →</span>
+        </div>
+        <div class="rs-card">
+          <h3>Retomar hoje <span>${followToday.length ? followToday.length : ''}</span></h3>
+          ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="rs-row dash-list-row" data-task-id="${t.id}"><span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></span></div>`).join('')
+            : '<div class="rs-empty">Nada para retomar hoje.</div>'}
+        </div>
+        <div class="rs-card">
+          <h3>Agenda de hoje <span>${todayEvents.length ? todayEvents.length : ''}</span></h3>
+          ${todayEvents.length ? todayEvents.slice(0, 4).map(ev => `<div class="rs-row dash-list-row" data-event-id="${ev.id}"><span class="rs-tag ok">${ev.allDay || !ev.startTime ? 'Dia todo' : ev.startTime}</span><span class="tt"><b>${escapeHtml(ev.title || 'Sem título')}</b></span></div>`).join('')
+            : '<div class="rs-empty">Nenhum evento hoje.</div>'}
+          <span class="rs-link" id="dashSeeAllEventsLink">Ver calendário →</span>
         </div>
       </div>
 
-      <div class="dash-grid-2">
-        <div class="dash-section">
-          <div class="dash-strip-header">
-            <h3 class="dash-section-title" style="margin-bottom:0;">Próximos eventos</h3>
-            <a href="#" class="dash-see-all-link" id="dashSeeCalendarLink">Ver calendário →</a>
-          </div>
-          ${upcomingEvents.length ? `<div class="dash-list">
-            ${upcomingEvents.slice(0,6).map(ev => {
-              const cat = catById(ev.categoryId);
-              return `<div class="dash-list-row" data-event-id="${ev.id}">
-                <span class="dash-list-date">${fmtDate(ev.date)}${ev.startTime?' '+ev.startTime:''}</span>
-                <span class="dash-list-title">${escapeHtml(ev.title||'Sem título')}</span>
-                <span class="dash-note-tag" style="color:${eventColor(ev)};">${eventPrimaryTagName(ev)||(cat?cat.name:'')}</span>
-              </div>`;
-            }).join('')}
-          </div>` : emptyDashState('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>', 'Nenhum evento futuro.')}
-          <div class="dash-kpi-link" id="dashSeeAllEventsLink" style="margin-top:12px;">Ver todos os eventos →</div>
+      <div class="rs-two">
+        <div class="rs-card">
+          <h3>Tarefas importantes <span id="dashSeeAllImportantLink" style="cursor:pointer; color:var(--primary); font-weight:600;">Ver todas →</span></h3>
+          ${importantTasksSorted.length ? importantTasksSorted.slice(0, 5).map(t => `<div class="rs-row dash-tasklist-row" data-task-id="${t.id}">
+            <span class="bar-pr" style="background:${t.priority === 'critica' ? 'var(--priority-critica)' : 'var(--priority-alta)'}"></span>
+            <span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.priority === 'critica' ? 'Crítica' : 'Alta'}</small></span>
+            <span class="dt ${t.dueDate && t.dueDate < todayS ? 'late' : ''}">${t.dueDate ? fmtDate(t.dueDate) : ''}</span></div>`).join('')
+            : '<div class="rs-empty">Nenhuma tarefa importante.</div>'}
         </div>
-
-        <div class="dash-section">
-          <div class="dash-strip-header">
-            <h3 class="dash-section-title" style="margin-bottom:0;">Tarefas importantes</h3>
-            <a href="#" class="dash-see-all-link" id="dashSeeAllImportantLink">Ver todas →</a>
-          </div>
-          ${importantTasksSorted.length ? `<div class="dash-tasklist">
-            ${importantTasksSorted.slice(0,5).map(t => `
-              <div class="dash-tasklist-row" data-task-id="${t.id}">
-                <span class="dash-tasklist-check"></span>
-                <span class="dash-tasklist-title">${escapeHtml(t.title||'Sem título')}</span>
-                <span class="dash-tasklist-priority" style="background:${t.priority==='critica'?'var(--priority-critica-light)':'var(--priority-alta-light)'}; color:${t.priority==='critica'?'var(--priority-critica)':'var(--priority-alta)'};">${t.priority==='critica'?'Crítica':'Alta'}</span>
-                <span class="dash-tasklist-date">${fmtFriendlyDate(t.dueDate)}</span>
-                <span class="dash-tasklist-flag ${t.priority==='critica'?'filled':''}"><svg viewBox="0 0 24 24" fill="${t.priority==='critica'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M4 21V4a1 1 0 011-1h11l-1.5 4.5L19 12H5"/></svg></span>
-              </div>
-            `).join('')}
-          </div>` : emptyDashState('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>', 'Nenhuma tarefa importante.')}
-          <div class="dash-kpi-link" id="dashSeeAllImportantBottomLink" style="margin-top:12px;">Ver todas as tarefas →</div>
+        <div class="rs-card">
+          <h3>Atividades recentes</h3>
+          ${recentActivities.length ? recentActivities.map(a => `<div class="rs-row" style="cursor:default"><span class="tt"><b>${escapeHtml(a.msg)}</b><small>${a.cat ? escapeHtml(a.cat.name) + ' · ' : ''}${a.module}</small></span><span class="dt">${fmtActivityTime(a.ts)}</span></div>`).join('')
+            : '<div class="rs-empty">Nenhuma atividade ainda.</div>'}
         </div>
       </div>
     </div>
   `;
+
+  view.querySelectorAll('.rs-space[data-space]').forEach(el => {
+    el.onclick = () => { activeCategoryFilter = el.dataset.space; currentView = 'tasks'; render(); };
+  });
+  const rsAdd = document.getElementById('rsAddSpace');
+  if(rsAdd) rsAdd.onclick = () => { settingsTab = 'categorias'; currentView = 'settings'; render(); };
+  view.querySelectorAll('.rs-proj[data-project]').forEach(el => {
+    el.onclick = () => { activeProjectId = el.dataset.project; projectTab = 'timeline'; currentView = 'projects'; render(); };
+  });
+  const rsSeeProjects = document.getElementById('rsSeeProjects');
+  if(rsSeeProjects) rsSeeProjects.onclick = () => { activeProjectId = null; currentView = 'projects'; render(); };
 
   view.querySelectorAll('.dash-list-row[data-task-id]').forEach(row => {
     row.onclick = () => { currentView = 'tasks'; activeTaskId = row.dataset.taskId; creatingNewTask = false; render(); };
