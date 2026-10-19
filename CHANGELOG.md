@@ -1,3 +1,12 @@
+## [1.10.133] - 2026-10-19 00:00
+
+### Changed
+
+#### Cabeçalho das páginas
+
+- O cartão com ícone e título saiu. O título (grande, sem caixa) e a linha de apoio (contagens ou data) ficam na própria barra do topo, à esquerda; busca, seletor de espaço, ajuda, sino e conta à direita. A Visão geral abre com "Bom dia/Boa tarde/Boa noite, Nome". No celular o título vai para uma linha própria, com o seletor de espaço ao lado.
+
+
 ## [1.10.132] - 2026-10-19 00:00
 
 ### Changed

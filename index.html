@@ -380,7 +380,7 @@
   .main{display:flex; flex-direction:column; height:100vh; overflow:hidden;}
   .topbar{
     display:flex; align-items:center; gap:14px;
-    padding:20px 28px 8px;
+    padding:22px 28px 12px;
   }
   .page-header-card{
     display:flex; align-items:center; gap:14px;
@@ -395,7 +395,15 @@
     display:flex; align-items:center; justify-content:center;
   }
   .page-header-icon svg{width:22px; height:22px;}
-  .page-header-stats{display:flex; gap:18px; margin-top:6px;}
+  .page-header-stats{display:flex; margin-top:4px;}
+  .page-header-stat + .page-header-stat::before{content:'·'; margin:0 8px; color:var(--ink-faint);}
+  /* Título direto no fundo (como no Finance): grande, à esquerda, com a busca e os ícones à direita */
+  .topbar-title{flex:1; min-width:0; display:flex; align-items:center; gap:12px;}
+  .topbar-title-text{min-width:0;}
+  .topbar-title .view-title{font-size:32px; font-weight:600; letter-spacing:-.02em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .topbar-title .view-title span{font-weight:300; color:var(--ink-soft);}
+  .topbar-title .view-subtitle{display:block; font-size:13.5px; color:var(--ink-soft); margin-top:4px; text-transform:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .topbar-title .page-header-stat{font-size:13.5px;}
   .page-header-stat{font-size:12px; color:var(--ink-soft);}
   .page-header-stat b{color:var(--ink); font-weight:600;}
   .topbar-profile-chip{
@@ -2140,26 +2148,23 @@
     #themeToggleLabel{font-size:13.5px;}
     .nav-item.active .nav-label{color:var(--primary-dark);}
 
-    .topbar{padding:14px 16px 6px; gap:8px;}
+    .topbar{padding:14px 16px 6px; gap:8px; flex-wrap:wrap;}
+    .topbar-title{order:10; flex:1 1 100%; padding:6px 2px 2px;}
+    .topbar-title .view-title{font-size:22px;}
+    .topbar-title .view-subtitle, .topbar-title .page-header-stat{font-size:12px;}
+    .topbar-title-text{flex:1;}
     .search-wrap{width:auto; flex:1; min-width:0;}
     .topbar-profile-name, .topbar-profile-chevron{display:none;}
     .save-error-badge{width:38px; padding:0; justify-content:center;}
     .save-error-badge .badge-text{display:none;}
-    .page-header-card{margin:8px 16px 4px; padding:11px 14px; flex-wrap:nowrap; gap:10px;}
-    .page-header-icon{width:38px; height:38px; border-radius:10px;}
-    .page-header-icon svg{width:18px; height:18px;}
-    .view-title{font-size:19px;}
-    .view-title-wrap{flex:1; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:8px; align-items:center;}
-    .space-selector-wrap{grid-column:2; grid-row:1 / span 2; margin:0; align-self:center;}
+    .space-selector-wrap{margin:0; align-self:center; flex-shrink:0;}
     .space-selector-btn{height:auto; padding:4px 9px 4px 8px; font-size:10.5px;}
     .space-selector-name{max-width:96px;}
     .ssn-extra{display:none;}
     .space-selector-dropdown{left:auto; right:0;}
-    .view-title{grid-column:1; grid-row:1; line-height:1.15;}
-    .view-subtitle{grid-column:1; grid-row:2; margin-top:0;}
-    .page-header-stats{grid-column:1; grid-row:2; margin-top:1px; gap:0; flex-wrap:nowrap; overflow:hidden;}
-    .page-header-stat{font-size:11.5px; white-space:nowrap;}
-    .page-header-stat + .page-header-stat::before{content:'·'; margin:0 5px;}
+    .page-header-stats{flex-wrap:nowrap; overflow:hidden;}
+    .page-header-stat{white-space:nowrap;}
+    .page-header-stat + .page-header-stat::before{margin:0 5px;}
     .page-header-stat:nth-child(n+3){display:none;}
 
     .group-mode-bar{flex-wrap:wrap; row-gap:8px;}
@@ -2195,7 +2200,7 @@
       background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); color:var(--ink-soft);
     }
     .notes-mbar-focus svg{width:17px; height:17px;}
-    body.notes-focus .topbar, body.notes-focus .page-header-card{display:none;}
+    body.notes-focus .topbar{display:none;}
     body.notes-focus .notes-mbar-focus{color:var(--primary);}
 
     .notebooks-col{
@@ -2291,6 +2296,22 @@
       <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" title="Abrir menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
       </button>
+      <div class="topbar-title" id="topbarTitle">
+        <div class="topbar-title-text">
+          <div class="view-title" id="viewTitle">Tarefas</div>
+          <div class="view-subtitle" id="viewSubtitle" style="display:none;"></div>
+          <div class="page-header-stats" id="pageHeaderStats" style="display:none;"></div>
+        </div>
+        <div class="space-selector-wrap" id="spaceSelectorWrap" style="display:none;">
+          <button class="space-selector-btn" id="spaceSelectorBtn" title="Escolher espaço" aria-label="Escolher espaço">
+            <span class="space-selector-tag">Espaço</span>
+            <span class="space-selector-dot" id="spaceSelectorDot"></span>
+            <span class="space-selector-name" id="spaceSelectorName">Todos os espaços</span>
+            <svg class="space-selector-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="space-selector-dropdown" id="spaceSelectorDropdown" style="display:none;"></div>
+        </div>
+      </div>
       <div class="search-wrap" id="searchWrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
         <input type="text" id="searchInput" placeholder="Buscar tarefas, notas, eventos...">
@@ -2345,24 +2366,6 @@
             </button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="page-header-card">
-      <div class="page-header-icon" id="pageHeaderIcon"></div>
-      <div class="view-title-wrap">
-        <div class="space-selector-wrap" id="spaceSelectorWrap" style="display:none;">
-          <button class="space-selector-btn" id="spaceSelectorBtn" title="Escolher espaço" aria-label="Escolher espaço">
-            <span class="space-selector-tag">Espaço</span>
-            <span class="space-selector-dot" id="spaceSelectorDot"></span>
-            <span class="space-selector-name" id="spaceSelectorName">Todos os espaços</span>
-            <svg class="space-selector-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="space-selector-dropdown" id="spaceSelectorDropdown" style="display:none;"></div>
-        </div>
-        <div class="view-title" id="viewTitle">Tarefas</div>
-        <div class="view-subtitle" id="viewSubtitle" style="display:none;"></div>
-        <div class="page-header-stats" id="pageHeaderStats" style="display:none;"></div>
       </div>
     </div>
 
@@ -2695,6 +2698,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.133', date:'19/10/2026', title:'Título no topo, como no Finance', text:'O cartão com o título da página saiu: o título agora fica solto no topo, grande, com a busca, o espaço e a conta à direita. A Visão geral abre com a saudação "Bom dia, Nome".' },
   { version:'1.10.132', date:'19/10/2026', title:'Novo Resumo e modo escuro azul-petróleo', text:'A Visão geral foi redesenhada: o que importa hoje em destaque, próximos prazos, um cartão por espaço, projetos, retomadas e agenda. O modo escuro ganhou um tom azul-petróleo, com mais personalidade e a mesma identidade do menu.' },
   { version:'1.10.131', date:'19/10/2026', title:'Retomar em', text:'Cada tarefa pode ter uma data para voltar a olhar, separada do prazo. Aparece como etiqueta laranja na lista, no sino e em "Agrupar por: Retomada". O prazo continua sendo o que conta para atraso.' },
   { version:'1.10.130', date:'19/10/2026', title:'Projeto na tarefa, só quando precisa', text:'O seletor de projeto saiu do topo da tarefa. Para ligar a um projeto use o menu ⋮ → Vincular a um projeto; a tarefa mostra uma etiqueta pequena com o projeto e a etapa. Criando pela página do projeto, já vem ligada.' },
@@ -2865,7 +2869,6 @@ const PAGE_HEADER_ICONS = {
   settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
 };
 function renderPageHeaderMeta(){
-  document.getElementById('pageHeaderIcon').innerHTML = PAGE_HEADER_ICONS[currentView] || PAGE_HEADER_ICONS.dashboard;
   const statsEl = document.getElementById('pageHeaderStats');
   let stats = null;
   if(currentView === 'tasks'){
@@ -6242,7 +6245,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.132';
+const APP_VERSION = '1.10.133';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9733,8 +9736,8 @@ function placeSpaceSelector(){
   if(!wrap) return;
   const mobile = spaceSelectorMobileMQ.matches;
   if(mobile){
-    const titleWrap = document.querySelector('.view-title-wrap');
-    if(titleWrap && wrap.parentElement !== titleWrap) titleWrap.insertBefore(wrap, titleWrap.firstChild);
+    const titleWrap = document.getElementById('topbarTitle');
+    if(titleWrap && wrap.parentElement !== titleWrap) titleWrap.appendChild(wrap);
   } else {
     const group = document.querySelector('.topbar-right-group');
     const help = document.getElementById('helpBtn');
@@ -10133,12 +10136,20 @@ function render(){
   document.body.classList.toggle('notes-focus', notesFocusMode && currentView === 'notes');
   renderSpaceSelector();
   document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
-  document.getElementById('viewTitle').textContent = VIEW_TITLES[currentView];
+  const viewTitleEl = document.getElementById('viewTitle');
+  if(currentView === 'dashboard'){
+    const hr = new Date().getHours();
+    const greet = hr < 12 ? 'Bom dia' : (hr < 18 ? 'Boa tarde' : 'Boa noite');
+    const first = ((state.profile && state.profile.name) || '').trim().split(/\s+/)[0];
+    viewTitleEl.innerHTML = first ? `${greet}, <span>${escapeHtml(first)}</span>` : greet;
+  } else {
+    viewTitleEl.textContent = VIEW_TITLES[currentView];
+  }
   renderPageHeaderMeta();
   const subtitleEl = document.getElementById('viewSubtitle');
   if(currentView === 'dashboard'){
     const focusD = new Date(todayStr()+'T00:00:00');
-    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()]} de ${focusD.getFullYear()}`;
+    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()} · suas tarefas, do seu jeito`;
     subtitleEl.style.display = 'block';
   } else {
     subtitleEl.style.display = 'none';

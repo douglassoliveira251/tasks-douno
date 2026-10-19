@@ -51,3 +51,18 @@ test.describe('Resumo', () => {
     expect(bg).toBe('#0A141D');
   });
 });
+
+test('título solto no topo: saudação no Resumo e nome da página nas demais', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => { state.profile.name = 'Douglas Silva'; render(); });
+  await expect(page.locator('#viewTitle')).toContainText('Douglas');
+  await expect(page.locator('#viewTitle')).toContainText(/Bom dia|Boa tarde|Boa noite/);
+  await expect(page.locator('.page-header-card')).toHaveCount(0);
+  await page.evaluate(() => { currentView = 'tasks'; render(); });
+  await expect(page.locator('#viewTitle')).toHaveText('Tarefas');
+  const t = await page.locator('#viewTitle').boundingBox();
+  const s = await page.locator('#searchWrap').boundingBox();
+  expect(t.x + t.width).toBeLessThanOrEqual(s.x); // título à esquerda da busca
+  expect(t.y).toBeLessThan(60);
+});

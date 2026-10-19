@@ -34,7 +34,7 @@ test('desktop: a lista de espaços abre dentro da tela, alinhada à direita do b
 test('celular: o seletor fica no cartão do título e volta para o topo ao alargar a janela', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await gotoApp(page, { view: 'tasks' });
-  expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.page-header-card'))).toBe(true);
+  expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('#topbarTitle'))).toBe(true);
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect.poll(() => page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topbar'))).toBe(true);

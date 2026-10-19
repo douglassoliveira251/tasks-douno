@@ -70,13 +70,13 @@ test.describe('Notas no celular', () => {
   test('modo foco esconde o cabeçalho e dá mais espaço à nota', async ({ page }) => {
     const before = await page.locator('.note-detail-col').boundingBox();
     await page.locator('#notesFocusBtn').click();
-    await expect(page.locator('.page-header-card')).toBeHidden();
+    await expect(page.locator('#topbarTitle')).toBeHidden();
     await expect(page.locator('.topbar')).toBeHidden();
     const after = await page.locator('.note-detail-col').boundingBox();
     expect(after.height).toBeGreaterThan(before.height + 100);
 
     await page.locator('#notesFocusBtn').click();
-    await expect(page.locator('.page-header-card')).toBeVisible();
+    await expect(page.locator('#topbarTitle')).toBeVisible();
   });
 });
 
@@ -92,12 +92,14 @@ test.describe('Notas no desktop', () => {
 });
 
 test.describe('Cabeçalho das páginas no celular', () => {
-  test('título, contagem e espaço cabem numa linha só', async ({ page }) => {
+  test('título, contagem e espaço cabem na linha do título', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
     await gotoApp(page, { view: 'tasks' });
-    const card = await page.locator('.page-header-card').boundingBox();
-    expect(card.height).toBeLessThan(80);
+    const title = await page.locator('#topbarTitle').boundingBox();
+    expect(title.height).toBeLessThan(70);
     const chip = await page.locator('#spaceSelectorBtn').boundingBox();
     expect(chip.width).toBeLessThan(110);
+    expect(chip.y).toBeGreaterThanOrEqual(title.y - 1);
+    expect(chip.y + chip.height).toBeLessThanOrEqual(title.y + title.height + 1);
   });
 });
