@@ -767,6 +767,19 @@
   .gantt-bar.nao_iniciada{background:#B8C4D6; color:#33405A;}
   .gantt-today{position:absolute; top:0; bottom:0; width:2px; background:#E0584B; z-index:3; pointer-events:none;}
   .gantt-today em{position:absolute; top:3px; left:-16px; background:#E0584B; color:#fff; font-size:10px; font-style:normal; font-weight:700; padding:1px 6px; border-radius:5px;}
+  .task-follow-pill{
+    display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; border-radius:7px; padding:2px 8px;
+    background:#FFF1D6; color:#8A5A00; white-space:nowrap;
+  }
+  .task-follow-pill svg{width:11px; height:11px;}
+  .task-follow-pill.hoje{background:#F59E0B; color:#fff;}
+  .task-follow-pill.vencida{background:#FDE4E4; color:#C62828;}
+  .tp-follow{display:flex; flex-direction:column; gap:7px;}
+  .tp-follow-chips{display:flex; gap:6px; flex-wrap:wrap;}
+  .tp-follow-chip{border:none; font-size:11.5px; font-weight:600; border-radius:99px; padding:4px 10px; background:#FFF1D6; color:#8A5A00; cursor:pointer;}
+  .tp-follow-chip:hover{filter:brightness(.96);}
+  .tp-follow-add{border:none; background:none; padding:0; font-size:12.5px; font-weight:600; color:var(--ink-faint); cursor:pointer; align-self:flex-start;}
+  .tp-follow-add:hover{color:var(--primary);}
   .task-proj-pill{
     display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; border-radius:7px; padding:2px 8px;
     background:var(--primary-light); color:var(--primary-dark); white-space:nowrap; max-width:220px; overflow:hidden; text-overflow:ellipsis;
@@ -2632,6 +2645,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.131', date:'19/10/2026', title:'Retomar em', text:'Cada tarefa pode ter uma data para voltar a olhar, separada do prazo. Aparece como etiqueta laranja na lista, no sino e em "Agrupar por: Retomada". O prazo continua sendo o que conta para atraso.' },
   { version:'1.10.130', date:'19/10/2026', title:'Projeto na tarefa, só quando precisa', text:'O seletor de projeto saiu do topo da tarefa. Para ligar a um projeto use o menu ⋮ → Vincular a um projeto; a tarefa mostra uma etiqueta pequena com o projeto e a etapa. Criando pela página do projeto, já vem ligada.' },
   { version:'1.10.129', date:'19/10/2026', title:'Rascunho do comentário mais seguro', text:'Trocar de aba ou minimizar não envia mais o comentário sozinho: ele fica como rascunho, e continua lá mesmo se você recarregar a página.' },
   { version:'1.10.128', date:'15/10/2026', title:'Comentário não se perde mais', text:'O texto do comentário é mantido enquanto você preenche outros campos da tarefa. Se tentar fechar a tarefa com um comentário não enviado, o sistema pergunta se quer enviar, descartar ou voltar.' },
@@ -3476,6 +3490,31 @@ function computeTaskGroups(){
     });
     return groups;
   }
+  if(taskGroupMode === 'retomada'){
+    const today = todayStr(), tomorrow = addDaysStr(today, 1), endWeek = addDaysStr(today, 7);
+    const bucket = t => {
+      const d = t.followUpDate;
+      if(!d) return 'sem';
+      if(d < today) return 'vencida';
+      if(d === today) return 'hoje';
+      if(d === tomorrow) return 'amanha';
+      if(d <= endWeek) return 'semana';
+      return 'depois';
+    };
+    const defs = [
+      { key:'vencida', label:'Retomada vencida', color:'var(--danger)' },
+      { key:'hoje', label:'Retomar hoje', color:'#F59E0B' },
+      { key:'amanha', label:'Amanhã', color:'var(--primary)' },
+      { key:'semana', label:'Próximos 7 dias', color:'var(--primary)' },
+      { key:'depois', label:'Mais adiante', color:'var(--ink-faint)' },
+      { key:'sem', label:'Sem retomada', color:'var(--ink-faint)' },
+    ];
+    return defs.map(g => ({
+      key: 'ret_' + g.key, label: g.label, color: g.color,
+      tasks: pool.filter(t => bucket(t) === g.key),
+      quickAddDefaults: {}
+    }));
+  }
   if(taskGroupMode === 'periodo'){
     return PERIOD_CONFIG.map(p => ({
       key:p.key, label:p.label, color:p.color,
@@ -3536,7 +3575,8 @@ function renderTasks(){
   view.innerHTML = '';
 
   const GROUP_MODE_OPTIONS = [
-    { key:'periodo', label:'Período', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' },
+    { key:'periodo', label:'Prazo', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' },
+    { key:'retomada', label:'Retomada', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg>' },
     { key:'status', label:'Status', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor" stroke="none"/></svg>' },
     { key:'prioridade', label:'Prioridade', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4M4 4h13l-2.5 4L17 12H4"/></svg>' },
     { key:'tags', label:'Tags', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l5.6-5.59a2 2 0 000-2.82z"/><circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/></svg>' },
@@ -3815,6 +3855,7 @@ function renderTaskRow(t){
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
       <span class="task-status-label">${(STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
+      ${(() => { const fs_ = followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/></svg>${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' · ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
@@ -4685,6 +4726,19 @@ function renderTaskPanel(panel){
       </div>
     </div>
 
+    <div class="tp-field tp-follow">
+      ${task.followUpDate ? `
+      <label class="tp-label" style="color:#8A5A00;">Retomar em <span style="font-weight:400; color:var(--ink-faint);">(voltar a olhar esta tarefa; não é o prazo)</span></label>
+      <input type="date" class="tp-input" id="tpFollowDate" value="${task.followUpDate}" style="max-width:200px;">
+      <div class="tp-follow-chips">
+        <button type="button" class="tp-follow-chip" data-days="1">Amanhã</button>
+        <button type="button" class="tp-follow-chip" data-days="3">Em 3 dias</button>
+        <button type="button" class="tp-follow-chip" data-days="7">Em 1 semana</button>
+        <button type="button" class="tp-follow-chip" data-days="0">Sem retomada</button>
+      </div>` : `
+      <button type="button" class="tp-follow-add" id="tpFollowAdd">↻ Definir data para retomar</button>`}
+    </div>
+
     <div class="tp-field">
       <div class="tp-row-mixed">
         <div class="tp-col-status">
@@ -5109,6 +5163,26 @@ function renderTaskPanel(panel){
     e.target.value = '';
   });
 
+  const tpFollowAdd = document.getElementById('tpFollowAdd');
+  if(tpFollowAdd) tpFollowAdd.onclick = () => {
+    const t = getOrCreateActiveTask(); if(!t) return;
+    t.followUpDate = addDaysStr(todayStr(), 3);
+    markDirty();
+  };
+  const tpFollowDate = document.getElementById('tpFollowDate');
+  if(tpFollowDate) tpFollowDate.addEventListener('change', e => {
+    const t = getOrCreateActiveTask(); if(!t) return;
+    t.followUpDate = e.target.value || null;
+    markDirty();
+  });
+  document.querySelectorAll('.tp-follow-chip').forEach(b => {
+    b.onclick = () => {
+      const t = getOrCreateActiveTask(); if(!t) return;
+      const days = parseInt(b.dataset.days, 10);
+      t.followUpDate = days > 0 ? addDaysStr(todayStr(), days) : null;
+      markDirty();
+    };
+  });
   document.getElementById('tpDate').addEventListener('change', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     t.dueDate = e.target.value || null; markDirty();
@@ -6117,7 +6191,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.130';
+const APP_VERSION = '1.10.131';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8119,6 +8193,22 @@ function templatesForSpace(catId){
     return !catId || sp.length === 0 || sp.includes(catId);
   });
 }
+/* "Retomar em" (task.followUpDate): data para VOLTAR a olhar a tarefa. Não é prazo:
+   não conta como atraso nem entra na previsão de projetos. */
+function followUpState(t){
+  if(!t.followUpDate || t.done) return null;
+  const today = todayStr();
+  if(t.followUpDate < today) return 'vencida';
+  if(t.followUpDate === today) return 'hoje';
+  return 'futura';
+}
+function followUpLabel(t){
+  const st = followUpState(t);
+  if(!st) return '';
+  if(st === 'hoje') return 'Retomar hoje';
+  if(st === 'vencida') return 'Retomar desde ' + fmtDate(t.followUpDate);
+  return 'Retomar ' + fmtDate(t.followUpDate);
+}
 function applyTemplateFromPanel(id){
   const tpl = (state.taskTemplates || []).find(x => x.id === id);
   if(tpl) createTaskFromTemplate(tpl);
@@ -9848,11 +9938,13 @@ function computeNotifItems(){
     .sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
   const todayTasks = state.tasks.filter(t => inSpace(t) && !t.done && t.dueDate === today);
   const todayEvents = getEventsForDate(today);
-  return { overdueTasks, todayTasks, todayEvents };
+  const followUpTasks = state.tasks.filter(t => inSpace(t) && !t.done && t.followUpDate && t.followUpDate <= today)
+    .sort((a,b) => (a.followUpDate||'').localeCompare(b.followUpDate||''));
+  return { overdueTasks, todayTasks, todayEvents, followUpTasks };
 }
 function updateNotifBadge(){
-  const { overdueTasks, todayTasks, todayEvents } = computeNotifItems();
-  const count = overdueTasks.length + todayTasks.length + todayEvents.length;
+  const { overdueTasks, todayTasks, todayEvents, followUpTasks } = computeNotifItems();
+  const count = overdueTasks.length + todayTasks.length + todayEvents.length + followUpTasks.length;
   const badge = document.getElementById('notifBadge');
   if(!badge) return;
   badge.textContent = count > 9 ? '9+' : String(count);
@@ -9860,8 +9952,8 @@ function updateNotifBadge(){
 }
 function renderNotifDropdown(){
   const dd = document.getElementById('notifDropdown');
-  const { overdueTasks, todayTasks, todayEvents } = computeNotifItems();
-  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length){
+  const { overdueTasks, todayTasks, todayEvents, followUpTasks } = computeNotifItems();
+  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length && !followUpTasks.length){
     dd.innerHTML = `<div class="notif-dropdown-empty">Nenhuma pendência por aqui. 🎉</div>`;
     dd.style.display = 'block';
     return;
@@ -9882,6 +9974,7 @@ function renderNotifDropdown(){
   dd.innerHTML =
     group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => fmtDate(t.dueDate), 'notif-overdue') +
     group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => t.dueTime || '') +
+    group('Retomar hoje', followUpTasks, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
     group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''));
   dd.querySelectorAll('.search-result-row').forEach(row => {
     row.onclick = () => {

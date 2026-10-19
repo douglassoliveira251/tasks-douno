@@ -1,3 +1,14 @@
+## [1.10.131] - 2026-10-19 00:00
+
+### Added
+
+#### Tarefas
+
+- "Retomar em": segunda data da tarefa (followUpDate), para voltar a olhar sem ser o prazo. Definida no painel ("↻ Definir data para retomar") com atalhos Amanhã / Em 3 dias / Em 1 semana / Sem retomada; etiqueta laranja na lista ("Retomar hoje", "Retomar 21/10", vermelha se vencida).
+- Agrupar por agora tem Prazo (antigo Período) e Retomada (Retomada vencida, Retomar hoje, Amanhã, Próximos 7 dias, Mais adiante, Sem retomada).
+- O sino lista "Retomar hoje" (retomadas de hoje ou vencidas, do espaço selecionado) e conta no número. Retomar não gera atraso nem entra na previsão de projetos.
+
+
 ## [1.10.130] - 2026-10-19 00:00
 
 ### Changed
