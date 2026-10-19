@@ -1,3 +1,12 @@
+## [1.10.129] - 2026-10-19 00:00
+
+### Changed
+
+#### Tarefas
+
+- Ao trocar de aba ou minimizar, o comentário em digitação deixou de ser enviado automaticamente: continua como rascunho. Os rascunhos agora também ficam em sessionStorage e sobrevivem a recarregar a página (na mesma aba).
+
+
 ## [1.10.128] - 2026-10-15 00:00
 
 ### Fixed

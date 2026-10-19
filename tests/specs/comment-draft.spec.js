@@ -62,3 +62,13 @@ test.describe('Rascunho de comentário', () => {
     expect(await page.evaluate(() => activeTaskId)).toBeNull();
   });
 });
+
+test('esconder a aba não envia o comentário; o rascunho sobrevive ao recarregar', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(seed);
+  await page.locator('#tpNewComment').fill('só rascunho');
+  await page.evaluate(() => { commitOpenEditors(); });
+  expect(await page.evaluate(() => state.tasks[0].comments.length)).toBe(0);
+  const saved = await page.evaluate(() => sessionStorage.getItem('dounoCommentDrafts'));
+  expect(JSON.parse(saved)).toEqual({ t1: 'só rascunho' });
+});

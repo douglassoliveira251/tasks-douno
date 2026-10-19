@@ -2625,6 +2625,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.129', date:'19/10/2026', title:'Rascunho do comentário mais seguro', text:'Trocar de aba ou minimizar não envia mais o comentário sozinho: ele fica como rascunho, e continua lá mesmo se você recarregar a página.' },
   { version:'1.10.128', date:'15/10/2026', title:'Comentário não se perde mais', text:'O texto do comentário é mantido enquanto você preenche outros campos da tarefa. Se tentar fechar a tarefa com um comentário não enviado, o sistema pergunta se quer enviar, descartar ou voltar.' },
   { version:'1.10.127', date:'15/10/2026', title:'Pesquisa redesenhada', text:'Resultados em lista compacta, com abas (Tudo, Tarefas, Notas, Agenda), o termo destacado e o contexto de cada item (espaço, projeto, status, data). Dá para navegar com as setas e abrir com Enter.' },
   { version:'1.10.126', date:'15/10/2026', title:'Tags por espaço nos templates e na agenda', text:'No template, só aparecem as tags dos espaços escolhidos (e as gerais). Na agenda, as tags já existentes agora saem com um clique, e as mudanças só valem ao salvar — e atualizam as cores no calendário.' },
@@ -3098,10 +3099,12 @@ function commitOpenEditors(){
      o usuário clica em "Adicionar", então um rascunho digitado ali e nunca
      enviado ficava só na memória do DOM — se a aba fosse escondida/fechada
      nesse meio tempo, o rascunho se perdia sem nenhum aviso. */
+  // O comentário em digitação NÃO é mais enviado sozinho: fica como rascunho
+  // (também em sessionStorage, então sobrevive a recarregar a página).
   const newCommentBox = document.getElementById('tpNewComment');
-  if(newCommentBox && newCommentBox.value.trim()){
-    const addBtn = document.getElementById('tpAddCommentBtn');
-    if(addBtn) try{ addBtn.click(); }catch(e){ console.error(e); }
+  if(newCommentBox && newCommentBox.value){
+    tpCommentDrafts[currentCommentKey()] = newCommentBox.value;
+    saveCommentDrafts();
   }
   if(document.activeElement && typeof document.activeElement.blur === 'function'){
     try{ document.activeElement.blur(); }catch(e){}
@@ -4436,7 +4439,12 @@ function openNewTaskPanel(){
 /* Comentário em digitação é guardado por tarefa ('__new__' = tarefa ainda não
    criada). Antes, qualquer alteração de campo redesenhava o painel e o texto do
    comentário sumia; agora ele é restaurado a cada redesenho. */
-const tpCommentDrafts = {};
+const COMMENT_DRAFTS_KEY = 'dounoCommentDrafts';
+let tpCommentDrafts = {};
+try{ tpCommentDrafts = JSON.parse(sessionStorage.getItem(COMMENT_DRAFTS_KEY) || '{}') || {}; }catch(e){ tpCommentDrafts = {}; }
+function saveCommentDrafts(){
+  try{ sessionStorage.setItem(COMMENT_DRAFTS_KEY, JSON.stringify(tpCommentDrafts)); }catch(e){}
+}
 function currentCommentKey(){ return creatingNewTask ? '__new__' : activeTaskId; }
 function showUnsentCommentDialog(){
   let ov = document.getElementById('unsentCommentOverlay');
@@ -4458,7 +4466,7 @@ function showUnsentCommentDialog(){
   const key = currentCommentKey();
   const hide = () => ov.classList.remove('show');
   ov.querySelector('#unsentBack').onclick = hide;
-  ov.querySelector('#unsentDiscard').onclick = () => { delete tpCommentDrafts[key]; hide(); closeTaskPanel(true); };
+  ov.querySelector('#unsentDiscard').onclick = () => { delete tpCommentDrafts[key]; saveCommentDrafts(); hide(); closeTaskPanel(true); };
   ov.querySelector('#unsentSend').onclick = () => {
     const text = (tpCommentDrafts[key] || '').trim();
     hide();
@@ -4470,6 +4478,7 @@ function showUnsentCommentDialog(){
       }
     }
     delete tpCommentDrafts[key];
+    saveCommentDrafts();
     closeTaskPanel(true);
   };
   ov.classList.add('show');
@@ -4572,7 +4581,7 @@ function getOrCreateActiveTask(){
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     state.tasks.push(t);
-    if(tpCommentDrafts['__new__'] !== undefined){ tpCommentDrafts[t.id] = tpCommentDrafts['__new__']; delete tpCommentDrafts['__new__']; }
+    if(tpCommentDrafts['__new__'] !== undefined){ tpCommentDrafts[t.id] = tpCommentDrafts['__new__']; delete tpCommentDrafts['__new__']; saveCommentDrafts(); }
     activeTaskId = t.id;
     creatingNewTask = false;
     return t;
@@ -5270,6 +5279,7 @@ function renderTaskPanel(panel){
     ta.addEventListener('input', () => {
       const k = currentCommentKey();
       if(ta.value) tpCommentDrafts[k] = ta.value; else delete tpCommentDrafts[k];
+      saveCommentDrafts();
     });
   }
   document.getElementById('tpAddCommentBtn').onclick = () => {
@@ -5282,6 +5292,7 @@ function renderTaskPanel(panel){
     t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
     delete tpCommentDrafts[keyBefore];
     delete tpCommentDrafts[t.id];
+    saveCommentDrafts();
     markDirty();
   };
   document.getElementById('tpNewComment').addEventListener('keydown', e => {
@@ -6081,7 +6092,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.128';
+const APP_VERSION = '1.10.129';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
