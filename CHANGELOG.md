@@ -1,3 +1,13 @@
+## [1.10.130] - 2026-10-19 00:00
+
+### Changed
+
+#### Tarefas / Projetos
+
+- O seletor fixo de Projeto/Etapa saiu do painel da tarefa. Agora: menu ⋮ → "Vincular a um projeto…" (escolhe projeto e depois etapa), "Desvincular do projeto"; tarefas de projeto mostram uma etiqueta pequena (projeto · etapa, com ×) na linha do espaço.
+- Página do projeto: botão "+ Tarefa" cria a tarefa já ligada ao projeto (a criação dentro de uma etapa já existia).
+
+
 ## [1.10.129] - 2026-10-19 00:00
 
 ### Changed

@@ -113,8 +113,12 @@ test.describe('Projetos', () => {
     // vincular a tarefa pessoal a uma etapa pelo painel
     await page.locator('#taskProjectFilter').selectOption('all');
     await page.locator('.task-row', { hasText: 'Pagar fatura' }).locator('.task-title').click();
-    await page.locator('#tpProject').selectOption('p1');
-    await page.locator('#tpStage').selectOption('s3');
+    await expect(page.locator('#tpProject')).toHaveCount(0); // sem seletor fixo
+    await page.locator('#tpMenuBtn').click();
+    await page.locator('[data-m="proj"]').click();
+    await page.locator('[data-p="p1"]').click();
+    await page.locator('[data-s="s3"]').click();
+    await expect(page.locator('#tpProjChip')).toContainText('Construção da casa · Acabamento');
     const t = await page.evaluate(() => state.tasks.find(x => x.id === 'd'));
     expect(t.projectId).toBe('p1');
     expect(t.stageId).toBe('s3');
@@ -143,4 +147,17 @@ test('lista de projetos: filtros por situação', async ({ page }) => {
   await expect(page.locator('.plist-row')).toContainText('Feito');
   await page.locator('.plist-chip[data-f="andamento"]').click();
   await expect(page.locator('.plist-row')).toContainText('Em dia');
+});
+
+test('tarefa de projeto: desvincular pela etiqueta e criar tarefa pelo projeto', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); activeProjectId = 'p1'; currentView = 'projects'; render(); }, seed.toString());
+  await page.locator('#prjAddTask').click();
+  const t = await page.evaluate(() => state.tasks[state.tasks.length - 1]);
+  expect(t.projectId).toBe('p1');
+  await expect(page.locator('#tpProjChip')).toContainText('Construção da casa');
+  await page.locator('#tpProjChipX').click();
+  expect(await page.evaluate((id) => state.tasks.find(x => x.id === id).projectId, t.id)).toBeNull();
+  await expect(page.locator('#tpProjChip')).toHaveCount(0);
 });

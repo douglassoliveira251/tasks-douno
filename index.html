@@ -799,6 +799,13 @@
   .tp-space-line{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   .tp-space-line > .tp-label{margin:0;}
   .tp-space-line .cat-tags-combined-row{flex:1; min-width:0;}
+  .tp-proj-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 10px; border-radius:20px; font-size:12px; font-weight:600;
+    background:var(--primary-light); color:var(--primary-dark); white-space:nowrap; max-width:260px;
+  }
+  .tp-proj-chip svg{width:12px; height:12px; flex-shrink:0;}
+  .tp-proj-chip button{border:none; background:transparent; color:inherit; font-size:14px; line-height:1; cursor:pointer; padding:0 4px; opacity:.7;}
+  .tp-proj-chip button:hover{opacity:1;}
   .tp-space-chip{border:none; cursor:pointer; font-family:inherit;}
   .tp-space-chip:hover{filter:brightness(.96);}
   .tpl-menu-sep{height:1px; background:var(--border); margin:4px 2px;}
@@ -2625,6 +2632,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.130', date:'19/10/2026', title:'Projeto na tarefa, só quando precisa', text:'O seletor de projeto saiu do topo da tarefa. Para ligar a um projeto use o menu ⋮ → Vincular a um projeto; a tarefa mostra uma etiqueta pequena com o projeto e a etapa. Criando pela página do projeto, já vem ligada.' },
   { version:'1.10.129', date:'19/10/2026', title:'Rascunho do comentário mais seguro', text:'Trocar de aba ou minimizar não envia mais o comentário sozinho: ele fica como rascunho, e continua lá mesmo se você recarregar a página.' },
   { version:'1.10.128', date:'15/10/2026', title:'Comentário não se perde mais', text:'O texto do comentário é mantido enquanto você preenche outros campos da tarefa. Se tentar fechar a tarefa com um comentário não enviado, o sistema pergunta se quer enviar, descartar ou voltar.' },
   { version:'1.10.127', date:'15/10/2026', title:'Pesquisa redesenhada', text:'Resultados em lista compacta, com abas (Tudo, Tarefas, Notas, Agenda), o termo destacado e o contexto de cada item (espaço, projeto, status, data). Dá para navegar com as setas e abrir com Enter.' },
@@ -4634,6 +4642,7 @@ function renderTaskPanel(panel){
       <div class="cat-tags-combined-row">
         <div class="group-move-row">
           <button type="button" class="group-current-chip tp-space-chip" id="tpGroupChip" title="Clique para mudar de espaço"></button>
+          ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Tarefa de projeto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg>${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}<button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
           ${(task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
@@ -4641,21 +4650,6 @@ function renderTaskPanel(panel){
         </div>
       </div>
     </div>
-
-    ${(state.projects || []).length ? `
-    <div class="tp-field">
-      <label class="tp-label">Projeto <span style="font-weight:400; color:var(--ink-faint);">(opcional)</span></label>
-      <div class="tp-row2">
-        <select class="tp-select" id="tpProject">
-          <option value="">Tarefa pessoal</option>
-          ${state.projects.map(p => `<option value="${p.id}" ${task.projectId===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
-        </select>
-        <select class="tp-select" id="tpStage" ${task.projectId ? '' : 'disabled'}>
-          <option value="">Etapa…</option>
-          ${(projectById(task.projectId)?.stages || []).map(st => `<option value="${st.id}" ${task.stageId===st.id?'selected':''}>${escapeHtml(st.name || 'Etapa')}</option>`).join('')}
-        </select>
-      </div>
-    </div>` : ''}
 
     <div class="tp-field">
       <label class="tp-label">Descrição</label>
@@ -4776,6 +4770,7 @@ function renderTaskPanel(panel){
   }
 
   /* Menu "⋮" do painel: Template (usar, salvar, gerenciar) + ações da tarefa. */
+  const ICO_PROJ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>';
   const ICO_TPL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>';
   const tpMenuBtn = document.getElementById('tpMenuBtn');
   function placeMenu(portal, btn){
@@ -4791,6 +4786,11 @@ function renderTaskPanel(panel){
       <div class="tpl-menu-head">Template</div>
       <button type="button" class="task-menu-item" data-m="use">${ICO_TPL}Usar template…</button>
       ${editing ? '<button type="button" class="task-menu-item" data-m="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Salvar como template</button>' : ''}
+      <div class="tpl-menu-sep"></div>
+      <div class="tpl-menu-head">Projeto</div>
+      <button type="button" class="task-menu-item" data-m="proj">${ICO_PROJ}${task.projectId ? 'Mudar de projeto/etapa…' : 'Vincular a um projeto…'}</button>
+      ${task.projectId ? '<button type="button" class="task-menu-item" data-m="unproj">Desvincular do projeto</button>' : ''}
+      <div class="tpl-menu-sep"></div>
       <button type="button" class="task-menu-item" data-m="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Gerenciar templates…</button>
       ${editing ? `
       <div class="tpl-menu-sep"></div>
@@ -4802,6 +4802,8 @@ function renderTaskPanel(panel){
     portal.classList.add('show');
     const on = (k, fn) => { const el = portal.querySelector('[data-m="' + k + '"]'); if(el) el.onclick = (ev) => { ev.stopPropagation(); fn(ev); }; };
     on('use', showTemplateList);
+    on('proj', showProjectList);
+    on('unproj', () => { closeAllTaskMenus(); const t = getOrCreateActiveTask(); if(t){ t.projectId = null; t.stageId = null; markDirty(); } });
     on('save', () => { closeAllTaskMenus(); openTemplateEditor(null, templateFromTask(task)); });
     on('manage', () => { closeAllTaskMenus(); settingsTab = 'templates'; currentView = 'settings'; render(); });
     on('dup', () => { closeAllTaskMenus(); duplicateThisTask(); });
@@ -4817,6 +4819,38 @@ function renderTaskPanel(panel){
         markDirty();
       });
     });
+  }
+  function linkTaskTo(projectId, stageId){
+    closeAllTaskMenus();
+    const t = getOrCreateActiveTask(); if(!t) return;
+    t.projectId = projectId; t.stageId = stageId || null;
+    const pr = projectById(projectId);
+    if(pr && pr.categoryId && catById(pr.categoryId)) t.categoryId = pr.categoryId;
+    markDirty();
+  }
+  function showProjectList(){
+    const portal = ensureTaskMenuPortal();
+    const list = (state.projects || []).slice().sort((x, y) => (x.categoryId === task.categoryId ? 0 : 1) - (y.categoryId === task.categoryId ? 0 : 1));
+    portal.innerHTML = `
+      <button type="button" class="task-menu-item" data-m="back">‹ Voltar</button>
+      <div class="tpl-menu-head">Escolha o projeto</div>
+      ${list.length ? list.map(p => `<button type="button" class="task-menu-item" data-p="${p.id}">${escapeHtml(p.name || 'Projeto')}<span class="tpl-menu-meta">${(catById(p.categoryId) || {}).name || ''}</span></button>`).join('')
+        : '<div class="tpl-menu-empty">Nenhum projeto ainda. Crie na página Projetos.</div>'}`;
+    placeMenu(portal, tpMenuBtn);
+    portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); showMainMenu(); };
+    portal.querySelectorAll('[data-p]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); showStageList(b.dataset.p); }; });
+  }
+  function showStageList(projectId){
+    const portal = ensureTaskMenuPortal();
+    const pr = projectById(projectId); if(!pr) return;
+    portal.innerHTML = `
+      <button type="button" class="task-menu-item" data-m="back">‹ Projetos</button>
+      <div class="tpl-menu-head">${escapeHtml(pr.name)} · etapa</div>
+      <button type="button" class="task-menu-item" data-s="">Só o projeto (sem etapa)</button>
+      ${pr.stages.map(st => `<button type="button" class="task-menu-item" data-s="${st.id}">${escapeHtml(st.name || 'Etapa')}</button>`).join('')}`;
+    placeMenu(portal, tpMenuBtn);
+    portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); showProjectList(); };
+    portal.querySelectorAll('[data-s]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); linkTaskTo(projectId, b.dataset.s); }; });
   }
   function showTemplateList(){
     const portal = ensureTaskMenuPortal();
@@ -5015,22 +5049,13 @@ function renderTaskPanel(panel){
     openNoteComposer(null, t.id);
   };
 
-  const tpProject = document.getElementById('tpProject');
-  if(tpProject){
-    tpProject.addEventListener('change', e => {
-      const t = getOrCreateActiveTask(); if(!t) return;
-      t.projectId = e.target.value || null;
-      t.stageId = null;
-      const pr = projectById(t.projectId);
-      if(pr && pr.categoryId && catById(pr.categoryId)) t.categoryId = pr.categoryId;
-      markDirty();
-    });
-    document.getElementById('tpStage').addEventListener('change', e => {
-      const t = getOrCreateActiveTask(); if(!t) return;
-      t.stageId = e.target.value || null;
-      markDirty();
-    });
-  }
+  const tpProjChipX = document.getElementById('tpProjChipX');
+  if(tpProjChipX) tpProjChipX.onclick = (e) => {
+    e.stopPropagation();
+    const t = getOrCreateActiveTask(); if(!t) return;
+    t.projectId = null; t.stageId = null;
+    markDirty();
+  };
   document.getElementById('tpDesc').addEventListener('blur', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     t.description = e.target.value; markDirty();
@@ -6092,7 +6117,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.129';
+const APP_VERSION = '1.10.130';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7964,6 +7989,7 @@ function renderProjectDetail(view, p){
       ${projectChipsHtml(st)}
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button type="button" class="btn ghost small" id="prjEdit">Editar projeto</button>
+        <button type="button" class="btn ghost small" id="prjAddTask">+ Tarefa</button>
         <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
       </span>
     </div>
@@ -7981,6 +8007,18 @@ function renderProjectDetail(view, p){
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; render(); };
   view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
+  view.querySelector('#prjAddTask').onclick = () => {
+    state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+    const t = {
+      id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
+      done: false, status: 'nao_iniciado', dueDate: todayStr(), dueTime: DEFAULT_DUE_TIME, priority: 'media',
+      description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
+      projectId: p.id, stageId: null,
+    };
+    state.tasks.push(t);
+    currentView = 'tasks'; activeTaskId = t.id; creatingNewTask = false;
+    markDirty();
+  };
   view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { projectTab = b.dataset.tab; render(); }; });
   const body = view.querySelector('#prjBody');
 
