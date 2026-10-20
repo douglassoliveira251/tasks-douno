@@ -1,3 +1,14 @@
+## [1.10.140] - 2026-10-20 16:00
+
+### Changed
+
+#### Projetos
+
+- Lista: nova coluna "Linha do tempo" com uma barrinha por etapa (concluída, em andamento, atrasada) e a marca de hoje; a etapa atual passou para a linha do nome.
+- Detalhe: as tarefas do projeto aparecem dentro de cada etapa na linha do tempo (a barrinha marca o prazo), com setinha para recolher a etapa; tarefas sem etapa ficam num grupo próprio. Clicar numa tarefa abre a tarefa; clicar na etapa abre a edição da etapa.
+- Detalhe: os quatro cartões do topo viraram um painel de resumo à direita (progresso, etapas, entrega prevista, próxima entrega e as próximas tarefas).
+
+
 ## [1.10.139] - 2026-10-20 15:00
 
 ### Changed

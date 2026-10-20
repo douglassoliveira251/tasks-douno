@@ -792,6 +792,53 @@
   .gantt-bar.nao_iniciada{background:#B8C4D6; color:#33405A;}
   .gantt-today{position:absolute; top:0; bottom:0; width:2px; background:#E0584B; z-index:3; pointer-events:none;}
   .gantt-today em{position:absolute; top:3px; left:-16px; background:#E0584B; color:#fff; font-size:10px; font-style:normal; font-weight:700; padding:1px 6px; border-radius:5px;}
+  /* ---- Projetos (novo visual) ---- */
+  .plist-card{border-radius:22px;}
+  .plist-head{background:transparent; padding-top:2px;}
+  .plist-head, .plist-row{grid-template-columns:2.2fr 1.4fr 1.7fr 1fr 1.2fr;}
+  .plist-row{min-height:76px;}
+  .mini-tl{position:relative; height:26px; width:100%;}
+  .mini-tl i{position:absolute; top:9px; height:8px; border-radius:99px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--border);}
+  .mini-tl i.d{background:var(--ok); box-shadow:none;}
+  .mini-tl i.c{background:var(--primary); box-shadow:none;}
+  .mini-tl i.l{background:var(--danger); box-shadow:none;}
+  .mini-tl u{position:absolute; top:3px; bottom:3px; width:2px; background:#E0584B; border-radius:2px;}
+  .mini-tl-empty{color:var(--ink-faint);}
+  .proj-tab{border-radius:12px;}
+  .proj-split{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:16px; align-items:start;}
+  .proj-split .gantt-wrap{border-radius:22px; box-shadow:none;}
+  .proj-side{background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:18px; display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .proj-side-label{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint);}
+  .proj-side-top{display:flex; align-items:center; gap:14px; margin:8px 0 6px;}
+  .proj-side-top b{font-size:15px;}
+  .proj-side-sub{font-size:12px; color:var(--ink-faint); margin-top:2px;}
+  .proj-ring{--p:0; width:58px; height:58px; border-radius:50%; background:conic-gradient(var(--primary) calc(var(--p) * 1%), var(--surface-2) 0); display:grid; place-items:center; flex:none; position:relative;}
+  .proj-ring:before{content:""; position:absolute; inset:6px; border-radius:50%; background:var(--surface);}
+  .proj-ring b{position:relative; font-size:13px;}
+  .proj-side-task{display:flex; gap:10px; padding:9px 0; border-top:1px solid var(--border); cursor:pointer; font-size:13px;}
+  .proj-side-label + .proj-side-task{border-top:none;}
+  .proj-side-task i{width:3px; border-radius:3px; background:var(--primary); flex:none;}
+  .proj-side-task i.late{background:var(--danger);}
+  .proj-side-task b{display:block; font-weight:600;}
+  .proj-side-task small{color:var(--ink-faint); font-size:11.5px;}
+  .gantt-head{background:transparent;}
+  .gantt-row{background:var(--surface-2);}
+  .gantt-row .gl b{display:flex; align-items:center; gap:6px;}
+  .gantt-toggle{border:none; background:none; padding:0; width:18px; height:18px; color:var(--ink-faint); cursor:pointer; display:grid; place-items:center; flex:none;}
+  .gantt-toggle svg{width:14px; height:14px; transition:transform .15s;}
+  .gantt-toggle.closed svg{transform:rotate(-90deg);}
+  .gantt-task{display:grid; grid-template-columns:260px 1fr; border-bottom:1px solid var(--border); min-height:36px; cursor:pointer;}
+  .gantt-task:hover{background:var(--surface-2);}
+  .gantt-task .gl{padding:6px 14px 6px 36px; display:flex; align-items:center; min-width:0;}
+  .gantt-task-name{display:flex; align-items:center; gap:7px; font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gantt-task-name svg{width:13px; height:13px; color:var(--ink-faint); flex:none;}
+  .gantt-task-name.done{color:var(--ink-faint); text-decoration:line-through;}
+  .gantt-task .gantt-track{min-height:36px;}
+  .gantt-task-mark{position:absolute; top:12px; height:12px; border-radius:6px; background:var(--primary); opacity:.85;}
+  .gantt-task-mark.done{background:var(--ok);}
+  .gantt-task-mark.late{background:var(--danger);}
+  @media (max-width:1100px){ .proj-split{grid-template-columns:1fr;} }
+  @media (max-width:768px){ .gantt-task{grid-template-columns:150px 1fr;} .plist-row .plist-stage{display:none;} }
   .task-follow-pill{
     display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; border-radius:7px; padding:2px 8px;
     background:#FFF1D6; color:#8A5A00; white-space:nowrap;
@@ -2843,6 +2890,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.140', date:'20/10/2026', title:'Projetos mais claros', text:'A lista de projetos ganhou uma mini linha do tempo, e no detalhe as tarefas aparecem dentro de cada etapa (dá para recolher), com um resumo e as próximas tarefas ao lado.' },
   { version:'1.10.139', date:'20/10/2026', title:'Semana com mini-calendário e agenda do dia', text:'A visão de semana ganhou, à esquerda, um mini-calendário (clique num dia para ir até ele) e a lista de Hoje e Amanhã. Os blocos ficaram mais suaves e há uma linha vermelha no horário atual.' },
   { version:'1.10.138', date:'20/10/2026', title:'Calendário do mês com painel do dia', text:'O mês ficou mais limpo e, ao clicar num dia, um painel ao lado mostra as agendas e tarefas dele, com o botão para adicionar. Para criar direto pela grade, dê dois cliques no dia.' },
   { version:'1.10.137', date:'20/10/2026', title:'Retomar em com lista de opções', text:'Agora o campo Retomar em é uma lista: Amanhã, 3, 7 ou 15 dias, ou uma data personalizada. Cada opção mostra a data resultante.' },
@@ -6413,7 +6461,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.139';
+const APP_VERSION = '1.10.140';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8331,6 +8379,26 @@ function projectChipsHtml(status){
     + (status.total && status.done === status.total ? '<span class="proj-chip ok">Concluído</span>' : '');
 }
 
+/* mini linha do tempo da lista: uma barrinha por etapa, na escala do projeto, com a marca de hoje */
+function miniTimelineHtml(p){
+  const stages = (p.stages || []).filter(sg => sg.start || sg.end);
+  if(!stages.length) return '<span class="mini-tl-empty">—</span>';
+  const today = todayStr();
+  const ds = [];
+  stages.forEach(sg => { ds.push(sg.start || sg.end, sg.end || sg.start); });
+  ds.push(today);
+  ds.sort();
+  const t0 = new Date(ds[0] + 'T00:00:00').getTime(), t1 = new Date(ds[ds.length - 1] + 'T00:00:00').getTime();
+  const span = Math.max(t1 - t0, 86400000);
+  const pos = d => (new Date(d + 'T00:00:00').getTime() - t0) / span * 100;
+  return '<div class="mini-tl">' + stages.map(sg => {
+    const a = pos(sg.start || sg.end), b = pos(sg.end || sg.start);
+    const cls = { concluida:'d', andamento:'c', atrasada:'l', nao_iniciada:'' }[stageState(p, sg)];
+    return `<i class="${cls}" title="${escapeHtml(sg.name)}" style="left:${a}%; width:${Math.max(b - a, 2.5)}%"></i>`;
+  }).join('') + `<u style="left:${Math.min(Math.max(pos(today), 0), 100)}%"></u></div>`;
+}
+
+let projectCollapsedStages = new Set();
 let projectListFilter = 'all';
 function projectListKind(st){
   if(st.total && st.done === st.total) return 'concluido';
@@ -8362,13 +8430,13 @@ function renderProjectList(view){
         <button type="button" class="btn small" id="prjNewBtn" style="margin-left:auto;">+ Novo projeto</button>
       </div>
       ${all.length ? `
-      <div class="plist-head"><span>Projeto</span><span>Progresso</span><span>Etapa atual</span><span>Entrega</span><span>Status</span></div>
+      <div class="plist-head"><span>Projeto</span><span>Progresso</span><span>Linha do tempo</span><span>Entrega</span><span>Status</span></div>
       ${filtered.length ? filtered.map(r => {
         const cat = catById(r.p.categoryId);
         return `<div class="plist-row" data-id="${r.p.id}">
-          <div class="plist-name"><b><i style="background:${cat ? cat.color : 'var(--primary)'}"></i>${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}</small></div>
+          <div class="plist-name"><b><i style="background:${cat ? cat.color : 'var(--primary)'}"></i>${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}${r.st.next ? ' · ' + escapeHtml(r.st.next.name) : ''}</small></div>
           <div class="plist-prog"><div class="proj-bar"><i style="width:${r.st.pct}%; ${r.kind === 'concluido' ? 'background:var(--ok);' : (r.kind === 'atrasado' ? 'background:var(--danger);' : '')}"></i></div><span class="plist-pc">${r.st.pct}%</span></div>
-          <span class="plist-stage">${escapeHtml(stageLabel(r.p, r.st))}</span>
+          <span class="plist-stage">${miniTimelineHtml(r.p)}</span>
           <span class="plist-end">${r.st.end ? fmtDate(r.st.end) : '—'}</span>
           <span>${statusChip(r)}</span>
         </div>`;
@@ -8401,17 +8469,34 @@ function renderProjectDetail(view, p){
         <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
       </span>
     </div>
-    <div class="proj-kpis">
-      <div class="proj-kpi"><small>Progresso</small><b>${st.pct}%</b><div class="proj-bar" style="margin-top:8px;"><i style="width:${st.pct}%"></i></div></div>
-      <div class="proj-kpi"><small>Etapas</small><b>${st.done} de ${st.total}</b></div>
-      <div class="proj-kpi"><small>Próxima entrega</small><b style="font-size:15px; margin-top:7px;">${nextLabel}</b></div>
-      <div class="proj-kpi"><small>Entrega prevista</small><b style="font-size:15px; margin-top:7px;">${p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')}${slip ? ` <span style="color:var(--danger); font-size:13px;">${slip}</span>` : ''}</b></div>
-    </div>
     <div class="proj-tabs" style="margin-bottom:12px;">
       <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
       <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
     </div>
-    <div id="prjBody"></div>`;
+    <div class="proj-split">
+      <div id="prjBody" style="min-width:0;"></div>
+      <aside class="proj-side">
+        <div class="proj-side-label">Resumo</div>
+        <div class="proj-side-top">
+          <div class="proj-ring" style="--p:${st.pct}"><b>${st.pct}%</b></div>
+          <div><b>${st.done} de ${st.total} etapa${st.total === 1 ? '' : 's'}</b>
+            <div class="proj-side-sub">Entrega prevista ${p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')}${slip ? ` <span style="color:var(--danger); font-weight:700;">${slip}</span>` : ''}</div></div>
+        </div>
+        <div class="proj-side-sub" style="margin:2px 0 0;">Próxima entrega: <b style="color:var(--ink);">${nextLabel}</b></div>
+        <div class="proj-side-label" style="margin-top:14px;">Próximas tarefas</div>
+        ${(() => {
+          const open = state.tasks.filter(t => t.projectId === p.id && !t.done).sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999')).slice(0, 5);
+          if(!open.length) return '<div class="proj-side-sub" style="padding:8px 0;">Nenhuma tarefa pendente.</div>';
+          return open.map(t => {
+            const sg = (p.stages || []).find(x => x.id === t.stageId);
+            return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.dueDate && t.dueDate < today ? 'late' : ''}"></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>${sg ? escapeHtml(sg.name) + ' · ' : ''}${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}</small></div></div>`;
+          }).join('');
+        })()}
+      </aside>
+    </div>`;
+  view.querySelectorAll('.proj-side-task').forEach(el => {
+    el.onclick = () => { currentView = 'tasks'; activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+  });
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; render(); };
   view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
@@ -8478,15 +8563,50 @@ function renderProjectDetail(view, p){
           const state_ = stageState(p, sg), pct = stagePercent(p, sg);
           const a = pos(sg.start || sg.end || today), b = pos(sg.end || sg.start || today);
           const w = Math.max(b - a, 1.2);
+          const tks = stageTasks(p, sg);
+          const collapsed = projectCollapsedStages.has(sg.id);
           return `<div class="gantt-row" data-id="${sg.id}">
-            <div class="gl"><b>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}</small></div>
+            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}${tks.length ? ' · ' + tks.filter(t => t.done).length + '/' + tks.length + ' tarefas' : ''}</small></div>
             <div class="gantt-track"><div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div></div>
-          </div>`;
+          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join(''));
         }).join('')}
+        ${(() => {
+          const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId);
+          if(!loose.length) return '';
+          return `<div class="gantt-row gantt-loose"><div class="gl"><b>Sem etapa</b><small>${loose.length} tarefa${loose.length === 1 ? '' : 's'} sem etapa definida</small></div><div class="gantt-track"></div></div>` +
+            loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('');
+        })()}
         <div class="gantt-today" style="left:calc(260px + (100% - 260px) * ${todayPos / 100});"><em>Hoje</em></div>
       </div>
     </div></div>`;
-  body.querySelectorAll('.gantt-row').forEach(r => { r.onclick = () => openStageEditor(p, p.stages.find(x => x.id === r.dataset.id)); });
+  body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => openStageEditor(p, p.stages.find(x => x.id === r.dataset.id)); });
+  body.querySelectorAll('.gantt-toggle').forEach(b => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      const id = b.dataset.toggle;
+      if(projectCollapsedStages.has(id)) projectCollapsedStages.delete(id); else projectCollapsedStages.add(id);
+      render();
+    };
+  });
+  body.querySelectorAll('.gantt-task').forEach(r => {
+    r.onclick = () => { currentView = 'tasks'; activeTaskId = r.dataset.taskId; creatingNewTask = false; render(); };
+  });
+}
+
+/* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
+function ganttTaskRow(t, stageStateKey, pos){
+  const late = !t.done && t.dueDate && t.dueDate < todayStr();
+  const cls = t.done ? 'done' : (late ? 'late' : '');
+  let mark = '';
+  if(t.dueDate){
+    const end = pos(t.dueDate);
+    const w = 2.6;
+    mark = `<div class="gantt-task-mark ${cls}" style="left:${Math.max(end - w, 0)}%; width:${w}%;" title="Prazo ${fmtDate(t.dueDate)}"></div>`;
+  }
+  return `<div class="gantt-task" data-task-id="${t.id}">
+    <div class="gl"><span class="gantt-task-name ${t.done ? 'done' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>${t.done ? '<path d="M8.5 12l2.5 2.5 4.5-5"/>' : ''}</svg>${escapeHtml(t.title || 'Sem título')}</span></div>
+    <div class="gantt-track">${mark}</div>
+  </div>`;
 }
 
 /* ===================== TEMPLATES DE TAREFA ===================== */
