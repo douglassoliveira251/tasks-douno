@@ -244,11 +244,10 @@ test('datas da etapa vêm das tarefas (sem campos de data no formulário)', asyn
   await expect(page.locator('#stgEnd')).toHaveCount(0);
 });
 
-test('tarefas do projeto: sem campo no gráfico; criar pelo resumo da etapa e abrir na própria tela', async ({ page }) => {
+test('tarefas do projeto: criar pelo resumo da etapa e abrir na própria tela', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'projects' });
   await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; render(); }, seed.toString());
-  await expect(page.locator('.gantt-add')).toHaveCount(0);
   const antes = await page.evaluate(() => state.tasks.length);
   await page.locator('.gantt-row[data-id="s2"]').click();
   await page.locator('#stgSideNewTask').click();
@@ -260,4 +259,21 @@ test('tarefas do projeto: sem campo no gráfico; criar pelo resumo da etapa e ab
   await expect(page.locator('.task-panel')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('.task-panel')).toHaveCount(0);
+});
+
+test('linha "+ Nova tarefa" no fim de cada etapa cria a tarefa com nome + Enter', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; render(); }, seed.toString());
+  await expect(page.locator('.gantt-add')).toHaveCount(3); // uma por etapa, nenhuma "sem etapa"
+  const campo = page.locator('.gantt-add[data-stage="s2"] .gantt-add-input');
+  await campo.fill('Instalar elétrica');
+  await campo.press('Enter');
+  const nova = await page.evaluate(() => state.tasks[state.tasks.length - 1]);
+  expect(nova).toMatchObject({ title: 'Instalar elétrica', projectId: 'p1', stageId: 's2', dueDate: null });
+  await expect(page.locator('.gantt-task', { hasText: 'Instalar elétrica' })).toHaveCount(1);
+  // clicar abre o painel sem sair de Projetos
+  await page.locator('.gantt-task', { hasText: 'Instalar elétrica' }).click();
+  expect(await page.evaluate(() => currentView)).toBe('projects');
+  await expect(page.locator('.task-panel .tp-name-input')).toHaveValue('Instalar elétrica');
 });

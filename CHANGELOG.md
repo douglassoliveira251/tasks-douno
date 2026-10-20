@@ -1,3 +1,12 @@
+## [1.10.163] - 2026-10-21 20:30
+
+### Changed
+
+#### Projetos
+
+- Voltou o campo "+ Nova tarefa" no fim de cada etapa da linha do tempo (nome + Enter cria a tarefa na etapa, sem prazo). Fica só nas etapas: não há campo para criar etapa nem tarefa sem etapa por ali.
+
+
 ## [1.10.162] - 2026-10-21 20:00
 
 ### Changed
