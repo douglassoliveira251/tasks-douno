@@ -1,3 +1,16 @@
+## [1.10.145] - 2026-10-20 20:00
+
+### Changed
+
+#### Topo
+
+- Seletor de espaço movido para antes da barra de busca: busca, ajuda, notificações e conta ficam sempre no mesmo lugar, com ou sem o seletor na tela.
+
+#### Tarefas
+
+- Retomada passa a ser o agrupamento padrão; espaços e a visão "Todos" que já tinham uma escolha continuam com ela, e quem ainda não escolheu abre em Retomada.
+
+
 ## [1.10.144] - 2026-10-20 19:30
 
 ### Changed

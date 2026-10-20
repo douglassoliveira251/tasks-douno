@@ -473,7 +473,7 @@
     text-transform:uppercase; letter-spacing:.03em;
   }
   .space-selector-btn:hover{background:var(--border);}
-  /* no desktop o seletor fica na barra do topo, à esquerda do botão de ajuda (?) */
+  /* no desktop o seletor fica na barra do topo, à esquerda da busca */
   .space-selector-wrap.in-topbar{grid-column:auto; grid-row:auto; align-self:auto;}
   .space-selector-tag{display:none;}
   .space-selector-wrap.in-topbar .space-selector-btn{
@@ -2926,6 +2926,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.145', date:'20/10/2026', title:'Topo padronizado e Retomada como visão principal', text:'O seletor de espaço passou para antes da busca, e busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas. Nas tarefas, a visão por Retomada agora é a principal: cada espaço lembra o agrupamento que você escolher.' },
   { version:'1.10.144', date:'20/10/2026', title:'Retomar hoje e rótulo mais claro', text:'O campo Retomar em ganhou a opção Hoje, e o grupo sem data na visão por Retomada agora se chama "Sem data de retomada".' },
   { version:'1.10.143', date:'20/10/2026', title:'Agrupamento fica guardado', text:'O agrupamento escolhido nas tarefas (Retomada, Prazo, Prioridade…) agora fica guardado por espaço, e também para a visão Todos, e continua igual quando você atualiza a página.' },
   { version:'1.10.142', date:'20/10/2026', title:'Aviso de atualização automática', text:'Quando sair uma versão nova, o sistema avisa na tela e pede para atualizar, salvando antes o que você estava fazendo. Assim ninguém fica usando uma versão antiga sem perceber. Na visão agrupada por Retomada, os grupos agora seguem os mesmos períodos da visão por prazo.' },
@@ -3772,7 +3773,7 @@ function statusCircleSvg(statusKey){
   return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>';
 }
 
-let taskGroupMode = 'periodo'; // 'periodo' | 'grupos' | 'prioridade'
+let taskGroupMode = 'retomada'; // 'periodo' | 'grupos' | 'prioridade'
 
 function periodBoundaries(){
   const now = new Date();
@@ -6559,7 +6560,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.144';
+const APP_VERSION = '1.10.145';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -10339,9 +10340,10 @@ function placeSpaceSelector(){
     const titleWrap = document.getElementById('topbarTitle');
     if(titleWrap && wrap.parentElement !== titleWrap) titleWrap.appendChild(wrap);
   } else {
-    const group = document.querySelector('.topbar-right-group');
-    const help = document.getElementById('helpBtn');
-    if(group && wrap.parentElement !== group) group.insertBefore(wrap, help);
+    // antes da busca: busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas
+    const topbar = document.querySelector('.topbar');
+    const search = document.getElementById('searchWrap');
+    if(topbar && search && wrap.parentElement !== topbar) topbar.insertBefore(wrap, search);
   }
   wrap.classList.toggle('in-topbar', !mobile);
 }
@@ -10727,6 +10729,7 @@ function loadUiSession(){
 }
 let lastRenderedView = null;
 var lastGroupModeKey = null; // var: pode ser zerada por normalizeState antes desta linha rodar
+const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem escolha própria abre por Retomada
 const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada'];
 function groupModeKey(){ return activeCategoryFilter || '__all'; }
 function render(){
@@ -10735,7 +10738,7 @@ function render(){
   if(groupModeKey() !== lastGroupModeKey){
     lastGroupModeKey = groupModeKey();
     const saved = state.categoryGroupModes && state.categoryGroupModes[lastGroupModeKey];
-    taskGroupMode = GROUP_MODES.includes(saved) ? saved : 'periodo';
+    taskGroupMode = GROUP_MODES.includes(saved) ? saved : DEFAULT_GROUP_MODE;
   }
   if(currentView !== lastRenderedView){
     lastRenderedView = currentView;

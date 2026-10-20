@@ -18,6 +18,7 @@ test.describe('Retomar em', () => {
     expect(r[1][1]).toBe('futura');
     expect(r[2][1]).toBe('vencida');
     expect(r[3]).toEqual(['d', null, '']);
+    await page.evaluate(() => { taskGroupMode = 'periodo'; render(); });
     await expect(page.locator('.task-follow-pill')).toHaveCount(3);
     await expect(page.locator('.task-follow-pill.hoje')).toHaveText('Retomar hoje');
   });
@@ -75,7 +76,12 @@ test('agrupamento escolhido fica guardado por espaço e volta ao recarregar', as
   expect(await page.evaluate(() => taskGroupMode)).toBe('retomada');
   expect(await page.evaluate(() => state.categoryGroupModes.c1)).toBe('retomada');
 
-  // outro espaço não herda; "Todos" tem o seu próprio
+  // outro espaço não herda (abre na visão principal, Retomada); "Todos" tem o seu próprio
+  await page.evaluate(() => { selectSpace('c2'); });
+  await page.locator('#groupModeTrigger').click();
+  await page.locator('.tp-status-option[data-mode="periodo"]').click();
+  await page.evaluate(() => { selectSpace('c1'); });
+  expect(await page.evaluate(() => taskGroupMode)).toBe('retomada');
   await page.evaluate(() => { selectSpace('c2'); });
   expect(await page.evaluate(() => taskGroupMode)).toBe('periodo');
   await page.evaluate(() => { selectSpace(null); });
