@@ -1922,6 +1922,44 @@
   .cal-day-add{display:flex; align-items:center; justify-content:center; gap:6px; border:none; background:var(--surface-2); color:var(--ink); border-radius:12px; padding:10px; font-size:13px; font-weight:600; cursor:pointer;}
   .cal-day-add:hover{filter:brightness(.97);}
   @media (max-width: 1100px){ .cal-month-layout{grid-template-columns:1fr;} .cal-day-panel{min-height:0;} }
+  /* ---- Semana: mini mês + agenda lateral, blocos suaves ---- */
+  .cal-week-layout{display:grid; grid-template-columns:270px minmax(0,1fr); gap:16px; align-items:start;}
+  .cal-side{display:flex; flex-direction:column; gap:14px; min-width:0;}
+  .cal-mini, .cal-side-agenda{background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:16px;}
+  .cal-mini-head{display:flex; justify-content:space-between; align-items:center; font-size:14px;}
+  .cal-mini-head button{border:none; background:none; color:var(--ink-faint); width:24px; height:24px; padding:0; cursor:pointer;}
+  .cal-mini-head button svg{width:14px; height:14px;}
+  .cal-mini-grid{display:grid; grid-template-columns:repeat(7,1fr); row-gap:2px; margin-top:8px; text-align:center;}
+  .cal-mini-wd{font-size:10px; font-weight:700; color:var(--ink-faint); padding:4px 0;}
+  .cal-mini-day{border:none; background:none; width:28px; height:28px; margin:0 auto; border-radius:50%; font-size:12px; color:var(--ink); cursor:pointer; position:relative; padding:0;}
+  .cal-mini-day.other{color:var(--ink-faint); opacity:.5;}
+  .cal-mini-day.inweek{background:var(--surface-2);}
+  .cal-mini-day.today{background:var(--primary); color:#fff; font-weight:700;}
+  .cal-mini-day.has:after{content:""; position:absolute; left:50%; bottom:2px; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--primary);}
+  .cal-mini-day.today.has:after{background:#fff;}
+  .cal-side-label{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin:12px 0 4px;}
+  .cal-side-label:first-child{margin-top:0;}
+  .cal-side-item{display:flex; gap:10px; padding:9px 0; border-top:1px solid var(--border); font-size:13px; cursor:pointer;}
+  .cal-side-label + .cal-side-item{border-top:none;}
+  .cal-side-item .tm{width:40px; color:var(--ink-faint); font-size:12px; flex:none; padding-top:1px;}
+  .cal-side-item i{width:3px; border-radius:3px; background:var(--c); flex:none;}
+  .cal-side-item b{display:block; font-weight:600;}
+  .cal-side-item small{color:var(--ink-faint); font-size:11.5px;}
+  .cal-side-empty{font-size:12.5px; color:var(--ink-faint); padding:6px 0;}
+  .cal-week-wrap{border-radius:22px; box-shadow:none;}
+  .cal-week-gutter-cell, .cal-week-gutter{border-right:none;}
+  .cal-week-headrow, .cal-week-alldayrow{border-bottom:1px solid var(--border);}
+  .cal-week-colhead{background:transparent !important; color:var(--ink-faint) !important; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:10px 4px 6px;}
+  .cal-week-colhead span{width:34px; height:34px; margin:4px auto 0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; letter-spacing:0; text-transform:none; font-weight:700;}
+  .cal-week-colhead.today span{background:var(--primary); color:#fff;}
+  .cal-week-daycol, .cal-week-daycol.weekend, .cal-week-daycol.today, .cal-week-daycol.weekend.today{background:transparent !important; border-right:none; border-left:1px solid var(--border);}
+  .cal-week-allday-cell.weekend{background:transparent !important;}
+  .cal-week-hour-line{opacity:.6;}
+  .cal-event-block-timed{border-radius:12px !important; border:none !important; border-left:none !important; box-shadow:none !important;}
+  .cal-event-block-timed:before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--evc, currentColor); opacity:.9;}
+  .cal-now-line{position:absolute; left:52px; right:0; height:2px; background:#E5484D; z-index:4; pointer-events:none;}
+  .cal-now-line:before{content:""; position:absolute; left:-4px; top:-3px; width:8px; height:8px; border-radius:50%; background:#E5484D;}
+  @media (max-width: 1100px){ .cal-week-layout{grid-template-columns:1fr;} .cal-side{display:none;} }
   .cal-week-wrap{border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--surface); display:flex; flex-direction:column; box-shadow:var(--shadow-md);}
   .cal-week-headrow, .cal-week-alldayrow{display:grid; grid-template-columns:52px repeat(7,1fr); border-bottom:1px solid var(--border);}
   .cal-week-gutter-cell{border-right:1px solid var(--border);}
@@ -2805,6 +2843,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.139', date:'20/10/2026', title:'Semana com mini-calendário e agenda do dia', text:'A visão de semana ganhou, à esquerda, um mini-calendário (clique num dia para ir até ele) e a lista de Hoje e Amanhã. Os blocos ficaram mais suaves e há uma linha vermelha no horário atual.' },
   { version:'1.10.138', date:'20/10/2026', title:'Calendário do mês com painel do dia', text:'O mês ficou mais limpo e, ao clicar num dia, um painel ao lado mostra as agendas e tarefas dele, com o botão para adicionar. Para criar direto pela grade, dê dois cliques no dia.' },
   { version:'1.10.137', date:'20/10/2026', title:'Retomar em com lista de opções', text:'Agora o campo Retomar em é uma lista: Amanhã, 3, 7 ou 15 dias, ou uma data personalizada. Cada opção mostra a data resultante.' },
   { version:'1.10.136', date:'20/10/2026', title:'Tarefas no novo visual', text:'Lista com cartões arredondados e painel de edição flutuante: Prazo e Retomar em lado a lado, status e recorrência, prioridade em botões, e campos em caixas suaves. Os fluxos continuam os mesmos.' },
@@ -6374,7 +6413,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.138';
+const APP_VERSION = '1.10.139';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6952,6 +6991,55 @@ function getCalHourStep(){
 }
 
 const CAL_START_HOUR = 7;
+function buildCalSidebar(){
+  const side = document.createElement('div');
+  side.className = 'cal-side';
+  const focusD = new Date(calendarFocusDate + 'T00:00:00');
+  const year = focusD.getFullYear(), month = focusD.getMonth();
+  const startDay = state.weekStartDay || 0;
+  const first = new Date(year, month, 1);
+  const gridStart = new Date(first);
+  gridStart.setDate(gridStart.getDate() - ((first.getDay() - startDay + 7) % 7));
+  const todayS = todayStr();
+  const weekStart = startOfWeekStr(calendarFocusDate), weekEnd = addDaysStr(weekStart, 6);
+  const initials = WEEKDAY_LABELS.slice(startDay).concat(WEEKDAY_LABELS.slice(0, startDay)).map(l => l.charAt(0));
+  let cells = '';
+  for(let i=0;i<42;i++){
+    const d = new Date(gridStart); d.setDate(gridStart.getDate()+i);
+    const ds = dateToStr(d);
+    if(i >= 35 && d.getMonth() !== month) break;
+    const has = getEventsForDate(ds).length > 0;
+    cells += `<button type="button" class="cal-mini-day${d.getMonth()!==month?' other':''}${ds===todayS?' today':''}${ds>=weekStart&&ds<=weekEnd?' inweek':''}${has?' has':''}" data-date="${ds}">${d.getDate()}</button>`;
+  }
+  const mini = document.createElement('div');
+  mini.className = 'cal-mini';
+  mini.innerHTML = `
+    <div class="cal-mini-head"><b>${MONTH_LABELS[month]} ${year}</b>
+      <span><button type="button" id="calMiniPrev" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><button type="button" id="calMiniNext" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button></span></div>
+    <div class="cal-mini-grid">${initials.map(l => `<span class="cal-mini-wd">${l}</span>`).join('')}${cells}</div>`;
+  mini.querySelector('#calMiniPrev').onclick = () => { const d = new Date(calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); calendarFocusDate = dateToStr(d); render(); };
+  mini.querySelector('#calMiniNext').onclick = () => { const d = new Date(calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()+1); calendarFocusDate = dateToStr(d); render(); };
+  mini.querySelectorAll('.cal-mini-day').forEach(b => { b.onclick = () => { calendarFocusDate = b.dataset.date; render(); }; });
+  side.appendChild(mini);
+
+  const agenda = document.createElement('div');
+  agenda.className = 'cal-side-agenda';
+  const sections = [['Hoje', todayS], ['Amanhã', addDaysStr(todayS, 1)]];
+  const sortEv = list => list.slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
+  agenda.innerHTML = sections.map(([label, ds]) => {
+    const d = new Date(ds + 'T00:00:00');
+    const evs = sortEv(getEventsForDate(ds));
+    return `<div class="cal-side-label">${label} · ${d.getDate()} de ${MONTH_LABELS[d.getMonth()].toLowerCase()}</div>` +
+      (evs.length ? evs.map(ev => `<div class="cal-side-item" data-event-id="${ev.id}" style="--c:${eventColor(ev)}"><span class="tm">${ev.startTime || 'Dia'}</span><i></i><div><b>${escapeHtml(ev.title||'Sem título')}</b><small>${ev.startTime ? ev.startTime + (ev.endTime ? ' – ' + ev.endTime : '') : 'Dia inteiro'}</small></div></div>`).join('')
+        : '<div class="cal-side-empty">Nada marcado</div>');
+  }).join('');
+  agenda.querySelectorAll('[data-event-id]').forEach(el => {
+    el.onclick = () => { const ev = state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+  });
+  side.appendChild(agenda);
+  return side;
+}
+
 function renderCalendarWeek(body){
   const start = startOfWeekStr(calendarFocusDate);
   const todayS = todayStr();
@@ -7039,6 +7127,7 @@ function renderCalendarWeek(body){
       block.style.height = height+'px';
       block.style.background = eventColor(ev)+'22';
       block.style.borderColor = eventColor(ev);
+      block.style.setProperty('--evc', eventColor(ev));
       block.innerHTML = `<span class="cal-event-time">${ev.startTime}</span><span class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</span>${eventPrimaryTagName(ev)?`<span class="cal-event-tag">${escapeHtml(eventPrimaryTagName(ev))}</span>`:''}`;
       block.onclick = (e) => { e.stopPropagation(); openEventComposer(ev); };
       col.appendChild(block);
@@ -7053,9 +7142,21 @@ function renderCalendarWeek(body){
     grid.appendChild(col);
   });
 
+  // linha do horário atual
+  if(days.includes(todayS)){
+    const now = new Date();
+    const nowLine = document.createElement('div');
+    nowLine.className = 'cal-now-line';
+    nowLine.style.top = ((now.getHours()*60 + now.getMinutes())/60 * hourHeight) + 'px';
+    grid.appendChild(nowLine);
+  }
   scrollWrap.appendChild(grid);
   wrap.appendChild(scrollWrap);
-  body.appendChild(wrap);
+  const layout = document.createElement('div');
+  layout.className = 'cal-week-layout';
+  layout.appendChild(buildCalSidebar());
+  layout.appendChild(wrap);
+  body.appendChild(layout);
 
   alldayRow.querySelectorAll('.cal-event-pill').forEach(pill => {
     pill.onclick = (e) => { e.stopPropagation(); const ev = state.events.find(x=>x.id===pill.dataset.eventId); if(ev) openEventComposer(ev); };

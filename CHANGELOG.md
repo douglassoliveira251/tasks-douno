@@ -1,3 +1,13 @@
+## [1.10.139] - 2026-10-20 15:00
+
+### Changed
+
+#### Calendário
+
+- Semana: barra lateral com mini-calendário do mês (a semana exibida fica destacada, dias com agenda têm um ponto, clicar leva à semana do dia) e a lista de Hoje e Amanhã (clicar abre a agenda).
+- Semana: cabeçalho com o número do dia em círculo (hoje em azul), blocos de agenda suaves e arredondados e linha vermelha no horário atual.
+
+
 ## [1.10.138] - 2026-10-20 14:00
 
 ### Changed
