@@ -2926,6 +2926,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.146', date:'20/10/2026', title:'Retomar em vem antes do prazo', text:'No painel da tarefa, o campo Retomar em agora fica à esquerda e o Prazo (entrega) ao lado, já que a retomada é a visão principal.' },
   { version:'1.10.145', date:'20/10/2026', title:'Topo padronizado e Retomada como visão principal', text:'O seletor de espaço passou para antes da busca, e busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas. Nas tarefas, a visão por Retomada agora é a principal: cada espaço lembra o agrupamento que você escolher.' },
   { version:'1.10.144', date:'20/10/2026', title:'Retomar hoje e rótulo mais claro', text:'O campo Retomar em ganhou a opção Hoje, e o grupo sem data na visão por Retomada agora se chama "Sem data de retomada".' },
   { version:'1.10.143', date:'20/10/2026', title:'Agrupamento fica guardado', text:'O agrupamento escolhido nas tarefas (Retomada, Prazo, Prioridade…) agora fica guardado por espaço, e também para a visão Todos, e continua igual quando você atualiza a página.' },
@@ -5045,13 +5046,6 @@ function renderTaskPanel(panel){
     </div>
 
     <div class="tp-dates">
-      <div class="tp-box">
-        <label class="tp-label">Prazo (entrega)</label>
-        <div class="tp-row2">
-          <input type="date" class="tp-input tp-date-input" id="tpDate" value="${task.dueDate||''}">
-          <input type="time" class="tp-input tp-time-input" id="tpTime" value="${task.dueTime||''}">
-        </div>
-      </div>
       <div class="tp-box tp-follow tp-follow-box">
         <label class="tp-label">Retomar em</label>
         <button type="button" class="tp-follow-trigger" id="tpFollowTrigger" title="Data para voltar a olhar esta tarefa (não é o prazo)">
@@ -5064,6 +5058,13 @@ function renderTaskPanel(panel){
           <div class="tp-follow-sep"></div>
           <button type="button" class="tp-follow-opt" id="tpFollowCustom"><span>Personalizada…</span></button>
           ${task.followUpDate ? `<div class="tp-follow-sep"></div><button type="button" class="tp-follow-opt danger" data-clear="1"><span>Remover retomada</span></button>` : ''}
+        </div>
+      </div>
+      <div class="tp-box">
+        <label class="tp-label">Prazo (entrega)</label>
+        <div class="tp-row2">
+          <input type="date" class="tp-input tp-date-input" id="tpDate" value="${task.dueDate||''}">
+          <input type="time" class="tp-input tp-time-input" id="tpTime" value="${task.dueTime||''}">
         </div>
       </div>
     </div>
@@ -6560,7 +6561,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.145';
+const APP_VERSION = '1.10.146';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

@@ -1,3 +1,12 @@
+## [1.10.146] - 2026-10-20 20:30
+
+### Changed
+
+#### Tarefas
+
+- Painel da tarefa: "Retomar em" passou para a esquerda e "Prazo (entrega)" para a direita (só a ordem mudou).
+
+
 ## [1.10.145] - 2026-10-20 20:00
 
 ### Changed
