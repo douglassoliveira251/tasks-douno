@@ -2868,6 +2868,9 @@ let calendarFocusDate = todayStr();
 let activeEventId = null;
 let creatingNewEvent = false;
 let activeCategoryFilter = null;
+/* Filtro de espaço só do Resumo: sempre começa em "Todos" e não mexe no espaço das demais telas */
+let dashboardSpace = null;
+function currentSpaceFilter(){ return currentView === 'dashboard' ? dashboardSpace : activeCategoryFilter; }
 let activeTagFilters = [];
 let taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
 let activeCriticalityFilters = [];
@@ -3094,6 +3097,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.158', date:'21/10/2026', title:'Resumo com espaço próprio', text:'O Resumo agora tem o seu filtro de espaço, que sempre começa em Todos os espaços e não muda o espaço escolhido nas outras telas (e vice-versa).' },
   { version:'1.10.157', date:'21/10/2026', title:'Menos texto no painel da tarefa', text:'O texto fixo sobre o período da etapa saiu do painel. O aviso agora só aparece, por alguns segundos, quando você digita uma data fora do período.' },
   { version:'1.10.156', date:'21/10/2026', title:'Projetos mais completos e Resumo com espaço', text:'Tarefas de projeto mostram "Projeto > Etapa" na frente e respeitam as datas da etapa. No projeto, clicar numa etapa abre o detalhe dela no resumo (com nova tarefa e editar), o progresso considera as subtarefas e o "+" cria etapas. O Resumo ganhou o seletor de espaço, e as Notas, o rodapé com contagem de palavras.' },
   { version:'1.10.155', date:'21/10/2026', title:'Notas no novo padrão e prazo sem corte', text:'As Notas ganharam cantos arredondados, nota aberta em destaque suave e ações agrupadas. Na tarefa, a data do Prazo não fica mais cortada.' },
@@ -6792,7 +6796,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.157';
+const APP_VERSION = '1.10.158';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6895,7 +6899,7 @@ function svgBarChart(values, labels, width, height){
 function renderDashboard(){
   const view = document.getElementById('dashboardView');
   const todayS = todayStr();
-  const inSpace = x => !activeCategoryFilter || x.categoryId === activeCategoryFilter;
+  const inSpace = x => !dashboardSpace || x.categoryId === dashboardSpace;
   const scopeTasks = state.tasks.filter(inSpace);
   const scopeNotes = state.notes.filter(inSpace);
   const scopeEvents = state.events.filter(inSpace);
@@ -7044,7 +7048,7 @@ function renderDashboard(){
     .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
   const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
     .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99'))).slice(0, 5);
-  const prStatus = projectsInScope().map(p => ({ p, st: projectStatus(p) }));
+  const prStatus = (state.projects || []).filter(p => !dashboardSpace || p.categoryId === dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
   const lateProjects = prStatus.filter(x => x.st.late).length;
   const spark14 = dayCounts;
   const sparkMax = Math.max(1, ...spark14);
@@ -10060,6 +10064,7 @@ function renderCatRows(focusId){
         state.notes.forEach(n => { if(n.categoryId === cat.id) n.categoryId = fallback.id; });
         state.categories = state.categories.filter(c => c.id !== cat.id);
         if(activeCategoryFilter === cat.id) activeCategoryFilter = null;
+        if(dashboardSpace === cat.id) dashboardSpace = null;
         if(state.defaultCategoryFilter === cat.id) state.defaultCategoryFilter = null;
         markDirty();
         renderCatRows();
@@ -10844,7 +10849,8 @@ function renderSpaceSelector(){
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }
 
-  const cat = activeCategoryFilter ? catById(activeCategoryFilter) : null;
+  const shown = currentSpaceFilter();
+  const cat = shown ? catById(shown) : null;
   document.getElementById('spaceSelectorDot').style.background = cat ? cat.color : 'var(--ink-faint)';
   const nameEl = document.getElementById('spaceSelectorName');
   if(cat) nameEl.textContent = cat.name;
@@ -10864,7 +10870,7 @@ document.getElementById('spaceSelectorBtn').onclick = (e) => {
     <div class="space-selector-item" data-cat-id="${cat.id}">
       <span class="space-selector-dot" style="background:${cat.color}"></span>
       <span class="space-selector-item-name">${escapeHtml(cat.name)}</span>
-      ${activeCategoryFilter===cat.id ? checkSvg : ''}
+      ${currentSpaceFilter()===cat.id ? checkSvg : ''}
     </div>
   `).join('');
   html += `<div class="space-selector-divider"></div>`;
@@ -10872,7 +10878,7 @@ document.getElementById('spaceSelectorBtn').onclick = (e) => {
     <div class="space-selector-item" data-cat-id="">
       <span class="space-selector-dot" style="background:var(--ink-faint)"></span>
       <span class="space-selector-item-name">Todos os espaços</span>
-      ${activeCategoryFilter===null ? checkSvg : ''}
+      ${currentSpaceFilter()===null ? checkSvg : ''}
     </div>
     <div class="space-selector-divider"></div>
     <div class="space-selector-item action" id="spaceSelectorNewBtn">
@@ -10887,7 +10893,11 @@ document.getElementById('spaceSelectorBtn').onclick = (e) => {
   dd.innerHTML = html;
   dd.style.display = 'block';
   dd.querySelectorAll('.space-selector-item[data-cat-id]').forEach(item => {
-    item.onclick = () => { selectSpace(item.dataset.catId); closeSpaceSelectorDropdown(); };
+    item.onclick = () => {
+      if(currentView === 'dashboard'){ dashboardSpace = item.dataset.catId || null; render(); }
+      else selectSpace(item.dataset.catId);
+      closeSpaceSelectorDropdown();
+    };
   });
   document.getElementById('spaceSelectorNewBtn').onclick = () => { closeSpaceSelectorDropdown(); createNewSpace(); };
   document.getElementById('spaceSelectorManageBtn').onclick = () => { closeSpaceSelectorDropdown(); openSettingsView('categorias'); };

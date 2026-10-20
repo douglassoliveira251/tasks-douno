@@ -47,3 +47,24 @@ test('Visão geral mostra o seletor; Configurações não', async ({ page }) => 
   await page.evaluate(() => { currentView = 'settings'; render(); });
   await expect(page.locator('#spaceSelectorWrap')).toBeHidden();
 });
+
+test('Resumo tem filtro de espaço próprio, separado das demais telas', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    state.categories = [{ id: 'c1', name: 'A', color: '#2F7D5B' }, { id: 'c2', name: 'B', color: '#3B82F6' }];
+    const t = (id, cat) => ({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 });
+    state.tasks = [t('1', 'c1'), t('2', 'c2'), t('3', 'c2')];
+    activeCategoryFilter = 'c1'; dashboardSpace = null; render();
+  });
+  // Resumo começa em "Todos", mesmo com a tela de tarefas filtrada em A
+  await expect(page.locator('#spaceSelectorName')).toContainText('Todos');
+  await expect(page.locator('.rs-stat-link[data-nodate="due"] b')).toHaveText('3');
+  await page.locator('#spaceSelectorBtn').click();
+  await page.locator('.space-selector-item[data-cat-id="c2"]').click();
+  await expect(page.locator('.rs-stat-link[data-nodate="due"] b')).toHaveText('2');
+  // as demais telas continuam no espaço anterior
+  expect(await page.evaluate(() => activeCategoryFilter)).toBe('c1');
+  await page.evaluate(() => { currentView = 'tasks'; render(); });
+  await expect(page.locator('#spaceSelectorName')).toHaveText('A');
+});

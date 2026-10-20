@@ -1,3 +1,12 @@
+## [1.10.158] - 2026-10-21 16:00
+
+### Changed
+
+#### Resumo
+
+- O filtro de espaço do Resumo é separado do das demais telas: sempre abre em "Todos os espaços" (também ao recarregar) e escolher um espaço ali não muda o espaço de Tarefas, Notas, Calendário e Projetos, que continuam lembrando o espaço escolhido antes.
+
+
 ## [1.10.157] - 2026-10-21 15:00
 
 ### Changed
