@@ -1,3 +1,16 @@
+## [1.10.164] - 2026-10-21 21:00
+
+### Fixed
+
+#### Mobile
+
+- Painel da tarefa: botão de fechar (no celular não há clique fora), Retomar em e Prazo empilhados (a data não corta mais) e chips de espaço/projeto quebrando linha.
+- Calendário: semana cabe na largura (sábado não era cortado) e as linhas do dia não passam mais por cima das horas.
+- Notas: título do editor cabe na tela. Agenda: "+ Tag" e a dica não se sobrepõem.
+- Projetos: nome do projeto ocupa a linha inteira na lista; na linha do tempo a coluna do nome fica fixa e mais larga ao rolar para o lado.
+- Configurações: opções com lista (ex.: dia de início da semana) quebram para uma linha própria em vez de espremer o texto.
+
+
 ## [1.10.163] - 2026-10-21 20:30
 
 ### Changed

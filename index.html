@@ -2642,6 +2642,50 @@
     .note-header-icon-btn{width:32px; height:32px;}
     .note-composer-inline .note-title{font-size:21px; margin:0 0 12px;}
   }
+
+  /* ================= Ajustes para o celular (revisão mobile) ================= */
+  .tp-mobile-close{display:none;}
+  @media (max-width: 768px){
+    /* painel da tarefa */
+    .tp-mobile-close{display:flex;}
+    .task-panel .tp-dates{grid-template-columns:1fr;}
+    .task-panel .tp-space-line .cat-tags-combined-row, .task-panel .group-move-row{flex-wrap:wrap; row-gap:6px;}
+    .task-panel .tp-proj-chip{white-space:normal; max-width:100%;}
+    .task-panel .tp-tags-selected{flex-wrap:wrap;}
+    .task-panel .tp-space-line{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
+    .task-panel .tp-space-line .tp-label{margin-bottom:0;}
+    .task-panel{padding-bottom:40px;}
+    /* agenda: etiqueta "+ Tag" não quebra e a dica desce */
+    .ev-modal .tp-tags-add-btn, .tp-tags-add-btn{white-space:nowrap;}
+    .ev-space-hint{display:block; width:100%;}
+    .ev-modal .cat-tags-combined-row{flex-wrap:wrap; row-gap:6px;}
+    /* modais novos ocupam a largura com margem pequena */
+    .modal.nm, .modal.ev-modal{max-width:calc(100vw - 16px);}
+    /* notas: título cabe na tela */
+    .notes-layout .note-composer-inline .note-title{font-size:20px; margin:2px 0 12px; text-overflow:ellipsis;}
+    .notes-layout .note-detail-col{padding:18px 16px;}
+    /* calendário: semana cabe na largura, dia sem linhas por cima das horas */
+    .cal-week-headrow, .cal-week-alldayrow, .cal-week-hourgrid{grid-template-columns:40px repeat(7, minmax(0, 1fr));}
+    .cal-week-headrow .cal-week-colhead{padding:8px 0 4px; font-size:9.5px; letter-spacing:0;}
+    .cal-week-headrow .cal-week-colhead span{width:28px; height:28px; font-size:14px;}
+    .cal-week-hour-label{font-size:9.5px; padding-right:4px;}
+    .cal-dayA-hour{border-top:none;}
+    .cal-dayA-hour::after{content:""; position:absolute; left:52px; right:0; top:0; border-top:1px solid var(--border);}
+    .cal-dayA-scroll{height:68vh;}
+    /* projetos: lista e linha do tempo */
+    .plist-row{grid-template-columns:1fr auto;}
+    .plist-row .plist-name{grid-column:1 / -1;}
+    .plist-row .plist-prog{grid-column:1 / -1;}
+    .gantt-head, .gantt-row, .gantt-task, .gantt-add{grid-template-columns:200px 1fr;}
+    .gantt-head .gl, .gantt-row .gl, .gantt-task .gl, .gantt-add .gl{position:sticky; left:0; z-index:2; background:var(--surface);}
+    .gantt-row .gl{background:var(--surface-2);}
+    .proj-toolbar b{flex:1 1 100%; order:5;}
+    .proj-split{grid-template-columns:1fr;}
+    /* configurações: a linha de opção quebra em vez de espremer o texto */
+    .settings-row{flex-wrap:wrap;}
+    .settings-row > div{flex:1 1 calc(100% - 60px);}
+    .settings-row .settings-row-select{flex:1 1 100%; min-width:0; width:100%;}
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -3111,6 +3155,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.164', date:'21/10/2026', title:'Revisão do celular', text:'Ajustes na versão mobile: painel da tarefa com botão de fechar e campos empilhados, semana do calendário cabendo na tela, título das notas sem corte, lista e linha do tempo de projetos mais legíveis e configurações sem texto espremido.' },
   { version:'1.10.163', date:'21/10/2026', title:'Voltou: nova tarefa direto na etapa', text:'O campo "+ Nova tarefa" voltou ao fim de cada etapa na linha do tempo: digite o nome e Enter para criar. Etapas continuam sendo criadas só pelo botão "+ Etapa" ou pelo "+".' },
   { version:'1.10.162', date:'21/10/2026', title:'Criar tarefa só pelos botões', text:'O campo "+ Nova tarefa" da linha do tempo saiu. Para criar uma tarefa no projeto, use o botão "+ Tarefa" ou "+ Nova tarefa nesta etapa" no resumo.' },
   { version:'1.10.161', date:'21/10/2026', title:'Criar e abrir tarefas direto no projeto', text:'Na linha do tempo do projeto, cada etapa tem um campo "+ Nova tarefa": digite o nome e Enter, sem prazo nem nada mais. Clicar numa tarefa abre o painel dela ali mesmo, sem ir para a tela de Tarefas.' },
@@ -5229,6 +5274,7 @@ function renderTaskPanel(panel){
       <div class="tp-name-row">
         <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
         <input type="text" class="tp-name-input ${task.done?'done':''}" id="tpName" placeholder="Nome da tarefa" value="${escapeHtml(task.title||'')}" ${creatingNewTask ? '' : 'readonly'}>
+        <button type="button" class="tp-header-icon-btn tp-mobile-close" id="tpMobileClose" title="Fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <button type="button" class="tp-header-icon-btn" id="tpMenuBtn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
       </div>
       ${!creatingNewTask ? `<div class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</div>` : ''}
@@ -5389,6 +5435,8 @@ function renderTaskPanel(panel){
   const ICO_PROJ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>';
   const ICO_TPL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>';
   const tpMenuBtn = document.getElementById('tpMenuBtn');
+  const tpMobileCloseBtn = document.getElementById('tpMobileClose');
+  if(tpMobileCloseBtn) tpMobileCloseBtn.onclick = () => closeTaskPanel();
   let menuAnchor = tpMenuBtn; // o menu abre no botão ⋮ ou, ao trocar projeto/etapa, no chip do projeto
   function placeMenu(portal, btn){
     const r = btn.getBoundingClientRect();
@@ -6829,7 +6877,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.163';
+const APP_VERSION = '1.10.164';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
