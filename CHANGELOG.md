@@ -1,3 +1,12 @@
+## [1.10.137] - 2026-10-20 12:00
+
+### Changed
+
+#### Tarefas
+
+- "Retomar em" virou uma lista de opções: Amanhã, 3 dias, 7 dias, 15 dias, Personalizada… (abre o seletor de data) e Remover retomada. Cada opção mostra o dia da semana e a data; o campo mostra a data escolhida e quanto falta.
+
+
 ## [1.10.136] - 2026-10-20 00:00
 
 ### Changed
