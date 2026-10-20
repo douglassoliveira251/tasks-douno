@@ -879,6 +879,38 @@
   .stage-task{display:flex; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; margin-bottom:5px; cursor:pointer;}
   .stage-task.done{opacity:.55; text-decoration:line-through;}
   @media (max-width:768px){ .proj-kpis{grid-template-columns:repeat(2,1fr);} .gantt-head, .gantt-row{grid-template-columns:150px 1fr;} }
+  /* ---- Janelas no novo visual (projeto, etapa, template, comentários) ---- */
+  .modal.nm{padding:0; border-radius:22px; max-height:calc(100vh - 40px); max-width:calc(100vw - 24px); overflow-y:auto; position:relative;}
+  .modal.nm.nm-460{width:460px;} .modal.nm.nm-560{width:560px;} .modal.nm.nm-900{width:900px;}
+  .nm-flag{height:5px; background:var(--primary); position:sticky; top:0; z-index:2;}
+  .nm-x{position:absolute; right:16px; top:18px; width:30px; height:30px; border-radius:50%; border:none; background:none; color:var(--ink-faint); display:grid; place-items:center; cursor:pointer; z-index:3;}
+  .nm-x:hover{background:var(--surface-2);} .nm-x svg{width:16px; height:16px;}
+  .nm-head{padding:20px 28px 6px;}
+  .nm-kicker{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:4px;}
+  .nm-title-input{width:100%; border:none; background:transparent; font-family:var(--font-display); font-size:24px; font-weight:700; letter-spacing:-.015em; color:var(--ink); padding:2px 0; margin-bottom:4px;}
+  .nm-title-input:focus{outline:none;} .nm-title-input::placeholder{color:var(--ink-faint); font-weight:600;}
+  .nm-title-static{font-family:var(--font-display); font-size:24px; font-weight:700; letter-spacing:-.015em; margin-bottom:4px;}
+  .nm-body{padding:14px 28px 6px;}
+  .nm-hint{font-size:13px; color:var(--ink-faint); margin:0 0 14px;}
+  .nm-note{background:color-mix(in srgb, var(--primary) 8%, transparent); border-radius:14px; padding:10px 14px; font-size:12.5px; color:var(--ink-soft);}
+  .nm-cols{display:grid; grid-template-columns:1fr 1fr; gap:26px; padding:14px 28px 6px;}
+  .nm-col{min-width:0;}
+  .nm-col-title{display:flex; align-items:center; gap:7px; font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--primary); margin-bottom:12px;}
+  .nm-col-title svg{width:14px; height:14px;}
+  .nm .tp-label{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
+  .nm .tp-label span{text-transform:none; letter-spacing:0; font-weight:400; font-size:11px;}
+  .nm .tp-input, .nm .tp-textarea, .nm .tp-select{background:var(--surface-2); border:1px solid transparent; border-radius:12px; padding:10px 12px;}
+  .nm .tp-input:focus, .nm .tp-textarea:focus, .nm .tp-select:focus{border-color:var(--primary); outline:none;}
+  .nm .modal-footer{display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:14px 28px; border-top:1px solid var(--border); margin-top:12px; flex-wrap:wrap;}
+  .nm .tpl-ev-row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 8px; align-items:end; background:var(--surface-2); border-radius:14px; padding:10px; margin-bottom:8px; position:relative;}
+  .nm .tpl-ev-row .tpl-ev-title{grid-column:1 / 3; background:var(--surface); font-size:13px;}
+  .nm .tpl-ev-row .tp-attach-del{grid-column:3; justify-self:end; align-self:center;}
+  .nm .tpl-ev-row .nm-mini{display:flex; flex-direction:column; gap:3px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);}
+  .nm .tpl-ev-row .nm-mini .tp-input{background:var(--surface); padding:6px 8px; font-size:12.5px; letter-spacing:0; text-transform:none; font-weight:500; color:var(--ink);}
+  .nm .nm-add{border:1px dashed var(--border); background:none; color:var(--ink-faint); border-radius:99px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+  .nm .nm-add:hover{color:var(--primary); border-color:var(--primary);}
+  .nm .fb-kinds{margin:0 0 12px;}
+  @media (max-width:760px){ .nm-cols{grid-template-columns:1fr; gap:6px;} .nm-head, .nm-body, .nm-cols, .nm .modal-footer{padding-left:18px; padding-right:18px;} }
   .modal.tpl-overlay-modal{width:640px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto;}
   .tpl-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .tpl-tags{display:flex; flex-wrap:wrap; gap:6px;}
@@ -2996,6 +3028,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.152', date:'21/10/2026', title:'Mais telas no novo visual', text:'Projeto, etapa, template e "Enviar comentários" ganharam o novo visual: o template em duas colunas (A tarefa | O que vem junto), projeto e comentários em cartão simples, todos com botão de fechar.' },
   { version:'1.10.151', date:'21/10/2026', title:'Cadastro de agenda renovado', text:'A tela de nova agenda ganhou o novo visual em duas colunas (Quando e Quem), com atalhos de duração (30 min, 1 h, 1 h 30, 2 h). Com o Outlook conectado, o envio do convite já vem ligado em agendas novas.' },
   { version:'1.10.150', date:'20/10/2026', title:'Início da tarefa (opcional)', text:'No painel da tarefa, o link "+ início" ao lado do Prazo permite definir quando a tarefa começa. Sem definir, ela herda o início da etapa do projeto. Na linha do tempo do projeto, a barra agora vai do início ao prazo.' },
   { version:'1.10.149', date:'20/10/2026', title:'Tarefa nova sem prazo', text:'Ao criar uma tarefa, o prazo agora vem em branco. Você define quando quiser (ou usa a Retomada).' },
@@ -6668,7 +6701,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.151';
+const APP_VERSION = '1.10.152';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8610,24 +8643,32 @@ function openProjectEditor(project){
   const modal = ov.firstElementChild;
   const p = project || { id: uid('proj'), name: '', categoryId: activeCategoryFilter || state.categories[0].id, description: '', startDate: todayStr(), endDate: '', stages: [], createdAt: Date.now() };
   modal.innerHTML = `
-    <h3 style="margin-bottom:14px;">${project ? 'Editar projeto' : 'Novo projeto'}</h3>
-    <div class="tp-field"><label class="tp-label">Nome do projeto</label>
-      <input type="text" class="tp-input" id="prjName" placeholder="Ex.: Construção da casa" value="${escapeHtml(p.name || '')}"></div>
+    <div class="nm-flag"></div>
+    <button type="button" class="nm-x" id="prjClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="nm-head">
+      <div class="nm-kicker">${project ? 'Editar projeto' : 'Novo projeto'}</div>
+      <input type="text" class="nm-title-input" id="prjName" placeholder="Nome do projeto" value="${escapeHtml(p.name || '')}">
+    </div>
+    <div class="nm-body">
     <div class="tp-field"><label class="tp-label">Espaço</label>
       <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
-    <div class="tp-field"><label class="tp-label">Descrição</label>
-      <textarea class="tp-textarea" id="prjDesc" rows="3">${escapeHtml(p.description || '')}</textarea></div>
     <div class="tpl-grid">
       <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="prjStart" value="${p.startDate || ''}"></div>
       <div class="tp-field"><label class="tp-label">Entrega prevista</label><input type="date" class="tp-input" id="prjEnd" value="${p.endDate || ''}"></div>
     </div>
+    <div class="tp-field"><label class="tp-label">Descrição</label>
+      <textarea class="tp-textarea" id="prjDesc" rows="3" placeholder="Detalhes do projeto...">${escapeHtml(p.description || '')}</textarea></div>
+    ${project ? '' : '<div class="nm-note">Depois de criar, adicione as etapas na linha do tempo do projeto.</div>'}
     <p id="prjError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    </div>
     <div class="modal-footer">
       ${project ? '<button type="button" class="btn ghost small" id="prjDelete" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>' : ''}
       <button type="button" class="btn ghost small" id="prjCancel">Cancelar</button>
       <button type="button" class="btn small" id="prjSave">Salvar</button>
     </div>`;
+  modal.className = 'modal nm nm-560';
   modal.querySelector('#prjCancel').onclick = () => ov.classList.remove('show');
+  modal.querySelector('#prjClose').onclick = () => ov.classList.remove('show');
   if(project){
     modal.querySelector('#prjDelete').onclick = () => {
       const n = state.tasks.filter(t => t.projectId === p.id).length;
@@ -8662,9 +8703,13 @@ function openStageEditor(project, stage){
   const st = stage || { id: uid('stage'), name: '', start: todayStr(), end: '', manualDone: false };
   const tasks = stage ? stageTasks(project, stage) : [];
   modal.innerHTML = `
-    <h3 style="margin-bottom:14px;">${stage ? 'Editar etapa' : 'Nova etapa'} <span style="font-weight:400; color:var(--ink-faint); font-size:13px;">· ${escapeHtml(project.name)}</span></h3>
-    <div class="tp-field"><label class="tp-label">Nome da etapa</label>
-      <input type="text" class="tp-input" id="stgName" placeholder="Ex.: Fundação" value="${escapeHtml(st.name || '')}"></div>
+    <div class="nm-flag"></div>
+    <button type="button" class="nm-x" id="stgClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="nm-head">
+      <div class="nm-kicker">${stage ? 'Editar etapa' : 'Nova etapa'} · ${escapeHtml(project.name)}</div>
+      <input type="text" class="nm-title-input" id="stgName" placeholder="Nome da etapa" value="${escapeHtml(st.name || '')}">
+    </div>
+    <div class="nm-body">
     <div class="tpl-grid">
       <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="stgStart" value="${st.start || ''}"></div>
       <div class="tp-field"><label class="tp-label">Fim (prazo)</label><input type="date" class="tp-input" id="stgEnd" value="${st.end || ''}"></div>
@@ -8676,12 +8721,15 @@ function openStageEditor(project, stage){
       ${tasks.length ? '' : `<label class="completed-toggle" style="margin:10px 0 0;"><span>Marcar etapa como concluída</span><input type="checkbox" id="stgManual" ${st.manualDone ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></label>`}
     </div>` : '<p style="font-size:12px; color:var(--ink-faint);">Depois de salvar, você poderá criar tarefas dentro da etapa.</p>'}
     <p id="stgError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    </div>
     <div class="modal-footer">
       ${stage ? '<button type="button" class="btn ghost small" id="stgDelete" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>' : ''}
       <button type="button" class="btn ghost small" id="stgCancel">Cancelar</button>
       <button type="button" class="btn small" id="stgSave">Salvar</button>
     </div>`;
+  modal.className = 'modal nm nm-560';
   modal.querySelector('#stgCancel').onclick = () => ov.classList.remove('show');
+  modal.querySelector('#stgClose').onclick = () => ov.classList.remove('show');
   function commitFields(){
     st.name = modal.querySelector('#stgName').value.trim();
     st.start = modal.querySelector('#stgStart').value;
@@ -9169,50 +9217,63 @@ function openTemplateEditor(existing, prefill){
 
   function eventsHtml(){
     if(!events.length) return '<p style="font-size:12px; color:var(--ink-faint); margin-bottom:6px;">Nenhuma agenda. Adicione para criar compromissos junto com a tarefa.</p>';
-    return '<div class="tpl-ev-head"><span>Título</span><span>Dias</span><span>Início</span><span>Fim</span><span></span></div>' + events.map((e, i) => `
+    return events.map((e, i) => `
       <div class="tpl-ev-row" data-i="${i}">
-        <input type="text" class="tp-input" data-f="title" placeholder="Título da agenda" value="${escapeHtml(e.title || '')}">
-        <input type="number" class="tp-input" data-f="offsetDays" value="${parseInt(e.offsetDays, 10) || 0}" title="0 = no dia; negativo = antes; positivo = depois">
-        <input type="time" class="tp-input" data-f="startTime" value="${e.startTime || ''}">
-        <input type="time" class="tp-input" data-f="endTime" value="${e.endTime || ''}">
+        <input type="text" class="tp-input tpl-ev-title" data-f="title" placeholder="Título da agenda" value="${escapeHtml(e.title || '')}">
         <button type="button" class="tp-attach-del" data-del="${i}" title="Remover">×</button>
+        <label class="nm-mini"><span>Dias</span><input type="number" class="tp-input" data-f="offsetDays" value="${parseInt(e.offsetDays, 10) || 0}" title="0 = no dia; negativo = antes; positivo = depois"></label>
+        <label class="nm-mini"><span>Início</span><input type="time" class="tp-input" data-f="startTime" value="${e.startTime || ''}"></label>
+        <label class="nm-mini"><span>Fim</span><input type="time" class="tp-input" data-f="endTime" value="${e.endTime || ''}"></label>
       </div>`).join('');
   }
 
   modal.innerHTML = `
-    <h3 style="margin-bottom:14px;">${existing ? 'Editar template' : 'Novo template'}</h3>
-    <div class="tp-field"><label class="tp-label">Nome do template</label>
-      <input type="text" class="tp-input" id="tplName" placeholder="Ex.: Fechamento mensal" value="${escapeHtml(tpl.name || '')}"></div>
-    <div class="tp-field"><label class="tp-label">Título da tarefa</label>
-      <input type="text" class="tp-input" id="tplTitle" placeholder="Título que a tarefa nasce com" value="${escapeHtml(tpl.title || '')}"></div>
-    <div class="tp-field"><label class="tp-label">Descrição</label>
-      <textarea class="tp-textarea" id="tplDesc" rows="3">${escapeHtml(tpl.description || '')}</textarea></div>
-    <div class="tp-field"><label class="tp-label">Disponível nos espaços <span style="font-weight:400; color:var(--ink-faint);">(só aparece neles)</span></label>
-      <div class="tpl-tags" id="tplSpaces">${state.categories.map(c => `<span class="tpl-tag-chip ${selectedSpaces.has(c.id) ? 'on' : ''}" data-space="${c.id}" style="${selectedSpaces.has(c.id) ? 'background:' + c.color : ''}">${escapeHtml(c.name)}</span>`).join('')}</div></div>
-    <div class="tpl-grid">
-      <div class="tp-field"><label class="tp-label">Prioridade</label>
-        <select class="tp-select" id="tplPriority">${PRIORITY_CONFIG.map(p => `<option value="${p.key}" ${tpl.priority === p.key ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
-      <div class="tp-field"><label class="tp-label">Horário</label>
-        <input type="time" class="tp-input" id="tplTime" value="${tpl.dueTime || ''}"></div>
-      <div class="tp-field"><label class="tp-label">Repetição</label>
-        <div class="tp-row2">
-          <select class="tp-select" id="tplRec">${Object.keys(RECURRENCE_LABELS).map(k => `<option value="${k}" ${tpl.recurrence === k ? 'selected' : ''}>${RECURRENCE_LABELS[k]}</option>`).join('')}</select>
-          <input type="number" class="tp-input" id="tplRecInterval" min="1" value="${tpl.recurrenceInterval || 1}" title="A cada N">
-        </div></div>
+    <div class="nm-flag"></div>
+    <button type="button" class="nm-x" id="tplClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="nm-head">
+      <div class="nm-kicker">${existing ? 'Editar template' : 'Novo template'}</div>
+      <input type="text" class="nm-title-input" id="tplName" placeholder="Nome do template (ex.: Fechamento mensal)" value="${escapeHtml(tpl.name || '')}">
     </div>
-    <div class="tp-field"><label class="tp-label">Tags <span style="font-weight:400; color:var(--ink-faint);">(dos espaços escolhidos e gerais)</span></label>
-      <div class="tpl-tags" id="tplTags"></div></div>
-    <div class="tp-field"><label class="tp-label">Subtarefas <span style="font-weight:400; color:var(--ink-faint);">(uma por linha)</span></label>
-      <textarea class="tp-textarea" id="tplSubtasks" rows="4" placeholder="Etapa 1&#10;Etapa 2">${escapeHtml((tpl.subtasks || []).map(x => x.title).join('\n'))}</textarea></div>
-    <div class="tp-field"><label class="tp-label">Agendas <span style="font-weight:400; color:var(--ink-faint);">(criadas junto, em relação ao prazo da tarefa)</span></label>
-      <div id="tplEvents"></div>
-      <button type="button" class="btn ghost small" id="tplAddEvent">+ Adicionar agenda</button></div>
+    <div class="nm-cols">
+      <div class="nm-col">
+        <div class="nm-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>A tarefa</div>
+        <div class="tp-field"><label class="tp-label">Título da tarefa</label>
+          <input type="text" class="tp-input" id="tplTitle" placeholder="Título que a tarefa nasce com" value="${escapeHtml(tpl.title || '')}"></div>
+        <div class="tp-field"><label class="tp-label">Disponível nos espaços <span>(só aparece neles)</span></label>
+          <div class="tpl-tags" id="tplSpaces">${state.categories.map(c => `<span class="tpl-tag-chip ${selectedSpaces.has(c.id) ? 'on' : ''}" data-space="${c.id}" style="${selectedSpaces.has(c.id) ? 'background:' + c.color : ''}">${escapeHtml(c.name)}</span>`).join('')}</div></div>
+        <div class="tpl-grid">
+          <div class="tp-field"><label class="tp-label">Prioridade</label>
+            <select class="tp-select" id="tplPriority">${PRIORITY_CONFIG.map(p => `<option value="${p.key}" ${tpl.priority === p.key ? 'selected' : ''}>${p.label}</option>`).join('')}</select></div>
+          <div class="tp-field"><label class="tp-label">Horário</label>
+            <input type="time" class="tp-input" id="tplTime" value="${tpl.dueTime || ''}"></div>
+        </div>
+        <div class="tp-field"><label class="tp-label">Repetição</label>
+          <div class="tp-row2">
+            <select class="tp-select" id="tplRec">${Object.keys(RECURRENCE_LABELS).map(k => `<option value="${k}" ${tpl.recurrence === k ? 'selected' : ''}>${RECURRENCE_LABELS[k]}</option>`).join('')}</select>
+            <input type="number" class="tp-input" id="tplRecInterval" min="1" value="${tpl.recurrenceInterval || 1}" title="A cada N">
+          </div></div>
+        <div class="tp-field"><label class="tp-label">Tags <span>(dos espaços escolhidos e gerais)</span></label>
+          <div class="tpl-tags" id="tplTags"></div></div>
+      </div>
+      <div class="nm-col">
+        <div class="nm-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>O que vem junto</div>
+        <div class="tp-field"><label class="tp-label">Subtarefas <span>(uma por linha)</span></label>
+          <textarea class="tp-textarea" id="tplSubtasks" rows="4" placeholder="Etapa 1&#10;Etapa 2">${escapeHtml((tpl.subtasks || []).map(x => x.title).join('\n'))}</textarea></div>
+        <div class="tp-field"><label class="tp-label">Agendas <span>(criadas junto, em relação ao prazo)</span></label>
+          <div id="tplEvents"></div>
+          <button type="button" class="nm-add" id="tplAddEvent">+ Adicionar agenda</button></div>
+        <div class="tp-field"><label class="tp-label">Descrição</label>
+          <textarea class="tp-textarea" id="tplDesc" rows="3" placeholder="Passos, observações...">${escapeHtml(tpl.description || '')}</textarea></div>
+      </div>
+    </div>
     <p id="tplError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
     <div class="modal-footer">
       <button type="button" class="btn ghost small" id="tplCancel">Cancelar</button>
       <button type="button" class="btn small" id="tplSave">Salvar template</button>
     </div>`;
 
+  modal.className = 'modal nm nm-900';
+  modal.querySelector('#tplClose').onclick = () => ov.classList.remove('show');
   const evBox = modal.querySelector('#tplEvents');
   function renderEvents(){ evBox.innerHTML = eventsHtml(); }
   renderEvents();
@@ -9342,14 +9403,21 @@ function openFeedbackModal(){
   const up = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>';
   const down = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>';
   modal.innerHTML = `
-    <h3 style="margin-bottom:6px;">Enviar comentários</h3>
-    <p style="font-size:13px; color:var(--ink-soft); margin-bottom:12px;">Conte o que está bom ou o que pode melhorar. A mensagem chega direto para quem cuida do sistema.</p>
+    <div class="nm-flag"></div>
+    <button type="button" class="nm-x" id="fbClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="nm-head">
+      <div class="nm-kicker">Enviar comentários</div>
+      <div class="nm-title-static">O que você achou?</div>
+    </div>
+    <div class="nm-body">
+    <p class="nm-hint">A mensagem chega direto para quem cuida do sistema, junto com a versão e a tela onde você estava.</p>
     <div class="fb-kinds">
       <button type="button" class="fb-kind good on" data-kind="good">${up}Algo bom</button>
       <button type="button" class="fb-kind bad" data-kind="bad">${down}Algo ruim</button>
     </div>
     <textarea class="tp-textarea" id="fbMessage" rows="5" maxlength="2000" placeholder="Escreva aqui..."></textarea>
     <p id="fbError" style="display:none; color:var(--danger); font-size:12.5px; margin:6px 0 0;"></p>
+    </div>
     <div class="modal-footer">
       <button type="button" class="btn ghost small" id="fbCancel">Cancelar</button>
       <button type="button" class="btn small" id="fbSend">Enviar</button>
@@ -9360,7 +9428,9 @@ function openFeedbackModal(){
       modal.querySelectorAll('.fb-kind').forEach(x => x.classList.toggle('on', x === b));
     };
   });
+  modal.className = 'modal nm nm-460';
   modal.querySelector('#fbCancel').onclick = () => ov.classList.remove('show');
+  modal.querySelector('#fbClose').onclick = () => ov.classList.remove('show');
   modal.querySelector('#fbSend').onclick = async () => {
     const err = modal.querySelector('#fbError');
     const btn = modal.querySelector('#fbSend');

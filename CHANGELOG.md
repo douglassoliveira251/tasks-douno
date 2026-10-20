@@ -1,3 +1,15 @@
+## [1.10.152] - 2026-10-21 10:00
+
+### Changed
+
+#### Visual
+
+- Template: janela larga em duas colunas, "A tarefa" (título, espaços, prioridade, horário, repetição, tags) e "O que vem junto" (subtarefas, agendas e descrição); as agendas do template viraram cartões com Dias/Início/Fim rotulados.
+- Projeto e etapa: cartão com título grande no topo, campos em caixas suaves e botão de fechar. Projeto novo avisa que as etapas vêm depois.
+- Enviar comentários: cartão com "Algo bom/Algo ruim" e a mensagem; a versão e a tela vão junto.
+- Mesmos campos e comportamentos de antes.
+
+
 ## [1.10.151] - 2026-10-21 09:00
 
 ### Changed
