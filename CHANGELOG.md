@@ -1,3 +1,10 @@
+## [1.10.135] - 2026-10-20 00:00
+
+### Changed
+
+- Título das páginas reduzido de 32 para 26 px (linha de apoio de 13 px).
+
+
 ## [1.10.134] - 2026-10-19 00:00
 
 ### Changed

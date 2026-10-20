@@ -415,10 +415,10 @@
   /* Título direto no fundo (como no Finance): grande, à esquerda, com a busca e os ícones à direita */
   .topbar-title{flex:1; min-width:0; display:flex; align-items:center; gap:12px;}
   .topbar-title-text{min-width:0;}
-  .topbar-title .view-title{font-size:32px; font-weight:600; letter-spacing:-.02em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .topbar-title .view-title{font-size:26px; font-weight:600; letter-spacing:-.015em; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .topbar-title .view-title span{font-weight:300; color:var(--ink-soft);}
-  .topbar-title .view-subtitle{display:block; font-size:13.5px; color:var(--ink-soft); margin-top:4px; text-transform:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .topbar-title .page-header-stat{font-size:13.5px;}
+  .topbar-title .view-subtitle{display:block; font-size:13px; color:var(--ink-soft); margin-top:4px; text-transform:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .topbar-title .page-header-stat{font-size:13px;}
   .page-header-stat{font-size:12px; color:var(--ink-soft);}
   .page-header-stat b{color:var(--ink); font-weight:600;}
   .topbar-profile-chip{
@@ -2713,6 +2713,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.135', date:'20/10/2026', title:'Título menor', text:'O título no topo das páginas ficou mais discreto (de 32 para 26 px), mais proporcional ao resto da tela.' },
   { version:'1.10.134', date:'19/10/2026', title:'Mesma fonte do Finance', text:'O sistema agora usa a Open Sans, a mesma fonte do Finance DOUNO, hospedada junto do app (mais rápida e sem depender de serviços externos).' },
   { version:'1.10.133', date:'19/10/2026', title:'Título no topo, como no Finance', text:'O cartão com o título da página saiu: o título agora fica solto no topo, grande, com a busca, o espaço e a conta à direita. A Visão geral abre com a saudação "Bom dia, Nome".' },
   { version:'1.10.132', date:'19/10/2026', title:'Novo Resumo e modo escuro azul-petróleo', text:'A Visão geral foi redesenhada: o que importa hoje em destaque, próximos prazos, um cartão por espaço, projetos, retomadas e agenda. O modo escuro ganhou um tom azul-petróleo, com mais personalidade e a mesma identidade do menu.' },
@@ -6261,7 +6262,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.134';
+const APP_VERSION = '1.10.135';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
