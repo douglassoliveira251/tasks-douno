@@ -1178,6 +1178,40 @@
   .tp-row2 .tp-time-input{flex:0 0 104px; min-width:0;}
   .tp-row2 .tp-date-input{flex:0 0 128px; min-width:0;}
   .tp-row-mixed{display:flex; gap:10px; align-items:flex-start;}
+  /* ---- Cadastro de agenda (novo visual: Quando | Quem) ---- */
+  .modal.ev-modal{width:820px; max-width:calc(100vw - 24px); max-height:calc(100vh - 40px); overflow-y:auto; padding:0; border-radius:22px; position:relative;}
+  .ev-flag{height:5px; background:var(--primary); position:sticky; top:0; z-index:2;}
+  .ev-x{position:absolute; right:16px; top:18px; width:30px; height:30px; border-radius:50%; border:none; background:none; color:var(--ink-faint); display:grid; place-items:center; cursor:pointer; z-index:3;}
+  .ev-x:hover{background:var(--surface-2);}
+  .ev-x svg{width:16px; height:16px;}
+  .ev-head{padding:20px 28px 6px;}
+  .ev-kicker{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:4px;}
+  .ev-title-input{width:100%; border:none; background:transparent; font-family:var(--font-display); font-size:24px; font-weight:700; letter-spacing:-.015em; color:var(--ink); padding:2px 0; margin-bottom:10px;}
+  .ev-title-input:focus{outline:none;}
+  .ev-title-input::placeholder{color:var(--ink-faint); font-weight:600;}
+  .ev-spacefield .tp-label{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
+  .ev-space-hint{font-size:11.5px; color:var(--ink-faint);}
+  .ev-cols{display:grid; grid-template-columns:1fr 1fr; gap:26px; padding:14px 28px 6px;}
+  .ev-col{min-width:0;}
+  .ev-col-title{display:flex; align-items:center; gap:7px; font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--primary); margin-bottom:12px;}
+  .ev-col-title svg{width:14px; height:14px;}
+  .ev-modal .tp-label{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
+  .ev-modal .tp-label span{text-transform:none; letter-spacing:0; font-weight:400; font-size:11px;}
+  .ev-modal .tp-input, .ev-modal .tp-textarea{background:var(--surface-2); border:1px solid transparent; border-radius:12px; padding:10px 12px;}
+  .ev-modal .tp-input:focus, .ev-modal .tp-textarea:focus{border-color:var(--primary);}
+  .ev-modal .tp-status-trigger{background:var(--surface-2); border:1px solid transparent; border-radius:12px; height:40px;}
+  .ev-modal .ev-daterange-row{flex-direction:column; gap:10px;}
+  .ev-modal .ev-daterange-col .tp-row2{display:grid; grid-template-columns:minmax(0,1fr) 112px; gap:8px;}
+  .ev-modal .ev-daterange-col .tp-time-input{flex:none; width:100%;}
+  .ev-dur-row{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:10px;}
+  .ev-dur{border:none; background:var(--surface-2); color:var(--ink); border-radius:99px; padding:5px 12px; font-size:12.5px; font-weight:600; cursor:pointer;}
+  .ev-dur:hover{filter:brightness(.97);}
+  .ev-dur.on{background:var(--primary); color:#fff;}
+  .ev-allday{display:inline-flex; align-items:center; gap:8px; margin-left:auto; font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .ev-modal .ev-invite-row{background:var(--surface-2); border-radius:14px; padding:11px 14px; margin-top:10px; border:none;}
+  .ev-modal .modal-footer{display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:14px 28px; border-top:1px solid var(--border); margin-top:12px; flex-wrap:wrap;}
+  .ev-modal .modal-footer .btn{white-space:nowrap;}
+  @media (max-width:760px){ .ev-cols{grid-template-columns:1fr; gap:6px;} .ev-head, .ev-cols, .ev-modal .modal-footer{padding-left:18px; padding-right:18px;} }
   .ev-daterange-row{display:flex; gap:12px;}
   .ev-daterange-col{flex:1; min-width:0;}
   .ev-daterange-col .tp-row2{gap:6px;}
@@ -2661,7 +2695,7 @@
 
 
 <div class="overlay" id="eventComposerOverlay">
-  <div class="modal" id="eventComposerModal" style="width:520px; max-height:85vh; overflow-y:auto;">
+  <div class="modal ev-modal" id="eventComposerModal">
     <!-- preenchido via JS -->
   </div>
 </div>
@@ -2962,6 +2996,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.151', date:'21/10/2026', title:'Cadastro de agenda renovado', text:'A tela de nova agenda ganhou o novo visual em duas colunas (Quando e Quem), com atalhos de duração (30 min, 1 h, 1 h 30, 2 h). Com o Outlook conectado, o envio do convite já vem ligado em agendas novas.' },
   { version:'1.10.150', date:'20/10/2026', title:'Início da tarefa (opcional)', text:'No painel da tarefa, o link "+ início" ao lado do Prazo permite definir quando a tarefa começa. Sem definir, ela herda o início da etapa do projeto. Na linha do tempo do projeto, a barra agora vai do início ao prazo.' },
   { version:'1.10.149', date:'20/10/2026', title:'Tarefa nova sem prazo', text:'Ao criar uma tarefa, o prazo agora vem em branco. Você define quando quiser (ou usa a Retomada).' },
   { version:'1.10.148', date:'20/10/2026', title:'Aviso de atualização corrigido', text:'O aviso de nova versão não aparecia porque a verificação lia o trecho errado do arquivo. Agora ele detecta e pede para atualizar.' },
@@ -6633,7 +6668,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.150';
+const APP_VERSION = '1.10.151';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7641,57 +7676,57 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   const modal = document.getElementById('eventComposerModal');
 
   modal.innerHTML = `
-    <h3 style="margin-bottom:14px;">${isEditing?'Editar agenda':'Nova agenda'}</h3>
-    <div class="tp-field">
-      <label class="tp-label">Título</label>
-      <input type="text" class="tp-input" id="evTitle" placeholder="Nome da agenda" value="${escapeHtml(ev.title||'')}">
-    </div>
-    <div class="tp-field" style="position:relative;">
-      <label class="tp-label">Espaço</label>
-      <div class="cat-tags-combined-row">
-        <div class="group-move-row">
-          <button type="button" class="move-group-btn" id="evMoveGroupBtn" title="Mover de espaço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg></button>
-          <span class="group-current-chip" id="evGroupChip"></span>
-        </div>
-        <div class="tp-tags-selected" id="evTagsSelected">
-          ${(ev.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
-          <button type="button" class="tp-tags-add-btn" id="evTagsToggleBtn">+ Tag</button>
-        </div>
-      </div>
-      <p style="font-size:11px; color:var(--ink-faint); margin-top:4px;">As tags definem a cor da agenda.</p>
-    </div>
-    <div class="tp-field">
-      <label class="tp-label">Descrição</label>
-      <textarea class="tp-textarea" id="evDescription" rows="3" placeholder="Detalhes da agenda...">${escapeHtml(ev.description||'')}</textarea>
-    </div>
-    <div class="tp-field">
-      <div class="ev-daterange-row">
-        <div class="ev-daterange-col">
-          <label class="tp-label">Início</label>
-          <div class="tp-row2">
-            <input type="date" class="tp-input" id="evDate" value="${ev.date||''}">
-            <input type="time" class="tp-input tp-time-input" id="evStartTime" value="${ev.startTime||''}" style="display:${ev.allDay?'none':'block'};">
+    <div class="ev-flag"></div>
+    <button type="button" class="ev-x" id="evCloseX" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="ev-head">
+      <div class="ev-kicker">${isEditing?'Editar agenda':'Nova agenda'}</div>
+      <input type="text" class="ev-title-input" id="evTitle" placeholder="Nome da agenda" value="${escapeHtml(ev.title||'')}">
+      <div class="ev-spacefield" style="position:relative;">
+        <label class="tp-label">Espaço</label>
+        <div class="cat-tags-combined-row">
+          <div class="group-move-row">
+            <button type="button" class="move-group-btn" id="evMoveGroupBtn" title="Mover de espaço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg></button>
+            <span class="group-current-chip" id="evGroupChip"></span>
           </div>
-        </div>
-        <div class="ev-daterange-col">
-          <label class="tp-label">Fim</label>
-          <div class="tp-row2">
-            <input type="date" class="tp-input" id="evEndDate" value="${ev.endDate||ev.date||''}">
-            <input type="time" class="tp-input tp-time-input" id="evEndTime" value="${ev.endTime||''}" style="display:${ev.allDay?'none':'block'};">
+          <div class="tp-tags-selected" id="evTagsSelected">
+            ${(ev.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
+            <button type="button" class="tp-tags-add-btn" id="evTagsToggleBtn">+ Tag</button>
           </div>
+          <span class="ev-space-hint">As tags definem a cor da agenda.</span>
         </div>
       </div>
     </div>
-    <div class="tp-field">
-      <div class="tp-row-mixed">
-        <div class="tp-col-recurrence">
-          <label class="tp-label">Dia todo</label>
-          <label class="completed-toggle" id="evAllDayToggleLabel" style="height:34px;">
-            <input type="checkbox" id="evAllDay" ${ev.allDay?'checked':''}>
-            <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
-          </label>
+    <div class="ev-cols">
+      <div class="ev-col">
+        <div class="ev-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Quando</div>
+        <div class="tp-field">
+          <div class="ev-daterange-row">
+            <div class="ev-daterange-col">
+              <label class="tp-label">Início</label>
+              <div class="tp-row2">
+                <input type="date" class="tp-input" id="evDate" value="${ev.date||''}">
+                <input type="time" class="tp-input tp-time-input" id="evStartTime" value="${ev.startTime||''}" style="display:${ev.allDay?'none':'block'};">
+              </div>
+            </div>
+            <div class="ev-daterange-col">
+              <label class="tp-label">Fim</label>
+              <div class="tp-row2">
+                <input type="date" class="tp-input" id="evEndDate" value="${ev.endDate||ev.date||''}">
+                <input type="time" class="tp-input tp-time-input" id="evEndTime" value="${ev.endTime||''}" style="display:${ev.allDay?'none':'block'};">
+              </div>
+            </div>
+          </div>
+          <div class="ev-dur-row">
+            <button type="button" class="ev-dur" data-dur="30">30 min</button>
+            <button type="button" class="ev-dur" data-dur="60">1 h</button>
+            <button type="button" class="ev-dur" data-dur="90">1 h 30</button>
+            <button type="button" class="ev-dur" data-dur="120">2 h</button>
+            <label class="ev-allday" id="evAllDayToggleLabel"><span>Dia todo</span>
+              <span class="completed-toggle" style="margin-left:0;"><input type="checkbox" id="evAllDay" ${ev.allDay?'checked':''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span>
+            </label>
+          </div>
         </div>
-        <div class="tp-col-large">
+        <div class="tp-field">
           <label class="tp-label">Recorrência</label>
           <button type="button" class="tp-status-trigger" id="evRecurrenceTrigger">
             <svg class="tp-recurrence-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg>
@@ -7699,32 +7734,39 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
             <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
         </div>
+        <div class="tp-field" style="position:relative;">
+          <label class="tp-label">Tarefa vinculada <span>(opcional: traz título, tags e horário)</span></label>
+          <button type="button" class="tp-status-trigger" id="evLinkedTaskTrigger">
+            <span class="tp-status-trigger-label" id="evLinkedTaskLabel"></span>
+            <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="tp-field" style="position:relative;">
-      <label class="tp-label">Tarefa vinculada <span style="font-weight:400; color:var(--ink-faint);">(opcional — traz título, tags e horário automaticamente)</span></label>
-      <button type="button" class="tp-status-trigger" id="evLinkedTaskTrigger">
-        <span class="tp-status-trigger-label" id="evLinkedTaskLabel"></span>
-        <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-    </div>
-    <div class="tp-field">
-      <label class="tp-label">Para <span style="font-weight:400; color:var(--ink-faint);">(convidados, separados por vírgula)</span></label>
-      <div class="ev-suggest-wrap">
-        <input type="text" class="tp-input" id="evAttendees" autocomplete="off" placeholder="nome@empresa.com, outra@empresa.com" value="${escapeHtml((ev.attendees||[]).join(', '))}">
-        <div class="ev-suggest" id="evAttendeesSuggest" role="listbox"></div>
+      <div class="ev-col">
+        <div class="ev-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 010 6M18 14c2 .6 3 2.2 3 4"/></svg>Quem</div>
+        <div class="tp-field">
+          <label class="tp-label">Convidados <span>(separados por vírgula)</span></label>
+          <div class="ev-suggest-wrap">
+            <input type="text" class="tp-input" id="evAttendees" autocomplete="off" placeholder="nome@empresa.com, outra@empresa.com" value="${escapeHtml((ev.attendees||[]).join(', '))}">
+            <div class="ev-suggest" id="evAttendeesSuggest" role="listbox"></div>
+          </div>
+          <p id="evAttendeesError" style="display:none; font-size:11.5px; color:var(--danger); margin-top:4px;"></p>
+          <label class="ev-invite-row" for="evSendInvite">
+            <span>
+              <span class="ev-invite-title">Enviar convite pelo Outlook</span>
+              <span class="ev-invite-desc" id="evInviteDesc"></span>
+            </span>
+            <span class="completed-toggle" style="margin-left:0;">
+              <input type="checkbox" id="evSendInvite" ${(ev.sendInvite || (!isEditing && outlookStatusCache && outlookStatusCache.connected)) ? 'checked' : ''}>
+              <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
+            </span>
+          </label>
+        </div>
+        <div class="tp-field">
+          <label class="tp-label">Descrição</label>
+          <textarea class="tp-textarea" id="evDescription" rows="4" placeholder="Detalhes da agenda...">${escapeHtml(ev.description||'')}</textarea>
+        </div>
       </div>
-      <p id="evAttendeesError" style="display:none; font-size:11.5px; color:var(--danger); margin-top:4px;"></p>
-      <label class="ev-invite-row" for="evSendInvite">
-        <span>
-          <span class="ev-invite-title">Enviar convite pelo Outlook</span>
-          <span class="ev-invite-desc" id="evInviteDesc"></span>
-        </span>
-        <span class="completed-toggle" style="margin-left:0;">
-          <input type="checkbox" id="evSendInvite" ${ev.sendInvite?'checked':''}>
-          <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
-        </span>
-      </label>
     </div>
     <div class="modal-footer">
       ${isEditing ? `<button type="button" class="btn ghost small" id="evDeleteBtn" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>` : ''}
@@ -7850,7 +7892,41 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   }
   refreshInviteDesc();
   renderEvTagsSelected(); // as tags já existentes passam a poder ser removidas com um clique
-  if(!outlookStatusCache && cloudSession) refreshOutlookStatus().then(refreshInviteDesc).catch(() => {});
+  // com o Outlook conectado, agenda nova já vem com "enviar convite" ligado (a menos que a pessoa mexa)
+  let inviteTouched = false;
+  modal.querySelector('#evSendInvite').addEventListener('change', () => { inviteTouched = true; });
+  const applyInviteDefault = () => {
+    if(!isEditing && !inviteTouched && outlookStatusCache && outlookStatusCache.connected){
+      const cb = modal.querySelector('#evSendInvite'); if(cb) cb.checked = true;
+    }
+  };
+  if(!outlookStatusCache && cloudSession) refreshOutlookStatus().then(() => { refreshInviteDesc(); applyInviteDefault(); }).catch(() => {});
+
+  // atalhos de duração: o fim passa a ser início + duração (no mesmo dia)
+  function minutesBetweenInputs(){
+    const st = modal.querySelector('#evStartTime').value, en = modal.querySelector('#evEndTime').value;
+    if(!st || !en || modal.querySelector('#evDate').value !== modal.querySelector('#evEndDate').value) return null;
+    return timeToMinutes(en) - timeToMinutes(st);
+  }
+  function refreshDurChips(){
+    const d = minutesBetweenInputs();
+    modal.querySelectorAll('.ev-dur').forEach(b => b.classList.toggle('on', d !== null && parseInt(b.dataset.dur, 10) === d));
+  }
+  modal.querySelectorAll('.ev-dur').forEach(b => {
+    b.onclick = () => {
+      const st = modal.querySelector('#evStartTime');
+      if(!st.value) st.value = nextRoundedHourTimes().start;
+      const total = timeToMinutes(st.value) + parseInt(b.dataset.dur, 10);
+      const endMin = Math.min(total, 23 * 60 + 59);
+      modal.querySelector('#evEndDate').value = modal.querySelector('#evDate').value;
+      modal.querySelector('#evEndTime').value = String(Math.floor(endMin / 60)).padStart(2, '0') + ':' + String(endMin % 60).padStart(2, '0');
+      if(ev.allDay){ modal.querySelector('#evAllDay').checked = false; ev.allDay = false; syncTimeFieldsVisibility(); }
+      refreshDurChips();
+    };
+  });
+  ['#evDate', '#evEndDate', '#evStartTime', '#evEndTime'].forEach(sel => modal.querySelector(sel).addEventListener('change', refreshDurChips));
+  refreshDurChips();
+  modal.querySelector('#evCloseX').onclick = () => closeEventComposer();
 
   function syncTimeFieldsVisibility(){
     const show = !ev.allDay;

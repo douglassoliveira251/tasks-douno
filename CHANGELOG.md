@@ -1,3 +1,13 @@
+## [1.10.151] - 2026-10-21 09:00
+
+### Changed
+
+#### Calendário
+
+- Cadastro/edição de agenda no novo visual: título grande no topo com espaço e tags, e duas colunas, "Quando" (início/fim, atalhos de duração 30 min / 1 h / 1 h 30 / 2 h, dia todo, recorrência, tarefa vinculada) e "Quem" (convidados, convite pelo Outlook e descrição). Mesmos campos e comportamentos de antes.
+- Com o Outlook conectado, agenda nova já vem com "Enviar convite pelo Outlook" ligado (continua só valendo se houver convidados; dá para desligar).
+
+
 ## [1.10.150] - 2026-10-21 08:00
 
 ### Added

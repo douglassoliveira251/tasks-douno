@@ -32,3 +32,33 @@ test.describe('Calendário — mês com painel do dia', () => {
     await expect(page.locator('#evTitle')).toHaveValue('Reunião A');
   });
 });
+
+test.describe('Cadastro de agenda (duas colunas)', () => {
+  test('atalhos de duração ajustam o fim; fechar pelo X', async ({ page }) => {
+    await gotoApp(page, { view: 'calendar' });
+    await page.evaluate(() => { openEventComposer(null, todayStr()); });
+    await expect(page.locator('#eventComposerOverlay')).toHaveClass(/show/);
+    await page.locator('#evStartTime').fill('09:00');
+    await page.locator('.ev-dur[data-dur="90"]').click();
+    await expect(page.locator('#evEndTime')).toHaveValue('10:30');
+    await expect(page.locator('.ev-dur[data-dur="90"]')).toHaveClass(/on/);
+    await page.locator('.ev-dur[data-dur="30"]').click();
+    await expect(page.locator('#evEndTime')).toHaveValue('09:30');
+    await page.locator('#evCloseX').click();
+    await expect(page.locator('#eventComposerOverlay')).not.toHaveClass(/show/);
+  });
+
+  test('com Outlook conectado, convite já vem ligado em agenda nova (e não em edição)', async ({ page }) => {
+    await gotoApp(page, { view: 'calendar' });
+    await page.evaluate(() => { outlookStatusCache = { connected: true }; openEventComposer(null, todayStr()); });
+    await expect(page.locator('#evSendInvite')).toBeChecked();
+    await page.evaluate(() => { closeEventComposer(); outlookStatusCache = { connected: false }; openEventComposer(null, todayStr()); });
+    await expect(page.locator('#evSendInvite')).not.toBeChecked();
+    await page.evaluate(() => {
+      closeEventComposer(); outlookStatusCache = { connected: true };
+      state.events = [{ id: 'e9', title: 'X', date: todayStr(), endDate: todayStr(), startTime: '10:00', endTime: '11:00', categoryId: state.categories[0].id, tagIds: [], recurrence: 'none', recurrenceInterval: 1, attendees: [], description: '', createdAt: 1 }];
+      openEventComposer(state.events[0]);
+    });
+    await expect(page.locator('#evSendInvite')).not.toBeChecked();
+  });
+});
