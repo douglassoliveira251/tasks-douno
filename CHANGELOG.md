@@ -1,3 +1,12 @@
+## [1.10.157] - 2026-10-21 15:00
+
+### Changed
+
+#### Tarefas
+
+- O texto fixo "Dentro da etapa..." saiu do painel da tarefa. A regra continua valendo (o calendário do campo já bloqueia datas fora do período), mas o aviso só aparece, por poucos segundos, quando alguém digita uma data fora do período da etapa.
+
+
 ## [1.10.156] - 2026-10-21 14:00
 
 ### Added

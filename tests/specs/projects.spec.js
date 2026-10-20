@@ -224,4 +224,10 @@ test('etapa: resumo lateral, progresso com subtarefas, prazo dentro da etapa e +
     return out;
   });
   expect(r).toEqual({ dentro: true, fora: false, clamp: true });
+  // sem texto fixo no painel; o aviso só aparece ao digitar uma data fora do período
+  await page.evaluate(() => { currentView = 'tasks'; activeTaskId = 'c'; render(); });
+  await expect(page.locator('.tp-range-note')).toHaveCount(0);
+  await page.locator('#tpDate').evaluate(el => { el.value = '2099-01-01'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await expect(page.locator('.tp-range-note.bad')).toHaveCount(1);
+  await expect(page.locator('.tp-range-note')).toContainText('período da etapa');
 });
