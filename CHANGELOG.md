@@ -1,3 +1,12 @@
+## [1.10.148] - 2026-10-20 22:00
+
+### Fixed
+
+#### Sistema
+
+- O aviso de atualização nunca disparava: a verificação procurava a versão com uma expressão que casava com o próprio código dela ("([^") e lia lixo em vez do número. Agora só aceita números (1.10.148). Quem estiver numa versão anterior precisa atualizar a página uma vez; daí em diante o aviso funciona.
+
+
 ## [1.10.147] - 2026-10-20 21:00
 
 ### Added

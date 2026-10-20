@@ -2943,6 +2943,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.148', date:'20/10/2026', title:'Aviso de atualização corrigido', text:'O aviso de nova versão não aparecia porque a verificação lia o trecho errado do arquivo. Agora ele detecta e pede para atualizar.' },
   { version:'1.10.147', date:'20/10/2026', title:'Resumo: tarefas sem data', text:'O Resumo agora mostra quantas tarefas abertas estão sem prazo e sem data de retomada, e um cartão "Tarefas sem data" que leva direto para organizá-las.' },
   { version:'1.10.146', date:'20/10/2026', title:'Retomar em vem antes do prazo', text:'No painel da tarefa, o campo Retomar em agora fica à esquerda e o Prazo (entrega) ao lado, já que a retomada é a visão principal.' },
   { version:'1.10.145', date:'20/10/2026', title:'Topo padronizado e Retomada como visão principal', text:'O seletor de espaço passou para antes da busca, e busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas. Nas tarefas, a visão por Retomada agora é a principal: cada espaço lembra o agrupamento que você escolher.' },
@@ -3507,7 +3508,8 @@ function versionIsNewer(remote, local){
 async function fetchPublishedVersion(){
   const res = await fetch(location.pathname + (location.search ? location.search + '&' : '?') + '_v=' + Date.now(), { cache: 'no-store' });
   if(!res.ok) return null;
-  const m = (await res.text()).match(/const APP_VERSION = '([^']+)'/);
+  // só números: a própria expressão (que aparece neste arquivo) não pode casar consigo mesma
+  const m = (await res.text()).match(/const APP_VERSION = '(\d+(?:\.\d+)+)'/);
   return m ? m[1] : null;
 }
 async function checkForAppUpdate(force){
@@ -6579,7 +6581,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.147';
+const APP_VERSION = '1.10.148';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

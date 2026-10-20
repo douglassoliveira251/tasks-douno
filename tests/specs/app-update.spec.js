@@ -8,6 +8,12 @@ test.describe('Aviso de atualização', () => {
     expect(r).toEqual([true, false, false, true]);
   });
 
+  test('lê a versão publicada de verdade (o arquivo servido)', async ({ page }) => {
+    await gotoApp(page, { view: 'tasks' });
+    const r = await page.evaluate(async () => [await fetchPublishedVersion(), APP_VERSION]);
+    expect(r[0]).toBe(r[1]);
+  });
+
   test('versão igual não mostra aviso', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(() => checkForAppUpdate(true));
