@@ -1,3 +1,28 @@
+## [1.10.156] - 2026-10-21 14:00
+
+### Added
+
+#### Resumo
+
+- Seletor de espaço no Resumo (igual às demais telas): números, listas, projetos e atividades passam a considerar só o espaço escolhido.
+
+#### Projetos
+
+- Clicar numa etapa (linha do tempo ou lista) seleciona a etapa e o resumo à direita mostra o detalhe dela: progresso, tarefas, "+ Nova tarefa nesta etapa" e "Editar etapa". Sem etapa selecionada, o resumo geral continua, agora com "Editar projeto".
+- Com um projeto aberto, o botão "+" cria uma etapa.
+- O progresso da tarefa, da etapa e do projeto passa a considerar as subtarefas concluídas, na proporção.
+- Resumo do projeto um pouco mais largo.
+
+#### Tarefas
+
+- Lista: tarefas de projeto mostram "Projeto > Etapa" antes do nome.
+- Tarefa de etapa respeita as datas da etapa: o prazo e o início só aceitam datas dentro dela (com aviso no painel), ao vincular uma tarefa a uma etapa as datas são ajustadas para caber, e ao mudar as datas da etapa as tarefas dela são ajustadas.
+
+#### Notas
+
+- Rodapé do editor com "Salvo automaticamente · N palavras" e texto um pouco maior (opção C).
+
+
 ## [1.10.155] - 2026-10-21 13:00
 
 ### Changed

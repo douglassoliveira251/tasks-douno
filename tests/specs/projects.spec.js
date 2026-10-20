@@ -101,7 +101,7 @@ test.describe('Projetos', () => {
     await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'tasks'; render(); }, seed.toString());
 
     await expect(page.locator('.task-proj-pill')).toHaveCount(1); // só 1 pendente de projeto (as outras estão concluídas)
-    await expect(page.locator('.task-proj-pill').first()).toContainText('Construção da casa · Estrutura');
+    await expect(page.locator('.task-proj-pill').first()).toContainText('Construção da casa > Estrutura');
 
     await page.locator('#taskProjectFilter').selectOption('personal');
     await expect(page.locator('.task-row')).toHaveCount(1);
@@ -192,4 +192,36 @@ test('início da tarefa: herda da etapa, ajusta e volta a herdar', async ({ page
   await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(1);
   await page.evaluate(() => { state.tasks.find(t => t.id === 'c').startDate = todayStr(); render(); });
   await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(0);
+});
+
+test('etapa: resumo lateral, progresso com subtarefas, prazo dentro da etapa e + cria etapa', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate((src) => {
+    eval('(' + src + ')')();
+    const c = state.tasks.find(t => t.id === 'c');
+    c.subtasks = [{ id: 'x1', title: 'a', done: true }, { id: 'x2', title: 'b', done: false }];
+    currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; selectedStageId = null; render();
+  }, seed.toString());
+  // progresso: tarefa b concluída (100%) + c com 1/2 subtarefas (50%) => etapa 75%
+  expect(await page.evaluate(() => { const p = projectById('p1'); return stagePercent(p, p.stages[1]); })).toBe(75);
+  // sem seleção: resumo geral com Editar projeto
+  await expect(page.locator('#prjSideEdit')).toBeVisible();
+  await page.locator('.gantt-row[data-id="s2"]').click();
+  await expect(page.locator('#stgSideNewTask')).toBeVisible();
+  await expect(page.locator('#stgSideEdit')).toBeVisible();
+  await page.locator('#stgSideBack').click();
+  await expect(page.locator('#prjSideEdit')).toBeVisible();
+  // + cria etapa quando há projeto aberto
+  await page.locator('#primaryAddBtn').click();
+  await expect(page.locator('#stgName')).toBeVisible();
+  await page.locator('#stgCancel').click();
+  // prazo precisa ficar dentro da etapa (s2 termina em hoje+20)
+  const r = await page.evaluate(() => {
+    const t = state.tasks.find(x => x.id === 'c');
+    const out = { dentro: dateInStageRange(t, addDaysStr(todayStr(), 5)), fora: dateInStageRange(t, addDaysStr(todayStr(), 60)) };
+    t.dueDate = addDaysStr(todayStr(), 60); clampToStage(t); out.clamp = t.dueDate === addDaysStr(todayStr(), 20);
+    return out;
+  });
+  expect(r).toEqual({ dentro: true, fora: false, clamp: true });
 });

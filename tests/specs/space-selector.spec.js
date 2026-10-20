@@ -40,8 +40,10 @@ test('celular: o seletor fica no cartão do título e volta para o topo ao alarg
   await expect.poll(() => page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topbar'))).toBe(true);
 });
 
-test('Visão geral e Configurações não mostram o seletor', async ({ page }) => {
+test('Visão geral mostra o seletor; Configurações não', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'dashboard' });
+  await expect(page.locator('#spaceSelectorWrap')).toBeVisible();
+  await page.evaluate(() => { currentView = 'settings'; render(); });
   await expect(page.locator('#spaceSelectorWrap')).toBeHidden();
 });
