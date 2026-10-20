@@ -27,7 +27,10 @@ test.describe('Retomar em', () => {
     await page.evaluate(seed);
     await page.evaluate(() => { taskGroupMode = 'retomada'; render(); });
     const titles = await page.locator('.bucket-title').allInnerTexts();
-    expect(titles).toEqual(expect.arrayContaining(['Retomada vencida', 'Retomar hoje', 'Próximos 7 dias', 'Sem retomada']));
+    expect(titles).toEqual(expect.arrayContaining(['Retomada vencida', 'Retomar hoje', 'Sem retomada']));
+    // mesma régua da visão por período: sem o antigo "Próximos 7 dias"
+    expect(titles).not.toContain('Próximos 7 dias');
+    expect(titles).toEqual(expect.arrayContaining([expect.stringMatching(/Nessa semana|Próxima semana|Neste mês|Mais tarde|Amanhã/)]));
     expect(await page.locator('.bucket', { hasText: 'Retomar hoje' }).locator('.task-row').count()).toBe(1);
     // na visão por retomada o grupo já diz a data: sem a etiqueta âmbar em cada linha
     await expect(page.locator('.task-follow-pill')).toHaveCount(0);

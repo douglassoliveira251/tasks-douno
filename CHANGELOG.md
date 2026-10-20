@@ -1,3 +1,16 @@
+## [1.10.142] - 2026-10-20 18:00
+
+### Added
+
+#### Sistema
+
+- Aviso de atualização: o app confere a versão publicada a cada 5 minutos, ao voltar para a aba e ao ganhar foco. Se houver versão mais nova, aparece um aviso obrigatório ("Nova versão disponível"), sem botão de fechar, com "Atualizar agora": salva o que estiver pendente (rascunhos e nuvem) e recarrega já buscando o arquivo novo.
+
+#### Tarefas
+
+- Agrupar por Retomada agora usa a mesma régua do agrupamento por período: Retomada vencida, Retomar hoje, Amanhã, Nessa semana, Próxima semana, Neste mês, Mais tarde e Sem retomada (substitui o antigo "Próximos 7 dias").
+
+
 ## [1.10.141] - 2026-10-20 17:00
 
 ### Changed
