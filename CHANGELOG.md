@@ -1,3 +1,13 @@
+## [1.10.144] - 2026-10-20 19:30
+
+### Changed
+
+#### Tarefas
+
+- Retomar em: nova opção "Hoje" na lista (Hoje, Amanhã, 3, 7 e 15 dias, Personalizada).
+- Agrupar por Retomada: o grupo "Sem retomada" passou a se chamar "Sem data de retomada".
+
+
 ## [1.10.143] - 2026-10-20 19:00
 
 ### Fixed
