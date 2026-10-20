@@ -1,3 +1,16 @@
+## [1.10.143] - 2026-10-20 19:00
+
+### Fixed
+
+#### Tarefas
+
+- O agrupamento escolhido (Retomada, Prazo, Prioridade…) não voltava depois de atualizar a página. Agora fica guardado por espaço e também para "Todos", e é reaplicado ao abrir o sistema e ao trocar de espaço.
+
+#### Calendário
+
+- Semana: o número do dia no cabeçalho ficava fora do centro do círculo; corrigido.
+
+
 ## [1.10.142] - 2026-10-20 18:00
 
 ### Added

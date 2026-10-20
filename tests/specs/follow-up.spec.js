@@ -63,3 +63,26 @@ test.describe('Retomar em', () => {
     expect(ids).toEqual(['c', 'a']);
   });
 });
+
+test('agrupamento escolhido fica guardado por espaço e volta ao recarregar', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => { state.categories = [{ id: 'c1', name: 'A', color: '#2F7D5B' }, { id: 'c2', name: 'B', color: '#3B82F6' }]; state.tasks = []; activeCategoryFilter = 'c1'; render(); });
+  await page.locator('#groupModeTrigger').click();
+  await page.locator('.tp-status-option[data-mode="retomada"]').click();
+  expect(await page.evaluate(() => taskGroupMode)).toBe('retomada');
+  expect(await page.evaluate(() => state.categoryGroupModes.c1)).toBe('retomada');
+
+  // outro espaço não herda; "Todos" tem o seu próprio
+  await page.evaluate(() => { selectSpace('c2'); });
+  expect(await page.evaluate(() => taskGroupMode)).toBe('periodo');
+  await page.evaluate(() => { selectSpace(null); });
+  await page.locator('#groupModeTrigger').click();
+  await page.locator('.tp-status-option[data-mode="prioridade"]').click();
+  expect(await page.evaluate(() => state.categoryGroupModes.__all)).toBe('prioridade');
+
+  // simula recarregar: dados novos carregados + primeiro render
+  await page.evaluate(() => { activeCategoryFilter = 'c1'; normalizeState(); taskGroupMode = 'periodo'; render(); });
+  expect(await page.evaluate(() => taskGroupMode)).toBe('retomada');
+  await page.evaluate(() => { activeCategoryFilter = null; normalizeState(); taskGroupMode = 'periodo'; render(); });
+  expect(await page.evaluate(() => taskGroupMode)).toBe('prioridade');
+});

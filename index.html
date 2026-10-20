@@ -2926,6 +2926,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.143', date:'20/10/2026', title:'Agrupamento fica guardado', text:'O agrupamento escolhido nas tarefas (Retomada, Prazo, Prioridade…) agora fica guardado por espaço, e também para a visão Todos, e continua igual quando você atualiza a página.' },
   { version:'1.10.142', date:'20/10/2026', title:'Aviso de atualização automática', text:'Quando sair uma versão nova, o sistema avisa na tela e pede para atualizar, salvando antes o que você estava fazendo. Assim ninguém fica usando uma versão antiga sem perceber. Na visão agrupada por Retomada, os grupos agora seguem os mesmos períodos da visão por prazo.' },
   { version:'1.10.141', date:'20/10/2026', title:'Calendário: visão Dia renovada', text:'O Dia agora é uma grade por hora, com as agendas em blocos (lado a lado quando se sobrepõem) e a linha do horário atual. À direita ficam o resumo, as agendas de dia inteiro e as tarefas do dia. Também: "Gerenciar templates" passou para dentro do grupo Template, no menu da tarefa, e a visão agrupada por Retomada ficou mais limpa.' },
   { version:'1.10.140', date:'20/10/2026', title:'Projetos mais claros', text:'A lista de projetos ganhou uma mini linha do tempo, e no detalhe as tarefas aparecem dentro de cada etapa (dá para recolher), com um resumo e as próximas tarefas ao lado.' },
@@ -3229,6 +3230,7 @@ function normalizeState(){
   if(state.defaultCategoryFilter === undefined) state.defaultCategoryFilter = null;
   if(!state.categoryOrder) state.categoryOrder = 'creation';
   if(!state.categoryGroupModes) state.categoryGroupModes = {};
+  lastGroupModeKey = null; // dados novos carregados: reaplica o agrupamento guardado no próximo render
   if(!state.categoryCalendarViews) state.categoryCalendarViews = {};
   if(!state.theme) state.theme = 'light';
   if(!state.calendarHourDensity) state.calendarHourDensity = 'normal';
@@ -4035,12 +4037,9 @@ function renderTasks(){
   groupModeDropdown.querySelectorAll('.tp-status-option').forEach(opt => {
     opt.onclick = () => {
       taskGroupMode = opt.dataset.mode;
-      if(activeCategoryFilter){
-        state.categoryGroupModes[activeCategoryFilter] = taskGroupMode;
-        markDirty();
-      } else {
-        render();
-      }
+      // o agrupamento fica guardado por espaço (e para "Todos"), e volta igual ao recarregar
+      state.categoryGroupModes[groupModeKey()] = taskGroupMode;
+      markDirty();
     };
   });
 
@@ -6559,7 +6558,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.142';
+const APP_VERSION = '1.10.143';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -10726,8 +10725,17 @@ function loadUiSession(){
   }catch(e){}
 }
 let lastRenderedView = null;
+var lastGroupModeKey = null; // var: pode ser zerada por normalizeState antes desta linha rodar
+const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada'];
+function groupModeKey(){ return activeCategoryFilter || '__all'; }
 function render(){
   saveUiSession();
+  // trocou de espaço (ou acabou de abrir): usa o agrupamento guardado para ele
+  if(groupModeKey() !== lastGroupModeKey){
+    lastGroupModeKey = groupModeKey();
+    const saved = state.categoryGroupModes && state.categoryGroupModes[lastGroupModeKey];
+    taskGroupMode = GROUP_MODES.includes(saved) ? saved : 'periodo';
+  }
   if(currentView !== lastRenderedView){
     lastRenderedView = currentView;
     refreshFromCloudIfSafe();
