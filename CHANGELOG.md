@@ -1,3 +1,14 @@
+## [1.10.147] - 2026-10-20 21:00
+
+### Added
+
+#### Resumo
+
+- Indicadores "Sem prazo" e "Sem data de retomada" na faixa do topo (clicar abre as tarefas na visão por Prazo ou por Retomada).
+- Cartão "Tarefas sem data": sem prazo, sem data de retomada e sem nenhuma data, com os primeiros títulos de cada grupo. "Organizar →" abre a primeira tarefa sem nenhuma data para definir a retomada.
+- A última linha do Resumo passou a ter três cartões: Tarefas importantes, Tarefas sem data e Atividades recentes. Os contadores respeitam o espaço selecionado.
+
+
 ## [1.10.146] - 2026-10-20 20:30
 
 ### Changed

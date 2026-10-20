@@ -1712,13 +1712,30 @@
   .rs-space .tx small{display:block; color:var(--ink-soft); font-size:12px;}
   .rs-space .tx b{font-size:16px; font-family:var(--font-display);}
   .rs-add{display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; color:var(--primary); font-weight:700; font-size:12px; cursor:pointer; border-style:dashed;}
+  .rs-stats:has(.rs-stat-sep){grid-template-columns:repeat(3,1fr) 1px repeat(2,1fr);}
+  .rs-stat-sep{background:var(--border); width:1px; align-self:stretch;}
+  .rs-stat-link{cursor:pointer; border-radius:10px;}
+  .rs-stat-link:hover{background:var(--surface-2);}
+  .rs-stats b.amb{color:#B26A00;} [data-theme="dark"] .rs-stats b.amb{color:#F6B25C;}
+  .rs-bar.amb > i{background:#E8A33D;}
+  .rs-bottom{grid-template-columns:1fr 1fr 1fr;}
+  .rs-datas .rs-drow{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--border); cursor:pointer;}
+  .rs-datas h3 + .rs-drow{border-top:none;}
+  .rs-datas .ic{width:34px; height:34px; border-radius:11px; background:var(--surface-2); display:grid; place-items:center; color:var(--ink-faint); flex:none;}
+  .rs-datas .ic svg{width:17px; height:17px;}
+  .rs-datas .n{font-size:22px; font-weight:700; min-width:28px; font-family:var(--font-display);}
+  .rs-datas .tx{min-width:0; flex:1;}
+  .rs-datas .tx b{display:block; font-size:13.5px;}
+  .rs-datas .tx small{display:block; color:var(--ink-faint); font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rs-datas .go{color:var(--primary); font-size:12px; font-weight:600; white-space:nowrap;}
+  .rs-datas .rs-drow.warn .n{color:#B26A00;} [data-theme="dark"] .rs-datas .rs-drow.warn .n{color:#F6B25C;}
   .rs-three{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:16px;}
   .rs-two{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   .rs-proj{padding:9px 0; cursor:pointer;}
   .rs-proj .top{display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px;}
   .rs-empty{color:var(--ink-faint); font-size:13px; padding:14px 2px;}
   .rs-link{display:inline-block; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--primary); cursor:pointer;}
-  @media (max-width:1100px){ .rs-top, .rs-three, .rs-two{grid-template-columns:1fr;} .rs-spark{display:none;} }
+  @media (max-width:1100px){ .rs-top, .rs-three, .rs-two, .rs-bottom{grid-template-columns:1fr;} .rs-stats:has(.rs-stat-sep){grid-template-columns:repeat(2,1fr);} .rs-stat-sep{display:none;} .rs-spark{display:none;} }
   .dash-wrap{display:flex; flex-direction:column; gap:20px; padding-bottom:30px;}
 
   .dash-header-row{display:flex; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap; gap:12px;}
@@ -2926,6 +2943,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.147', date:'20/10/2026', title:'Resumo: tarefas sem data', text:'O Resumo agora mostra quantas tarefas abertas estão sem prazo e sem data de retomada, e um cartão "Tarefas sem data" que leva direto para organizá-las.' },
   { version:'1.10.146', date:'20/10/2026', title:'Retomar em vem antes do prazo', text:'No painel da tarefa, o campo Retomar em agora fica à esquerda e o Prazo (entrega) ao lado, já que a retomada é a visão principal.' },
   { version:'1.10.145', date:'20/10/2026', title:'Topo padronizado e Retomada como visão principal', text:'O seletor de espaço passou para antes da busca, e busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas. Nas tarefas, a visão por Retomada agora é a principal: cada espaço lembra o agrupamento que você escolher.' },
   { version:'1.10.144', date:'20/10/2026', title:'Retomar hoje e rótulo mais claro', text:'O campo Retomar em ganhou a opção Hoje, e o grupo sem data na visão por Retomada agora se chama "Sem data de retomada".' },
@@ -6561,7 +6579,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.146';
+const APP_VERSION = '1.10.147';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6820,6 +6838,10 @@ function renderDashboard(){
   const sparkLine = sparkPts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
   const inProgress = open.filter(t => t.status === 'em_andamento').length;
   const openPct = scopeTasks.length ? Math.round(open.length / scopeTasks.length * 100) : 0;
+  // tarefas abertas sem data: sem prazo, sem data de retomada e sem nenhuma das duas
+  const noFollow = open.filter(t => !t.followUpDate);
+  const noDates = open.filter(t => !t.dueDate && !t.followUpDate);
+  const miniTitles = list => list.slice(0, 2).map(t => escapeHtml(t.title || 'Sem título')).join(', ') + (list.length > 2 ? '…' : '');
   const spaceList = getOrderedCategories();
   const priColor = k => (PRIORITY_CONFIG.find(x => x.key === k) || {}).color || 'var(--ink-faint)';
 
@@ -6839,6 +6861,9 @@ function renderDashboard(){
             <div><span>Concluídas (7 dias)</span><br><b>${completedLast7.length}</b></div>
             <div><span>Em andamento</span><br><b>${inProgress}</b></div>
             <div><span>Abertas</span><br><b>${open.length}</b><div class="rs-bar"><i style="width:${openPct}%"></i></div></div>
+            <i class="rs-stat-sep"></i>
+            <div class="rs-stat-link" data-nodate="due" title="Ver tarefas sem prazo"><span>Sem prazo</span><br><b class="${noDue.length ? 'amb' : ''}">${noDue.length}</b><div class="rs-bar amb"><i style="width:${open.length ? Math.round(noDue.length / open.length * 100) : 0}%"></i></div></div>
+            <div class="rs-stat-link" data-nodate="follow" title="Ver tarefas sem data de retomada"><span>Sem retomada</span><br><b class="${noFollow.length ? 'amb' : ''}">${noFollow.length}</b><div class="rs-bar amb"><i style="width:${open.length ? Math.round(noFollow.length / open.length * 100) : 0}%"></i></div></div>
           </div>
         </div>
         <div class="rs-card">
@@ -6887,7 +6912,7 @@ function renderDashboard(){
         </div>
       </div>
 
-      <div class="rs-two">
+      <div class="rs-two rs-bottom">
         <div class="rs-card">
           <h3>Tarefas importantes <span id="dashSeeAllImportantLink" style="cursor:pointer; color:var(--primary); font-weight:600;">Ver todas →</span></h3>
           ${importantTasksSorted.length ? importantTasksSorted.slice(0, 5).map(t => `<div class="rs-row dash-tasklist-row" data-task-id="${t.id}">
@@ -6895,6 +6920,27 @@ function renderDashboard(){
             <span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.priority === 'critica' ? 'Crítica' : 'Alta'}</small></span>
             <span class="dt ${t.dueDate && t.dueDate < todayS ? 'late' : ''}">${t.dueDate ? fmtDate(t.dueDate) : ''}</span></div>`).join('')
             : '<div class="rs-empty">Nenhuma tarefa importante.</div>'}
+        </div>
+        <div class="rs-card rs-datas">
+          <h3>Tarefas sem data</h3>
+          <div class="rs-drow" data-nodate="due">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
+            <span class="n">${noDue.length}</span>
+            <span class="tx"><b>Sem prazo</b><small>${noDue.length ? miniTitles(noDue) : 'Tudo com prazo'}</small></span>
+            <span class="go">Ver →</span>
+          </div>
+          <div class="rs-drow" data-nodate="follow">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 012-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 01-2 2H3"/></svg></span>
+            <span class="n">${noFollow.length}</span>
+            <span class="tx"><b>Sem data de retomada</b><small>${noFollow.length ? miniTitles(noFollow) : 'Tudo com retomada'}</small></span>
+            <span class="go">Ver →</span>
+          </div>
+          <div class="rs-drow ${noDates.length ? 'warn' : ''}" data-nodate="none">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8"/></svg></span>
+            <span class="n">${noDates.length}</span>
+            <span class="tx"><b>Sem nenhuma data</b><small>${noDates.length ? miniTitles(noDates) : 'Nenhuma tarefa solta'}</small></span>
+            <span class="go">${noDates.length ? 'Organizar →' : ''}</span>
+          </div>
         </div>
         <div class="rs-card">
           <h3>Atividades recentes</h3>
@@ -6905,6 +6951,19 @@ function renderDashboard(){
     </div>
   `;
 
+  view.querySelectorAll('[data-nodate]').forEach(el => {
+    el.onclick = () => {
+      const kind = el.dataset.nodate;
+      if(kind === 'none' && noDates.length){
+        // abre a primeira tarefa sem nenhuma data para já definir a retomada
+        currentView = 'tasks'; activeTaskId = noDates[0].id; creatingNewTask = false; render();
+        return;
+      }
+      currentView = 'tasks';
+      taskGroupMode = kind === 'due' ? 'periodo' : 'retomada';
+      render();
+    };
+  });
   view.querySelectorAll('.rs-space[data-space]').forEach(el => {
     el.onclick = () => { activeCategoryFilter = el.dataset.space; currentView = 'tasks'; render(); };
   });

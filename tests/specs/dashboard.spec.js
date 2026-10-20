@@ -66,3 +66,20 @@ test('título solto no topo: saudação no Resumo e nome da página nas demais',
   expect(t.x + t.width).toBeLessThanOrEqual(s.x); // título à esquerda da busca
   expect(t.y).toBeLessThan(60);
 });
+
+test('Resumo: indicadores de tarefas sem data', async ({ page }) => {
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, due, follow) => ({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: due, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1, followUpDate: follow });
+    state.tasks = [t('1', today, today), t('2', null, today), t('3', today, null), t('4', null, null), t('5', null, null)];
+    render();
+  });
+  await expect(page.locator('.rs-stat-link[data-nodate="due"] b')).toHaveText('3');
+  await expect(page.locator('.rs-stat-link[data-nodate="follow"] b')).toHaveText('3');
+  await expect(page.locator('.rs-drow[data-nodate="none"] .n')).toHaveText('2');
+  // "Organizar" abre a primeira tarefa sem nenhuma data
+  await page.locator('.rs-drow[data-nodate="none"]').click();
+  expect(await page.evaluate(() => currentView)).toBe('tasks');
+  expect(await page.evaluate(() => activeTaskId)).toBe('4');
+});
