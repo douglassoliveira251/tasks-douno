@@ -1,3 +1,12 @@
+## [1.10.154] - 2026-10-21 12:00
+
+### Changed
+
+#### Configurações
+
+- Novo visual (mesma estrutura): navegação em cartão com destaque suave na aba ativa e um cartão por assunto em todas as abas (Perfil/Conta, Personalização/Calendário, Espaços, Tags, Templates, Arquivo/Backup, Integrações/Outlook/.ics), com campos em caixas suaves. Em Personalização, as opções viram linhas com ícone, explicação à esquerda e controle à direita.
+
+
 ## [1.10.153] - 2026-10-21 11:00
 
 ### Changed
