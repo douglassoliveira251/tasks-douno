@@ -1,3 +1,12 @@
+## [1.10.134] - 2026-10-19 00:00
+
+### Changed
+
+#### Tipografia
+
+- Troca de Sora/Inter/JetBrains Mono (Google Fonts) por Open Sans variável, a mesma fonte do Finance DOUNO, hospedada em assets/fonts (latin, latin-ext e itálico; licença OFL incluída). Números usam algarismos tabulares. Monoespaçada passa a ser a do sistema. Sem requisições a fontes externas.
+
+
 ## [1.10.133] - 2026-10-19 00:00
 
 ### Changed

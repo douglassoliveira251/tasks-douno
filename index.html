@@ -5,10 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='92' fill='%23151B28'/%3E%3Cpath d='M112 152H292 C364 152 408 192 408 256 C408 320 364 360 292 360 H112 V300' stroke='%23ffffff' stroke-width='56' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <title>DOUNO Tasks</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/open-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face{
+    font-family:'Open Sans Variable'; font-style:normal; font-display:swap; font-weight:300 800; font-stretch:75% 100%;
+    src:url('assets/fonts/open-sans-latin-ext-wght-normal.woff2') format('woff2-variations');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'Open Sans Variable'; font-style:normal; font-display:swap; font-weight:300 800; font-stretch:75% 100%;
+    src:url('assets/fonts/open-sans-latin-wght-normal.woff2') format('woff2-variations');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Open Sans Variable'; font-style:italic; font-display:swap; font-weight:300 800; font-stretch:75% 100%;
+    src:url('assets/fonts/open-sans-latin-wght-italic.woff2') format('woff2-variations');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
   :root{
     --edit-panel-width: 500px;
     --bg:#F5F6F8;
@@ -43,9 +56,10 @@
     --radius-sm:6px;
     --shadow-sm:0 1px 2px rgba(27,33,48,.06);
     --shadow-md:0 6px 20px rgba(27,33,48,.10);
-    --font-display:'Sora',sans-serif;
-    --font-body:'Inter',sans-serif;
-    --font-mono:'JetBrains Mono',monospace;
+    /* Mesma fonte do Finance DOUNO: Open Sans (variável), hospedada junto do app */
+    --font-display:'Open Sans Variable','Open Sans','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    --font-body:'Open Sans Variable','Open Sans','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   [data-theme="dark"]{
     /* Paleta neutra e verde iguais aos do menu lateral (que é sempre escuro,
@@ -93,6 +107,7 @@
   [data-theme="dark"] input[type="time"]{color-scheme:dark;}
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
+    font-variant-numeric:tabular-nums;
     font-family:var(--font-body);
     background-color:var(--bg);
     background-image:var(--bg-glow);
@@ -2698,6 +2713,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.134', date:'19/10/2026', title:'Mesma fonte do Finance', text:'O sistema agora usa a Open Sans, a mesma fonte do Finance DOUNO, hospedada junto do app (mais rápida e sem depender de serviços externos).' },
   { version:'1.10.133', date:'19/10/2026', title:'Título no topo, como no Finance', text:'O cartão com o título da página saiu: o título agora fica solto no topo, grande, com a busca, o espaço e a conta à direita. A Visão geral abre com a saudação "Bom dia, Nome".' },
   { version:'1.10.132', date:'19/10/2026', title:'Novo Resumo e modo escuro azul-petróleo', text:'A Visão geral foi redesenhada: o que importa hoje em destaque, próximos prazos, um cartão por espaço, projetos, retomadas e agenda. O modo escuro ganhou um tom azul-petróleo, com mais personalidade e a mesma identidade do menu.' },
   { version:'1.10.131', date:'19/10/2026', title:'Retomar em', text:'Cada tarefa pode ter uma data para voltar a olhar, separada do prazo. Aparece como etiqueta laranja na lista, no sino e em "Agrupar por: Retomada". O prazo continua sendo o que conta para atraso.' },
@@ -6245,7 +6261,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.133';
+const APP_VERSION = '1.10.134';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
