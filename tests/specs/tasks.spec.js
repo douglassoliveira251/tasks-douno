@@ -58,3 +58,15 @@ test.describe('Tarefas — básico', () => {
     expect(after).toBe(0);
   });
 });
+
+test('tarefa nova nasce sem prazo', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => { state.tasks = []; openNewTaskPanel(); });
+  await expect(page.locator('#tpDate')).toHaveValue('');
+  await expect(page.locator('#tpTime')).toHaveValue('');
+  await page.locator('.tp-name-input').fill('Sem data');
+  await page.locator('.tp-name-input').blur();
+  const t = await page.evaluate(() => state.tasks.find(x => x.title === 'Sem data'));
+  expect(t.dueDate).toBeNull();
+  expect(t.dueTime).toBe('');
+});

@@ -1,3 +1,12 @@
+## [1.10.149] - 2026-10-20 22:30
+
+### Changed
+
+#### Tarefas
+
+- Tarefa nova vem sem prazo (antes vinha com a data de hoje e hora 08:00): vale para o painel de nova tarefa, para "+ Tarefa" do projeto e para a tarefa criada a partir de uma etapa. Tarefas criadas por template continuam com a data do template.
+
+
 ## [1.10.148] - 2026-10-20 22:00
 
 ### Fixed

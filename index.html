@@ -2943,6 +2943,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.149', date:'20/10/2026', title:'Tarefa nova sem prazo', text:'Ao criar uma tarefa, o prazo agora vem em branco. Você define quando quiser (ou usa a Retomada).' },
   { version:'1.10.148', date:'20/10/2026', title:'Aviso de atualização corrigido', text:'O aviso de nova versão não aparecia porque a verificação lia o trecho errado do arquivo. Agora ele detecta e pede para atualizar.' },
   { version:'1.10.147', date:'20/10/2026', title:'Resumo: tarefas sem data', text:'O Resumo agora mostra quantas tarefas abertas estão sem prazo e sem data de retomada, e um cartão "Tarefas sem data" que leva direto para organizá-las.' },
   { version:'1.10.146', date:'20/10/2026', title:'Retomar em vem antes do prazo', text:'No painel da tarefa, o campo Retomar em agora fica à esquerda e o Prazo (entrega) ao lado, já que a retomada é a visão principal.' },
@@ -4999,7 +5000,7 @@ function getOrCreateActiveTask(){
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
       title:'', categoryId: defaultCat, done:false, status:'nao_iniciado',
-      dueDate: todayStr(), dueTime: DEFAULT_DUE_TIME, priority:'media', description:'',
+      dueDate: null, dueTime: '', priority:'media', description:'',
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     state.tasks.push(t);
@@ -5025,7 +5026,7 @@ function recurrenceSummaryLabel(task){
 function renderTaskPanel(panel){
   closeAllTaskMenus();
   const task = creatingNewTask
-    ? { title:'', categoryId:(activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id, dueDate:todayStr(), dueTime:DEFAULT_DUE_TIME, priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
+    ? { title:'', categoryId:(activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id, dueDate:null, dueTime:'', priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
     : state.tasks.find(x => x.id === activeTaskId);
 
   if(!task){ closeTaskPanel(true); return; }
@@ -6581,7 +6582,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.148';
+const APP_VERSION = '1.10.149';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8591,7 +8592,7 @@ function openStageEditor(project, stage){
       state.taskIdCounter = (state.taskIdCounter || 0) + 1;
       const t = {
         id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: project.categoryId,
-        done: false, status: 'nao_iniciado', dueDate: st.end || todayStr(), dueTime: DEFAULT_DUE_TIME, priority: 'media',
+        done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
         description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
         projectId: project.id, stageId: st.id,
       };
@@ -8748,7 +8749,7 @@ function renderProjectDetail(view, p){
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
-      done: false, status: 'nao_iniciado', dueDate: todayStr(), dueTime: DEFAULT_DUE_TIME, priority: 'media',
+      done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: null,
     };
