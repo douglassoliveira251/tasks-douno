@@ -1,3 +1,18 @@
+## [1.10.155] - 2026-10-21 13:00
+
+### Changed
+
+#### Notas
+
+- Ajuste leve no novo padrão, mesma estrutura e recursos: cartões arredondados, nota aberta com destaque suave, caminho "Espaço › Caderno" em pílulas, ações agrupadas numa pílula e barra de formatação suave. A lista de cadernos continua mostrando só o espaço selecionado.
+
+### Fixed
+
+#### Tarefas
+
+- Prazo (entrega): o ano da data não fica mais cortado. Fonte um pouco menor e a hora encostada no relógio.
+
+
 ## [1.10.154] - 2026-10-21 12:00
 
 ### Changed

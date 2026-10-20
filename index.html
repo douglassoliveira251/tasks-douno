@@ -1340,9 +1340,11 @@
   .tp-box{background:var(--surface-2); border-radius:14px; padding:11px 14px; min-width:0;}
   .tp-box .tp-label{margin-bottom:5px;}
   .tp-box .tp-input{background:transparent; border:none; padding:2px 0; font-size:14px; font-weight:600; height:auto; color:var(--ink);}
-  .tp-box .tp-row2{gap:6px;}
-  .tp-box .tp-row2 .tp-date-input{flex:1 1 auto; min-width:0;}
-  .tp-box .tp-row2 .tp-time-input{flex:0 0 76px;}
+  .tp-box .tp-row2{gap:2px;}
+  .tp-box .tp-input{font-size:13px;}
+  .tp-box .tp-row2 .tp-date-input{flex:1 1 auto; min-width:0; letter-spacing:-.01em;}
+  .tp-box .tp-row2 .tp-time-input{flex:0 0 70px; min-width:0;}
+  .tp-box input[type="date"], .tp-box input[type="time"]{padding-left:0; padding-right:0;}
   .tp-follow-box{background:#FFF1D6;} [data-theme="dark"] .tp-follow-box{background:#3C2C12;}
   .tp-follow-box .tp-label{color:#8A5A00;} [data-theme="dark"] .tp-follow-box .tp-label{color:#F6B25C;}
   .tp-follow-box .tp-follow-add{color:#8A5A00; font-size:14px; font-weight:600; padding:2px 0;} [data-theme="dark"] .tp-follow-box .tp-follow-add{color:#F6B25C;}
@@ -1649,6 +1651,25 @@
     border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:16px;
     position:sticky; top:0; z-index:10; background:var(--surface); padding-top:4px; margin-top:-4px;
   }
+  /* ---- Notas no novo padrão (mesma estrutura) ---- */
+  .notes-layout .notebooks-col, .notes-layout .note-detail-col{border-radius:22px; box-shadow:none;}
+  .notes-layout .notebooks-col{padding:18px 12px 16px 10px;}
+  .notes-layout .notebooks-col-header{font-size:16px;}
+  .notes-layout .notebook-row{border-radius:12px; padding:8px;}
+  .notes-layout .notebook-name{font-weight:600;}
+  .notes-layout .notebook-count{background:var(--surface-2); border-radius:99px; padding:1px 8px;}
+  .notes-layout .notebook-notes{border-left:none; padding-left:18px; gap:2px;}
+  .notes-layout .notebook-note-item{border-radius:12px; padding:8px 10px; border:1px solid transparent;}
+  .notes-layout .notebook-note-item.active{background:color-mix(in srgb, var(--primary) 12%, transparent); color:var(--primary); border-color:color-mix(in srgb, var(--primary) 55%, transparent);}
+  .notes-layout .notebook-add-note-btn{border-radius:12px; border:1px dashed var(--border); background:transparent;}
+  .notes-layout .note-breadcrumb{margin-bottom:12px;}
+  .notes-layout .note-breadcrumb-seg{background:var(--surface-2); border-radius:99px; padding:4px 11px; color:var(--ink); font-weight:600;}
+  .notes-layout .note-header-actions{background:var(--surface-2); border-radius:14px; padding:3px; gap:2px;}
+  .notes-layout .note-header-icon-btn{border:none; background:transparent; width:34px; height:32px; border-radius:11px;}
+  .notes-layout .note-header-icon-btn:hover{background:var(--surface);}
+  .notes-layout .note-composer-inline .note-title{font-size:28px; letter-spacing:-.015em; border-bottom:none; padding-bottom:0; margin:4px 0 14px;}
+  .notes-layout .note-toolbar-row{border-bottom:none; padding-bottom:0; margin-bottom:18px;}
+  .notes-layout .note-toolbar-row .rt-toolbar{background:var(--surface-2); border-radius:14px; padding:4px;}
   .note-toolbar-sep{width:1px; height:20px; background:var(--border); flex-shrink:0;}
   .note-meta-row{
     display:flex; align-items:center; flex-wrap:wrap; gap:10px;
@@ -3059,6 +3080,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.155', date:'21/10/2026', title:'Notas no novo padrão e prazo sem corte', text:'As Notas ganharam cantos arredondados, nota aberta em destaque suave e ações agrupadas. Na tarefa, a data do Prazo não fica mais cortada.' },
   { version:'1.10.154', date:'21/10/2026', title:'Configurações no novo visual', text:'Cada assunto das Configurações virou um cartão, com a navegação em cartão e destaque suave na aba ativa. Mesmas abas e mesmas opções, só mais organizadas.' },
   { version:'1.10.153', date:'21/10/2026', title:'Ajuda no novo visual', text:'O painel de Ajuda ganhou cartões arredondados nas perguntas, título maior e o botão de comentários mais destacado. O conteúdo é o mesmo.' },
   { version:'1.10.152', date:'21/10/2026', title:'Mais telas no novo visual', text:'Projeto, etapa, template e "Enviar comentários" ganharam o novo visual: o template em duas colunas (A tarefa | O que vem junto), projeto e comentários em cartão simples, todos com botão de fechar.' },
@@ -6734,7 +6756,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.154';
+const APP_VERSION = '1.10.155';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
