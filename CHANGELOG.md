@@ -1,3 +1,12 @@
+## [1.10.153] - 2026-10-21 11:00
+
+### Changed
+
+#### Ajuda
+
+- Painel de Ajuda no novo visual: perguntas em cartões arredondados (a aberta ganha cor de destaque), título maior, botão "Enviar comentários" em destaque suave e versão no rodapé. Mesmo conteúdo e comportamento.
+
+
 ## [1.10.152] - 2026-10-21 10:00
 
 ### Changed

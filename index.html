@@ -462,6 +462,20 @@
     padding-top:12px; border-top:1px solid var(--border);
     font-size:11.5px; color:var(--ink-faint); font-family:var(--font-mono);
   }
+  /* Ajuda: mesmo conteúdo, cartões e cantos do novo visual */
+  .help-panel{border-radius:22px; padding:20px 18px 16px; box-shadow:0 18px 44px rgba(20,30,50,.2);}
+  [data-theme="dark"] .help-panel{box-shadow:0 18px 44px rgba(0,0,0,.55);}
+  .help-panel-header{padding:0 4px; margin-bottom:4px;}
+  .help-panel-header h3{font-size:20px; letter-spacing:-.01em;}
+  .help-panel-header .tp-close{margin-left:auto; border-radius:50%;}
+  .help-panel-body{margin:12px 0; padding:0 2px;}
+  .help-item{border:none; background:var(--surface-2); border-radius:14px; margin-bottom:8px; overflow:hidden;}
+  .help-item-q{padding:13px 14px; font-size:13.5px;}
+  .help-item.open .help-item-q{color:var(--primary);}
+  .help-item-a{padding:0 14px 14px;}
+  .help-panel-footer{padding:12px 4px 0; display:flex; flex-wrap:wrap; align-items:center; gap:10px; justify-content:space-between;}
+  .help-panel-footer .help-feedback-btn{width:100%; margin-bottom:0; border-radius:12px; background:var(--surface-2); border-color:transparent; justify-content:center;}
+  .help-panel-footer .help-feedback-btn:hover{background:var(--primary-light);}
   .help-panel-backdrop{
     display:none; position:fixed; inset:0; z-index:64; background:rgba(15,23,42,.08);
   }
@@ -3028,6 +3042,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.153', date:'21/10/2026', title:'Ajuda no novo visual', text:'O painel de Ajuda ganhou cartões arredondados nas perguntas, título maior e o botão de comentários mais destacado. O conteúdo é o mesmo.' },
   { version:'1.10.152', date:'21/10/2026', title:'Mais telas no novo visual', text:'Projeto, etapa, template e "Enviar comentários" ganharam o novo visual: o template em duas colunas (A tarefa | O que vem junto), projeto e comentários em cartão simples, todos com botão de fechar.' },
   { version:'1.10.151', date:'21/10/2026', title:'Cadastro de agenda renovado', text:'A tela de nova agenda ganhou o novo visual em duas colunas (Quando e Quem), com atalhos de duração (30 min, 1 h, 1 h 30, 2 h). Com o Outlook conectado, o envio do convite já vem ligado em agendas novas.' },
   { version:'1.10.150', date:'20/10/2026', title:'Início da tarefa (opcional)', text:'No painel da tarefa, o link "+ início" ao lado do Prazo permite definir quando a tarefa começa. Sem definir, ela herda o início da etapa do projeto. Na linha do tempo do projeto, a barra agora vai do início ao prazo.' },
@@ -6701,7 +6716,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.152';
+const APP_VERSION = '1.10.153';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
