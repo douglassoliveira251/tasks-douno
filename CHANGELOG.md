@@ -1,3 +1,15 @@
+## [1.10.138] - 2026-10-20 14:00
+
+### Changed
+
+#### Calendário
+
+- Mês redesenhado: grade limpa (linhas finas, sem caixas pesadas), um dia com uma agenda mostra o título e com várias mostra pontos coloridos e a contagem.
+- Painel do dia à direita: clicar num dia o seleciona e lista as agendas (horário, participantes, recorrência) e as tarefas com prazo naquele dia, com o botão "Adicionar neste dia". Clicar numa agenda abre a edição; numa tarefa, abre a tarefa.
+- Mudança de comportamento: clique simples no dia agora seleciona; dois cliques criam uma agenda direto pela grade.
+- Cabeçalho do calendário sem caixa e com botões arredondados (todas as visões).
+
+
 ## [1.10.137] - 2026-10-20 12:00
 
 ### Changed
