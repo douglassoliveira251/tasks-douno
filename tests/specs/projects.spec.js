@@ -161,3 +161,35 @@ test('tarefa de projeto: desvincular pela etiqueta e criar tarefa pelo projeto',
   expect(await page.evaluate((id) => state.tasks.find(x => x.id === id).projectId, t.id)).toBeNull();
   await expect(page.locator('#tpProjChip')).toHaveCount(0);
 });
+
+test('início da tarefa: herda da etapa, ajusta e volta a herdar', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate((src) => {
+    eval('(' + src + ')')();
+    state.tasks.find(t => t.id === 'c').dueDate = addDaysStr(todayStr(), 15);
+    currentView = 'tasks'; activeTaskId = 'c'; render();
+  }, seed.toString());
+  await expect(page.locator('#tpStartLink')).toHaveText('+ início');
+  const inherited = await page.evaluate(() => effectiveStart(state.tasks.find(t => t.id === 'c')));
+  expect(inherited.source).toBe('stage');
+  expect(inherited.date).toBe(await page.evaluate(() => addDaysStr(todayStr(), -10)));
+
+  await page.locator('#tpStartLink').click();
+  await expect(page.locator('#tpStartPop')).toBeVisible();
+  await page.locator('#tpStartPop [data-start]').first().click(); // Hoje
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').startDate)).toBe(await page.evaluate(() => todayStr()));
+  await expect(page.locator('#tpStartLink')).toContainText('início');
+  await expect(page.locator('#tpStartLink')).not.toHaveText('+ início');
+
+  await page.locator('#tpStartLink').click();
+  await page.locator('#tpStartReset').click();
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').startDate)).toBeNull();
+  await expect(page.locator('#tpStartLink')).toHaveText('+ início');
+
+  // linha do tempo: tarefa da etapa herda o início (barra listrada); com início próprio, fica sólida
+  await page.evaluate(() => { currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; activeTaskId = null; render(); });
+  await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(1);
+  await page.evaluate(() => { state.tasks.find(t => t.id === 'c').startDate = todayStr(); render(); });
+  await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(0);
+});

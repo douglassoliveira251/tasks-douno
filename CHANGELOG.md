@@ -1,3 +1,13 @@
+## [1.10.150] - 2026-10-21 08:00
+
+### Added
+
+#### Tarefas e Projetos
+
+- Início da tarefa, opcional e sem campo novo no formulário: link "+ início" na linha do Prazo abre um painel pequeno (data, Hoje/Amanhã/Segunda e "Voltar a herdar"). Sem valor próprio, a tarefa herda o início da etapa do projeto; fora de projeto vale "ao abrir a tarefa".
+- Linha do tempo do projeto: a barra da tarefa vai do início ao prazo (listrada quando herdada da etapa, sólida quando você define o início).
+
+
 ## [1.10.149] - 2026-10-20 22:30
 
 ### Changed
