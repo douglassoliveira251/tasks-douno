@@ -1,3 +1,12 @@
+## [1.10.162] - 2026-10-21 20:00
+
+### Changed
+
+#### Projetos
+
+- Saiu o campo "+ Nova tarefa" da linha do tempo. Tarefas do projeto passam a ser criadas só pelo botão "+ Tarefa" (topo) ou por "+ Nova tarefa nesta etapa" no resumo da etapa; continuam abrindo o painel na própria tela de Projetos.
+
+
 ## [1.10.161] - 2026-10-21 19:00
 
 ### Added

@@ -840,13 +840,6 @@
   .proj-split .gantt-wrap{border-radius:22px; box-shadow:none;}
   .proj-split{grid-template-columns:minmax(0,1fr) 360px;}
   .gantt-nodates{position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:11.5px; color:var(--ink-faint);}
-  .gantt-add{display:grid; grid-template-columns:260px 1fr; border-bottom:1px solid var(--border); min-height:34px;}
-  .gantt-add .gl{padding:4px 14px 4px 36px; display:flex; align-items:center;}
-  .gantt-add-input{width:100%; border:none; background:transparent; font:inherit; font-size:12.5px; color:var(--ink); padding:5px 0;}
-  .gantt-add-input::placeholder{color:var(--ink-faint);}
-  .gantt-add-input:focus{outline:none;}
-  .gantt-add:focus-within{background:var(--surface-2);}
-  @media (max-width:768px){ .gantt-add{grid-template-columns:150px 1fr;} }
   .gantt-task.dragging{opacity:.45;}
   .gantt-row.drop-over, .gantt-task.drop-over{outline:2px dashed var(--primary); outline-offset:-2px; background:color-mix(in srgb, var(--primary) 8%, transparent);}
   .gantt-task[draggable="true"]{cursor:grab;}
@@ -3111,6 +3104,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.162', date:'21/10/2026', title:'Criar tarefa só pelos botões', text:'O campo "+ Nova tarefa" da linha do tempo saiu. Para criar uma tarefa no projeto, use o botão "+ Tarefa" ou "+ Nova tarefa nesta etapa" no resumo.' },
   { version:'1.10.161', date:'21/10/2026', title:'Criar e abrir tarefas direto no projeto', text:'Na linha do tempo do projeto, cada etapa tem um campo "+ Nova tarefa": digite o nome e Enter, sem prazo nem nada mais. Clicar numa tarefa abre o painel dela ali mesmo, sem ir para a tela de Tarefas.' },
   { version:'1.10.160', date:'21/10/2026', title:'Datas da etapa vêm das tarefas', text:'A etapa não tem mais campos de data: ela começa na primeira tarefa e termina no maior prazo das tarefas, e a linha do tempo se ajusta sozinha.' },
   { version:'1.10.159', date:'21/10/2026', title:'Trocar a etapa da tarefa com um clique ou arrastando', text:'Na tarefa, clique no chip do projeto para trocar a etapa ou o projeto sem desvincular. Na linha do tempo do projeto, arraste uma tarefa para outra etapa para movê-la.' },
@@ -5118,7 +5112,7 @@ document.addEventListener('click', (e) => {
   if(!panel || panel.contains(e.target)) return;
   if(e.target.closest && (
     e.target.closest('.task-row') ||
-    e.target.closest('.gantt-task') || e.target.closest('.gantt-add') || e.target.closest('.proj-side-task') ||
+    e.target.closest('.gantt-task') || e.target.closest('.proj-side-task') ||
     e.target.closest('.icon-add-btn') ||
     e.target.closest('.task-menu-portal') ||
     e.target.closest('.confirm-action-portal') ||
@@ -6827,7 +6821,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.161';
+const APP_VERSION = '1.10.162';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9237,35 +9231,18 @@ function renderProjectDetail(view, p){
           return `<div class="gantt-row${sg.id === selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
             <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}${tks.length ? ' · ' + tks.filter(t => t.done).length + '/' + tks.length + ' tarefas' : ''}</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
-          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join('') + ganttAddRow(sg.id));
+          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join(''));
         }).join('')}
         ${(() => {
           const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId);
-          if(!loose.length) return ganttAddRow('').replace('Nova tarefa', 'Nova tarefa sem etapa');
+          if(!loose.length) return '';
           return `<div class="gantt-row gantt-loose"><div class="gl"><b>Sem etapa</b><small>${loose.length} tarefa${loose.length === 1 ? '' : 's'} sem etapa definida</small></div><div class="gantt-track"></div></div>` +
-            loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('') + ganttAddRow('');
+            loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('');
         })()}
         <div class="gantt-today" style="left:calc(260px + (100% - 260px) * ${todayPos / 100});"><em>Hoje</em></div>
       </div>
     </div></div>`;
   body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { selectedStageId = selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
-  body.querySelectorAll('.gantt-add-input').forEach(inp => {
-    inp.addEventListener('click', (e) => e.stopPropagation());
-    inp.addEventListener('keydown', (e) => {
-      if(e.key !== 'Enter') return;
-      const title = inp.value.trim();
-      if(!title) return;
-      e.preventDefault();
-      const stageId = inp.closest('.gantt-add').dataset.stage || null;
-      createProjectTask(p, stageId, title);
-      markDirty();
-      // mantém o foco no campo da mesma etapa para criar a próxima
-      setTimeout(() => {
-        const next = document.querySelector('.gantt-add[data-stage="' + (stageId || '') + '"] .gantt-add-input');
-        if(next) next.focus();
-      }, 0);
-    });
-  });
   body.querySelectorAll('.gantt-toggle').forEach(b => {
     b.onclick = (e) => {
       e.stopPropagation();
@@ -9310,9 +9287,6 @@ function createProjectTask(project, stageId, title){
   };
   state.tasks.push(t);
   return t;
-}
-function ganttAddRow(stageId){
-  return `<div class="gantt-add" data-stage="${stageId || ''}"><div class="gl"><input type="text" class="gantt-add-input" placeholder="+ Nova tarefa (Enter)" maxlength="200" aria-label="Nova tarefa"></div><div class="gantt-track"></div></div>`;
 }
 /* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
 function ganttTaskRow(t, stageStateKey, pos){
