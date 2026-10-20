@@ -1,3 +1,17 @@
+## [1.10.141] - 2026-10-20 17:00
+
+### Changed
+
+#### Calendário
+
+- Visão Dia redesenhada: grade por hora com blocos arredondados (agendas sobrepostas ficam lado a lado), linha vermelha do horário atual, clique na grade cria agenda. Painel à direita com resumo do dia, agendas de dia inteiro, tarefas com prazo no dia (e as atrasadas, quando é hoje) e botão "Adicionar neste dia". Título do período: "Segunda, 19 de outubro".
+
+#### Tarefas
+
+- Agrupado por Retomada: a etiqueta âmbar "Retomar hoje" saiu das linhas (o grupo já diz a data); ficam só os selos "Hoje"/"Vencida", como na visão por prazo.
+- Menu "⋮" da tarefa: "Gerenciar templates…" agora fica dentro do grupo Template (junto de "Usar template…" e "Salvar como template"), em vez de solto no meio do menu.
+
+
 ## [1.10.140] - 2026-10-20 16:00
 
 ### Changed

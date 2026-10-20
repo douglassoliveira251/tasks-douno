@@ -54,16 +54,16 @@ test.describe('Agendas recorrentes', () => {
       render();
     });
     // passou 2 semanas: hoje é uma ocorrência
-    await expect(page.locator('.cal-day-row')).toHaveCount(1);
-    await expect(page.locator('.cal-day-row')).toContainText('Reunião semanal');
+    await expect(page.locator('.cal-dayblk')).toHaveCount(1);
+    await expect(page.locator('.cal-dayblk')).toContainText('Reunião semanal');
 
     // amanhã não tem
     await page.evaluate(() => { calendarFocusDate = addDaysStr(todayStr(), 1); render(); });
-    await expect(page.locator('.cal-day-row')).toHaveCount(0);
+    await expect(page.locator('.cal-dayblk')).toHaveCount(0);
 
     // daqui a 7 dias tem de novo
     await page.evaluate(() => { calendarFocusDate = addDaysStr(todayStr(), 7); render(); });
-    await expect(page.locator('.cal-day-row')).toHaveCount(1);
+    await expect(page.locator('.cal-dayblk')).toHaveCount(1);
   });
 
   test('criar agenda recorrente pelo formulário gera as próximas ocorrências', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Agendas recorrentes', () => {
     expect(saved.recurrenceBaseDate).toBe(saved.date);
 
     await page.evaluate(() => { calendarFocusDate = addDaysStr(todayStr(), 3); render(); });
-    await expect(page.locator('.cal-day-row')).toContainText('Corrida');
+    await expect(page.locator('.cal-dayblk')).toContainText('Corrida');
   });
 });
 

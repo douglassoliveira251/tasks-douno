@@ -24,10 +24,10 @@ for (const [name, width] of [['celular', 390], ['desktop', 1280]]) {
     await gotoApp(page, { view: 'calendar' });
     await page.evaluate(seed);
 
-    const row = page.locator('.cal-day-row').first();
+    const row = page.locator('.cal-dayblk').first();
     await expect(row).toBeVisible();
     const rowBox = await row.boundingBox();
-    for (const sel of ['.cal-day-time', '.cal-day-title', '.cal-event-tag', '.cal-day-cat']) {
+    for (const sel of ['.cal-dayblk-time', '.cal-dayblk-title', '.cal-event-tag', '.cal-dayblk-cat']) {
       const box = await row.locator(sel).boundingBox();
       expect(box.x + box.width, sel).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
     }

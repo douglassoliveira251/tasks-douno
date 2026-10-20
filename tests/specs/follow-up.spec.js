@@ -29,6 +29,8 @@ test.describe('Retomar em', () => {
     const titles = await page.locator('.bucket-title').allInnerTexts();
     expect(titles).toEqual(expect.arrayContaining(['Retomada vencida', 'Retomar hoje', 'Próximos 7 dias', 'Sem retomada']));
     expect(await page.locator('.bucket', { hasText: 'Retomar hoje' }).locator('.task-row').count()).toBe(1);
+    // na visão por retomada o grupo já diz a data: sem a etiqueta âmbar em cada linha
+    await expect(page.locator('.task-follow-pill')).toHaveCount(0);
   });
 
   test('painel: definir, usar atalho e limpar sem mexer no prazo', async ({ page }) => {

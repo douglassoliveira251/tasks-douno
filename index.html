@@ -2007,6 +2007,35 @@
   .cal-now-line{position:absolute; left:52px; right:0; height:2px; background:#E5484D; z-index:4; pointer-events:none;}
   .cal-now-line:before{content:""; position:absolute; left:-4px; top:-3px; width:8px; height:8px; border-radius:50%; background:#E5484D;}
   @media (max-width: 1100px){ .cal-week-layout{grid-template-columns:1fr;} .cal-side{display:none;} }
+  /* ---- Dia: grade horária + resumo ---- */
+  .cal-dayA{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:16px; align-items:start;}
+  .cal-dayA-card{background:var(--surface); border:1px solid var(--border); border-radius:22px; overflow:hidden;}
+  .cal-dayA-scroll{height:calc(100vh - 250px); min-height:420px; overflow-y:auto;}
+  .cal-dayA-grid{position:relative; margin-top:14px; cursor:pointer;}
+  .cal-dayA-hour{position:absolute; left:0; right:0; height:0; border-top:1px solid var(--border); opacity:1;}
+  .cal-dayA-hour span{position:absolute; left:0; width:60px; text-align:right; top:-8px; font-size:11px; color:var(--ink-faint); padding-right:12px;}
+  .cal-dayA-lane{position:absolute; left:76px; right:16px; top:0; bottom:0;}
+  .cal-dayblk{position:absolute; border-radius:14px; padding:8px 12px 8px 14px; background:color-mix(in srgb, var(--c) 14%, var(--surface)); overflow:hidden; cursor:pointer;}
+  .cal-dayblk:before{content:""; position:absolute; left:0; top:9px; bottom:9px; width:3px; border-radius:3px; background:var(--c);}
+  .cal-dayblk:hover{filter:brightness(.97);}
+  .cal-dayblk-title{display:block; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-dayblk small{display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--ink-faint); font-size:12px; margin-top:2px; min-width:0;}
+  .cal-dayblk small span{display:inline-flex; gap:4px; align-items:center; min-width:0;}
+  .cal-dayblk .cal-event-tag{max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-dayblk-cat{font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-dayA-now{left:64px; right:0; margin-top:0;}
+  .cal-dayA .cal-day-panel{min-height:0; height:calc(100vh - 250px); overflow:auto;}
+  .cal-dayA-allday{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .cal-dayA-chip{border:none; background:var(--surface-2); color:var(--ink); border-radius:99px; padding:5px 12px; font-size:12.5px; font-weight:600; display:inline-flex; gap:6px; align-items:center; cursor:pointer;}
+  .cal-dayA-chip svg{color:var(--ink-faint);}
+  .cal-day-tasks{margin-top:4px;}
+  .cal-day-task{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--border); cursor:pointer; font-size:13px;}
+  .cal-day-tasks .cal-day-task:first-child{border-top:none;}
+  .cal-day-task .box{width:16px; height:16px; border-radius:5px; border:1.5px solid var(--border); margin-top:2px; flex:none;}
+  .cal-day-task b{display:block; font-weight:600;}
+  .cal-day-task small{color:var(--ink-faint); font-size:11.5px;}
+  .cal-day-task small.late{color:var(--danger);}
+  @media (max-width: 1100px){ .cal-dayA{grid-template-columns:1fr;} .cal-dayA .cal-day-panel{height:auto;} .cal-dayA-scroll{height:60vh;} .cal-dayA-lane{left:56px;} .cal-dayA-hour span{width:44px;} .cal-dayA-now{left:44px;} }
   .cal-week-wrap{border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--surface); display:flex; flex-direction:column; box-shadow:var(--shadow-md);}
   .cal-week-headrow, .cal-week-alldayrow{display:grid; grid-template-columns:52px repeat(7,1fr); border-bottom:1px solid var(--border);}
   .cal-week-gutter-cell{border-right:1px solid var(--border);}
@@ -2890,6 +2919,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.141', date:'20/10/2026', title:'Calendário: visão Dia renovada', text:'O Dia agora é uma grade por hora, com as agendas em blocos (lado a lado quando se sobrepõem) e a linha do horário atual. À direita ficam o resumo, as agendas de dia inteiro e as tarefas do dia. Também: "Gerenciar templates" passou para dentro do grupo Template, no menu da tarefa, e a visão agrupada por Retomada ficou mais limpa.' },
   { version:'1.10.140', date:'20/10/2026', title:'Projetos mais claros', text:'A lista de projetos ganhou uma mini linha do tempo, e no detalhe as tarefas aparecem dentro de cada etapa (dá para recolher), com um resumo e as próximas tarefas ao lado.' },
   { version:'1.10.139', date:'20/10/2026', title:'Semana com mini-calendário e agenda do dia', text:'A visão de semana ganhou, à esquerda, um mini-calendário (clique num dia para ir até ele) e a lista de Hoje e Amanhã. Os blocos ficaram mais suaves e há uma linha vermelha no horário atual.' },
   { version:'1.10.138', date:'20/10/2026', title:'Calendário do mês com painel do dia', text:'O mês ficou mais limpo e, ao clicar num dia, um painel ao lado mostra as agendas e tarefas dele, com o botão para adicionar. Para criar direto pela grade, dê dois cliques no dia.' },
@@ -4108,7 +4138,7 @@ function renderTaskRow(t){
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
       <span class="task-status-label">${(STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
-      ${(() => { const fs_ = followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/></svg>${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
+      ${(() => { const fs_ = taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/></svg>${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' · ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
@@ -5091,12 +5121,12 @@ function renderTaskPanel(panel){
       <div class="tpl-menu-head">Template</div>
       <button type="button" class="task-menu-item" data-m="use">${ICO_TPL}Usar template…</button>
       ${editing ? '<button type="button" class="task-menu-item" data-m="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Salvar como template</button>' : ''}
+      <button type="button" class="task-menu-item" data-m="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Gerenciar templates…</button>
       <div class="tpl-menu-sep"></div>
       <div class="tpl-menu-head">Projeto</div>
       <button type="button" class="task-menu-item" data-m="proj">${ICO_PROJ}${task.projectId ? 'Mudar de projeto/etapa…' : 'Vincular a um projeto…'}</button>
       ${task.projectId ? '<button type="button" class="task-menu-item" data-m="unproj">Desvincular do projeto</button>' : ''}
-      <div class="tpl-menu-sep"></div>
-      <button type="button" class="task-menu-item" data-m="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Gerenciar templates…</button>
+
       ${editing ? `
       <div class="tpl-menu-sep"></div>
       <button type="button" class="task-menu-item" data-m="dup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>
@@ -6461,7 +6491,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.140';
+const APP_VERSION = '1.10.141';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6870,7 +6900,7 @@ function renderCalendar(){
     const sD = new Date(start+'T00:00:00'), eD = new Date(end+'T00:00:00');
     periodLabel = `${sD.getDate()} de ${MONTH_LABELS[sD.getMonth()]} – ${eD.getDate()} de ${MONTH_LABELS[eD.getMonth()]}`;
   } else {
-    periodLabel = `${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()]}, ${WEEKDAY_LABELS[focusD.getDay()]}`;
+    periodLabel = `${WEEKDAY_FULL[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()}`;
   }
 
   header.innerHTML = `
@@ -7224,35 +7254,118 @@ function renderCalendarWeek(body){
   scrollWrap.scrollTop = startOffset;
 }
 
+const WEEKDAY_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 function renderCalendarDay(body){
-  const dayEvents = getEventsForDate(calendarFocusDate);
-  const wrap = document.createElement('div');
-  wrap.className = 'cal-day-list';
-  if(dayEvents.length === 0){
-    wrap.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><p>Nenhuma agenda neste dia</p></div>`;
-  } else {
-    dayEvents.forEach(ev => {
-      const row = document.createElement('div');
-      row.className = 'cal-day-row';
-      const cat = catById(ev.categoryId);
-      row.style.borderLeftColor = eventColor(ev);
-      row.innerHTML = `
-        <span class="cal-day-time">${ev.startTime || 'Dia todo'}${ev.endTime?' – '+ev.endTime:''}</span>
-        <span class="cal-day-title">${escapeHtml(ev.title||'Sem título')}</span>
-        ${eventPrimaryTagName(ev) ? `<span class="cal-event-tag">${escapeHtml(eventPrimaryTagName(ev))}</span>` : ''}
-        <span class="cal-day-cat" style="color:${cat?cat.color:'var(--ink-faint)'};">${cat?escapeHtml(cat.name):''}</span>
-      `;
-      row.onclick = () => openEventComposer(ev);
-      wrap.appendChild(row);
-    });
+  const dateStr = calendarFocusDate;
+  const todayS = todayStr();
+  const isToday = dateStr === todayS;
+  const d = new Date(dateStr + 'T00:00:00');
+  const hourHeight = 56;
+  const all = getEventsForDate(dateStr);
+  const allDayEvents = all.filter(ev => ev.allDay || !ev.startTime);
+  const timed = all.filter(ev => !ev.allDay && ev.startTime).map(ev => {
+    const st = timeToMinutes(ev.startTime);
+    let en = ev.endTime ? timeToMinutes(ev.endTime) : st + 60;
+    if(en <= st) en = st + 30;
+    return { ev, st, en };
+  }).sort((x, y) => x.st - y.st || x.en - y.en);
+  // colunas para agendas que se sobrepõem
+  let cluster = [], clusterEnd = -1;
+  const flush = () => { const n = cluster.reduce((m, c) => Math.max(m, c.col + 1), 1); cluster.forEach(c => { c.cols = n; }); cluster = []; };
+  timed.forEach(it => {
+    if(cluster.length && it.st >= clusterEnd) flush();
+    const used = cluster.filter(c => c.en > it.st).map(c => c.col);
+    let col = 0; while(used.includes(col)) col++;
+    it.col = col; cluster.push(it); clusterEnd = Math.max(clusterEnd, it.en);
+  });
+  if(cluster.length) flush();
+
+  const layout = document.createElement('div');
+  layout.className = 'cal-dayA';
+  const card = document.createElement('div');
+  card.className = 'cal-dayA-card';
+  const scroll = document.createElement('div');
+  scroll.className = 'cal-dayA-scroll';
+  const grid = document.createElement('div');
+  grid.className = 'cal-dayA-grid';
+  grid.style.height = (hourHeight * 24) + 'px';
+  let hoursHtml = '';
+  for(let h=0; h<24; h++){
+    hoursHtml += `<div class="cal-dayA-hour" style="top:${h*hourHeight}px"><span>${String(h).padStart(2,'0')}:00</span></div>`;
   }
-  body.appendChild(wrap);
-  const addRow = document.createElement('button');
-  addRow.type = 'button';
-  addRow.className = 'cal-day-add-btn';
-  addRow.textContent = '+ Nova agenda neste dia';
-  addRow.onclick = () => openEventComposer(null, calendarFocusDate);
-  body.appendChild(addRow);
+  grid.innerHTML = hoursHtml;
+  const lane = document.createElement('div');
+  lane.className = 'cal-dayA-lane';
+  grid.appendChild(lane);
+  timed.forEach(it => {
+    const ev = it.ev;
+    const cat = catById(ev.categoryId);
+    const c = eventColor(ev);
+    const blk = document.createElement('div');
+    blk.className = 'cal-dayblk';
+    blk.dataset.eventId = ev.id;
+    const widthPct = 100 / it.cols;
+    blk.style.cssText = `top:${it.st/60*hourHeight}px; height:${Math.max((it.en-it.st)/60*hourHeight - 3, 24)}px; left:calc(${it.col*widthPct}% + 2px); width:calc(${widthPct}% - 4px); --c:${c};`;
+    const att = (ev.attendees || []).length;
+    blk.innerHTML = `
+      <b class="cal-dayblk-title">${escapeHtml(ev.title||'Sem título')}</b>
+      <small>
+        <span class="cal-dayblk-time">${CAL_ICONS.clock ? calIcon('clock') : ''} ${ev.startTime}${ev.endTime ? ' – ' + ev.endTime : ''}</span>
+        ${att ? `<span>${calIcon('users')} ${att}</span>` : ''}
+        ${ev.recurrence && ev.recurrence !== 'none' ? `<span>${calIcon('repeat')} Recorrente</span>` : ''}
+        ${eventPrimaryTagName(ev) ? `<span class="cal-dayblk-tag cal-event-tag">${escapeHtml(eventPrimaryTagName(ev))}</span>` : ''}
+        ${cat ? `<span class="cal-dayblk-cat" style="color:${cat.color};">${escapeHtml(cat.name)}</span>` : ''}
+      </small>`;
+    blk.onclick = (e) => { e.stopPropagation(); openEventComposer(ev); };
+    lane.appendChild(blk);
+  });
+  if(isToday){
+    const now = new Date();
+    const line = document.createElement('div');
+    line.className = 'cal-now-line cal-dayA-now';
+    line.style.top = ((now.getHours()*60 + now.getMinutes())/60 * hourHeight) + 'px';
+    grid.appendChild(line);
+  }
+  grid.addEventListener('click', (e) => {
+    if(e.target.closest('.cal-dayblk')) return;
+    openEventComposer(null, dateStr);
+  });
+  scroll.appendChild(grid);
+  card.appendChild(scroll);
+  layout.appendChild(card);
+
+  /* lateral: resumo do dia, dia inteiro, tarefas */
+  const dayTasks = state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!activeCategoryFilter || t.categoryId === activeCategoryFilter));
+  const lateTasks = isToday ? state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!activeCategoryFilter || t.categoryId === activeCategoryFilter)) : [];
+  const nEv = all.length, nTk = dayTasks.length + lateTasks.length;
+  const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
+    : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
+  const taskHtml = (t, late) => `<div class="cal-day-task" data-task-id="${t.id}"><span class="box"></span><div><b>${escapeHtml(t.title||'Sem título')}</b><small class="${late?'late':''}">${late ? 'Atrasada · ' + fmtDate(t.dueDate) : (t.dueTime ? 'Prazo ' + t.dueTime : 'Sem horário')}${(() => { const c = catById(t.categoryId); return c && !late ? ' · ' + escapeHtml(c.name) : ''; })()}</small></div></div>`;
+  const side = document.createElement('div');
+  side.className = 'cal-day-panel';
+  side.innerHTML = `
+    <div class="cal-day-panel-kicker">${WEEKDAY_FULL[d.getDay()]}${isToday ? ' · hoje' : ''}</div>
+    <div class="cal-day-panel-title">${d.getDate()} de ${MONTH_LABELS[d.getMonth()].toLowerCase()}</div>
+    <div class="cal-day-panel-sub">${summary}</div>
+    ${allDayEvents.length ? `<div class="cal-day-panel-kicker" style="margin-top:14px;">Dia inteiro</div>
+      <div class="cal-dayA-allday">${allDayEvents.map(ev => `<button type="button" class="cal-dayA-chip" data-event-id="${ev.id}" style="--c:${eventColor(ev)}">${calIcon('clock')} ${escapeHtml(ev.title||'Sem título')}</button>`).join('')}</div>` : ''}
+    ${nTk ? `<div class="cal-day-panel-kicker" style="margin-top:14px;">Tarefas${isToday ? ' para hoje' : ' do dia'}</div>
+      <div class="cal-day-tasks">${dayTasks.map(t => taskHtml(t, false)).join('')}${lateTasks.map(t => taskHtml(t, true)).join('')}</div>` : ''}
+    <button type="button" class="cal-day-add" id="calDayAdd" style="margin-top:auto;">${calIcon('plus', 15)} Adicionar neste dia</button>`;
+  side.querySelectorAll('[data-event-id]').forEach(el => {
+    el.onclick = () => { const ev = state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+  });
+  side.querySelectorAll('[data-task-id]').forEach(el => {
+    el.onclick = () => { currentView = 'tasks'; activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+  });
+  side.querySelector('#calDayAdd').onclick = () => openEventComposer(null, dateStr);
+  layout.appendChild(side);
+  body.appendChild(layout);
+
+  // abre perto do horário atual (hoje) ou das 7h
+  const startHour = isToday ? Math.max(0, new Date().getHours() - 2) : CAL_START_HOUR;
+  const firstEv = timed.length ? Math.max(0, Math.floor(timed[0].st / 60) - 1) : startHour;
+  scroll.scrollTop = (isToday ? Math.min(startHour, firstEv) : Math.min(CAL_START_HOUR, firstEv)) * hourHeight;
 }
 
 function addOneHourToTime(timeStr){
