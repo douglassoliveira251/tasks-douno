@@ -1,3 +1,13 @@
+## [1.10.136] - 2026-10-20 00:00
+
+### Changed
+
+#### Tarefas
+
+- Visual: lista em cartões mais arredondados (tarefa aberta com contorno azul) e painel de edição como cartão flutuante com cantos arredondados. Campos em caixas de fundo suave e rótulos em maiúsculas pequenas.
+- Painel: Prazo (entrega) e Retomar em lado a lado; Status e Recorrência lado a lado; Prioridade em botões segmentados; Descrição; Subtarefas; Agenda/Notas; Anexos; Comentários. Os campos, atalhos e o comportamento são os mesmos (só mudou a ordem e a aparência).
+
+
 ## [1.10.135] - 2026-10-20 00:00
 
 ### Changed
