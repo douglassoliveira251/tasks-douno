@@ -839,6 +839,20 @@
   .proj-split{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:16px; align-items:start;}
   .proj-split .gantt-wrap{border-radius:22px; box-shadow:none;}
   .proj-split{grid-template-columns:minmax(0,1fr) 360px;}
+  .gantt-nodates{position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:11.5px; color:var(--ink-faint);}
+  .gantt-add{display:grid; grid-template-columns:260px 1fr; border-bottom:1px solid var(--border); min-height:34px;}
+  .gantt-add .gl{padding:4px 14px 4px 36px; display:flex; align-items:center;}
+  .gantt-add-input{width:100%; border:none; background:transparent; font:inherit; font-size:12.5px; color:var(--ink); padding:5px 0;}
+  .gantt-add-input::placeholder{color:var(--ink-faint);}
+  .gantt-add-input:focus{outline:none;}
+  .gantt-add:focus-within{background:var(--surface-2);}
+  @media (max-width:768px){ .gantt-add{grid-template-columns:150px 1fr;} }
+  .gantt-task.dragging{opacity:.45;}
+  .gantt-row.drop-over, .gantt-task.drop-over{outline:2px dashed var(--primary); outline-offset:-2px; background:color-mix(in srgb, var(--primary) 8%, transparent);}
+  .gantt-task[draggable="true"]{cursor:grab;}
+  .tp-proj-chip{cursor:pointer;}
+  .tp-proj-chip:hover{filter:brightness(.96);}
+  .task-menu-item.current{color:var(--primary); font-weight:600;}
   .gantt-row.selected{background:color-mix(in srgb, var(--primary) 10%, var(--surface-2)); box-shadow:inset 3px 0 0 var(--primary);}
   .proj-side-back{border:none; background:none; color:var(--primary); font-weight:600; font-size:12.5px; padding:0; cursor:pointer; text-align:left;}
   .proj-side-btn{margin-top:8px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); border-radius:12px; padding:9px 12px; font-size:13px; font-weight:600; cursor:pointer; text-align:center;}
@@ -3097,6 +3111,9 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.161', date:'21/10/2026', title:'Criar e abrir tarefas direto no projeto', text:'Na linha do tempo do projeto, cada etapa tem um campo "+ Nova tarefa": digite o nome e Enter, sem prazo nem nada mais. Clicar numa tarefa abre o painel dela ali mesmo, sem ir para a tela de Tarefas.' },
+  { version:'1.10.160', date:'21/10/2026', title:'Datas da etapa vêm das tarefas', text:'A etapa não tem mais campos de data: ela começa na primeira tarefa e termina no maior prazo das tarefas, e a linha do tempo se ajusta sozinha.' },
+  { version:'1.10.159', date:'21/10/2026', title:'Trocar a etapa da tarefa com um clique ou arrastando', text:'Na tarefa, clique no chip do projeto para trocar a etapa ou o projeto sem desvincular. Na linha do tempo do projeto, arraste uma tarefa para outra etapa para movê-la.' },
   { version:'1.10.158', date:'21/10/2026', title:'Resumo com espaço próprio', text:'O Resumo agora tem o seu filtro de espaço, que sempre começa em Todos os espaços e não muda o espaço escolhido nas outras telas (e vice-versa).' },
   { version:'1.10.157', date:'21/10/2026', title:'Menos texto no painel da tarefa', text:'O texto fixo sobre o período da etapa saiu do painel. O aviso agora só aparece, por alguns segundos, quando você digita uma data fora do período.' },
   { version:'1.10.156', date:'21/10/2026', title:'Projetos mais completos e Resumo com espaço', text:'Tarefas de projeto mostram "Projeto > Etapa" na frente e respeitam as datas da etapa. No projeto, clicar numa etapa abre o detalhe dela no resumo (com nova tarefa e editar), o progresso considera as subtarefas e o "+" cria etapas. O Resumo ganhou o seletor de espaço, e as Notas, o rodapé com contagem de palavras.' },
@@ -5087,20 +5104,21 @@ function closeTaskPanel(force){
 
 let taskPanelMouseDownOutside = false;
 document.addEventListener('mousedown', (e) => {
-  if(currentView !== 'tasks') return;
+  if(currentView !== 'tasks' && currentView !== 'projects') return;
   if(!(activeTaskId || creatingNewTask)) return;
   const panel = document.querySelector('.task-panel');
   taskPanelMouseDownOutside = !panel || !panel.contains(e.target);
 }, true);
 
 document.addEventListener('click', (e) => {
-  if(currentView !== 'tasks') return;
+  if(currentView !== 'tasks' && currentView !== 'projects') return;
   if(!(activeTaskId || creatingNewTask)) return;
   if(!taskPanelMouseDownOutside) return;
   const panel = document.querySelector('.task-panel');
   if(!panel || panel.contains(e.target)) return;
   if(e.target.closest && (
     e.target.closest('.task-row') ||
+    e.target.closest('.gantt-task') || e.target.closest('.gantt-add') || e.target.closest('.proj-side-task') ||
     e.target.closest('.icon-add-btn') ||
     e.target.closest('.task-menu-portal') ||
     e.target.closest('.confirm-action-portal') ||
@@ -5112,7 +5130,7 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if(e.key !== 'Escape') return;
-  if(currentView === 'tasks' && (activeTaskId || creatingNewTask)){
+  if((currentView === 'tasks' || currentView === 'projects') && (activeTaskId || creatingNewTask)){
     closeTaskPanel();
     return;
   }
@@ -5220,7 +5238,7 @@ function renderTaskPanel(panel){
       <div class="cat-tags-combined-row">
         <div class="group-move-row">
           <button type="button" class="group-current-chip tp-space-chip" id="tpGroupChip" title="Clique para mudar de espaço"></button>
-          ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Tarefa de projeto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg>${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}<button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
+          ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Clique para trocar o projeto ou a etapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg>${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}<button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
           ${(task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
@@ -5251,7 +5269,7 @@ function renderTaskPanel(panel){
           <div class="tp-start-k">Início da tarefa</div>
           <div class="tp-start-box"><input type="date" id="tpStartDate" value="${es.date}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'ao abrir a tarefa')}</span></div>
           <div class="tp-start-chips"><button type="button" data-start="${todayStr()}">Hoje</button><button type="button" data-start="${addDaysStr(todayStr(), 1)}">Amanhã</button><button type="button" data-start="${nextMondayStr()}">Segunda</button></div>
-          <div class="tp-start-foot">${task.startDate ? '<button type="button" id="tpStartReset">↺ Voltar a herdar</button>' : '<span></span>'}<span>${task.dueDate ? 'Prazo ' + fmtDate(task.dueDate) : 'Sem prazo'}</span></div>
+          <div class="tp-start-foot">${task.startDate ? '<button type="button" id="tpStartReset">Remover início</button>' : '<span></span>'}<span>${task.dueDate ? 'Prazo ' + fmtDate(task.dueDate) : 'Sem prazo'}</span></div>
         </div>`; })()}
         <div class="tp-row2">
           <input type="date" class="tp-input tp-date-input" id="tpDate" value="${task.dueDate||''}" ${(() => { const r = stageRange(task); return r ? (r.start ? 'min="' + r.start + '" ' : '') + (r.end ? 'max="' + r.end + '"' : '') : ''; })()}>
@@ -5369,6 +5387,7 @@ function renderTaskPanel(panel){
   const ICO_PROJ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>';
   const ICO_TPL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>';
   const tpMenuBtn = document.getElementById('tpMenuBtn');
+  let menuAnchor = tpMenuBtn; // o menu abre no botão ⋮ ou, ao trocar projeto/etapa, no chip do projeto
   function placeMenu(portal, btn){
     const r = btn.getBoundingClientRect();
     portal.style.top = Math.round(r.bottom + 6) + 'px';
@@ -5433,8 +5452,8 @@ function renderTaskPanel(panel){
       <div class="tpl-menu-head">Escolha o projeto</div>
       ${list.length ? list.map(p => `<button type="button" class="task-menu-item" data-p="${p.id}">${escapeHtml(p.name || 'Projeto')}<span class="tpl-menu-meta">${(catById(p.categoryId) || {}).name || ''}</span></button>`).join('')
         : '<div class="tpl-menu-empty">Nenhum projeto ainda. Crie na página Projetos.</div>'}`;
-    placeMenu(portal, tpMenuBtn);
-    portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); showMainMenu(); };
+    placeMenu(portal, menuAnchor);
+    portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); if(menuAnchor !== tpMenuBtn && task.projectId) showStageList(task.projectId); else { menuAnchor = tpMenuBtn; showMainMenu(); } };
     portal.querySelectorAll('[data-p]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); showStageList(b.dataset.p); }; });
   }
   function showStageList(projectId){
@@ -5444,8 +5463,8 @@ function renderTaskPanel(panel){
       <button type="button" class="task-menu-item" data-m="back">‹ Projetos</button>
       <div class="tpl-menu-head">${escapeHtml(pr.name)} · etapa</div>
       <button type="button" class="task-menu-item" data-s="">Só o projeto (sem etapa)</button>
-      ${pr.stages.map(st => `<button type="button" class="task-menu-item" data-s="${st.id}">${escapeHtml(st.name || 'Etapa')}</button>`).join('')}`;
-    placeMenu(portal, tpMenuBtn);
+      ${pr.stages.map(st => { const cur = task.projectId === pr.id && task.stageId === st.id; return `<button type="button" class="task-menu-item${cur ? ' current' : ''}" data-s="${st.id}">${escapeHtml(st.name || 'Etapa')}${cur ? '<span class="tpl-menu-meta">atual</span>' : ''}</button>`; }).join('')}`;
+    placeMenu(portal, menuAnchor);
     portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); showProjectList(); };
     portal.querySelectorAll('[data-s]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); linkTaskTo(projectId, b.dataset.s); }; });
   }
@@ -5472,8 +5491,20 @@ function renderTaskPanel(panel){
       };
     });
   }
+  const tpProjChipEl = document.getElementById('tpProjChip');
+  if(tpProjChipEl){
+    tpProjChipEl.onclick = (e) => {
+      if(e.target.closest('#tpProjChipX')) return;
+      e.stopPropagation();
+      closeAllTaskMenus();
+      menuAnchor = tpProjChipEl;
+      showStageList(task.projectId);
+      ensureTaskMenuPortal().classList.add('show');
+    };
+  }
   tpMenuBtn.onclick = (e) => {
     e.stopPropagation();
+    menuAnchor = tpMenuBtn;
     const portal = ensureTaskMenuPortal();
     if(portal.classList.contains('show') && portal.querySelector('[data-m="use"]')){ closeAllTaskMenus(); return; }
     showMainMenu();
@@ -6796,7 +6827,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.158';
+const APP_VERSION = '1.10.161';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8722,6 +8753,8 @@ function taskProgress(t){
 }
 /* A tarefa de uma etapa só pode ter prazo/início dentro das datas da etapa. */
 function stageRange(t){
+  return null; // o período da etapa é calculado a partir das tarefas, então não limita as datas delas
+  // eslint-disable-next-line no-unreachable
   if(!t || !t.projectId || !t.stageId) return null;
   const pr = projectById(t.projectId);
   const sg = pr && (pr.stages || []).find(x => x.id === t.stageId);
@@ -8751,6 +8784,20 @@ function clampToStage(t){
     else if(r.start && t.dueDate < r.start) t.dueDate = r.start;
   }
   if(t.startDate && ((r.start && t.startDate < r.start) || (r.end && t.startDate > r.end))) t.startDate = null;
+}
+/* Datas da etapa = das tarefas: fim = maior prazo; início = menor início/prazo.
+   Etapa sem tarefas com data mantém as datas antigas (se houver). Roda a cada desenho da tela. */
+function syncStageDates(){
+  (state.projects || []).forEach(p => {
+    (p.stages || []).forEach(sg => {
+      const tks = state.tasks.filter(t => t.projectId === p.id && t.stageId === sg.id);
+      const dues = tks.map(t => t.dueDate).filter(Boolean).sort();
+      if(!dues.length) return;
+      const starts = tks.map(t => t.startDate).filter(Boolean).concat(dues).sort();
+      sg.start = starts[0];
+      sg.end = dues[dues.length - 1];
+    });
+  });
 }
 function stageTasks(project, stage){
   return state.tasks.filter(t => t.projectId === project.id && t.stageId === stage.id);
@@ -8859,7 +8906,7 @@ function openProjectEditor(project){
 function openStageEditor(project, stage){
   const ov = ensureProjectOverlay('stageOverlay');
   const modal = ov.firstElementChild;
-  const st = stage || { id: uid('stage'), name: '', start: todayStr(), end: '', manualDone: false };
+  const st = stage || { id: uid('stage'), name: '', start: '', end: '', manualDone: false };
   const tasks = stage ? stageTasks(project, stage) : [];
   modal.innerHTML = `
     <div class="nm-flag"></div>
@@ -8869,10 +8916,6 @@ function openStageEditor(project, stage){
       <input type="text" class="nm-title-input" id="stgName" placeholder="Nome da etapa" value="${escapeHtml(st.name || '')}">
     </div>
     <div class="nm-body">
-    <div class="tpl-grid">
-      <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="stgStart" value="${st.start || ''}"></div>
-      <div class="tp-field"><label class="tp-label">Fim (prazo)</label><input type="date" class="tp-input" id="stgEnd" value="${st.end || ''}"></div>
-    </div>
     ${stage ? `
     <div class="tp-field"><label class="tp-label">Tarefas da etapa <span style="font-weight:400; color:var(--ink-faint);">(${tasks.filter(t => t.done).length}/${tasks.length} concluídas)</span></label>
       <div id="stgTasks">${tasks.length ? tasks.map(t => `<div class="stage-task ${t.done ? 'done' : ''}" data-id="${t.id}"><span>${escapeHtml(t.title || 'Sem título')}</span><span style="margin-left:auto; color:var(--ink-faint); font-size:11.5px;">${t.dueDate ? fmtDate(t.dueDate) : ''}</span></div>`).join('') : '<p style="font-size:12px; color:var(--ink-faint);">Nenhuma tarefa ainda.</p>'}</div>
@@ -8891,17 +8934,13 @@ function openStageEditor(project, stage){
   modal.querySelector('#stgClose').onclick = () => ov.classList.remove('show');
   function commitFields(){
     st.name = modal.querySelector('#stgName').value.trim();
-    st.start = modal.querySelector('#stgStart').value;
-    st.end = modal.querySelector('#stgEnd').value;
     const manual = modal.querySelector('#stgManual');
     if(manual) st.manualDone = manual.checked;
   }
   function validate(){
     const err = modal.querySelector('#stgError');
     const name = modal.querySelector('#stgName').value.trim();
-    const a = modal.querySelector('#stgStart').value, b = modal.querySelector('#stgEnd').value;
     if(!name){ err.textContent = 'Dê um nome à etapa.'; err.style.display = 'block'; return false; }
-    if(a && b && b < a){ err.textContent = 'O fim não pode ser antes do início.'; err.style.display = 'block'; return false; }
     err.style.display = 'none';
     return true;
   }
@@ -9032,7 +9071,7 @@ function renderProjectList(view){
 function renderProjectDetail(view, p){
   const st = projectStatus(p);
   const today = todayStr();
-  const stages = p.stages.slice().sort((a, b) => (a.start || a.end || '').localeCompare(b.start || b.end || ''));
+  const stages = p.stages.slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999')); // etapas sem datas ficam por último
   const nextLabel = st.next ? `${escapeHtml(st.next.name)} · ${fmtDate(st.next.end)}` : '—';
   let slip = '';
   if(p.endDate && st.end && st.end > p.endDate){
@@ -9099,6 +9138,12 @@ function renderProjectDetail(view, p){
         <button type="button" class="proj-side-btn" id="prjSideEdit">Editar projeto</button>`}
       </aside>
     </div>`;
+  if(activeTaskId || creatingNewTask){
+    const tpanel = document.createElement('div');
+    tpanel.className = 'task-panel';
+    view.appendChild(tpanel);
+    renderTaskPanel(tpanel);
+  }
   const sideBack = view.querySelector('#stgSideBack');
   if(sideBack) sideBack.onclick = () => { selectedStageId = null; render(); };
   const sideEdit = view.querySelector('#stgSideEdit');
@@ -9113,13 +9158,13 @@ function renderProjectDetail(view, p){
       projectId: p.id, stageId: selStage.id,
     };
     state.tasks.push(t);
-    currentView = 'tasks'; activeTaskId = t.id; creatingNewTask = false;
+    activeTaskId = t.id; creatingNewTask = false;
     markDirty();
   };
   const prjSideEdit = view.querySelector('#prjSideEdit');
   if(prjSideEdit) prjSideEdit.onclick = () => openProjectEditor(p);
   view.querySelectorAll('.proj-side-task').forEach(el => {
-    el.onclick = () => { currentView = 'tasks'; activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+    el.onclick = () => { activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
   });
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; selectedStageId = null; render(); };
   view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
@@ -9133,7 +9178,7 @@ function renderProjectDetail(view, p){
       projectId: p.id, stageId: null,
     };
     state.tasks.push(t);
-    currentView = 'tasks'; activeTaskId = t.id; creatingNewTask = false;
+    activeTaskId = t.id; creatingNewTask = false;
     markDirty();
   };
   view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { projectTab = b.dataset.tab; render(); }; });
@@ -9191,19 +9236,36 @@ function renderProjectDetail(view, p){
           const collapsed = projectCollapsedStages.has(sg.id);
           return `<div class="gantt-row${sg.id === selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
             <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}${tks.length ? ' · ' + tks.filter(t => t.done).length + '/' + tks.length + ' tarefas' : ''}</small></div>
-            <div class="gantt-track"><div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div></div>
-          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join(''));
+            <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
+          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join('') + ganttAddRow(sg.id));
         }).join('')}
         ${(() => {
           const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId);
-          if(!loose.length) return '';
+          if(!loose.length) return ganttAddRow('').replace('Nova tarefa', 'Nova tarefa sem etapa');
           return `<div class="gantt-row gantt-loose"><div class="gl"><b>Sem etapa</b><small>${loose.length} tarefa${loose.length === 1 ? '' : 's'} sem etapa definida</small></div><div class="gantt-track"></div></div>` +
-            loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('');
+            loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('') + ganttAddRow('');
         })()}
         <div class="gantt-today" style="left:calc(260px + (100% - 260px) * ${todayPos / 100});"><em>Hoje</em></div>
       </div>
     </div></div>`;
   body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { selectedStageId = selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
+  body.querySelectorAll('.gantt-add-input').forEach(inp => {
+    inp.addEventListener('click', (e) => e.stopPropagation());
+    inp.addEventListener('keydown', (e) => {
+      if(e.key !== 'Enter') return;
+      const title = inp.value.trim();
+      if(!title) return;
+      e.preventDefault();
+      const stageId = inp.closest('.gantt-add').dataset.stage || null;
+      createProjectTask(p, stageId, title);
+      markDirty();
+      // mantém o foco no campo da mesma etapa para criar a próxima
+      setTimeout(() => {
+        const next = document.querySelector('.gantt-add[data-stage="' + (stageId || '') + '"] .gantt-add-input');
+        if(next) next.focus();
+      }, 0);
+    });
+  });
   body.querySelectorAll('.gantt-toggle').forEach(b => {
     b.onclick = (e) => {
       e.stopPropagation();
@@ -9213,10 +9275,45 @@ function renderProjectDetail(view, p){
     };
   });
   body.querySelectorAll('.gantt-task').forEach(r => {
-    r.onclick = () => { currentView = 'tasks'; activeTaskId = r.dataset.taskId; creatingNewTask = false; render(); };
+    r.onclick = () => { activeTaskId = r.dataset.taskId; creatingNewTask = false; render(); };
+    r.ondragstart = (e) => { e.dataTransfer.setData('text/plain', r.dataset.taskId); e.dataTransfer.effectAllowed = 'move'; r.classList.add('dragging'); };
+    r.ondragend = () => { r.classList.remove('dragging'); body.querySelectorAll('.drop-over').forEach(x => x.classList.remove('drop-over')); };
+  });
+  // soltar numa etapa (linha da etapa ou uma tarefa dela) move a tarefa; soltar em "Sem etapa" tira da etapa
+  body.querySelectorAll('.gantt-row[data-id], .gantt-row.gantt-loose, .gantt-task').forEach(row => {
+    const target = () => row.dataset.id !== undefined ? row.dataset.id : (row.dataset.stage !== undefined ? row.dataset.stage : '');
+    row.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('drop-over'); };
+    row.ondragleave = () => row.classList.remove('drop-over');
+    row.ondrop = (e) => {
+      e.preventDefault();
+      row.classList.remove('drop-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const task = state.tasks.find(x => x.id === id);
+      if(!task || task.projectId !== p.id) return;
+      const to = target() || null;
+      if((task.stageId || null) === to) return;
+      task.stageId = to;
+      clampToStage(task); // a tarefa passa a respeitar as datas da nova etapa
+      markDirty();
+    };
   });
 }
 
+/* Cria uma tarefa do projeto (na etapa, ou sem etapa), sem prazo e sem nada além do título. */
+function createProjectTask(project, stageId, title){
+  state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+  const t = {
+    id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: title || '', categoryId: project.categoryId,
+    done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
+    description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
+    projectId: project.id, stageId: stageId || null,
+  };
+  state.tasks.push(t);
+  return t;
+}
+function ganttAddRow(stageId){
+  return `<div class="gantt-add" data-stage="${stageId || ''}"><div class="gl"><input type="text" class="gantt-add-input" placeholder="+ Nova tarefa (Enter)" maxlength="200" aria-label="Nova tarefa"></div><div class="gantt-track"></div></div>`;
+}
 /* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
 function ganttTaskRow(t, stageStateKey, pos){
   const late = !t.done && t.dueDate && t.dueDate < todayStr();
@@ -9233,7 +9330,7 @@ function ganttTaskRow(t, stageStateKey, pos){
   } else if(t.startDate){
     mark = `<div class="gantt-task-mark" style="left:${pos(t.startDate)}%; width:2.6%;" title="Início ${fmtDate(t.startDate)} (sem prazo)"></div>`;
   }
-  return `<div class="gantt-task" data-task-id="${t.id}">
+  return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" title="Arraste para outra etapa para mover a tarefa">
     <div class="gl"><span class="gantt-task-name ${t.done ? 'done' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>${t.done ? '<path d="M8.5 12l2.5 2.5 4.5-5"/>' : ''}</svg>${escapeHtml(t.title || 'Sem título')}</span></div>
     <div class="gantt-track">${mark}</div>
   </div>`;
@@ -9292,8 +9389,6 @@ let tpStartOpen = false;
 function effectiveStart(t){
   if(t.startDate) return { date: t.startDate, source: 'own' };
   const pr = t.projectId ? projectById(t.projectId) : null;
-  const sg = pr && t.stageId ? (pr.stages || []).find(x => x.id === t.stageId) : null;
-  if(sg && sg.start) return { date: sg.start, source: 'stage' };
   const created = t.createdAt ? dateToStr(new Date(t.createdAt)) : todayStr();
   return { date: created, source: 'open' };
 }
@@ -11227,12 +11322,14 @@ function loadUiSession(){
   }catch(e){}
 }
 let lastRenderedView = null;
+function render_syncStages(){ try{ syncStageDates(); }catch(e){} }
 var lastGroupModeKey = null; // var: pode ser zerada por normalizeState antes desta linha rodar
 const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem escolha própria abre por Retomada
 const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada'];
 function groupModeKey(){ return activeCategoryFilter || '__all'; }
 function render(){
   saveUiSession();
+  render_syncStages();
   // trocou de espaço (ou acabou de abrir): usa o agrupamento guardado para ele
   if(groupModeKey() !== lastGroupModeKey){
     lastGroupModeKey = groupModeKey();
@@ -11279,7 +11376,7 @@ function render(){
     addBtn.style.display = 'flex';
     addBtn.title = currentView === 'tasks' ? 'Nova tarefa' : currentView === 'calendar' ? 'Nova agenda' : currentView === 'projects' ? (activeProjectId ? 'Nova etapa' : 'Novo projeto') : 'Nova nota';
   }
-  addBtn.classList.toggle('shifted', currentView === 'tasks' && (activeTaskId || creatingNewTask));
+  addBtn.classList.toggle('shifted', (currentView === 'tasks' || currentView === 'projects') && (activeTaskId || creatingNewTask));
   renderProfileCard();
   updateNotifBadge();
   updateWhatsNewDot();

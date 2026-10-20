@@ -87,12 +87,11 @@ test.describe('Projetos', () => {
 
     await page.locator('#prjAddStage').click();
     await page.locator('#stgName').fill('Design');
-    await page.locator('#stgEnd').fill('2030-01-31');
     await page.locator('#stgSave').click();
     const p = await page.evaluate(() => state.projects[0]);
     expect(p.name).toBe('Lançamento do site');
     expect(p.stages).toHaveLength(1);
-    expect(p.stages[0]).toMatchObject({ name: 'Design', end: '2030-01-31' });
+    expect(p.stages[0]).toMatchObject({ name: 'Design' });
   });
 
   test('tarefas: etiqueta do projeto, filtro e vínculo pelo painel', async ({ page }) => {
@@ -162,7 +161,7 @@ test('tarefa de projeto: desvincular pela etiqueta e criar tarefa pelo projeto',
   await expect(page.locator('#tpProjChip')).toHaveCount(0);
 });
 
-test('início da tarefa: herda da etapa, ajusta e volta a herdar', async ({ page }) => {
+test('início da tarefa: opcional, ajusta e remove; vira início da barra na linha do tempo', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'tasks' });
   await page.evaluate((src) => {
@@ -171,30 +170,19 @@ test('início da tarefa: herda da etapa, ajusta e volta a herdar', async ({ page
     currentView = 'tasks'; activeTaskId = 'c'; render();
   }, seed.toString());
   await expect(page.locator('#tpStartLink')).toHaveText('+ início');
-  const inherited = await page.evaluate(() => effectiveStart(state.tasks.find(t => t.id === 'c')));
-  expect(inherited.source).toBe('stage');
-  expect(inherited.date).toBe(await page.evaluate(() => addDaysStr(todayStr(), -10)));
-
+  expect((await page.evaluate(() => effectiveStart(state.tasks.find(t => t.id === 'c')))).source).toBe('open');
   await page.locator('#tpStartLink').click();
   await expect(page.locator('#tpStartPop')).toBeVisible();
   await page.locator('#tpStartPop [data-start]').first().click(); // Hoje
   expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').startDate)).toBe(await page.evaluate(() => todayStr()));
-  await expect(page.locator('#tpStartLink')).toContainText('início');
   await expect(page.locator('#tpStartLink')).not.toHaveText('+ início');
-
   await page.locator('#tpStartLink').click();
   await page.locator('#tpStartReset').click();
   expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').startDate)).toBeNull();
   await expect(page.locator('#tpStartLink')).toHaveText('+ início');
-
-  // linha do tempo: tarefa da etapa herda o início (barra listrada); com início próprio, fica sólida
-  await page.evaluate(() => { currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; activeTaskId = null; render(); });
-  await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(1);
-  await page.evaluate(() => { state.tasks.find(t => t.id === 'c').startDate = todayStr(); render(); });
-  await expect(page.locator('.gantt-task[data-task-id="c"] .gantt-task-mark.inherit')).toHaveCount(0);
 });
 
-test('etapa: resumo lateral, progresso com subtarefas, prazo dentro da etapa e + cria etapa', async ({ page }) => {
+test('etapa: resumo lateral, progresso com subtarefas e + cria etapa', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate((src) => {
@@ -216,18 +204,63 @@ test('etapa: resumo lateral, progresso com subtarefas, prazo dentro da etapa e +
   await page.locator('#primaryAddBtn').click();
   await expect(page.locator('#stgName')).toBeVisible();
   await page.locator('#stgCancel').click();
-  // prazo precisa ficar dentro da etapa (s2 termina em hoje+20)
-  const r = await page.evaluate(() => {
-    const t = state.tasks.find(x => x.id === 'c');
-    const out = { dentro: dateInStageRange(t, addDaysStr(todayStr(), 5)), fora: dateInStageRange(t, addDaysStr(todayStr(), 60)) };
-    t.dueDate = addDaysStr(todayStr(), 60); clampToStage(t); out.clamp = t.dueDate === addDaysStr(todayStr(), 20);
-    return out;
-  });
-  expect(r).toEqual({ dentro: true, fora: false, clamp: true });
-  // sem texto fixo no painel; o aviso só aparece ao digitar uma data fora do período
-  await page.evaluate(() => { currentView = 'tasks'; activeTaskId = 'c'; render(); });
-  await expect(page.locator('.tp-range-note')).toHaveCount(0);
-  await page.locator('#tpDate').evaluate(el => { el.value = '2099-01-01'; el.dispatchEvent(new Event('change', { bubbles: true })); });
-  await expect(page.locator('.tp-range-note.bad')).toHaveCount(1);
-  await expect(page.locator('.tp-range-note')).toContainText('período da etapa');
+});
+
+test('trocar a etapa pelo chip e arrastando na linha do tempo', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'tasks'; activeTaskId = 'c'; render(); }, seed.toString());
+  // chip do projeto abre a lista de etapas (a atual marcada) sem precisar desvincular
+  await page.locator('#tpProjChip').click();
+  await expect(page.locator('.task-menu-item.current')).toContainText('Estrutura');
+  await page.locator('[data-s="s3"]').click();
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').stageId)).toBe('s3');
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').projectId)).toBe('p1');
+
+  // arrastar na linha do tempo: tarefa 'c' (agora em s3) volta para s2
+  await page.evaluate(() => { currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; activeTaskId = null; selectedStageId = null; render(); });
+  const task = page.locator('.gantt-task[data-task-id="c"]');
+  const stageRow = page.locator('.gantt-row[data-id="s2"]');
+  await task.dragTo(stageRow);
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').stageId)).toBe('s2');
+});
+
+test('datas da etapa vêm das tarefas (sem campos de data no formulário)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => {
+    eval('(' + src + ')')();
+    const t = todayStr();
+    state.tasks.find(x => x.id === 'c').dueDate = addDaysStr(t, 12);
+    state.tasks.find(x => x.id === 'b').dueDate = addDaysStr(t, 5);
+    state.tasks.find(x => x.id === 'c').startDate = addDaysStr(t, 1);
+    currentView = 'projects'; activeProjectId = 'p1'; render();
+  }, seed.toString());
+  const r = await page.evaluate(() => { const sg = projectById('p1').stages[1]; return [sg.start === addDaysStr(todayStr(), 1), sg.end === addDaysStr(todayStr(), 12)]; });
+  expect(r).toEqual([true, true]);
+  await page.evaluate(() => { openStageEditor(projectById('p1'), projectById('p1').stages[1]); });
+  await expect(page.locator('#stgName')).toBeVisible();
+  await expect(page.locator('#stgStart')).toHaveCount(0);
+  await expect(page.locator('#stgEnd')).toHaveCount(0);
+});
+
+test('criar tarefa direto no gráfico do projeto e abri-la na própria tela', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'timeline'; render(); }, seed.toString());
+  const antes = await page.evaluate(() => state.tasks.length);
+  const campo = page.locator('.gantt-add[data-stage="s2"] .gantt-add-input');
+  await campo.fill('Instalar elétrica');
+  await campo.press('Enter');
+  const nova = await page.evaluate(() => state.tasks[state.tasks.length - 1]);
+  expect(await page.evaluate(() => state.tasks.length)).toBe(antes + 1);
+  expect(nova).toMatchObject({ title: 'Instalar elétrica', projectId: 'p1', stageId: 's2', dueDate: null });
+  await expect(page.locator('.gantt-task', { hasText: 'Instalar elétrica' })).toHaveCount(1);
+  // clicar na tarefa abre o painel sem sair de Projetos
+  await page.locator('.gantt-task', { hasText: 'Instalar elétrica' }).click();
+  expect(await page.evaluate(() => currentView)).toBe('projects');
+  await expect(page.locator('.task-panel')).toBeVisible();
+  await expect(page.locator('.task-panel .tp-name-input')).toHaveValue('Instalar elétrica');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.task-panel')).toHaveCount(0);
 });

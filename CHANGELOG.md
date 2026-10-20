@@ -1,3 +1,33 @@
+## [1.10.161] - 2026-10-21 19:00
+
+### Added
+
+#### Projetos
+
+- Criação rápida no gráfico: ao fim de cada etapa (e do grupo "Sem etapa") há um campo "+ Nova tarefa"; digite o nome e Enter cria a tarefa na etapa, sem prazo, e o foco fica no campo para a próxima.
+- As tarefas do projeto (na linha do tempo, no resumo lateral e nos botões "+ Tarefa") agora abrem o painel de edição na própria tela de Projetos, sem ir para Tarefas.
+
+
+## [1.10.160] - 2026-10-21 18:00
+
+### Changed
+
+#### Projetos
+
+- As datas da etapa deixam de ser digitadas: o fim é o maior prazo das tarefas da etapa e o início é o menor início/prazo, recalculados a cada alteração. O formulário da etapa ficou só com o nome (e as tarefas).
+- Por isso saíram a regra "tarefa dentro do período da etapa" e a herança do início da etapa (o período agora nasce das tarefas). O início da tarefa continua opcional e vale o que você definir.
+
+
+## [1.10.159] - 2026-10-21 17:00
+
+### Changed
+
+#### Tarefas e Projetos
+
+- O chip do projeto no painel da tarefa agora é clicável: abre a lista de etapas do projeto atual (a atual aparece marcada) e, voltando, a lista de projetos, para trocar de etapa ou de projeto sem desvincular antes. O "×" continua desvinculando.
+- Linha do tempo do projeto: dá para arrastar uma tarefa para outra etapa (solte sobre a etapa ou sobre uma tarefa dela) ou para o grupo "Sem etapa". A tarefa passa a respeitar as datas da nova etapa.
+
+
 ## [1.10.158] - 2026-10-21 16:00
 
 ### Changed
