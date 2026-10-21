@@ -1,3 +1,13 @@
+## [1.10.170] - 2026-10-21 12:00
+
+### Changed
+
+#### Celular
+
+- Visão geral e Projetos: margens laterais menores, cartões em largura total, indicadores do dia sem caixa interna, lista de projetos com status ao lado do nome e filtros em uma linha rolável.
+- Detalhe do projeto: resumo compacto no topo, lista de etapas como aba inicial e botões de ação distribuídos na largura.
+
+
 ## [1.10.169] - 2026-10-22 09:00
 
 ### Changed
