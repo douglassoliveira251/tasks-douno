@@ -3242,6 +3242,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.171', date:'21/10/2026', title:'Retomada já vem com a data de hoje', text:'Toda tarefa nova nasce com retomada para hoje, e a próxima ocorrência de uma tarefa recorrente volta com a retomada marcada no dia dela. Assim você acompanha tudo pela visão de retomada.' },
   { version:'1.10.170', date:'21/10/2026', title:'Visão geral e projetos melhores no celular', text:'Os cartões agora usam a largura da tela, a lista de projetos ficou mais limpa, o resumo do projeto vem primeiro e a lista de etapas abre por padrão no celular.' },
   { version:'1.10.169', date:'22/10/2026', title:'Barra do projeto reorganizada', text:'No projeto: botão de voltar redondo, "Nova etapa" e "Nova tarefa" em destaque e o menu "⋮" com Editar projeto e Relatório (PDF, planilha, imprimir). A descrição virou um texto limpo, sem caixa: até duas linhas com "Ver mais", e clicar nela edita.' },
   { version:'1.10.168', date:'21/10/2026', title:'PDF do projeto direto pelo sistema', text:'O botão "Relatório" agora abre um menu: baixar o PDF (gerado pelo próprio sistema, sem imprimir), baixar a planilha CSV ou abrir a versão para imprimir.' },
@@ -4049,6 +4050,8 @@ function spawnNextRecurrence(task){
     done: false,
     status: 'nao_iniciado',
     dueDate: nextDueDate,
+    /* a próxima ocorrência volta ao radar de retomada no dia dela */
+    followUpDate: nextDueDate,
     dueTime: task.dueTime,
     priority: task.priority,
     description: task.description || '',
@@ -5321,7 +5324,7 @@ function getOrCreateActiveTask(){
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
       title:'', categoryId: defaultCat, done:false, status:'nao_iniciado',
-      dueDate: null, dueTime: '', priority:'media', description:'',
+      dueDate: null, followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     state.tasks.push(t);
@@ -6970,7 +6973,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.170';
+const APP_VERSION = '1.10.171';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9157,7 +9160,7 @@ function openStageEditor(project, stage){
       state.taskIdCounter = (state.taskIdCounter || 0) + 1;
       const t = {
         id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: project.categoryId,
-        done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
+        done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
         description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
         projectId: project.id, stageId: st.id,
       };
@@ -9381,7 +9384,7 @@ function renderProjectDetail(view, p){
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
-      done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
+      done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: selStage.id,
     };
@@ -9401,7 +9404,7 @@ function renderProjectDetail(view, p){
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
-      done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
+      done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: null,
     };
@@ -9532,7 +9535,7 @@ function createProjectTask(project, stageId, title){
   state.taskIdCounter = (state.taskIdCounter || 0) + 1;
   const t = {
     id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: title || '', categoryId: project.categoryId,
-    done: false, status: 'nao_iniciado', dueDate: null, dueTime: '', priority: 'media',
+    done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
     description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
     projectId: project.id, stageId: stageId || null,
   };
@@ -9975,7 +9978,7 @@ function createTaskFromTemplate(tpl){
   const t = {
     id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
     title: tpl.title || tpl.name || '', categoryId: catId, done: false, status: 'nao_iniciado',
-    dueDate: today, dueTime: tpl.dueTime || DEFAULT_DUE_TIME, priority: tpl.priority || 'media',
+    dueDate: today, followUpDate: today, dueTime: tpl.dueTime || DEFAULT_DUE_TIME, priority: tpl.priority || 'media',
     description: tpl.description || '',
     tagIds: (tpl.tagIds || []).filter(id => state.tags.some(tg => tg.id === id)),
     recurrence: tpl.recurrence || 'none', recurrenceInterval: tpl.recurrenceInterval || 1,

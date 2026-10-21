@@ -94,4 +94,18 @@ test('agrupamento escolhido fica guardado por espaço e volta ao recarregar', as
   expect(await page.evaluate(() => taskGroupMode)).toBe('retomada');
   await page.evaluate(() => { activeCategoryFilter = null; normalizeState(); taskGroupMode = 'periodo'; render(); });
   expect(await page.evaluate(() => taskGroupMode)).toBe('prioridade');
+
+});
+
+test('tarefa nova nasce com retomada hoje e a próxima recorrência volta no dia dela', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  const r = await page.evaluate(() => {
+    const today = todayStr();
+    const nova = (creatingNewTask = true, getOrCreateActiveTask());
+    const rec = { id: 'r', title: 'Semanal', recurrence: 'weekly', recurrenceInterval: 1, dueDate: today, recurrenceBaseDate: today, categoryId: state.categories[0].id };
+    const next = spawnNextRecurrence(rec);
+    return { today, novaFollow: nova.followUpDate, nextDue: next.dueDate, nextFollow: next.followUpDate };
+  });
+  expect(r.novaFollow).toBe(r.today);
+  expect(r.nextFollow).toBe(r.nextDue);
 });

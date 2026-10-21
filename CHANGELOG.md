@@ -1,3 +1,13 @@
+## [1.10.171] - 2026-10-21 14:00
+
+### Changed
+
+#### Retomada
+
+- Tarefa nova já nasce com "Retomar em" = hoje (painel, projetos, linha do tempo e modelos).
+- Recorrentes: a próxima ocorrência é criada com retomada na data dela, para aparecer em "Retomar" no dia certo.
+
+
 ## [1.10.170] - 2026-10-21 12:00
 
 ### Changed
