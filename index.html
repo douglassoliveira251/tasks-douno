@@ -3242,6 +3242,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.174', date:'21/10/2026', title:'Tarefas sem prazo aparecem na linha do tempo', text:'Tarefas criadas direto na linha do tempo (sem prazo) agora mostram uma barra listrada do início até hoje, em vez de um pontinho quase invisível. Ao definir o prazo, a barra passa a ir até ele.' },
   { version:'1.10.173', date:'21/10/2026', title:'Início = data de criação, visível na linha do tempo', text:'Toda tarefa nasce com o início na data de criação e a linha do tempo do projeto já desenha o período a partir dela. Você pode ajustar o início quando quiser.' },
   { version:'1.10.172', date:'21/10/2026', title:'Início da tarefa passa a valer na hora', text:'Ao definir o início de uma tarefa, a linha do tempo do projeto atualiza na hora, inclusive quando você escolhe a data de hoje (antes o campo já vinha com hoje e a escolha não era salva).' },
   { version:'1.10.171', date:'21/10/2026', title:'Retomada já vem com a data de hoje', text:'Toda tarefa nova nasce com retomada para hoje, e a próxima ocorrência de uma tarefa recorrente volta com a retomada marcada no dia dela. Assim você acompanha tudo pela visão de retomada.' },
@@ -6975,7 +6976,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.173';
+const APP_VERSION = '1.10.174';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9443,6 +9444,7 @@ function renderProjectDetail(view, p){
   stages.forEach(sg => { if(sg.start) dates.push(sg.start); if(sg.end) dates.push(sg.end); });
   if(p.startDate) dates.push(p.startDate);
   if(p.endDate) dates.push(p.endDate);
+  state.tasks.forEach(t => { if(t.projectId === p.id && t.startDate) dates.push(t.startDate); });
   dates.push(today);
   dates.sort();
   const first = new Date(dates[0] + 'T00:00:00');
@@ -9877,8 +9879,12 @@ function ganttTaskRow(t, stageStateKey, pos){
     let from = hasStart && es.date <= t.dueDate ? pos(es.date) : Math.max(end - 2.6, 0);
     const w = Math.max(end - from, 2.6);
     mark = `<div class="gantt-task-mark ${cls} ${hasStart && es.source === 'stage' ? 'inherit' : ''}" style="left:${from}%; width:${w}%;" title="${hasStart ? (es.source === 'own' ? 'Início ' : es.source === 'stage' ? 'Início da etapa ' : 'Criada em ') + fmtDate(es.date) + ' · ' : ''}Prazo ${fmtDate(t.dueDate)}"></div>`;
-  } else if(t.startDate){
-    mark = `<div class="gantt-task-mark" style="left:${pos(t.startDate)}%; width:2.6%;" title="Início ${fmtDate(t.startDate)} (sem prazo)"></div>`;
+  } else {
+    /* sem prazo: a barra vai do início (ou criação) até hoje, listrada, para mostrar a tarefa em aberto */
+    const from = pos(es.date), today = todayStr();
+    const to = es.date < today ? pos(today) : from;
+    const w = Math.max(to - from, 2.6);
+    mark = `<div class="gantt-task-mark inherit ${cls}" style="left:${from}%; width:${w}%;" title="${es.source === 'own' ? 'Início ' : 'Criada em '}${fmtDate(es.date)} · sem prazo"></div>`;
   }
   return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" title="Arraste para outra etapa para mover a tarefa">
     <div class="gl"><span class="gantt-task-name ${t.done ? 'done' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>${t.done ? '<path d="M8.5 12l2.5 2.5 4.5-5"/>' : ''}</svg>${escapeHtml(t.title || 'Sem título')}</span></div>

@@ -1,3 +1,12 @@
+## [1.10.174] - 2026-10-21 17:00
+
+### Fixed
+
+#### Projetos
+
+- Linha do tempo: tarefa sem prazo (como as criadas com Enter na própria linha do tempo) mostrava só um pontinho; agora desenha uma barra listrada do início/criação até hoje.
+
+
 ## [1.10.173] - 2026-10-21 16:00
 
 ### Fixed
