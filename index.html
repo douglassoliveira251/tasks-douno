@@ -880,7 +880,25 @@
   @media (max-width:600px){ .prj-row3{grid-template-columns:1fr 1fr;} .prj-row3 > :first-child{grid-column:1 / -1;} }
   .prj-icon-btn:hover{color:var(--ink);}
   .prj-icon-btn.on{color:var(--pc, var(--primary)); border-color:var(--pc, var(--primary)); background:color-mix(in srgb, var(--pc, var(--primary)) 14%, transparent);}
-  .proj-desc-row{margin:-4px 0 12px;}
+  .proj-toolbar{gap:12px;}
+  .prj-circle-btn{width:38px; height:38px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; flex:none; padding:0;}
+  .prj-circle-btn:hover{color:var(--ink); background:var(--surface-2);}
+  .prj-circle-btn svg{width:17px; height:17px;}
+  .prj-title{font-family:var(--font-display); font-size:21px; letter-spacing:-.01em;}
+  .prj-actions{margin-left:auto; display:flex; align-items:center; gap:8px;}
+  .prj-act{display:inline-flex; align-items:center; gap:7px; border:1px solid transparent; background:var(--surface-2); color:var(--ink); border-radius:12px; padding:9px 15px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;}
+  .prj-act:hover{filter:brightness(.97);}
+  .prj-act.pri{background:var(--primary); color:#fff;}
+  .prj-act svg{width:16px; height:16px;}
+  .proj-desc-row{margin:2px 0 14px 50px; max-width:780px;}
+  .proj-desc-text{font-size:14px; line-height:1.6; color:var(--ink); opacity:.82; cursor:text; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:pre-wrap;}
+  .proj-desc-text.open{display:block;}
+  .proj-desc-text:hover{opacity:1;}
+  .proj-desc-more, .proj-desc-add{border:none; background:none; padding:0; margin-top:3px; font:inherit; font-size:12.5px; font-weight:600; color:var(--primary); cursor:pointer;}
+  .proj-desc-add{font-weight:500; color:var(--ink-faint);} .proj-desc-add:hover{color:var(--primary);}
+  .report-sep{height:1px; background:var(--border); margin:4px 6px;}
+  .report-head{font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint); padding:6px 12px 2px;}
+  @media (max-width:768px){ .proj-desc-row{margin-left:2px;} .prj-actions{flex:1 1 100%; margin-left:0; justify-content:flex-end;} .prj-title{font-size:19px;} }
   .proj-desc-input{width:100%; border:none; background:transparent; resize:none; font:inherit; font-size:13.5px; color:var(--ink-soft); padding:4px 2px; line-height:1.45; overflow:hidden;}
   .proj-desc-input::placeholder{color:var(--ink-faint);}
   .proj-desc-input:focus{outline:none; background:var(--surface); border-radius:10px; padding:6px 10px; box-shadow:0 0 0 1.5px var(--primary);}
@@ -2716,7 +2734,7 @@
     .gantt-head, .gantt-row, .gantt-task, .gantt-add{grid-template-columns:200px 1fr;}
     .gantt-head .gl, .gantt-row .gl, .gantt-task .gl, .gantt-add .gl{position:sticky; left:0; z-index:2; background:var(--surface);}
     .gantt-row .gl{background:var(--surface-2);}
-    .proj-toolbar .prj-name-wrap{flex:1 1 100%; order:5;}
+    .proj-toolbar .prj-name-wrap{flex:1 1 calc(100% - 60px); min-width:0;}
     .proj-split{grid-template-columns:1fr;}
     /* configurações: a linha de opção quebra em vez de espremer o texto */
     .settings-row{flex-wrap:wrap;}
@@ -3192,6 +3210,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.169', date:'22/10/2026', title:'Barra do projeto reorganizada', text:'No projeto: botão de voltar redondo, "Nova etapa" e "Nova tarefa" em destaque e o menu "⋮" com Editar projeto e Relatório (PDF, planilha, imprimir). A descrição virou um texto limpo, sem caixa: até duas linhas com "Ver mais", e clicar nela edita.' },
   { version:'1.10.168', date:'21/10/2026', title:'PDF do projeto direto pelo sistema', text:'O botão "Relatório" agora abre um menu: baixar o PDF (gerado pelo próprio sistema, sem imprimir), baixar a planilha CSV ou abrir a versão para imprimir.' },
   { version:'1.10.167', date:'21/10/2026', title:'Cadastro de projeto mais compacto', text:'A cor do projeto agora é uma bolinha: clique nela para escolher na paleta. O formulário foi reorganizado (espaço e datas na mesma linha, ícones em grade compacta e descrição curta) para aproveitar melhor o espaço.' },
   { version:'1.10.166', date:'21/10/2026', title:'Relatório do projeto', text:'No projeto aberto, o botão "Relatório" gera uma página com nome, descrição, resumo, linha do tempo e as tarefas linha a linha de cada etapa, pronta para imprimir, salvar em PDF ou baixar em planilha (CSV) e enviar para alguém.' },
@@ -6918,7 +6937,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.168';
+const APP_VERSION = '1.10.169';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9239,17 +9258,16 @@ function renderProjectDetail(view, p){
   }
   view.innerHTML = `
     <div class="proj-toolbar">
-      <button type="button" class="btn ghost small" id="prjBack">‹ Projetos</button>
-      <span class="prj-name-wrap">${projectBadgeHtml(p, 32)}<b style="font-family:var(--font-display); font-size:18px;">${escapeHtml(p.name)}</b></span>
+      <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <span class="prj-name-wrap">${projectBadgeHtml(p, 36)}<b class="prj-title">${escapeHtml(p.name)}</b></span>
       ${projectChipsHtml(st)}
-      <span style="margin-left:auto; display:flex; gap:8px;">
-        <button type="button" class="btn ghost small" id="prjExport" title="Gerar relatório para imprimir, salvar em PDF ou baixar em planilha">Relatório</button>
-        <button type="button" class="btn ghost small" id="prjEdit">Editar projeto</button>
-        <button type="button" class="btn ghost small" id="prjAddTask">+ Tarefa</button>
-        <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
+      <span class="prj-actions">
+        <button type="button" class="prj-act" id="prjAddStage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>Nova etapa</button>
+        <button type="button" class="prj-act pri" id="prjAddTask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova tarefa</button>
+        <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
       </span>
     </div>
-    <div class="proj-desc-row"><textarea id="prjDescInline" class="proj-desc-input" rows="1" maxlength="600" placeholder="+ Adicionar uma breve descrição do projeto">${escapeHtml(p.description || '')}</textarea></div>
+    <div class="proj-desc-row" id="prjDescRow"></div>
     <div class="proj-tabs" style="margin-bottom:12px;">
       <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
       <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
@@ -9283,17 +9301,41 @@ function renderProjectDetail(view, p){
     view.appendChild(tpanel);
     renderTaskPanel(tpanel);
   }
-  const descEl = view.querySelector('#prjDescInline');
-  if(descEl){
-    const fitDesc = () => { descEl.style.height = 'auto'; descEl.style.height = Math.min(descEl.scrollHeight, 140) + 'px'; };
-    fitDesc();
-    descEl.addEventListener('input', fitDesc);
-    descEl.addEventListener('blur', () => {
-      const v = descEl.value.trim();
-      if(v !== (p.description || '')){ p.description = v; persistOnly(); }
-    });
-    descEl.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); descEl.blur(); } });
+  /* Descrição: texto corrido (sem caixa), até 2 linhas com "Ver mais"; clicar nela edita no lugar. */
+  const descRow = view.querySelector('#prjDescRow');
+  function renderProjectDesc(editing){
+    if(editing){
+      descRow.innerHTML = '<textarea id="prjDescInline" class="proj-desc-input" rows="2" maxlength="600" placeholder="Breve descrição do projeto"></textarea>';
+      const el = descRow.querySelector('#prjDescInline');
+      el.value = p.description || '';
+      const fit = () => { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 160) + 'px'; };
+      fit(); el.focus(); el.setSelectionRange(el.value.length, el.value.length);
+      el.addEventListener('input', fit);
+      el.addEventListener('blur', () => {
+        const v = el.value.trim();
+        if(v !== (p.description || '')){ p.description = v; persistOnly(); }
+        renderProjectDesc(false);
+      });
+      el.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); el.blur(); }
+        else if(e.key === 'Escape'){ e.stopPropagation(); el.value = p.description || ''; el.blur(); }
+      });
+      return;
+    }
+    if(!(p.description || '').trim()){
+      descRow.innerHTML = '<button type="button" class="proj-desc-add" id="prjDescAdd">+ Adicionar uma breve descrição</button>';
+      descRow.querySelector('#prjDescAdd').onclick = () => renderProjectDesc(true);
+      return;
+    }
+    descRow.innerHTML = '<div class="proj-desc-text" id="prjDescText" title="Clique para editar" tabindex="0"></div><button type="button" class="proj-desc-more" id="prjDescMore" hidden>Ver mais</button>';
+    const text = descRow.querySelector('#prjDescText'), more = descRow.querySelector('#prjDescMore');
+    text.textContent = p.description;
+    requestAnimationFrame(() => { if(text.scrollHeight > text.clientHeight + 2) more.hidden = false; });
+    text.onclick = () => renderProjectDesc(true);
+    text.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); renderProjectDesc(true); } };
+    more.onclick = (e) => { e.stopPropagation(); const open = text.classList.toggle('open'); more.textContent = open ? 'Ver menos' : 'Ver mais'; };
   }
+  renderProjectDesc(false);
   const sideBack = view.querySelector('#stgSideBack');
   if(sideBack) sideBack.onclick = () => { selectedStageId = null; render(); };
   const sideEdit = view.querySelector('#stgSideEdit');
@@ -9317,8 +9359,7 @@ function renderProjectDetail(view, p){
     el.onclick = () => { activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
   });
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; selectedStageId = null; render(); };
-  view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
-  view.querySelector('#prjExport').onclick = (e) => { e.stopPropagation(); openReportMenu(e.currentTarget, p); };
+  view.querySelector('#prjMore').onclick = (e) => { e.stopPropagation(); openProjectMenu(e.currentTarget, p); };
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
   view.querySelector('#prjAddTask').onclick = () => {
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
@@ -9743,21 +9784,26 @@ async function downloadProjectPdf(p){
   }
   doc.save(reportFileName(p, 'pdf'));
 }
-/* Menu do botão "Relatório": PDF direto, planilha ou versão para imprimir */
-function openReportMenu(anchor, p){
+/* Menu do botão "⋮" do projeto: editar e relatório (PDF direto, planilha ou versão para imprimir) */
+function openProjectMenu(anchor, p){
   closeReportMenu();
   const menu = document.createElement('div');
   menu.className = 'report-menu';
   menu.id = 'reportMenu';
+  const ic = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
   menu.innerHTML = `
-    <button type="button" data-report="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/></svg><span><b>Baixar PDF</b><small>Gerado aqui mesmo, pronto para enviar</small></span></button>
-    <button type="button" data-report="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/></svg><span><b>Baixar planilha (CSV)</b><small>Abre no Excel, uma linha por tarefa</small></span></button>
-    <button type="button" data-report="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="4" y="9" width="16" height="9" rx="2"/><path d="M7 14h10v7H7z"/></svg><span><b>Ver e imprimir</b><small>Abre a página do relatório</small></span></button>`;
+    <button type="button" id="prjEdit">${ic('<path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13 7l4 4"/>')}<span><b>Editar projeto</b><small>Nome, ícone, cor, espaço e datas</small></span></button>
+    <div class="report-sep"></div>
+    <div class="report-head">Relatório</div>
+    <button type="button" data-report="pdf">${ic('<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/>')}<span><b>Baixar PDF</b><small>Gerado aqui mesmo, pronto para enviar</small></span></button>
+    <button type="button" data-report="csv">${ic('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/>')}<span><b>Baixar planilha (CSV)</b><small>Abre no Excel, uma linha por tarefa</small></span></button>
+    <button type="button" data-report="print">${ic('<path d="M7 9V3h10v6"/><rect x="4" y="9" width="16" height="9" rx="2"/><path d="M7 14h10v7H7z"/>')}<span><b>Ver e imprimir</b><small>Abre a página do relatório</small></span></button>`;
   document.body.appendChild(menu);
   const r = anchor.getBoundingClientRect();
   menu.style.top = Math.round(r.bottom + 6) + 'px';
   menu.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + 'px';
   menu.onclick = (e) => e.stopPropagation();
+  menu.querySelector('#prjEdit').onclick = () => { closeReportMenu(); openProjectEditor(p); };
   menu.querySelector('[data-report="csv"]').onclick = () => { closeReportMenu(); downloadProjectCsv(p); };
   menu.querySelector('[data-report="print"]').onclick = () => { closeReportMenu(); exportProjectReport(p); };
   const pdfBtn = menu.querySelector('[data-report="pdf"]');

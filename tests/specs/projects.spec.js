@@ -285,6 +285,7 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = null; render(); }, seed.toString());
   // ícone e cor pelo cadastro
   await page.locator('.plist-row').click();
+  await page.locator('#prjMore').click();
   await page.locator('#prjEdit').click();
   await page.locator('.prj-icon-btn[data-icon="rocket"]').click();
   // a paleta só aparece ao clicar na bolinha
@@ -297,6 +298,7 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   expect(await page.evaluate(() => { const p = projectById('p1'); return [p.icon, p.color]; })).toEqual(['rocket', '#E5484D']);
   await expect(page.locator('.proj-toolbar .prj-badge')).toBeVisible();
   // descrição breve direto no topo
+  await page.locator('#prjDescAdd, #prjDescText').first().click();
   await page.locator('#prjDescInline').fill('Casa de dois pavimentos');
   await page.locator('#prjDescInline').press('Enter');
   expect(await page.evaluate(() => projectById('p1').description)).toBe('Casa de dois pavimentos');
@@ -319,7 +321,7 @@ test('relatório do projeto: página com nome, descrição, linha do tempo e tar
     window.__rep = '';
     window.open = () => ({ document: { write: (h) => { window.__rep += h; }, close() {} }, focus() {} });
   }, seed.toString());
-  await page.locator('#prjExport').click();
+  await page.locator('#prjMore').click();
   await expect(page.locator('#reportMenu')).toBeVisible();
   await page.locator('[data-report="print"]').click();
   const html = await page.evaluate(() => window.__rep);
@@ -340,11 +342,11 @@ test('relatório: CSV e PDF são baixados direto pelo sistema', async ({ page })
   await gotoApp(page, { view: 'projects' });
   await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = 'p1'; render(); }, seed.toString());
   // CSV
-  await page.locator('#prjExport').click();
+  await page.locator('#prjMore').click();
   const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('[data-report="csv"]').click()]);
   expect(csv.suggestedFilename()).toMatch(/^relatorio-.*.csv$/);
   // PDF (carrega jsPDF sob demanda)
-  await page.locator('#prjExport').click();
+  await page.locator('#prjMore').click();
   const [pdf] = await Promise.all([page.waitForEvent('download', { timeout: 40000 }), page.locator('[data-report="pdf"]').click()]);
   expect(pdf.suggestedFilename()).toMatch(/^relatorio-.*.pdf$/);
   const path = await pdf.path();

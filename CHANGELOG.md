@@ -1,3 +1,13 @@
+## [1.10.169] - 2026-10-22 09:00
+
+### Changed
+
+#### Projetos
+
+- Barra do projeto: voltar em botão redondo, "Nova etapa" e "Nova tarefa" (a principal) e um menu "⋮" com "Editar projeto" e o Relatório (Baixar PDF, Baixar planilha, Ver e imprimir).
+- Descrição do projeto em texto corrido, sem caixa de fundo: até 2 linhas com "Ver mais"/"Ver menos"; clicar no texto edita no lugar (Enter salva, Esc cancela) e, vazia, mostra "+ Adicionar uma breve descrição". No celular ocupa a largura toda.
+
+
 ## [1.10.168] - 2026-10-22 08:00
 
 ### Changed
