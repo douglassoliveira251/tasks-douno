@@ -1,3 +1,12 @@
+## [1.10.168] - 2026-10-22 08:00
+
+### Changed
+
+#### Projetos
+
+- "Relatório" abre um menu com três opções: **Baixar PDF** (gerado pelo próprio sistema com jsPDF, com cabeçalho, resumo, linha do tempo e uma tabela por etapa; o arquivo é baixado direto, sem impressão), **Baixar planilha (CSV)** e **Ver e imprimir** (a página de antes). As bibliotecas do PDF só são carregadas quando você pede o PDF.
+
+
 ## [1.10.167] - 2026-10-21 23:30
 
 ### Changed

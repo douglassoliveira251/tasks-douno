@@ -847,6 +847,14 @@
   .gantt-add-input:focus{outline:none;}
   .gantt-add:focus-within{background:var(--surface-2);}
   @media (max-width:768px){ .gantt-add{grid-template-columns:150px 1fr;} }
+  .report-menu{position:fixed; z-index:9500; width:290px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:6px; box-shadow:0 14px 34px rgba(20,30,50,.22);}
+  [data-theme="dark"] .report-menu{box-shadow:0 14px 34px rgba(0,0,0,.55);}
+  .report-menu button{display:flex; align-items:center; gap:12px; width:100%; border:none; background:none; text-align:left; padding:10px 12px; border-radius:11px; color:var(--ink); cursor:pointer; font-family:inherit;}
+  .report-menu button:hover:not(:disabled){background:var(--surface-2);}
+  .report-menu button:disabled{opacity:.7; cursor:wait;}
+  .report-menu svg{width:20px; height:20px; color:var(--ink-faint); flex:none;}
+  .report-menu b{display:block; font-size:13.5px; font-weight:600;}
+  .report-menu small{display:block; font-size:11.5px; color:var(--ink-faint); margin-top:1px;}
   .prj-badge{display:inline-grid; place-items:center; border-radius:50%; flex:none; color:var(--pc); background:color-mix(in srgb, var(--pc) 16%, transparent);}
   .prj-badge svg{width:56%; height:56%;}
   .plist-name b .prj-badge{margin-right:8px; vertical-align:middle;}
@@ -3184,6 +3192,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.168', date:'21/10/2026', title:'PDF do projeto direto pelo sistema', text:'O botão "Relatório" agora abre um menu: baixar o PDF (gerado pelo próprio sistema, sem imprimir), baixar a planilha CSV ou abrir a versão para imprimir.' },
   { version:'1.10.167', date:'21/10/2026', title:'Cadastro de projeto mais compacto', text:'A cor do projeto agora é uma bolinha: clique nela para escolher na paleta. O formulário foi reorganizado (espaço e datas na mesma linha, ícones em grade compacta e descrição curta) para aproveitar melhor o espaço.' },
   { version:'1.10.166', date:'21/10/2026', title:'Relatório do projeto', text:'No projeto aberto, o botão "Relatório" gera uma página com nome, descrição, resumo, linha do tempo e as tarefas linha a linha de cada etapa, pronta para imprimir, salvar em PDF ou baixar em planilha (CSV) e enviar para alguém.' },
   { version:'1.10.165', date:'21/10/2026', title:'Ícone, cor e descrição no projeto', text:'Cada projeto pode ter um ícone (biblioteca Lucide) e uma cor, mostrados em círculo na lista e no topo do projeto. Há também uma breve descrição editável logo abaixo do nome. Dentro das etapas, as tarefas se organizam sozinhas por data de início.' },
@@ -6909,7 +6918,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.167';
+const APP_VERSION = '1.10.168';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9309,7 +9318,7 @@ function renderProjectDetail(view, p){
   });
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; selectedStageId = null; render(); };
   view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
-  view.querySelector('#prjExport').onclick = () => exportProjectReport(p);
+  view.querySelector('#prjExport').onclick = (e) => { e.stopPropagation(); openReportMenu(e.currentTarget, p); };
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
   view.querySelector('#prjAddTask').onclick = () => {
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
@@ -9573,6 +9582,194 @@ ${tables || '<p class="muted">Este projeto ainda não tem etapas.</p>'}
 <footer>DOUNO Tasks · ${escapeHtml(p.name)} · ${gen}</footer>
 </body></html>`;
 }
+/* ===== PDF gerado direto pelo app (jsPDF + autoTable, carregados só quando necessário) ===== */
+function loadScriptOnce(url){
+  return new Promise((resolve, reject) => {
+    if(document.querySelector('script[data-lib="' + url + '"]')) return resolve();
+    const sc = document.createElement('script');
+    sc.src = url; sc.dataset.lib = url;
+    sc.onload = () => resolve();
+    sc.onerror = () => reject(new Error('Não foi possível carregar ' + url));
+    document.head.appendChild(sc);
+  });
+}
+async function ensurePdfLibs(){
+  if(window.jspdf && window.jspdf.jsPDF && window.__autoTableReady) return;
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+  window.__autoTableReady = true;
+}
+function hexToRgb(hex){
+  const h = String(hex || '#3B82F6').replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function mixWhite(rgb, a){ return rgb.map(v => Math.round(v * a + 255 * (1 - a))); }
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function reportFileName(p, ext){ return 'relatorio-' + (p.name || 'projeto').trim().replace(/[^\w\-]+/g, '_').slice(0, 60) + '.' + ext; }
+function downloadProjectCsv(p){
+  downloadBlob(new Blob([projectCsv(buildProjectReportData(p))], { type: 'text/csv;charset=utf-8' }), reportFileName(p, 'csv'));
+}
+async function downloadProjectPdf(p){
+  await ensurePdfLibs();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const data = buildProjectReportData(p);
+  const { st, stageBlocks, loose, cat, today } = data;
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+  const M = 40;
+  let y = M;
+  const color = hexToRgb(projectColor(p));
+  const ink = [27, 33, 48], soft = [100, 116, 139], line = [226, 232, 240];
+  const stColor = { 'Concluída': [47, 125, 91], 'Em andamento': color, 'Atrasada': [229, 72, 77], 'Não iniciada': [148, 163, 184] };
+  const ensure = (h) => { if(y + h > H - 50){ doc.addPage(); y = M; } };
+
+  // cabeçalho
+  doc.setFillColor(...mixWhite(color, .18)); doc.circle(M + 22, y + 22, 22, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...color);
+  doc.text(((p.name || 'P').trim().charAt(0) || 'P').toUpperCase(), M + 22, y + 28, { align: 'center' });
+  doc.setTextColor(...ink); doc.setFontSize(21); doc.text(doc.splitTextToSize(p.name || 'Projeto', W - 2 * M - 60)[0], M + 58, y + 20);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...soft);
+  doc.text((cat ? cat.name + '  ·  ' : '') + 'Relatório gerado em ' + new Date().toLocaleString('pt-BR'), M + 58, y + 38);
+  y += 60;
+  if(p.description){
+    doc.setFontSize(10.5); doc.setTextColor(...ink);
+    const lines = doc.splitTextToSize(p.description, W - 2 * M);
+    doc.text(lines, M, y + 4); y += lines.length * 14 + 8;
+  }
+  // indicadores
+  const kw = (W - 2 * M - 30) / 4;
+  const kpis = [
+    ['PROGRESSO', st.pct + '%'],
+    ['ETAPAS', st.done + ' de ' + st.total],
+    ['PRÓXIMA ENTREGA', st.next ? st.next.name + ' · ' + fmtDate(st.next.end) : '—'],
+    ['ENTREGA PREVISTA', p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')],
+  ];
+  kpis.forEach((k, i) => {
+    const x = M + i * (kw + 10);
+    doc.setDrawColor(...line); doc.roundedRect(x, y, kw, 54, 8, 8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...soft); doc.text(k[0], x + 10, y + 16);
+    doc.setFontSize(i < 2 ? 15 : 9.5); doc.setTextColor(...ink);
+    doc.text(doc.splitTextToSize(k[1], kw - 20)[0], x + 10, y + 36);
+  });
+  doc.setFillColor(238, 242, 247); doc.roundedRect(M + 10, y + 43, kw - 20, 5, 2.5, 2.5, 'F');
+  if(st.pct > 0){ doc.setFillColor(...color); doc.roundedRect(M + 10, y + 43, Math.max(5, (kw - 20) * st.pct / 100), 5, 2.5, 2.5, 'F'); }
+  y += 54 + 26;
+
+  // linha do tempo
+  const dates = [today];
+  stageBlocks.forEach(b => { if(b.sg.start) dates.push(b.sg.start); if(b.sg.end) dates.push(b.sg.end); b.tasks.forEach(t => { if(t.startDate) dates.push(t.startDate); if(t.dueDate) dates.push(t.dueDate); }); });
+  if(p.endDate) dates.push(p.endDate);
+  dates.sort();
+  const f0 = new Date(dates[0] + 'T00:00:00'), l0 = new Date(dates[dates.length - 1] + 'T00:00:00');
+  const r0 = new Date(f0.getFullYear(), f0.getMonth(), 1), r1 = new Date(l0.getFullYear(), l0.getMonth() + 1, 1);
+  const total = Math.max(1, Math.round((r1 - r0) / 86400000));
+  const frac = d => Math.max(0, Math.min(1, Math.round((new Date(d + 'T00:00:00') - r0) / 86400000) / total));
+  const labelW = 190, trackX = M + labelW, trackW = W - M - trackX;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...soft); doc.text('LINHA DO TEMPO', M, y); y += 12;
+  ensure(30);
+  for(let d = new Date(r0); d < r1; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)){
+    const x = trackX + frac(dateToStr(d)) * trackW;
+    doc.setDrawColor(...line); doc.line(x, y - 2, x, y + 8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...soft);
+    doc.text(MONTH_LABELS[d.getMonth()].slice(0, 3).toUpperCase() + ' ' + String(d.getFullYear()).slice(2), x + 3, y + 6);
+  }
+  y += 14; doc.setDrawColor(...line); doc.line(M, y, W - M, y);
+  const todayX = trackX + frac(today) * trackW;
+  const row = (label, sub, a, b, pct, col, indent) => {
+    const rh = indent ? 17 : 21;
+    ensure(rh + 4);
+    doc.setFont('helvetica', indent ? 'normal' : 'bold'); doc.setFontSize(indent ? 8 : 8.5); doc.setTextColor(...ink);
+    const txt = doc.splitTextToSize(label || 'Sem título', labelW - 14 - (indent ? 14 : 0))[0];
+    doc.text(txt, M + 4 + (indent ? 14 : 0), y + (sub ? rh / 2 - 1 : rh / 2 + 3));
+    if(sub){ doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...soft); doc.text(sub, M + 4 + (indent ? 14 : 0), y + rh / 2 + 7); }
+    if(a !== null){
+      const x0 = trackX + a * trackW, w = Math.max(5, (b - a) * trackW);
+      doc.setFillColor(...mixWhite(col, .22)); doc.setDrawColor(...col); doc.roundedRect(x0, y + rh / 2 - 4, w, 8, 4, 4, 'FD');
+      if(pct > 0){ doc.setFillColor(...col); doc.roundedRect(x0, y + rh / 2 - 4, Math.max(4, w * pct / 100), 8, 4, 4, 'F'); }
+    }
+    doc.setDrawColor(229, 72, 77); doc.setLineWidth(1); doc.line(todayX, y, todayX, y + rh); doc.setLineWidth(.6);
+    doc.setDrawColor(...line); doc.line(M, y + rh, W - M, y + rh);
+    y += rh;
+  };
+  stageBlocks.forEach(b => {
+    const a = (b.sg.start || b.sg.end) ? frac(b.sg.start || b.sg.end) : null, e = (b.sg.end || b.sg.start) ? frac(b.sg.end || b.sg.start) : null;
+    row(b.sg.name, b.state + ' · ' + b.pct + '%', a, e, b.pct, stColor[b.state] || color, false);
+    b.tasks.forEach(t => {
+      const lbl = taskStatusLabel(t);
+      const ta = t.startDate ? frac(t.startDate) : (t.dueDate ? frac(t.dueDate) : null), tb = t.dueDate ? frac(t.dueDate) : ta;
+      row(t.title, lbl, ta, tb, Math.round(taskProgress(t) * 100), stColor[lbl] || color, true);
+    });
+  });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...soft);
+  ensure(18); doc.text('A linha vermelha marca hoje. Barras sólidas mostram o progresso.', M, y + 12); y += 30;
+
+  // tarefas por etapa, linha a linha
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...soft);
+  ensure(40); doc.text('TAREFAS POR ETAPA', M, y); y += 8;
+  const body = list => list.map(t => {
+    const subs = t.subtasks || [];
+    return [t.title || 'Sem título', taskStatusLabel(t), (PRIORITY_CONFIG.find(x => x.key === t.priority) || {}).label || '', t.startDate ? fmtDate(t.startDate) : '—', t.dueDate ? fmtDate(t.dueDate) : '—', Math.round(taskProgress(t) * 100) + '%' + (subs.length ? ' (' + subs.filter(x => x.done).length + '/' + subs.length + ')' : '')];
+  });
+  const table = (title, list) => {
+    ensure(70);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...ink); doc.text(title, M, y + 14);
+    doc.autoTable({
+      startY: y + 20, margin: { left: M, right: M },
+      head: [['Tarefa', 'Status', 'Prioridade', 'Início', 'Prazo', 'Progresso']],
+      body: list.length ? body(list) : [[{ content: 'Nenhuma tarefa nesta etapa.', colSpan: 6, styles: { textColor: soft } }]],
+      styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 4, lineColor: line, textColor: ink },
+      headStyles: { fillColor: [238, 242, 247], textColor: [71, 85, 105], fontStyle: 'bold', fontSize: 7.5 },
+      theme: 'grid',
+      columnStyles: { 0: { cellWidth: 190 }, 1: { cellWidth: 70 } },
+    });
+    y = doc.lastAutoTable.finalY + 14;
+  };
+  stageBlocks.forEach(b => table(b.sg.name + '  —  ' + b.state + ' · ' + b.pct + '%', b.tasks));
+  if(loose.length) table('Sem etapa', loose);
+
+  // rodapé com numeração
+  const pages = doc.getNumberOfPages();
+  for(let i = 1; i <= pages; i++){
+    doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...soft);
+    doc.text('DOUNO Tasks  ·  ' + (p.name || ''), M, H - 24);
+    doc.text('Página ' + i + ' de ' + pages, W - M, H - 24, { align: 'right' });
+  }
+  doc.save(reportFileName(p, 'pdf'));
+}
+/* Menu do botão "Relatório": PDF direto, planilha ou versão para imprimir */
+function openReportMenu(anchor, p){
+  closeReportMenu();
+  const menu = document.createElement('div');
+  menu.className = 'report-menu';
+  menu.id = 'reportMenu';
+  menu.innerHTML = `
+    <button type="button" data-report="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/></svg><span><b>Baixar PDF</b><small>Gerado aqui mesmo, pronto para enviar</small></span></button>
+    <button type="button" data-report="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/></svg><span><b>Baixar planilha (CSV)</b><small>Abre no Excel, uma linha por tarefa</small></span></button>
+    <button type="button" data-report="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="4" y="9" width="16" height="9" rx="2"/><path d="M7 14h10v7H7z"/></svg><span><b>Ver e imprimir</b><small>Abre a página do relatório</small></span></button>`;
+  document.body.appendChild(menu);
+  const r = anchor.getBoundingClientRect();
+  menu.style.top = Math.round(r.bottom + 6) + 'px';
+  menu.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + 'px';
+  menu.onclick = (e) => e.stopPropagation();
+  menu.querySelector('[data-report="csv"]').onclick = () => { closeReportMenu(); downloadProjectCsv(p); };
+  menu.querySelector('[data-report="print"]').onclick = () => { closeReportMenu(); exportProjectReport(p); };
+  const pdfBtn = menu.querySelector('[data-report="pdf"]');
+  pdfBtn.onclick = async () => {
+    const label = pdfBtn.querySelector('b');
+    pdfBtn.disabled = true; label.textContent = 'Gerando PDF…';
+    try{ await downloadProjectPdf(p); closeReportMenu(); }
+    catch(err){ console.error(err); label.textContent = 'Não foi possível gerar. Tente "Ver e imprimir".'; pdfBtn.disabled = false; }
+  };
+  setTimeout(() => document.addEventListener('click', closeReportMenu, { once: true }), 0);
+}
+function closeReportMenu(){ const m = document.getElementById('reportMenu'); if(m) m.remove(); }
 function exportProjectReport(p){
   const win = window.open('', '_blank');
   if(!win) return;

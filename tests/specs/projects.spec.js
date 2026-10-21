@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'fs';
 import { gotoApp } from './helpers.js';
 
 const seed = () => {
@@ -319,6 +320,8 @@ test('relatório do projeto: página com nome, descrição, linha do tempo e tar
     window.open = () => ({ document: { write: (h) => { window.__rep += h; }, close() {} }, focus() {} });
   }, seed.toString());
   await page.locator('#prjExport').click();
+  await expect(page.locator('#reportMenu')).toBeVisible();
+  await page.locator('[data-report="print"]').click();
   const html = await page.evaluate(() => window.__rep);
   expect(html).toContain('Construção da casa');
   expect(html).toContain('Casa de dois pavimentos');
@@ -330,4 +333,22 @@ test('relatório do projeto: página com nome, descrição, linha do tempo e tar
   const csv = await page.evaluate(() => projectCsv(buildProjectReportData(projectById('p1'))));
   expect(csv.split('\r\n')).toHaveLength(1 + 3); // cabeçalho + 3 tarefas do projeto
   expect(csv).toContain('"Concretar laje"');
+});
+
+test('relatório: CSV e PDF são baixados direto pelo sistema', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = 'p1'; render(); }, seed.toString());
+  // CSV
+  await page.locator('#prjExport').click();
+  const [csv] = await Promise.all([page.waitForEvent('download'), page.locator('[data-report="csv"]').click()]);
+  expect(csv.suggestedFilename()).toMatch(/^relatorio-.*.csv$/);
+  // PDF (carrega jsPDF sob demanda)
+  await page.locator('#prjExport').click();
+  const [pdf] = await Promise.all([page.waitForEvent('download', { timeout: 40000 }), page.locator('[data-report="pdf"]').click()]);
+  expect(pdf.suggestedFilename()).toMatch(/^relatorio-.*.pdf$/);
+  const path = await pdf.path();
+  const bytes = readFileSync(path);
+  expect(bytes.slice(0, 5).toString()).toBe('%PDF-');
+  expect(bytes.length).toBeGreaterThan(2000);
 });
