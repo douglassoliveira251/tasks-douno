@@ -847,6 +847,23 @@
   .gantt-add-input:focus{outline:none;}
   .gantt-add:focus-within{background:var(--surface-2);}
   @media (max-width:768px){ .gantt-add{grid-template-columns:150px 1fr;} }
+  .prj-badge{display:inline-grid; place-items:center; border-radius:50%; flex:none; color:var(--pc); background:color-mix(in srgb, var(--pc) 16%, transparent);}
+  .prj-badge svg{width:56%; height:56%;}
+  .plist-name b .prj-badge{margin-right:8px; vertical-align:middle;}
+  .prj-name-wrap{display:inline-flex; align-items:center; gap:10px; min-width:0;}
+  .prj-picker{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
+  .prj-swatches{display:flex; flex-wrap:wrap; gap:8px;}
+  .prj-swatch{width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;}
+  .prj-swatch.on{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ink-soft);}
+  .prj-icons{display:grid; grid-template-columns:repeat(auto-fill, minmax(38px, 1fr)); gap:6px; max-height:132px; overflow-y:auto; padding:2px;}
+  .prj-icon-btn{height:38px; border:1px solid transparent; background:var(--surface-2); border-radius:11px; color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; padding:0;}
+  .prj-icon-btn svg{width:18px; height:18px;}
+  .prj-icon-btn:hover{color:var(--ink);}
+  .prj-icon-btn.on{color:var(--pc, var(--primary)); border-color:var(--pc, var(--primary)); background:color-mix(in srgb, var(--pc, var(--primary)) 14%, transparent);}
+  .proj-desc-row{margin:-4px 0 12px;}
+  .proj-desc-input{width:100%; border:none; background:transparent; resize:none; font:inherit; font-size:13.5px; color:var(--ink-soft); padding:4px 2px; line-height:1.45; overflow:hidden;}
+  .proj-desc-input::placeholder{color:var(--ink-faint);}
+  .proj-desc-input:focus{outline:none; background:var(--surface); border-radius:10px; padding:6px 10px; box-shadow:0 0 0 1.5px var(--primary);}
   .gantt-task.dragging{opacity:.45;}
   .gantt-row.drop-over, .gantt-task.drop-over{outline:2px dashed var(--primary); outline-offset:-2px; background:color-mix(in srgb, var(--primary) 8%, transparent);}
   .gantt-task[draggable="true"]{cursor:grab;}
@@ -2679,7 +2696,7 @@
     .gantt-head, .gantt-row, .gantt-task, .gantt-add{grid-template-columns:200px 1fr;}
     .gantt-head .gl, .gantt-row .gl, .gantt-task .gl, .gantt-add .gl{position:sticky; left:0; z-index:2; background:var(--surface);}
     .gantt-row .gl{background:var(--surface-2);}
-    .proj-toolbar b{flex:1 1 100%; order:5;}
+    .proj-toolbar .prj-name-wrap{flex:1 1 100%; order:5;}
     .proj-split{grid-template-columns:1fr;}
     /* configurações: a linha de opção quebra em vez de espremer o texto */
     .settings-row{flex-wrap:wrap;}
@@ -3155,6 +3172,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.165', date:'21/10/2026', title:'Ícone, cor e descrição no projeto', text:'Cada projeto pode ter um ícone (biblioteca Lucide) e uma cor, mostrados em círculo na lista e no topo do projeto. Há também uma breve descrição editável logo abaixo do nome. Dentro das etapas, as tarefas se organizam sozinhas por data de início.' },
   { version:'1.10.164', date:'21/10/2026', title:'Revisão do celular', text:'Ajustes na versão mobile: painel da tarefa com botão de fechar e campos empilhados, semana do calendário cabendo na tela, título das notas sem corte, lista e linha do tempo de projetos mais legíveis e configurações sem texto espremido.' },
   { version:'1.10.163', date:'21/10/2026', title:'Voltou: nova tarefa direto na etapa', text:'O campo "+ Nova tarefa" voltou ao fim de cada etapa na linha do tempo: digite o nome e Enter para criar. Etapas continuam sendo criadas só pelo botão "+ Etapa" ou pelo "+".' },
   { version:'1.10.162', date:'21/10/2026', title:'Criar tarefa só pelos botões', text:'O campo "+ Nova tarefa" da linha do tempo saiu. Para criar uma tarefa no projeto, use o botão "+ Tarefa" ou "+ Nova tarefa nesta etapa" no resumo.' },
@@ -6877,7 +6895,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.164';
+const APP_VERSION = '1.10.165';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8791,6 +8809,25 @@ let activeProjectId = null;
 let projectTab = 'timeline';
 let selectedStageId = null;
 
+/* Ícones do projeto: conjunto do Lucide (https://lucide.dev, licença ISC), embutido no arquivo. */
+const PROJECT_ICONS = {"house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","building-2":"<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\" /> <path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\" /> <path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\" /> <path d=\"M10 6h4\" /> <path d=\"M10 10h4\" /> <path d=\"M10 14h4\" /> <path d=\"M10 18h4\" />","hammer":"<path d=\"m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9\" /> <path d=\"m18 15 4-4\" /> <path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\" />","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\" />","briefcase":"<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />","rocket":"<path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z\" /> <path d=\"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z\" /> <path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0\" /> <path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" />","target":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" />","flag":"<path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\" /> <line x1=\"4\" x2=\"4\" y1=\"22\" y2=\"15\" />","lightbulb":"<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />","palette":"<circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /> <path d=\"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z\" />","code":"<polyline points=\"16 18 22 12 16 6\" /> <polyline points=\"8 6 2 12 8 18\" />","laptop":"<path d=\"M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16\" />","smartphone":"<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />","shopping-cart":"<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />","graduation-cap":"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /> <path d=\"M22 10v6\" /> <path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />","book-open":"<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />","heart":"<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" />","plane":"<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />","car":"<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />","camera":"<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","music":"<path d=\"M9 18V5l12-2v13\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <circle cx=\"18\" cy=\"16\" r=\"3\" />","megaphone":"<path d=\"m3 11 18-5v12L3 14v-3z\" /> <path d=\"M11.6 16.8a3 3 0 1 1-5.8-1.6\" />","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />","calendar":"<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />","chart-line":"<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"m19 9-5 5-4-4-3 3\" />","package":"<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />","leaf":"<path d=\"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z\" /> <path d=\"M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12\" />","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\" /> <path d=\"M12 2v2\" /> <path d=\"M12 20v2\" /> <path d=\"m4.93 4.93 1.41 1.41\" /> <path d=\"m17.66 17.66 1.41 1.41\" /> <path d=\"M2 12h2\" /> <path d=\"M20 12h2\" /> <path d=\"m6.34 17.66-1.41 1.41\" /> <path d=\"m19.07 4.93-1.41 1.41\" />","star":"<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" />","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /> <path d=\"M2 12h20\" />","store":"<path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" /> <path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\" /> <path d=\"M2 7h20\" /> <path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\" />","utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />","dumbbell":"<path d=\"M14.4 14.4 9.6 9.6\" /> <path d=\"M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z\" /> <path d=\"m21.5 21.5-1.4-1.4\" /> <path d=\"M3.9 3.9 2.5 2.5\" /> <path d=\"M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z\" />","stethoscope":"<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />","map-pin":"<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />","gift":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />","key":"<path d=\"m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4\" /> <path d=\"m21 2-9.6 9.6\" /> <circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\" />","paintbrush":"<path d=\"m14.622 17.897-10.68-2.913\" /> <path d=\"M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z\" /> <path d=\"M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15\" />","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\" /> <path d=\"M8.12 8.12 12 12\" /> <path d=\"M20 4 8.12 15.88\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <path d=\"M14.8 14.8 20 20\" />","trophy":"<path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\" /> <path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\" /> <path d=\"M4 22h16\" /> <path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\" /> <path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\" /> <path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\" />","zap":"<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />","coffee":"<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />"};
+const PROJECT_COLORS = ['#3B82F6','#0EA5E9','#14B8A6','#2F7D5B','#84CC16','#F59E0B','#E5484D','#EC4899','#8B5CF6','#64748B'];
+function projectColor(p){ return p.color || ((catById(p.categoryId) || {}).color) || '#3B82F6'; }
+function projectIconSvg(name){
+  const inner = PROJECT_ICONS[name] || PROJECT_ICONS.briefcase;
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+}
+/* círculo com o ícone, na cor do projeto */
+function projectBadgeHtml(p, size){
+  const c = projectColor(p);
+  return `<span class="prj-badge" style="--pc:${c}; width:${size}px; height:${size}px;">${projectIconSvg(p.icon || 'briefcase')}</span>`;
+}
+/* tarefas de uma etapa em ordem de início: quem começa antes sobe; sem datas vai para o fim */
+function taskStartKey(t){ return (t.startDate || t.dueDate || '9999-99-99'); }
+function sortByStart(list){
+  return list.slice().sort((a, b) => taskStartKey(a).localeCompare(taskStartKey(b)) || (a.dueDate || '9999').localeCompare(b.dueDate || '9999') || (a.createdAt || 0) - (b.createdAt || 0));
+}
+
 function projectById(id){ return id ? (state.projects || []).find(p => p.id === id) : null; }
 function projectsInScope(){
   return (state.projects || []).filter(p => !activeCategoryFilter || p.categoryId === activeCategoryFilter);
@@ -8906,6 +8943,13 @@ function openProjectEditor(project){
       <input type="text" class="nm-title-input" id="prjName" placeholder="Nome do projeto" value="${escapeHtml(p.name || '')}">
     </div>
     <div class="nm-body">
+    <div class="tp-field"><label class="tp-label">Ícone e cor</label>
+      <div class="prj-picker">
+        <span class="prj-badge" id="prjIconPreview" style="--pc:${projectColor(p)}; width:44px; height:44px;">${projectIconSvg(p.icon || 'briefcase')}</span>
+        <div class="prj-swatches">${PROJECT_COLORS.map(c => `<button type="button" class="prj-swatch" data-color="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}</div>
+      </div>
+      <div class="prj-icons">${Object.keys(PROJECT_ICONS).map(n => `<button type="button" class="prj-icon-btn" data-icon="${n}" title="${n}">${projectIconSvg(n)}</button>`).join('')}</div>
+    </div>
     <div class="tp-field"><label class="tp-label">Espaço</label>
       <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
     <div class="tpl-grid">
@@ -8925,6 +8969,18 @@ function openProjectEditor(project){
   modal.className = 'modal nm nm-560';
   modal.querySelector('#prjCancel').onclick = () => ov.classList.remove('show');
   modal.querySelector('#prjClose').onclick = () => ov.classList.remove('show');
+  let selIcon = p.icon || 'briefcase', selColor = projectColor(p);
+  const prjPreview = modal.querySelector('#prjIconPreview');
+  function paintProjectPicker(){
+    prjPreview.style.setProperty('--pc', selColor);
+    prjPreview.innerHTML = projectIconSvg(selIcon);
+    modal.querySelectorAll('[data-icon]').forEach(b => b.classList.toggle('on', b.dataset.icon === selIcon));
+    modal.querySelectorAll('[data-color]').forEach(b => b.classList.toggle('on', b.dataset.color === selColor));
+    modal.querySelectorAll('.prj-icon-btn').forEach(b => { b.style.setProperty('--pc', selColor); });
+  }
+  modal.querySelectorAll('[data-icon]').forEach(b => { b.onclick = () => { selIcon = b.dataset.icon; paintProjectPicker(); }; });
+  modal.querySelectorAll('[data-color]').forEach(b => { b.onclick = () => { selColor = b.dataset.color; paintProjectPicker(); }; });
+  paintProjectPicker();
   if(project){
     modal.querySelector('#prjDelete').onclick = () => {
       const n = state.tasks.filter(t => t.projectId === p.id).length;
@@ -8941,6 +8997,7 @@ function openProjectEditor(project){
     const err = modal.querySelector('#prjError');
     if(!name){ err.textContent = 'Dê um nome ao projeto.'; err.style.display = 'block'; return; }
     p.name = name;
+    p.icon = selIcon; p.color = selColor;
     p.categoryId = modal.querySelector('#prjCategory').value;
     p.description = modal.querySelector('#prjDesc').value;
     p.startDate = modal.querySelector('#prjStart').value;
@@ -9104,7 +9161,7 @@ function renderProjectList(view){
       ${filtered.length ? filtered.map(r => {
         const cat = catById(r.p.categoryId);
         return `<div class="plist-row" data-id="${r.p.id}">
-          <div class="plist-name"><b><i style="background:${cat ? cat.color : 'var(--primary)'}"></i>${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}${r.st.next ? ' · ' + escapeHtml(r.st.next.name) : ''}</small></div>
+          <div class="plist-name"><b>${projectBadgeHtml(r.p, 24)}${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}${r.st.next ? ' · ' + escapeHtml(r.st.next.name) : ''}</small></div>
           <div class="plist-prog"><div class="proj-bar"><i style="width:${r.st.pct}%; ${r.kind === 'concluido' ? 'background:var(--ok);' : (r.kind === 'atrasado' ? 'background:var(--danger);' : '')}"></i></div><span class="plist-pc">${r.st.pct}%</span></div>
           <span class="plist-stage">${miniTimelineHtml(r.p)}</span>
           <span class="plist-end">${r.st.end ? fmtDate(r.st.end) : '—'}</span>
@@ -9132,7 +9189,7 @@ function renderProjectDetail(view, p){
   if(!selStage) selectedStageId = null;
   let stageSideHtml = '';
   if(selStage){
-    const spct = stagePercent(p, selStage), sstate = stageState(p, selStage), stks = stageTasks(p, selStage);
+    const spct = stagePercent(p, selStage), sstate = stageState(p, selStage), stks = sortByStart(stageTasks(p, selStage));
     stageSideHtml = `
       <button type="button" class="proj-side-back" id="stgSideBack">‹ Visão geral do projeto</button>
       <div class="proj-side-label" style="margin-top:8px;">Etapa</div>
@@ -9153,7 +9210,7 @@ function renderProjectDetail(view, p){
   view.innerHTML = `
     <div class="proj-toolbar">
       <button type="button" class="btn ghost small" id="prjBack">‹ Projetos</button>
-      <b style="font-family:var(--font-display); font-size:18px;">${escapeHtml(p.name)}</b>
+      <span class="prj-name-wrap">${projectBadgeHtml(p, 32)}<b style="font-family:var(--font-display); font-size:18px;">${escapeHtml(p.name)}</b></span>
       ${projectChipsHtml(st)}
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button type="button" class="btn ghost small" id="prjEdit">Editar projeto</button>
@@ -9161,6 +9218,7 @@ function renderProjectDetail(view, p){
         <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
       </span>
     </div>
+    <div class="proj-desc-row"><textarea id="prjDescInline" class="proj-desc-input" rows="1" maxlength="600" placeholder="+ Adicionar uma breve descrição do projeto">${escapeHtml(p.description || '')}</textarea></div>
     <div class="proj-tabs" style="margin-bottom:12px;">
       <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
       <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
@@ -9193,6 +9251,17 @@ function renderProjectDetail(view, p){
     tpanel.className = 'task-panel';
     view.appendChild(tpanel);
     renderTaskPanel(tpanel);
+  }
+  const descEl = view.querySelector('#prjDescInline');
+  if(descEl){
+    const fitDesc = () => { descEl.style.height = 'auto'; descEl.style.height = Math.min(descEl.scrollHeight, 140) + 'px'; };
+    fitDesc();
+    descEl.addEventListener('input', fitDesc);
+    descEl.addEventListener('blur', () => {
+      const v = descEl.value.trim();
+      if(v !== (p.description || '')){ p.description = v; persistOnly(); }
+    });
+    descEl.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); descEl.blur(); } });
   }
   const sideBack = view.querySelector('#stgSideBack');
   if(sideBack) sideBack.onclick = () => { selectedStageId = null; render(); };
@@ -9287,7 +9356,7 @@ function renderProjectDetail(view, p){
           return `<div class="gantt-row${sg.id === selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
             <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}${tks.length ? ' · ' + tks.filter(t => t.done).length + '/' + tks.length + ' tarefas' : ''}</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
-          </div>` + (collapsed ? '' : tks.slice().sort((x, y) => (x.dueDate || '').localeCompare(y.dueDate || '')).map(t => ganttTaskRow(t, state_, pos)).join('') + ganttAddRow(sg.id));
+          </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + ganttAddRow(sg.id));
         }).join('')}
         ${(() => {
           const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId);

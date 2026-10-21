@@ -1,3 +1,17 @@
+## [1.10.165] - 2026-10-21 22:00
+
+### Added
+
+#### Projetos
+
+- Ícone e cor do projeto: no cadastro/edição escolhe-se uma das 46 opções de ícone (Lucide, licença ISC, embutidos no arquivo) e uma de 10 cores; aparecem em círculo na lista de projetos e ao lado do nome no projeto aberto. Sem escolha, usa a cor do espaço.
+- Descrição breve editável logo abaixo do nome do projeto (salva ao sair do campo).
+
+### Changed
+
+- As tarefas dentro de cada etapa passam a se organizar por data de início (início próprio ou, na falta, o prazo): quem começa antes sobe, quem não tem data vai para o fim. Vale para a linha do tempo e para o resumo da etapa.
+
+
 ## [1.10.164] - 2026-10-21 21:00
 
 ### Fixed

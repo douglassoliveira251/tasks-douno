@@ -277,3 +277,28 @@ test('linha "+ Nova tarefa" no fim de cada etapa cria a tarefa com nome + Enter'
   expect(await page.evaluate(() => currentView)).toBe('projects');
   await expect(page.locator('.task-panel .tp-name-input')).toHaveValue('Instalar elétrica');
 });
+
+test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de início', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = null; render(); }, seed.toString());
+  // ícone e cor pelo cadastro
+  await page.locator('.plist-row').click();
+  await page.locator('#prjEdit').click();
+  await page.locator('.prj-icon-btn[data-icon="rocket"]').click();
+  await page.locator('.prj-swatch[data-color="#E5484D"]').click();
+  await page.locator('#prjSave').click();
+  expect(await page.evaluate(() => { const p = projectById('p1'); return [p.icon, p.color]; })).toEqual(['rocket', '#E5484D']);
+  await expect(page.locator('.proj-toolbar .prj-badge')).toBeVisible();
+  // descrição breve direto no topo
+  await page.locator('#prjDescInline').fill('Casa de dois pavimentos');
+  await page.locator('#prjDescInline').press('Enter');
+  expect(await page.evaluate(() => projectById('p1').description)).toBe('Casa de dois pavimentos');
+  // ordem por início: quem começa antes sobe; sem data vai para o fim
+  const ordem = await page.evaluate(() => {
+    const t = todayStr();
+    const mk = (id, due, start) => ({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: due, startDate: start, createdAt: 1, subtasks: [], tagIds: [], comments: [], attachments: [] });
+    return sortByStart([mk('sem', null, null), mk('tarde', addDaysStr(t, 20), null), mk('cedo', addDaysStr(t, 30), addDaysStr(t, 1)), mk('meio', addDaysStr(t, 5), null)]).map(x => x.id);
+  });
+  expect(ordem).toEqual(['cedo', 'meio', 'tarde', 'sem']);
+});
