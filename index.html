@@ -3242,6 +3242,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.172', date:'21/10/2026', title:'Início da tarefa passa a valer na hora', text:'Ao definir o início de uma tarefa, a linha do tempo do projeto atualiza na hora, inclusive quando você escolhe a data de hoje (antes o campo já vinha com hoje e a escolha não era salva).' },
   { version:'1.10.171', date:'21/10/2026', title:'Retomada já vem com a data de hoje', text:'Toda tarefa nova nasce com retomada para hoje, e a próxima ocorrência de uma tarefa recorrente volta com a retomada marcada no dia dela. Assim você acompanha tudo pela visão de retomada.' },
   { version:'1.10.170', date:'21/10/2026', title:'Visão geral e projetos melhores no celular', text:'Os cartões agora usam a largura da tela, a lista de projetos ficou mais limpa, o resumo do projeto vem primeiro e a lista de etapas abre por padrão no celular.' },
   { version:'1.10.169', date:'22/10/2026', title:'Barra do projeto reorganizada', text:'No projeto: botão de voltar redondo, "Nova etapa" e "Nova tarefa" em destaque e o menu "⋮" com Editar projeto e Relatório (PDF, planilha, imprimir). A descrição virou um texto limpo, sem caixa: até duas linhas com "Ver mais", e clicar nela edita.' },
@@ -5411,7 +5412,7 @@ function renderTaskPanel(panel){
           <button type="button" class="tp-start-link" id="tpStartLink" title="Início da tarefa (opcional)">${task.startDate ? 'início ' + fmtDate(task.startDate) : '+ início'}</button></label>
         ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${tpStartOpen ? '' : 'hidden'}>
           <div class="tp-start-k">Início da tarefa</div>
-          <div class="tp-start-box"><input type="date" id="tpStartDate" value="${es.date}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'ao abrir a tarefa')}</span></div>
+          <div class="tp-start-box"><input type="date" id="tpStartDate" value="${task.startDate || ''}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'sem início: vale ' + fmtDate(es.date))}</span></div>
           <div class="tp-start-chips"><button type="button" data-start="${todayStr()}">Hoje</button><button type="button" data-start="${addDaysStr(todayStr(), 1)}">Amanhã</button><button type="button" data-start="${nextMondayStr()}">Segunda</button></div>
           <div class="tp-start-foot">${task.startDate ? '<button type="button" id="tpStartReset">Remover início</button>' : '<span></span>'}<span>${task.dueDate ? 'Prazo ' + fmtDate(task.dueDate) : 'Sem prazo'}</span></div>
         </div>`; })()}
@@ -6973,7 +6974,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.171';
+const APP_VERSION = '1.10.172';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

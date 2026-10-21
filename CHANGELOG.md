@@ -1,3 +1,12 @@
+## [1.10.172] - 2026-10-21 15:00
+
+### Fixed
+
+#### Tarefas
+
+- Início da tarefa: o campo vinha preenchido com a data de criação, então escolher essa mesma data (hoje) não disparava a alteração e a linha do tempo seguia "sem início". Agora o campo começa vazio e qualquer data escolhida é salva.
+
+
 ## [1.10.171] - 2026-10-21 14:00
 
 ### Changed
