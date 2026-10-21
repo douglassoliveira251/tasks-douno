@@ -851,13 +851,25 @@
   .prj-badge svg{width:56%; height:56%;}
   .plist-name b .prj-badge{margin-right:8px; vertical-align:middle;}
   .prj-name-wrap{display:inline-flex; align-items:center; gap:10px; min-width:0;}
+  .prj-headrow{display:flex; align-items:center; gap:12px; margin-top:2px;}
+  .prj-headrow .nm-title-input{margin:0; flex:1; min-width:0;}
+  .modal.nm .prj-body{padding-top:10px;}
+  .prj-row3{display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px;}
+  .prj-row3 .tp-field, .prj-body .tp-field{margin-bottom:10px;}
+  .prj-iconhead{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .prj-iconhead .tp-label{margin:0;}
+  .prj-colordot{width:20px; height:20px; border-radius:50%; border:2px solid var(--surface); box-shadow:0 0 0 1.5px var(--border); cursor:pointer; padding:0;}
+  .prj-colordot:hover{box-shadow:0 0 0 2px var(--ink-faint);}
+  .prj-colorpop{position:absolute; left:46px; top:26px; z-index:20; display:flex; flex-wrap:wrap; gap:8px; width:206px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:10px; box-shadow:0 12px 28px rgba(20,30,50,.2);}
+  .prj-colorpop[hidden]{display:none;}
   .prj-picker{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
   .prj-swatches{display:flex; flex-wrap:wrap; gap:8px;}
   .prj-swatch{width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;}
   .prj-swatch.on{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ink-soft);}
-  .prj-icons{display:grid; grid-template-columns:repeat(auto-fill, minmax(38px, 1fr)); gap:6px; max-height:132px; overflow-y:auto; padding:2px;}
-  .prj-icon-btn{height:38px; border:1px solid transparent; background:var(--surface-2); border-radius:11px; color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; padding:0;}
-  .prj-icon-btn svg{width:18px; height:18px;}
+  .prj-icons{display:grid; grid-template-columns:repeat(auto-fill, minmax(34px, 1fr)); gap:5px; max-height:none; padding:2px;}
+  .prj-icon-btn{height:34px; border:1px solid transparent; background:var(--surface-2); border-radius:11px; color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; padding:0;}
+  .prj-icon-btn svg{width:17px; height:17px;}
+  @media (max-width:600px){ .prj-row3{grid-template-columns:1fr 1fr;} .prj-row3 > :first-child{grid-column:1 / -1;} }
   .prj-icon-btn:hover{color:var(--ink);}
   .prj-icon-btn.on{color:var(--pc, var(--primary)); border-color:var(--pc, var(--primary)); background:color-mix(in srgb, var(--pc, var(--primary)) 14%, transparent);}
   .proj-desc-row{margin:-4px 0 12px;}
@@ -957,7 +969,7 @@
   @media (max-width:768px){ .proj-kpis{grid-template-columns:repeat(2,1fr);} .gantt-head, .gantt-row{grid-template-columns:150px 1fr;} }
   /* ---- Janelas no novo visual (projeto, etapa, template, comentários) ---- */
   .modal.nm{padding:0; border-radius:22px; max-height:calc(100vh - 40px); max-width:calc(100vw - 24px); overflow-y:auto; position:relative;}
-  .modal.nm.nm-460{width:460px;} .modal.nm.nm-560{width:560px;} .modal.nm.nm-900{width:900px;}
+  .modal.nm.nm-460{width:460px;} .modal.nm.nm-560{width:600px;} .modal.nm.nm-900{width:900px;}
   .nm-flag{height:5px; background:var(--primary); position:sticky; top:0; z-index:2;}
   .nm-x{position:absolute; right:16px; top:18px; width:30px; height:30px; border-radius:50%; border:none; background:none; color:var(--ink-faint); display:grid; place-items:center; cursor:pointer; z-index:3;}
   .nm-x:hover{background:var(--surface-2);} .nm-x svg{width:16px; height:16px;}
@@ -3172,6 +3184,8 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.167', date:'21/10/2026', title:'Cadastro de projeto mais compacto', text:'A cor do projeto agora é uma bolinha: clique nela para escolher na paleta. O formulário foi reorganizado (espaço e datas na mesma linha, ícones em grade compacta e descrição curta) para aproveitar melhor o espaço.' },
+  { version:'1.10.166', date:'21/10/2026', title:'Relatório do projeto', text:'No projeto aberto, o botão "Relatório" gera uma página com nome, descrição, resumo, linha do tempo e as tarefas linha a linha de cada etapa, pronta para imprimir, salvar em PDF ou baixar em planilha (CSV) e enviar para alguém.' },
   { version:'1.10.165', date:'21/10/2026', title:'Ícone, cor e descrição no projeto', text:'Cada projeto pode ter um ícone (biblioteca Lucide) e uma cor, mostrados em círculo na lista e no topo do projeto. Há também uma breve descrição editável logo abaixo do nome. Dentro das etapas, as tarefas se organizam sozinhas por data de início.' },
   { version:'1.10.164', date:'21/10/2026', title:'Revisão do celular', text:'Ajustes na versão mobile: painel da tarefa com botão de fechar e campos empilhados, semana do calendário cabendo na tela, título das notas sem corte, lista e linha do tempo de projetos mais legíveis e configurações sem texto espremido.' },
   { version:'1.10.163', date:'21/10/2026', title:'Voltou: nova tarefa direto na etapa', text:'O campo "+ Nova tarefa" voltou ao fim de cada etapa na linha do tempo: digite o nome e Enter para criar. Etapas continuam sendo criadas só pelo botão "+ Etapa" ou pelo "+".' },
@@ -6895,7 +6909,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.165';
+const APP_VERSION = '1.10.167';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8940,25 +8954,27 @@ function openProjectEditor(project){
     <button type="button" class="nm-x" id="prjClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="nm-head">
       <div class="nm-kicker">${project ? 'Editar projeto' : 'Novo projeto'}</div>
-      <input type="text" class="nm-title-input" id="prjName" placeholder="Nome do projeto" value="${escapeHtml(p.name || '')}">
-    </div>
-    <div class="nm-body">
-    <div class="tp-field"><label class="tp-label">Ícone e cor</label>
-      <div class="prj-picker">
-        <span class="prj-badge" id="prjIconPreview" style="--pc:${projectColor(p)}; width:44px; height:44px;">${projectIconSvg(p.icon || 'briefcase')}</span>
-        <div class="prj-swatches">${PROJECT_COLORS.map(c => `<button type="button" class="prj-swatch" data-color="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}</div>
+      <div class="prj-headrow">
+        <span class="prj-badge" id="prjIconPreview" style="--pc:${projectColor(p)}; width:46px; height:46px;">${projectIconSvg(p.icon || 'briefcase')}</span>
+        <input type="text" class="nm-title-input" id="prjName" placeholder="Nome do projeto" value="${escapeHtml(p.name || '')}">
       </div>
-      <div class="prj-icons">${Object.keys(PROJECT_ICONS).map(n => `<button type="button" class="prj-icon-btn" data-icon="${n}" title="${n}">${projectIconSvg(n)}</button>`).join('')}</div>
     </div>
-    <div class="tp-field"><label class="tp-label">Espaço</label>
-      <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
-    <div class="tpl-grid">
+    <div class="nm-body prj-body">
+    <div class="prj-row3">
+      <div class="tp-field"><label class="tp-label">Espaço</label>
+        <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
       <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="prjStart" value="${p.startDate || ''}"></div>
       <div class="tp-field"><label class="tp-label">Entrega prevista</label><input type="date" class="tp-input" id="prjEnd" value="${p.endDate || ''}"></div>
     </div>
+    <div class="tp-field" style="position:relative;">
+      <div class="prj-iconhead"><label class="tp-label">Ícone</label>
+        <button type="button" class="prj-colordot" id="prjColorDot" title="Escolher a cor" aria-label="Escolher a cor do projeto" style="background:${projectColor(p)}"></button>
+        <div class="prj-colorpop" id="prjColorPop" hidden>${PROJECT_COLORS.map(c => `<button type="button" class="prj-swatch" data-color="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}</div>
+      </div>
+      <div class="prj-icons">${Object.keys(PROJECT_ICONS).map(n => `<button type="button" class="prj-icon-btn" data-icon="${n}" title="${n}">${projectIconSvg(n)}</button>`).join('')}</div>
+    </div>
     <div class="tp-field"><label class="tp-label">Descrição</label>
-      <textarea class="tp-textarea" id="prjDesc" rows="3" placeholder="Detalhes do projeto...">${escapeHtml(p.description || '')}</textarea></div>
-    ${project ? '' : '<div class="nm-note">Depois de criar, adicione as etapas na linha do tempo do projeto.</div>'}
+      <textarea class="tp-textarea" id="prjDesc" rows="2" placeholder="Breve descrição do projeto...">${escapeHtml(p.description || '')}</textarea></div>
     <p id="prjError" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
     </div>
     <div class="modal-footer">
@@ -8977,9 +8993,14 @@ function openProjectEditor(project){
     modal.querySelectorAll('[data-icon]').forEach(b => b.classList.toggle('on', b.dataset.icon === selIcon));
     modal.querySelectorAll('[data-color]').forEach(b => b.classList.toggle('on', b.dataset.color === selColor));
     modal.querySelectorAll('.prj-icon-btn').forEach(b => { b.style.setProperty('--pc', selColor); });
+    const dot = modal.querySelector('#prjColorDot'); if(dot) dot.style.background = selColor;
   }
+  const colorPop = modal.querySelector('#prjColorPop');
+  modal.querySelector('#prjColorDot').onclick = (e) => { e.stopPropagation(); colorPop.hidden = !colorPop.hidden; };
+  colorPop.onclick = (e) => e.stopPropagation();
+  modal.addEventListener('click', () => { colorPop.hidden = true; });
   modal.querySelectorAll('[data-icon]').forEach(b => { b.onclick = () => { selIcon = b.dataset.icon; paintProjectPicker(); }; });
-  modal.querySelectorAll('[data-color]').forEach(b => { b.onclick = () => { selColor = b.dataset.color; paintProjectPicker(); }; });
+  modal.querySelectorAll('[data-color]').forEach(b => { b.onclick = () => { selColor = b.dataset.color; paintProjectPicker(); colorPop.hidden = true; }; });
   paintProjectPicker();
   if(project){
     modal.querySelector('#prjDelete').onclick = () => {
@@ -9213,6 +9234,7 @@ function renderProjectDetail(view, p){
       <span class="prj-name-wrap">${projectBadgeHtml(p, 32)}<b style="font-family:var(--font-display); font-size:18px;">${escapeHtml(p.name)}</b></span>
       ${projectChipsHtml(st)}
       <span style="margin-left:auto; display:flex; gap:8px;">
+        <button type="button" class="btn ghost small" id="prjExport" title="Gerar relatório para imprimir, salvar em PDF ou baixar em planilha">Relatório</button>
         <button type="button" class="btn ghost small" id="prjEdit">Editar projeto</button>
         <button type="button" class="btn ghost small" id="prjAddTask">+ Tarefa</button>
         <button type="button" class="btn small" id="prjAddStage">+ Etapa</button>
@@ -9287,6 +9309,7 @@ function renderProjectDetail(view, p){
   });
   view.querySelector('#prjBack').onclick = () => { activeProjectId = null; selectedStageId = null; render(); };
   view.querySelector('#prjEdit').onclick = () => openProjectEditor(p);
+  view.querySelector('#prjExport').onclick = () => exportProjectReport(p);
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
   view.querySelector('#prjAddTask').onclick = () => {
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
@@ -9433,6 +9456,129 @@ function createProjectTask(project, stageId, title){
 /* Linha "+ Nova tarefa" no fim de cada etapa: digita o nome e Enter cria a tarefa na etapa, sem prazo. */
 function ganttAddRow(stageId){
   return `<div class="gantt-add" data-stage="${stageId}"><div class="gl"><input type="text" class="gantt-add-input" placeholder="+ Nova tarefa (Enter)" maxlength="200" aria-label="Nova tarefa nesta etapa"></div><div class="gantt-track"></div></div>`;
+}
+/* ===== Relatório do projeto (impressão/PDF e planilha CSV) ===== */
+function taskStatusLabel(t){
+  if(t.done) return 'Concluída';
+  if(t.dueDate && t.dueDate < todayStr()) return 'Atrasada';
+  if(t.status === 'em_andamento' || taskProgress(t) > 0) return 'Em andamento';
+  return 'Não iniciada';
+}
+function buildProjectReportData(p){
+  const today = todayStr();
+  const st = projectStatus(p);
+  const stages = (p.stages || []).slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999'));
+  const cat = catById(p.categoryId);
+  const rows = [];
+  const stageBlocks = stages.map(sg => {
+    const tasks = sortByStart(stageTasks(p, sg));
+    tasks.forEach(t => rows.push({ stage: sg.name, t }));
+    return { sg, pct: stagePercent(p, sg), state: STAGE_STATE_LABELS[stageState(p, sg)], tasks };
+  });
+  const loose = sortByStart(state.tasks.filter(t => t.projectId === p.id && !t.stageId));
+  loose.forEach(t => rows.push({ stage: '(sem etapa)', t }));
+  return { p, st, stageBlocks, loose, rows, cat, today };
+}
+function projectCsv(data){
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const head = ['Projeto','Etapa','Tarefa','Status','Prioridade','Início','Prazo','Progresso','Subtarefas'];
+  const lines = [head.map(q).join(';')];
+  data.rows.forEach(({ stage, t }) => {
+    const subs = t.subtasks || [];
+    lines.push([data.p.name, stage, t.title || 'Sem título', taskStatusLabel(t), (PRIORITY_CONFIG.find(x => x.key === t.priority) || {}).label || '', t.startDate ? fmtDate(t.startDate) : '', t.dueDate ? fmtDate(t.dueDate) : '', Math.round(taskProgress(t) * 100) + '%', subs.length ? subs.filter(x => x.done).length + '/' + subs.length : ''].map(q).join(';'));
+  });
+  return '\ufeff' + lines.join('\r\n');
+}
+function projectReportHtml(data){
+  const { p, st, stageBlocks, loose, cat, today } = data;
+  const color = projectColor(p);
+  // escala da linha do tempo
+  const dates = [today];
+  stageBlocks.forEach(b => { if(b.sg.start) dates.push(b.sg.start); if(b.sg.end) dates.push(b.sg.end); b.tasks.forEach(t => { if(t.startDate) dates.push(t.startDate); if(t.dueDate) dates.push(t.dueDate); }); });
+  if(p.endDate) dates.push(p.endDate);
+  dates.sort();
+  const first = new Date(dates[0] + 'T00:00:00'), last = new Date(dates[dates.length - 1] + 'T00:00:00');
+  const r0 = new Date(first.getFullYear(), first.getMonth(), 1), r1 = new Date(last.getFullYear(), last.getMonth() + 1, 1);
+  const total = Math.max(1, Math.round((r1 - r0) / 86400000));
+  const pos = d => Math.max(0, Math.min(100, Math.round((new Date(d + 'T00:00:00') - r0) / 86400000) / total * 100));
+  const months = [];
+  for(let d = new Date(r0); d < r1; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)){
+    const nx = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    months.push({ l: MONTH_LABELS[d.getMonth()].slice(0, 3) + ' ' + String(d.getFullYear()).slice(2), w: (nx - d) / 86400000 / total * 100 });
+  }
+  const todayPos = pos(today);
+  const stColor = { 'Concluída': '#2F7D5B', 'Em andamento': color, 'Atrasada': '#E5484D', 'Não iniciada': '#94A3B8', 'Atrasada ': '#E5484D' };
+  const tlRow = (label, sub, a, b, pct, col, indent) => `<tr><td class="tl-l${indent ? ' ind' : ''}"><b>${escapeHtml(label)}</b>${sub ? '<small>' + escapeHtml(sub) + '</small>' : ''}</td><td class="tl-t"><div class="tl-track">${a !== null ? `<div class="tl-bar" style="left:${a}%; width:${Math.max(b - a, 1.2)}%; background:${col}33; border:1px solid ${col}"><i style="width:${pct}%; background:${col}"></i></div>` : ''}<div class="tl-today" style="left:${todayPos}%"></div></div></td></tr>`;
+  let tl = '';
+  stageBlocks.forEach(b => {
+    const a = b.sg.start || b.sg.end ? pos(b.sg.start || b.sg.end) : null, e = b.sg.end || b.sg.start ? pos(b.sg.end || b.sg.start) : null;
+    tl += tlRow(b.sg.name, b.state + ' · ' + b.pct + '%', a, e, b.pct, stColor[b.state] || color, false);
+    b.tasks.forEach(t => {
+      const lbl = taskStatusLabel(t);
+      const ta = t.startDate ? pos(t.startDate) : (t.dueDate ? pos(t.dueDate) : null), tb = t.dueDate ? pos(t.dueDate) : ta;
+      tl += tlRow(t.title || 'Sem título', lbl, ta, tb, Math.round(taskProgress(t) * 100), stColor[lbl] || color, true);
+    });
+  });
+  const taskLines = (list, stageName) => list.map(t => {
+    const subs = t.subtasks || [];
+    const lbl = taskStatusLabel(t);
+    return `<tr><td>${escapeHtml(t.title || 'Sem título')}</td><td><span class="pill" style="background:${(stColor[lbl] || color)}22; color:${stColor[lbl] || color}">${lbl}</span></td><td>${(PRIORITY_CONFIG.find(x => x.key === t.priority) || {}).label || ''}</td><td>${t.startDate ? fmtDate(t.startDate) : '—'}</td><td>${t.dueDate ? fmtDate(t.dueDate) : '—'}</td><td>${Math.round(taskProgress(t) * 100)}%${subs.length ? ' (' + subs.filter(x => x.done).length + '/' + subs.length + ' sub.)' : ''}</td></tr>`;
+  }).join('');
+  const tables = stageBlocks.map(b => `<h3>${escapeHtml(b.sg.name)} <span>${b.state} · ${b.pct}% · ${b.sg.start ? fmtDate(b.sg.start) : '—'} a ${b.sg.end ? fmtDate(b.sg.end) : '—'}</span></h3>
+    ${b.tasks.length ? `<table class="grid"><thead><tr><th>Tarefa</th><th>Status</th><th>Prioridade</th><th>Início</th><th>Prazo</th><th>Progresso</th></tr></thead><tbody>${taskLines(b.tasks)}</tbody></table>` : '<p class="muted">Nenhuma tarefa nesta etapa.</p>'}`).join('') +
+    (loose.length ? `<h3>Sem etapa</h3><table class="grid"><thead><tr><th>Tarefa</th><th>Status</th><th>Prioridade</th><th>Início</th><th>Prazo</th><th>Progresso</th></tr></thead><tbody>${taskLines(loose)}</tbody></table>` : '');
+  const gen = new Date().toLocaleString('pt-BR');
+  const csv = projectCsv(data);
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório · ${escapeHtml(p.name)}</title>
+<style>
+  *{box-sizing:border-box} body{font-family:'Open Sans','Segoe UI',Arial,sans-serif; color:#1B2130; margin:0; padding:32px 40px 60px; max-width:980px; margin:0 auto; line-height:1.45;}
+  .bar{position:sticky; top:0; background:#fff; padding:10px 0 14px; display:flex; gap:10px; justify-content:flex-end; border-bottom:1px solid #E2E8F0; margin-bottom:22px;}
+  .bar button, .bar a{font:inherit; font-size:13px; font-weight:600; border:1px solid #CBD5E1; background:#fff; border-radius:10px; padding:8px 14px; cursor:pointer; text-decoration:none; color:#1B2130}
+  .bar button.pri{background:#2F5F9E; color:#fff; border-color:#2F5F9E}
+  header{display:flex; gap:16px; align-items:center; margin-bottom:6px}
+  .badge{width:52px; height:52px; border-radius:50%; background:${color}22; color:${color}; display:grid; place-items:center; flex:none}
+  .badge svg{width:28px; height:28px}
+  h1{margin:0; font-size:26px; letter-spacing:-.01em} .sub{color:#64748B; font-size:13px}
+  .desc{margin:14px 0 4px; font-size:14.5px; white-space:pre-wrap}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:18px 0 8px}
+  .kpi{border:1px solid #E2E8F0; border-radius:12px; padding:12px 14px} .kpi small{display:block; color:#64748B; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700} .kpi b{font-size:20px}
+  .prog{height:8px; background:#EEF2F7; border-radius:99px; overflow:hidden; margin-top:8px} .prog i{display:block; height:100%; background:${color}}
+  h2{font-size:15px; margin:30px 0 10px; letter-spacing:.02em; text-transform:uppercase; color:#475569}
+  h3{font-size:14px; margin:20px 0 6px} h3 span{font-weight:400; color:#64748B; font-size:12px; margin-left:6px}
+  table{border-collapse:collapse; width:100%} .grid th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:#64748B; border-bottom:2px solid #E2E8F0; padding:6px 8px} .grid td{padding:7px 8px; border-bottom:1px solid #EEF2F7; font-size:12.5px; vertical-align:top}
+  .pill{display:inline-block; border-radius:99px; padding:1px 9px; font-size:11px; font-weight:700; white-space:nowrap}
+  .muted{color:#94A3B8; font-size:12.5px}
+  .tl th{font-size:10px; text-transform:uppercase; color:#64748B; text-align:left; padding:4px 6px; border-bottom:2px solid #E2E8F0; font-weight:700}
+  .tl-l{width:240px; padding:5px 8px; border-bottom:1px solid #EEF2F7; font-size:12px; vertical-align:middle} .tl-l.ind{padding-left:26px; font-size:11.5px; color:#475569} .tl-l b{display:block; font-weight:600} .tl-l small{color:#94A3B8; font-size:10.5px}
+  .tl-t{padding:0; border-bottom:1px solid #EEF2F7}
+  .tl-track{position:relative; height:28px} .tl-bar{position:absolute; top:7px; height:14px; border-radius:7px; overflow:hidden} .tl-bar i{display:block; height:100%} .tl-today{position:absolute; top:0; bottom:0; width:2px; background:#E5484D}
+  .months{display:flex} .months span{font-size:10px; font-weight:700; color:#64748B; border-left:1px solid #E2E8F0; padding:3px 6px; overflow:hidden; white-space:nowrap}
+  footer{margin-top:36px; color:#94A3B8; font-size:11px; border-top:1px solid #E2E8F0; padding-top:10px}
+  @media print{ .bar{display:none} body{padding:0} h3, tr{break-inside:avoid} }
+</style></head><body>
+<div class="bar"><a download="relatorio-${escapeHtml((p.name || 'projeto').replace(/[^\\w\\-]+/g, '_'))}.csv" href="data:text/csv;charset=utf-8,${encodeURIComponent(csv)}">Baixar planilha (CSV)</a><button class="pri" onclick="window.print()">Imprimir / salvar em PDF</button></div>
+<header><div class="badge">${projectIconSvg(p.icon || 'briefcase')}</div><div><h1>${escapeHtml(p.name)}</h1><div class="sub">${cat ? escapeHtml(cat.name) + ' · ' : ''}Relatório gerado em ${gen}</div></div></header>
+${p.description ? `<p class="desc">${escapeHtml(p.description)}</p>` : ''}
+<div class="kpis">
+  <div class="kpi"><small>Progresso</small><b>${st.pct}%</b><div class="prog"><i style="width:${st.pct}%"></i></div></div>
+  <div class="kpi"><small>Etapas</small><b>${st.done} de ${st.total}</b></div>
+  <div class="kpi"><small>Próxima entrega</small><b style="font-size:14px">${st.next ? escapeHtml(st.next.name) + ' · ' + fmtDate(st.next.end) : '—'}</b></div>
+  <div class="kpi"><small>Entrega prevista</small><b style="font-size:14px">${p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')}</b></div>
+</div>
+<h2>Linha do tempo</h2>
+<table class="tl"><thead><tr><th>Etapa / tarefa</th><th><div class="months">${months.map(m => `<span style="width:${m.w}%">${m.l}</span>`).join('')}</div></th></tr></thead><tbody>${tl}</tbody></table>
+<p class="muted">A linha vermelha marca hoje. Barras sólidas mostram o progresso.</p>
+<h2>Tarefas por etapa</h2>
+${tables || '<p class="muted">Este projeto ainda não tem etapas.</p>'}
+<footer>DOUNO Tasks · ${escapeHtml(p.name)} · ${gen}</footer>
+</body></html>`;
+}
+function exportProjectReport(p){
+  const win = window.open('', '_blank');
+  if(!win) return;
+  win.document.write(projectReportHtml(buildProjectReportData(p)));
+  win.document.close();
+  win.focus();
 }
 /* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
 function ganttTaskRow(t, stageStateKey, pos){

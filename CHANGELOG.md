@@ -1,3 +1,21 @@
+## [1.10.167] - 2026-10-21 23:30
+
+### Changed
+
+#### Projetos
+
+- Cadastro do projeto: a cor virou uma bolinha ao lado de "Ícone" e a paleta só aparece ao clicar nela. Formulário reorganizado: prévia do ícone ao lado do nome, Espaço/Início/Entrega na mesma linha, ícones em grade compacta e descrição curta (sem o aviso sobre etapas).
+
+
+## [1.10.166] - 2026-10-21 23:00
+
+### Added
+
+#### Projetos
+
+- Botão "Relatório" no projeto aberto: abre uma página com ícone, nome e descrição do projeto, resumo (progresso, etapas, próxima entrega, entrega prevista), linha do tempo (etapas e tarefas com barras e a marca de hoje) e uma tabela por etapa com cada tarefa (status, prioridade, início, prazo e progresso). Nela, "Imprimir / salvar em PDF" e "Baixar planilha (CSV)" (abre no Excel). Sai só com o que está no projeto; nada é enviado para fora.
+
+
 ## [1.10.165] - 2026-10-21 22:00
 
 ### Added

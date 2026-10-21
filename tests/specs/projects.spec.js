@@ -286,7 +286,12 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await page.locator('.plist-row').click();
   await page.locator('#prjEdit').click();
   await page.locator('.prj-icon-btn[data-icon="rocket"]').click();
+  // a paleta só aparece ao clicar na bolinha
+  await expect(page.locator('#prjColorPop')).toBeHidden();
+  await page.locator('#prjColorDot').click();
+  await expect(page.locator('#prjColorPop')).toBeVisible();
   await page.locator('.prj-swatch[data-color="#E5484D"]').click();
+  await expect(page.locator('#prjColorPop')).toBeHidden();
   await page.locator('#prjSave').click();
   expect(await page.evaluate(() => { const p = projectById('p1'); return [p.icon, p.color]; })).toEqual(['rocket', '#E5484D']);
   await expect(page.locator('.proj-toolbar .prj-badge')).toBeVisible();
@@ -301,4 +306,28 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
     return sortByStart([mk('sem', null, null), mk('tarde', addDaysStr(t, 20), null), mk('cedo', addDaysStr(t, 30), addDaysStr(t, 1)), mk('meio', addDaysStr(t, 5), null)]).map(x => x.id);
   });
   expect(ordem).toEqual(['cedo', 'meio', 'tarde', 'sem']);
+});
+
+test('relatório do projeto: página com nome, descrição, linha do tempo e tarefas linha a linha', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate((src) => {
+    eval('(' + src + ')')();
+    projectById('p1').description = 'Casa de dois pavimentos';
+    currentView = 'projects'; activeProjectId = 'p1'; render();
+    window.__rep = '';
+    window.open = () => ({ document: { write: (h) => { window.__rep += h; }, close() {} }, focus() {} });
+  }, seed.toString());
+  await page.locator('#prjExport').click();
+  const html = await page.evaluate(() => window.__rep);
+  expect(html).toContain('Construção da casa');
+  expect(html).toContain('Casa de dois pavimentos');
+  expect(html).toContain('Linha do tempo');
+  for (const t of ['Concretar sapatas', 'Erguer pilares', 'Concretar laje']) expect(html).toContain(t);
+  expect(html).toContain('Concluída');
+  expect(html).toContain('window.print()');
+  expect(html).toContain('data:text/csv');
+  const csv = await page.evaluate(() => projectCsv(buildProjectReportData(projectById('p1'))));
+  expect(csv.split('\r\n')).toHaveLength(1 + 3); // cabeçalho + 3 tarefas do projeto
+  expect(csv).toContain('"Concretar laje"');
 });
