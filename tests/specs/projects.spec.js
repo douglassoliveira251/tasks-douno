@@ -355,7 +355,7 @@ test('relatório: CSV e PDF são baixados direto pelo sistema', async ({ page })
   expect(bytes.length).toBeGreaterThan(2000);
 });
 
-test('início da tarefa: campo vem vazio e escolher hoje já marca a linha do tempo', async ({ page }) => {
+test('início da tarefa: vale a data de criação na linha do tempo e escolher hoje continua marcando', async ({ page }) => {
   await gotoApp(page, { view: 'projects' });
   await page.evaluate(() => {
     const cat = state.categories[0].id, today = todayStr();
@@ -363,8 +363,9 @@ test('início da tarefa: campo vem vazio e escolher hoje já marca a linha do te
     state.tasks = [{ id: 't1', title: 'T', done: false, status: 'nao_iniciado', priority: 'media', dueDate: addDaysStr(today, 5), dueTime: '09:00', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), projectId: 'p1', stageId: 's1' }];
     activeProjectId = 'p1'; projectTab = 'timeline'; currentView = 'projects'; activeTaskId = 't1'; render();
   });
+  await expect(page.locator('[data-task-id="t1"] .gantt-task-mark')).toHaveAttribute('title', /Criada em/);
   await page.locator('#tpStartLink').click();
-  await expect(page.locator('#tpStartDate')).toHaveValue('');
+  await expect(page.locator('#tpStartDate')).toHaveValue(await page.evaluate(() => dateToStr(new Date(state.tasks[0].createdAt))));
   await page.locator('#tpStartPop [data-start]').first().click();
   expect(await page.evaluate(() => state.tasks[0].startDate)).toBe(await page.evaluate(() => todayStr()));
   await expect(page.locator('[data-task-id="t1"] .gantt-task-mark')).toHaveAttribute('title', /Início/);

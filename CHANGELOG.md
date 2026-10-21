@@ -1,3 +1,12 @@
+## [1.10.173] - 2026-10-21 16:00
+
+### Fixed
+
+#### Tarefas
+
+- O início da tarefa volta a vir com a data de criação (campo preenchido). Tarefas novas já guardam esse início e a linha do tempo do projeto desenha a barra a partir da criação mesmo sem início definido manualmente; antes só aparecia depois de clicar em "Hoje".
+
+
 ## [1.10.172] - 2026-10-21 15:00
 
 ### Fixed

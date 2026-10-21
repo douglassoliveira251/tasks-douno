@@ -3242,6 +3242,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.173', date:'21/10/2026', title:'Início = data de criação, visível na linha do tempo', text:'Toda tarefa nasce com o início na data de criação e a linha do tempo do projeto já desenha o período a partir dela. Você pode ajustar o início quando quiser.' },
   { version:'1.10.172', date:'21/10/2026', title:'Início da tarefa passa a valer na hora', text:'Ao definir o início de uma tarefa, a linha do tempo do projeto atualiza na hora, inclusive quando você escolhe a data de hoje (antes o campo já vinha com hoje e a escolha não era salva).' },
   { version:'1.10.171', date:'21/10/2026', title:'Retomada já vem com a data de hoje', text:'Toda tarefa nova nasce com retomada para hoje, e a próxima ocorrência de uma tarefa recorrente volta com a retomada marcada no dia dela. Assim você acompanha tudo pela visão de retomada.' },
   { version:'1.10.170', date:'21/10/2026', title:'Visão geral e projetos melhores no celular', text:'Os cartões agora usam a largura da tela, a lista de projetos ficou mais limpa, o resumo do projeto vem primeiro e a lista de etapas abre por padrão no celular.' },
@@ -5325,7 +5326,7 @@ function getOrCreateActiveTask(){
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
       title:'', categoryId: defaultCat, done:false, status:'nao_iniciado',
-      dueDate: null, followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
+      dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     state.tasks.push(t);
@@ -5412,7 +5413,7 @@ function renderTaskPanel(panel){
           <button type="button" class="tp-start-link" id="tpStartLink" title="Início da tarefa (opcional)">${task.startDate ? 'início ' + fmtDate(task.startDate) : '+ início'}</button></label>
         ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${tpStartOpen ? '' : 'hidden'}>
           <div class="tp-start-k">Início da tarefa</div>
-          <div class="tp-start-box"><input type="date" id="tpStartDate" value="${task.startDate || ''}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'sem início: vale ' + fmtDate(es.date))}</span></div>
+          <div class="tp-start-box"><input type="date" id="tpStartDate" value="${es.date}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'data de criação')}</span></div>
           <div class="tp-start-chips"><button type="button" data-start="${todayStr()}">Hoje</button><button type="button" data-start="${addDaysStr(todayStr(), 1)}">Amanhã</button><button type="button" data-start="${nextMondayStr()}">Segunda</button></div>
           <div class="tp-start-foot">${task.startDate ? '<button type="button" id="tpStartReset">Remover início</button>' : '<span></span>'}<span>${task.dueDate ? 'Prazo ' + fmtDate(task.dueDate) : 'Sem prazo'}</span></div>
         </div>`; })()}
@@ -6974,7 +6975,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.172';
+const APP_VERSION = '1.10.173';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9161,7 +9162,7 @@ function openStageEditor(project, stage){
       state.taskIdCounter = (state.taskIdCounter || 0) + 1;
       const t = {
         id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: project.categoryId,
-        done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
+        done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
         description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
         projectId: project.id, stageId: st.id,
       };
@@ -9385,7 +9386,7 @@ function renderProjectDetail(view, p){
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
-      done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
+      done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: selStage.id,
     };
@@ -9405,7 +9406,7 @@ function renderProjectDetail(view, p){
     state.taskIdCounter = (state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
-      done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
+      done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: null,
     };
@@ -9536,7 +9537,7 @@ function createProjectTask(project, stageId, title){
   state.taskIdCounter = (state.taskIdCounter || 0) + 1;
   const t = {
     id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: title || '', categoryId: project.categoryId,
-    done: false, status: 'nao_iniciado', dueDate: null, followUpDate: todayStr(), dueTime: '', priority: 'media',
+    done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
     description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
     projectId: project.id, stageId: stageId || null,
   };
@@ -9869,13 +9870,13 @@ function ganttTaskRow(t, stageStateKey, pos){
   const cls = t.done ? 'done' : (late ? 'late' : '');
   let mark = '';
   const es = effectiveStart(t);
-  // início herdado só vale dentro de projeto/etapa; "ao abrir" não desenha trecho
-  const hasStart = es.source === 'own' || es.source === 'stage';
+  // sem início definido, vale a data de criação da tarefa
+  const hasStart = true;
   if(t.dueDate){
     const end = pos(t.dueDate);
     let from = hasStart && es.date <= t.dueDate ? pos(es.date) : Math.max(end - 2.6, 0);
     const w = Math.max(end - from, 2.6);
-    mark = `<div class="gantt-task-mark ${cls} ${hasStart && es.source === 'stage' ? 'inherit' : ''}" style="left:${from}%; width:${w}%;" title="${hasStart ? (es.source === 'own' ? 'Início ' : 'Início da etapa ') + fmtDate(es.date) + ' · ' : ''}Prazo ${fmtDate(t.dueDate)}"></div>`;
+    mark = `<div class="gantt-task-mark ${cls} ${hasStart && es.source === 'stage' ? 'inherit' : ''}" style="left:${from}%; width:${w}%;" title="${hasStart ? (es.source === 'own' ? 'Início ' : es.source === 'stage' ? 'Início da etapa ' : 'Criada em ') + fmtDate(es.date) + ' · ' : ''}Prazo ${fmtDate(t.dueDate)}"></div>`;
   } else if(t.startDate){
     mark = `<div class="gantt-task-mark" style="left:${pos(t.startDate)}%; width:2.6%;" title="Início ${fmtDate(t.startDate)} (sem prazo)"></div>`;
   }
@@ -9979,7 +9980,7 @@ function createTaskFromTemplate(tpl){
   const t = {
     id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
     title: tpl.title || tpl.name || '', categoryId: catId, done: false, status: 'nao_iniciado',
-    dueDate: today, followUpDate: today, dueTime: tpl.dueTime || DEFAULT_DUE_TIME, priority: tpl.priority || 'media',
+    dueDate: today, startDate: today, followUpDate: today, dueTime: tpl.dueTime || DEFAULT_DUE_TIME, priority: tpl.priority || 'media',
     description: tpl.description || '',
     tagIds: (tpl.tagIds || []).filter(id => state.tags.some(tg => tg.id === id)),
     recurrence: tpl.recurrence || 'none', recurrenceInterval: tpl.recurrenceInterval || 1,
