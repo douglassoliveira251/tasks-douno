@@ -20,7 +20,7 @@ test.describe('Resumo', () => {
     await expect(page.locator('.rs-hero')).toContainText('1 atrasada');
     await expect(page.locator('.rs-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.rs-proj')).toContainText('Casa');
-    await expect(page.locator('.rs-card', { hasText: 'Agenda de hoje' })).toContainText('Reunião');
+    await expect(page.locator('.rs-agenda')).toContainText('Reunião');
     await expect(page.locator('.rs-card', { hasText: 'Retomar hoje' }).first()).toContainText('Hoje 2');
   });
 
@@ -82,4 +82,18 @@ test('Resumo: indicadores de tarefas sem data', async ({ page }) => {
   await page.locator('.rs-drow[data-nodate="none"]').click();
   expect(await page.evaluate(() => currentView)).toBe('tasks');
   expect(await page.evaluate(() => activeTaskId)).toBe('4');
+});
+
+test('agenda da visão geral: hoje + próximos dias, 4 no cartão e "Ver mais" lista o resto', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    state.tasks = [];
+    state.events = [0, 1, 2, 3, 4, 6].map((k, i) => ({ id: 'e' + i, title: 'Evento ' + i, date: addDaysStr(today, k), endDate: addDaysStr(today, k), startTime: '09:00', endTime: '10:00', categoryId: cat, tagIds: [], attendees: [], recurrence: 'none', description: '', createdAt: 1 }));
+    currentView = 'dashboard'; render();
+  });
+  await expect(page.locator('.rs-agenda .rs-row')).toHaveCount(4);
+  await page.locator('#dashAgendaMore').click();
+  await expect(page.locator('#agendaMoreOverlay .rs-row')).toHaveCount(6);
 });

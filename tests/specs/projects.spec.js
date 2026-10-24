@@ -235,6 +235,7 @@ test('datas da etapa vêm das tarefas (sem campos de data no formulário)', asyn
     state.tasks.find(x => x.id === 'c').dueDate = addDaysStr(t, 12);
     state.tasks.find(x => x.id === 'b').dueDate = addDaysStr(t, 5);
     state.tasks.find(x => x.id === 'c').startDate = addDaysStr(t, 1);
+    state.tasks.find(x => x.id === 'b').startDate = addDaysStr(t, 1);
     currentView = 'projects'; activeProjectId = 'p1'; render();
   }, seed.toString());
   const r = await page.evaluate(() => { const sg = projectById('p1').stages[1]; return [sg.start === addDaysStr(todayStr(), 1), sg.end === addDaysStr(todayStr(), 12)]; });

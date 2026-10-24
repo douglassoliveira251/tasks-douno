@@ -1,3 +1,16 @@
+## [1.10.175] - 2026-10-24 10:00
+
+### Added
+
+- Visão geral: cartão Agenda com hoje e próximos 7 dias, 4 itens visíveis e "Ver mais" abrindo a lista completa por dia.
+
+### Fixed
+
+- Notificações: tarefa que está em Atrasadas/Hoje e também em Retomar aparece uma vez só (com a marca ↻); o contador não soma duplicados.
+- PDF do projeto: leva o ícone do projeto no cabeçalho.
+- Etapas: início conta a data de criação das tarefas e, sem nenhum prazo, a etapa vai do início até hoje.
+
+
 ## [1.10.174] - 2026-10-21 17:00
 
 ### Fixed

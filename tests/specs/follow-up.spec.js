@@ -109,3 +109,19 @@ test('tarefa nova nasce com retomada hoje e a próxima recorrência volta no dia
   expect(r.novaFollow).toBe(r.today);
   expect(r.nextFollow).toBe(r.nextDue);
 });
+
+test('notificações: tarefa atrasada e com retomada aparece uma vez só', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  const r = await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, due, follow) => ({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: due, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), followUpDate: follow });
+    state.events = [];
+    state.tasks = [t('atrasada', addDaysStr(today, -2), today), t('hoje', today, today), t('so-retomar', addDaysStr(today, 4), today)];
+    const n = computeNotifItems();
+    updateNotifBadge();
+    return { follow: n.followUpTasks.length, only: n.followOnly.map(x => x.id), badge: document.getElementById('notifBadge').textContent };
+  });
+  expect(r.follow).toBe(3);
+  expect(r.only).toEqual(['so-retomar']);
+  expect(r.badge).toBe('3');
+});

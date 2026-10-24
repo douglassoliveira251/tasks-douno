@@ -1954,6 +1954,7 @@
   .rs-proj{padding:9px 0; cursor:pointer;}
   .rs-proj .top{display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px;}
   .rs-empty{color:var(--ink-faint); font-size:13px; padding:14px 2px;}
+  .notif-follow{color:#8A5A00; font-weight:700;} [data-theme="dark"] .notif-follow{color:#F6B25C;}
   .rs-link{display:inline-block; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--primary); cursor:pointer;}
   @media (max-width:1100px){ .rs-top, .rs-three, .rs-two, .rs-bottom{grid-template-columns:1fr;} .rs-stats:has(.rs-stat-sep){grid-template-columns:repeat(2,1fr);} .rs-stat-sep{display:none;} .rs-spark{display:none;} }
   .dash-wrap{display:flex; flex-direction:column; gap:20px; padding-bottom:30px;}
@@ -3242,6 +3243,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.175', date:'24/10/2026', title:'Agenda dos próximos dias, notificações sem repetição e etapas pela criação', text:'A Visão geral mostra a agenda de hoje e dos próximos 7 dias (com "Ver mais"). As notificações não repetem mais a mesma tarefa em atrasada/hoje e retomar. O PDF do projeto leva o ícone e as etapas passam a contar a data de criação das tarefas na linha do tempo.' },
   { version:'1.10.174', date:'21/10/2026', title:'Tarefas sem prazo aparecem na linha do tempo', text:'Tarefas criadas direto na linha do tempo (sem prazo) agora mostram uma barra listrada do início até hoje, em vez de um pontinho quase invisível. Ao definir o prazo, a barra passa a ir até ele.' },
   { version:'1.10.173', date:'21/10/2026', title:'Início = data de criação, visível na linha do tempo', text:'Toda tarefa nasce com o início na data de criação e a linha do tempo do projeto já desenha o período a partir dela. Você pode ajustar o início quando quiser.' },
   { version:'1.10.172', date:'21/10/2026', title:'Início da tarefa passa a valer na hora', text:'Ao definir o início de uma tarefa, a linha do tempo do projeto atualiza na hora, inclusive quando você escolhe a data de hoje (antes o campo já vinha com hoje e a escolha não era salva).' },
@@ -6976,7 +6978,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.174';
+const APP_VERSION = '1.10.175';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7117,6 +7119,14 @@ function renderDashboard(){
 
   // Card: Eventos hoje
   const kpiTodayEvents = todayEvents;
+  /* agenda: hoje + próximos 7 dias numa lista só (o cartão mostra 4, o resto abre em "Ver mais") */
+  const agendaRows = [];
+  for(let k = 0; k <= 7; k++){
+    const d = addDaysStr(todayS, k);
+    eventsOnDate(scopeEvents, d).slice().sort((x, y) => (x.allDay ? '' : (x.startTime || '')).localeCompare(y.allDay ? '' : (y.startTime || ''))).forEach(ev => agendaRows.push({ ev, date: d }));
+  }
+  const agendaDayLabel = d => d === todayS ? '' : (d === addDaysStr(todayS, 1) ? 'Amanhã' : new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', ''));
+  const agendaRowHtml = r => `<div class="rs-row dash-list-row" data-event-id="${r.ev.id}"><span class="rs-tag ok">${r.ev.allDay || !r.ev.startTime ? 'Dia todo' : r.ev.startTime}</span><span class="tt"><b>${escapeHtml(r.ev.title || 'Sem título')}</b></span><span class="dt">${agendaDayLabel(r.date)}</span></div>`;
   const nowTimeStr = new Date().toTimeString().slice(0,5);
   const kpiNextEvent = kpiTodayEvents.find(ev => !ev.startTime || ev.startTime >= nowTimeStr) || kpiTodayEvents[0] || null;
 
@@ -7302,11 +7312,10 @@ function renderDashboard(){
           ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="rs-row dash-list-row" data-task-id="${t.id}"><span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></span></div>`).join('')
             : '<div class="rs-empty">Nada para retomar hoje.</div>'}
         </div>
-        <div class="rs-card">
-          <h3>Agenda de hoje <span>${todayEvents.length ? todayEvents.length : ''}</span></h3>
-          ${todayEvents.length ? todayEvents.slice(0, 4).map(ev => `<div class="rs-row dash-list-row" data-event-id="${ev.id}"><span class="rs-tag ok">${ev.allDay || !ev.startTime ? 'Dia todo' : ev.startTime}</span><span class="tt"><b>${escapeHtml(ev.title || 'Sem título')}</b></span></div>`).join('')
-            : '<div class="rs-empty">Nenhum evento hoje.</div>'}
-          <span class="rs-link" id="dashSeeAllEventsLink">Ver calendário →</span>
+        <div class="rs-card rs-agenda">
+          <h3>Agenda <span>${todayEvents.length ? todayEvents.length + ' hoje' : ''}</span></h3>
+          ${agendaRows.length ? agendaRows.slice(0, 4).map(r => agendaRowHtml(r)).join('') : '<div class="rs-empty">Nenhum evento nos próximos 7 dias.</div>'}
+          <span class="rs-link" id="${agendaRows.length > 4 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 4 ? 'Ver mais (' + (agendaRows.length - 4) + ') →' : 'Ver calendário →'}</span>
         </div>
       </div>
 
@@ -7390,6 +7399,22 @@ function renderDashboard(){
       if(ev) openEventComposer(ev);
     };
   });
+  const agendaMore = document.getElementById('dashAgendaMore');
+  if(agendaMore) agendaMore.onclick = () => {
+    let ov = document.getElementById('agendaMoreOverlay');
+    if(ov) ov.remove();
+    ov = document.createElement('div'); ov.className = 'overlay show'; ov.id = 'agendaMoreOverlay';
+    let lastDay = null;
+    ov.innerHTML = `<div class="modal" style="width:440px; max-width:calc(100vw - 24px); max-height:80vh; overflow-y:auto;">
+      <h3 style="margin-bottom:10px;">Agenda dos próximos 7 dias</h3>
+      ${agendaRows.map(r => { const head = r.date !== lastDay ? `<div class="search-results-group-label" style="padding-left:0;">${r.date === todayS ? 'Hoje' : (agendaDayLabel(r.date))}</div>` : ''; lastDay = r.date; return head + agendaRowHtml({ ev: r.ev, date: todayS }); }).join('')}
+      <div class="modal-footer" style="margin-top:12px;"><button type="button" class="btn" id="agendaMoreClose">Fechar</button></div></div>`;
+    document.body.appendChild(ov);
+    const close = () => ov.remove();
+    ov.querySelector('#agendaMoreClose').onclick = close;
+    ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
+    ov.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => { row.onclick = () => { close(); const ev = state.events.find(x => x.id === row.dataset.eventId); if(ev) openEventComposer(ev); }; });
+  };
   const seeAllImportantLink = document.getElementById('dashSeeAllImportantLink');
   if(seeAllImportantLink) seeAllImportantLink.onclick = (e) => { e.preventDefault(); currentView = 'tasks'; render(); };
   const seeAllImportantBottomLink = document.getElementById('dashSeeAllImportantBottomLink');
@@ -8960,11 +8985,13 @@ function syncStageDates(){
   (state.projects || []).forEach(p => {
     (p.stages || []).forEach(sg => {
       const tks = state.tasks.filter(t => t.projectId === p.id && t.stageId === sg.id);
+      if(!tks.length) return;
       const dues = tks.map(t => t.dueDate).filter(Boolean).sort();
-      if(!dues.length) return;
-      const starts = tks.map(t => t.startDate).filter(Boolean).concat(dues).sort();
+      /* início da etapa = menor início das tarefas (sem início próprio vale a data de criação) */
+      const starts = tks.map(t => effectiveStart(t).date).concat(dues).sort();
       sg.start = starts[0];
-      sg.end = dues[dues.length - 1];
+      /* sem nenhum prazo, a etapa vai até hoje (em aberto), como a barra das tarefas */
+      sg.end = dues.length ? dues[dues.length - 1] : (starts[0] < todayStr() ? todayStr() : starts[0]);
     });
   });
 }
@@ -9700,6 +9727,24 @@ function reportFileName(p, ext){ return 'relatorio-' + (p.name || 'projeto').tri
 function downloadProjectCsv(p){
   downloadBlob(new Blob([projectCsv(buildProjectReportData(p))], { type: 'text/csv;charset=utf-8' }), reportFileName(p, 'csv'));
 }
+/* ícone do projeto como imagem (o jsPDF não desenha SVG): SVG colorido -> canvas -> PNG */
+function projectIconPng(name, colorHex){
+  return new Promise(resolve => {
+    try{
+      const svg = projectIconSvg(name).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" ').replace(/currentColor/g, colorHex);
+      const img = new Image();
+      img.onload = () => {
+        try{
+          const c = document.createElement('canvas'); c.width = c.height = 192;
+          c.getContext('2d').drawImage(img, 0, 0, 192, 192);
+          resolve(c.toDataURL('image/png'));
+        }catch(e){ resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }catch(e){ resolve(null); }
+  });
+}
 async function downloadProjectPdf(p){
   await ensurePdfLibs();
   const { jsPDF } = window.jspdf;
@@ -9716,8 +9761,12 @@ async function downloadProjectPdf(p){
 
   // cabeçalho
   doc.setFillColor(...mixWhite(color, .18)); doc.circle(M + 22, y + 22, 22, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...color);
-  doc.text(((p.name || 'P').trim().charAt(0) || 'P').toUpperCase(), M + 22, y + 28, { align: 'center' });
+  const iconPng = await projectIconPng(p.icon || 'briefcase', projectColor(p));
+  if(iconPng) doc.addImage(iconPng, 'PNG', M + 10, y + 10, 24, 24);
+  else {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...color);
+    doc.text(((p.name || 'P').trim().charAt(0) || 'P').toUpperCase(), M + 22, y + 28, { align: 'center' });
+  }
   doc.setTextColor(...ink); doc.setFontSize(21); doc.text(doc.splitTextToSize(p.name || 'Projeto', W - 2 * M - 60)[0], M + 58, y + 20);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...soft);
   doc.text((cat ? cat.name + '  ·  ' : '') + 'Relatório gerado em ' + new Date().toLocaleString('pt-BR'), M + 58, y + 38);
@@ -11740,11 +11789,14 @@ function computeNotifItems(){
   const todayEvents = getEventsForDate(today);
   const followUpTasks = state.tasks.filter(t => inSpace(t) && !t.done && t.followUpDate && t.followUpDate <= today)
     .sort((a,b) => (a.followUpDate||'').localeCompare(b.followUpDate||''));
-  return { overdueTasks, todayTasks, todayEvents, followUpTasks };
+  /* uma tarefa aparece uma vez só: se já está em Atrasadas/Hoje, a retomada vira só uma marca na linha */
+  const shown = new Set(overdueTasks.concat(todayTasks).map(t => t.id));
+  const followOnly = followUpTasks.filter(t => !shown.has(t.id));
+  return { overdueTasks, todayTasks, todayEvents, followUpTasks, followOnly };
 }
 function updateNotifBadge(){
-  const { overdueTasks, todayTasks, todayEvents, followUpTasks } = computeNotifItems();
-  const count = overdueTasks.length + todayTasks.length + todayEvents.length + followUpTasks.length;
+  const { overdueTasks, todayTasks, todayEvents, followOnly } = computeNotifItems();
+  const count = overdueTasks.length + todayTasks.length + todayEvents.length + followOnly.length;
   const badge = document.getElementById('notifBadge');
   if(!badge) return;
   badge.textContent = count > 9 ? '9+' : String(count);
@@ -11752,8 +11804,10 @@ function updateNotifBadge(){
 }
 function renderNotifDropdown(){
   const dd = document.getElementById('notifDropdown');
-  const { overdueTasks, todayTasks, todayEvents, followUpTasks } = computeNotifItems();
-  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length && !followUpTasks.length){
+  const { overdueTasks, todayTasks, todayEvents, followOnly } = computeNotifItems();
+  const followToday = t => t.followUpDate && t.followUpDate <= todayStr();
+  const withFollow = t => (followToday(t) ? '<span class="notif-follow" title="Também para retomar">↻</span> ' : '');
+  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length && !followOnly.length){
     dd.innerHTML = `<div class="notif-dropdown-empty">Nenhuma pendência por aqui. 🎉</div>`;
     dd.style.display = 'block';
     return;
@@ -11772,9 +11826,9 @@ function renderNotifDropdown(){
     `;
   }
   dd.innerHTML =
-    group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => fmtDate(t.dueDate), 'notif-overdue') +
-    group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => t.dueTime || '') +
-    group('Retomar hoje', followUpTasks, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
+    group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => withFollow(t) + fmtDate(t.dueDate), 'notif-overdue') +
+    group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => withFollow(t) + (t.dueTime || '')) +
+    group('Retomar hoje', followOnly, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
     group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''));
   dd.querySelectorAll('.search-result-row').forEach(row => {
     row.onclick = () => {
