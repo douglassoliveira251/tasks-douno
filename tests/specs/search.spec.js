@@ -26,7 +26,7 @@ test.describe('Pesquisa', () => {
 
     await page.locator('.sr-tab', { hasText: 'Notas' }).click();
     await expect(page.locator('.sr-row')).toHaveCount(1);
-    await expect(page.locator('.sr-kind')).toHaveText('NOTA');
+    await expect(page.locator('.sr-ic.n')).toHaveCount(1);
   });
 
   test('teclado: setas e Enter abrem o item', async ({ page }) => {
@@ -44,5 +44,21 @@ test.describe('Pesquisa', () => {
     await page.evaluate(seed);
     await page.locator('#searchInput').fill('zzzz');
     await expect(page.locator('.search-results-empty')).toContainText('Nenhum resultado');
+  });
+
+  test('concluídas ficam ocultas e "Mostrar concluídas" as traz numa seção própria', async ({ page }) => {
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(seed);
+    await page.evaluate(() => { state.tasks.push({ id: 'd1', title: 'Relatório antigo', done: true, status: 'concluida', priority: 'media', dueDate: addDaysStr(todayStr(), -5), categoryId: state.categories[0].id, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }); });
+    await page.locator('#searchInput').fill('relatório');
+    await expect(page.locator('.sr-row')).toHaveCount(3);
+    await expect(page.locator('.sr-row.done')).toHaveCount(0);
+    await expect(page.locator('#srToggleDone')).toContainText('Mostrar concluídas (1)');
+    await page.locator('#srToggleDone').click();
+    await expect(page.locator('.sr-row.done')).toHaveCount(1);
+    await expect(page.locator('.sr-sec')).toHaveText('Concluídas');
+    await expect(page.locator('#srToggleDone')).toContainText('Ocultar concluídas');
+    await page.locator('#srToggleDone').click();
+    await expect(page.locator('.sr-row.done')).toHaveCount(0);
   });
 });

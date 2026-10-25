@@ -1,3 +1,10 @@
+## [1.10.176] - 2026-10-25 10:00
+
+### Changed
+
+- Busca global: tarefas concluídas ficam ocultas por padrão, com "Mostrar concluídas (n)" no rodapé (aparecem numa seção própria, riscadas). Resultados redesenhados: ícone, título com termo destacado, espaço/projeto embaixo e data à direita.
+
+
 ## [1.10.175] - 2026-10-24 10:00
 
 ### Added
