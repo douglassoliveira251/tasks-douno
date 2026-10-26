@@ -1,3 +1,12 @@
+## [1.10.177] - 2026-10-26 10:00
+
+### Changed
+
+#### Projetos
+
+- Linha do tempo: barras na cor do projeto (concluída chapada, em andamento listrada, não iniciada em tom claro), faixa de prioridade na lateral da tarefa e selo de prazo no canto direito (laranja: vence hoje ou em até 3 dias; vermelho: atrasada). Tarefas concluídas não mostram alerta.
+
+
 ## [1.10.176] - 2026-10-25 10:00
 
 ### Changed

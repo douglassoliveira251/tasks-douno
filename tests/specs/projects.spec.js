@@ -371,3 +371,26 @@ test('início da tarefa: vale a data de criação na linha do tempo e escolher h
   expect(await page.evaluate(() => state.tasks[0].startDate)).toBe(await page.evaluate(() => todayStr()));
   await expect(page.locator('[data-task-id="t1"] .gantt-task-mark')).toHaveAttribute('title', /Início/);
 });
+
+test('linha do tempo: estado pela cor do projeto, faixa de prioridade e selo de prazo', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, t = todayStr(), A = n => addDaysStr(t, n);
+    state.projects = [{ id: 'p1', name: 'P', categoryId: cat, color: '#E0457B', createdAt: 1, stages: [{ id: 's1', name: 'E1' }] }];
+    const mk = (id, over) => Object.assign({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: A(10), startDate: A(-1), dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), projectId: 'p1', stageId: 's1' }, over);
+    state.tasks = [mk('atrasada', { dueDate: A(-3), status: 'em_andamento', priority: 'critica' }), mk('perto', { dueDate: A(2) }), mk('hoje', { dueDate: A(0) }), mk('longe', { dueDate: A(9) }), mk('feita', { done: true, status: 'concluida', dueDate: A(-5) })];
+    activeProjectId = 'p1'; projectTab = 'timeline'; currentView = 'projects'; render();
+  });
+  const pill = id => page.locator(`[data-task-id="${id}"] .gantt-pill`);
+  await expect(pill('atrasada')).toHaveText('+3d');
+  await expect(pill('atrasada')).toHaveClass(/late/);
+  await expect(pill('perto')).toHaveText('2d');
+  await expect(pill('hoje')).toHaveText('hoje');
+  await expect(pill('longe')).toHaveCount(0);
+  await expect(pill('feita')).toHaveCount(0);
+  await expect(page.locator('[data-task-id="atrasada"] .gantt-task-mark')).toHaveClass(/prog/);
+  await expect(page.locator('[data-task-id="longe"] .gantt-task-mark')).toHaveClass(/todo/);
+  await expect(page.locator('[data-task-id="feita"] .gantt-task-mark')).toHaveClass(/done/);
+  expect(await page.locator('.gantt-wrap').evaluate(e => e.style.getPropertyValue('--pc'))).toBe('#E0457B');
+});

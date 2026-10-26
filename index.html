@@ -2781,6 +2781,23 @@
     .prj-actions .prj-act{flex:1; justify-content:center; padding-left:10px; padding-right:10px;}
     .proj-tabs{margin-bottom:10px !important;}
   }
+  /* linha do tempo: cor do projeto; concluída chapada, em andamento listrada, não iniciada em tom claro */
+  .gantt-wrap{--pc:var(--primary);}
+  .gantt-bar{color:var(--ink-soft);}
+  .gantt-bar.nao_iniciada{background:color-mix(in srgb, var(--pc) 17%, transparent); color:var(--ink-soft);}
+  .gantt-bar.andamento, .gantt-bar.atrasada{background:repeating-linear-gradient(135deg, var(--pc) 0 8px, color-mix(in srgb, var(--pc) 50%, transparent) 8px 16px); color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.4);}
+  .gantt-bar.concluida{background:var(--pc); color:#fff;}
+  .gantt-bar .fill{display:none;}
+  .gantt-task-mark{opacity:1;}
+  .gantt-task-mark.todo{background:color-mix(in srgb, var(--pc) 17%, transparent);}
+  .gantt-task-mark.prog{background:repeating-linear-gradient(135deg, var(--pc) 0 8px, color-mix(in srgb, var(--pc) 50%, transparent) 8px 16px);}
+  .gantt-task-mark.done{background:var(--pc); display:flex; align-items:center; padding-left:5px;}
+  .gantt-task-mark svg{width:10px; height:10px; fill:none; stroke:#fff; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round;}
+  .gantt-task{position:relative;}
+  .gantt-task::before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:4px; border-radius:0 3px 3px 0; background:var(--pr, transparent); z-index:3;}
+  .gantt-pill{position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:#fff; border-radius:99px; padding:2px 8px 2px 6px; white-space:nowrap; background:#F59E0B; z-index:2;}
+  .gantt-pill.late{background:var(--danger);}
+  .gantt-pill svg{width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -3250,6 +3267,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.177', date:'26/10/2026', title:'Linha do tempo com a cor do projeto e alertas de prazo', text:'As barras seguem a cor do projeto: concluída chapada, em andamento listrada e não iniciada em tom claro. Cada tarefa ganha uma faixa de prioridade na lateral e um selo no canto direito quando vence em até 3 dias (laranja) ou está atrasada (vermelho).' },
   { version:'1.10.176', date:'25/10/2026', title:'Busca mais limpa, só com itens abertos', text:'A busca agora mostra só tarefas em aberto. Para ver as concluídas, use "Mostrar concluídas" no rodapé. Os resultados também ficaram mais simples: ícone, título, espaço e data.' },
   { version:'1.10.175', date:'24/10/2026', title:'Agenda dos próximos dias, notificações sem repetição e etapas pela criação', text:'A Visão geral mostra a agenda de hoje e dos próximos 7 dias (com "Ver mais"). As notificações não repetem mais a mesma tarefa em atrasada/hoje e retomar. O PDF do projeto leva o ícone e as etapas passam a contar a data de criação das tarefas na linha do tempo.' },
   { version:'1.10.174', date:'21/10/2026', title:'Tarefas sem prazo aparecem na linha do tempo', text:'Tarefas criadas direto na linha do tempo (sem prazo) agora mostram uma barra listrada do início até hoje, em vez de um pontinho quase invisível. Ao definir o prazo, a barra passa a ir até ele.' },
@@ -6986,7 +7004,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.176';
+const APP_VERSION = '1.10.177';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9495,7 +9513,7 @@ function renderProjectDetail(view, p){
   }
   const todayPos = pos(today);
   body.innerHTML = `
-    <div class="gantt-wrap"><div class="gantt">
+    <div class="gantt-wrap" style="--pc:${projectColor(p)}"><div class="gantt">
       <div class="gantt-head"><div class="gl">Etapa</div><div class="gantt-months">${months.map(m => `<span style="width:${m.w}%">${m.label}</span>`).join('')}</div></div>
       <div class="gantt-body" style="position:relative;">
         ${stages.map(sg => {
@@ -9925,27 +9943,37 @@ function exportProjectReport(p){
 }
 /* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
 function ganttTaskRow(t, stageStateKey, pos){
-  const late = !t.done && t.dueDate && t.dueDate < todayStr();
-  const cls = t.done ? 'done' : (late ? 'late' : '');
+  const today = todayStr();
+  /* estado visual da barra: concluída = chapada, em andamento = listrada, não iniciada = tom claro */
+  const vis = t.done ? 'done' : ((t.status === 'em_andamento' || taskProgress(t) > 0) ? 'prog' : 'todo');
   let mark = '';
   const es = effectiveStart(t);
-  // sem início definido, vale a data de criação da tarefa
-  const hasStart = true;
+  const startLbl = (es.source === 'own' ? 'Início ' : 'Criada em ') + fmtDate(es.date);
+  const check = t.done ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '';
   if(t.dueDate){
     const end = pos(t.dueDate);
-    let from = hasStart && es.date <= t.dueDate ? pos(es.date) : Math.max(end - 2.6, 0);
+    const from = es.date <= t.dueDate ? pos(es.date) : Math.max(end - 2.6, 0);
     const w = Math.max(end - from, 2.6);
-    mark = `<div class="gantt-task-mark ${cls} ${hasStart && es.source === 'stage' ? 'inherit' : ''}" style="left:${from}%; width:${w}%;" title="${hasStart ? (es.source === 'own' ? 'Início ' : es.source === 'stage' ? 'Início da etapa ' : 'Criada em ') + fmtDate(es.date) + ' · ' : ''}Prazo ${fmtDate(t.dueDate)}"></div>`;
+    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}%; width:${w}%;" title="${startLbl} · Prazo ${fmtDate(t.dueDate)}">${check}</div>`;
   } else {
-    /* sem prazo: a barra vai do início (ou criação) até hoje, listrada, para mostrar a tarefa em aberto */
-    const from = pos(es.date), today = todayStr();
+    /* sem prazo: a barra vai do início (ou criação) até hoje */
+    const from = pos(es.date);
     const to = es.date < today ? pos(today) : from;
     const w = Math.max(to - from, 2.6);
-    mark = `<div class="gantt-task-mark inherit ${cls}" style="left:${from}%; width:${w}%;" title="${es.source === 'own' ? 'Início ' : 'Criada em '}${fmtDate(es.date)} · sem prazo"></div>`;
+    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}%; width:${w}%;" title="${startLbl} · sem prazo">${check}</div>`;
   }
-  return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" title="Arraste para outra etapa para mover a tarefa">
+  /* alerta de prazo (só tarefa aberta): atrasada em vermelho, hoje ou até 3 dias em laranja */
+  let pill = '';
+  if(!t.done && t.dueDate){
+    const diff = Math.round((new Date(t.dueDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+    const clock = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    if(diff < 0) pill = `<span class="gantt-pill late" title="Atrasada há ${-diff} dia${diff === -1 ? '' : 's'}">${clock}+${-diff}d</span>`;
+    else if(diff <= 3) pill = `<span class="gantt-pill" title="${diff === 0 ? 'Vence hoje' : 'Vence em ' + diff + ' dia' + (diff === 1 ? '' : 's')}">${clock}${diff === 0 ? 'hoje' : diff + 'd'}</span>`;
+  }
+  const PR_COLOR = { critica: 'var(--priority-critica)', alta: 'var(--priority-alta)', media: '#94A3B8', baixa: '#CBD5E1' };
+  return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" style="--pr:${PR_COLOR[t.priority] || 'transparent'}" title="Arraste para outra etapa para mover a tarefa">
     <div class="gl"><span class="gantt-task-name ${t.done ? 'done' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>${t.done ? '<path d="M8.5 12l2.5 2.5 4.5-5"/>' : ''}</svg>${escapeHtml(t.title || 'Sem título')}</span></div>
-    <div class="gantt-track">${mark}</div>
+    <div class="gantt-track">${mark}${pill}</div>
   </div>`;
 }
 
