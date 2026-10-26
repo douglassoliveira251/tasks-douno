@@ -7,7 +7,6 @@ const RESEND_API_KEY = Deno.env.get("RESEND_SECRET_API");
 const TRIGGER_SECRET = Deno.env.get("TRIGGER_SECRET");
 
 const APP_URL = "https://tasks.douno.com.br";
-const LOGO_URL = `${APP_URL}/assets/douno-tasks-logo.png`;
 const DAYS_AHEAD = 7; // hoje + próximos 6 dias
 
 // Paleta do app (azul DOUNO Tasks)
@@ -22,12 +21,6 @@ const C = {
   bg: "#F3F5F8",
   danger: "#C0392B",
   dangerLight: "#FBE9E7",
-};
-const PRIORITY_COLOR: Record<string, string> = {
-  critica: "#DC2626",
-  alta: "#F59E0B",
-  media: "#10B981",
-  baixa: "#3B82F6",
 };
 
 function todaySaoPaulo(): string {
@@ -83,168 +76,203 @@ function eventOccursOn(ev: any, dateStr: string): boolean {
   }
 }
 
-type SpaceBlock = {
-  id: string;
+const MONTHS_FULL = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const WEEKDAYS_FULL = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+
+/* ===== Resumo diário (layout "O dia em números") =====
+   Regras do e-mail: só HTML em tabelas, sem imagens (nada para bloquear), fundo branco
+   explícito em todas as células (bgcolor + background-color) e cores sólidas, para ler
+   igual com o cliente de e-mail em modo claro ou escuro. */
+
+const PRIORITY_STRIP: Record<string, string> = {
+  critica: "#E11D48",
+  alta: "#F79009",
+  media: "#94A3B8",
+  baixa: "#CBD5E1",
+};
+const WARN = "#F59E0B";
+const LATE = "#D64545";
+const WHITE = "#ffffff";
+
+type Digest = {
   name: string;
-  color: string;
   overdue: any[];
-  today: any[];
-  agenda: { date: string; events: any[] }[];
+  dueToday: any[];
+  followOnly: any[];
+  followAny: Set<string>;
+  todayEvents: any[];
+  upcoming: { date: string; events: any[] }[];
+  projects: { name: string; color: string; pct: number; late: number; next: string | null }[];
+  ctx: (t: any) => string;
 };
 
-function buildSpaceBlocks(stateData: any, today: string): SpaceBlock[] {
+function diffDays(dateStr: string, today: string): number {
+  return Math.round((new Date(dateStr + "T00:00:00Z").getTime() - new Date(today + "T00:00:00Z").getTime()) / 86400000);
+}
+
+function buildDigest(stateData: any, today: string): Digest {
   const categories: any[] = Array.isArray(stateData.categories) ? stateData.categories : [];
-  const tasks: any[] = Array.isArray(stateData.tasks) ? stateData.tasks : [];
+  const allTasks: any[] = Array.isArray(stateData.tasks) ? stateData.tasks : [];
   const events: any[] = Array.isArray(stateData.events) ? stateData.events : [];
-
-  const known = new Set(categories.map((c) => c.id));
-  const spaces = categories.map((c) => ({ id: c.id, name: c.name || "Sem nome", color: c.color || C.primary }));
-  const hasOrphans = [...tasks, ...events].some((x) => !known.has(x.categoryId));
-  if (hasOrphans) spaces.push({ id: "__none__", name: "Sem espaço", color: C.faint });
-  const spaceOf = (x: any) => (known.has(x.categoryId) ? x.categoryId : "__none__");
-
+  const projects: any[] = Array.isArray(stateData.projects) ? stateData.projects : [];
+  const open = allTasks.filter((t) => !t.done);
   const byTime = (a: any, b: any) => (a.startTime || a.dueTime || "00:00").localeCompare(b.startTime || b.dueTime || "00:00");
 
-  return spaces.map((sp) => {
-    const myTasks = tasks.filter((t) => spaceOf(t) === sp.id && !t.done && t.dueDate);
-    const myEvents = events.filter((e) => spaceOf(e) === sp.id);
-    const agenda: { date: string; events: any[] }[] = [];
-    for (let i = 0; i < DAYS_AHEAD; i++) {
-      const d = addDays(today, i);
-      const evs = myEvents.filter((e) => eventOccursOn(e, d)).sort(byTime);
-      if (evs.length) agenda.push({ date: d, events: evs });
-    }
+  const overdue = open.filter((t) => t.dueDate && t.dueDate < today).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const dueToday = open.filter((t) => t.dueDate === today).sort(byTime);
+  const shown = new Set([...overdue, ...dueToday].map((t) => t.id));
+  const followAll = open.filter((t) => t.followUpDate && t.followUpDate <= today);
+  const followAny = new Set(followAll.map((t) => t.id as string));
+  const followOnly = followAll.filter((t) => !shown.has(t.id)).sort((a, b) => a.followUpDate.localeCompare(b.followUpDate));
+
+  const todayEvents = events.filter((e) => eventOccursOn(e, today)).sort(byTime);
+  const upcoming: { date: string; events: any[] }[] = [];
+  for (let i = 1; i < DAYS_AHEAD; i++) {
+    const d = addDays(today, i);
+    const evs = events.filter((e) => eventOccursOn(e, d)).sort(byTime);
+    if (evs.length) upcoming.push({ date: d, events: evs });
+  }
+
+  const projColor = (p: any) => p.color || categories.find((c) => c.id === p.categoryId)?.color || C.primary;
+  const projSummary = projects.map((p) => {
+    const tks = allTasks.filter((t) => t.projectId === p.id);
+    const openT = tks.filter((t) => !t.done);
+    if (!openT.length) return null;
+    const prog = tks.reduce((a, t) => a + (t.done ? 1 : (t.subtasks?.length ? t.subtasks.filter((s: any) => s.done).length / t.subtasks.length : 0)), 0);
+    const dues = openT.map((t) => t.dueDate).filter(Boolean).sort();
+    const nextDue = dues.find((d: string) => d >= today) || null;
     return {
-      ...sp,
-      overdue: myTasks.filter((t) => t.dueDate < today).sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
-      today: myTasks.filter((t) => t.dueDate === today).sort(byTime),
-      agenda,
+      name: p.name || "Projeto",
+      color: projColor(p),
+      pct: Math.round((prog / tks.length) * 100),
+      late: openT.filter((t) => t.dueDate && t.dueDate < today).length,
+      next: nextDue,
     };
-  }).filter((b) => b.overdue.length || b.today.length || b.agenda.length);
+  }).filter(Boolean) as Digest["projects"];
+
+  const ctx = (t: any) => {
+    const p = t.projectId ? projects.find((x) => x.id === t.projectId) : null;
+    if (!p) return "";
+    const st = t.stageId ? (p.stages || []).find((s: any) => s.id === t.stageId) : null;
+    return `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${escapeHtml(projColor(p))};"></span>&nbsp;${escapeHtml(p.name || "Projeto")}${st ? " › " + escapeHtml(st.name || "") : ""}`;
+  };
+
+  const name = String(stateData.profile?.name || "").trim().split(/\s+/)[0] || "";
+  return { name, overdue, dueToday, followOnly, followAny, todayEvents, upcoming, projects: projSummary, ctx };
 }
 
-const MONTHS_ABBR = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-const WEEKDAYS_FULL = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
-const WEEKDAYS_ABBR = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
-
-function taskRow(t: any, overdue: boolean): string {
-  const dot = PRIORITY_COLOR[t.priority] || C.faint;
-  const meta = overdue
-    ? `<span style="color:${C.danger}; font-weight:600;">Atrasada · ${fmtShort(t.dueDate)}</span>`
-    : `<span style="color:${C.faint};">Hoje${t.dueTime ? " · " + escapeHtml(t.dueTime) : ""}</span>`;
-  const bg = overdue ? "#FDF1F0" : "#F3F6FA";
-  const border = overdue ? "#F3CFCB" : "#E8ECF2";
-  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:${bg}; border:1px solid ${border}; border-radius:12px; margin:0 0 6px;"><tr>
-    <td width="26" valign="top" style="padding:13px 0 0 12px;"><span style="display:block; width:8px; height:8px; border-radius:50%; background:${dot};"></span></td>
-    <td style="padding:9px 12px 9px 0; font-size:14px; line-height:1.35; color:${C.ink};">${escapeHtml(t.title || "Sem título")}<div style="font-size:12px; margin-top:2px;">${meta}</div></td>
-  </tr></table>`;
+function selo(t: any, today: string): string {
+  if (!t.dueDate) return "";
+  const d = diffDays(t.dueDate, today);
+  let label = "", bg = "";
+  if (d < 0) { label = `+${-d}d atrasada`; bg = LATE; }
+  else if (d === 0) { label = "vence hoje"; bg = WARN; }
+  else if (d <= 3) { label = `em ${d}d`; bg = WARN; }
+  else return "";
+  return `<span style="display:inline-block; background:${bg}; color:#ffffff; font-size:11px; font-weight:800; line-height:14px; padding:3px 10px; border-radius:99px; white-space:nowrap;">${label}</span>`;
 }
 
-function agendaRow(date: string, ev: any, today: string, last: boolean): string {
-  const [, , dd] = date.split("-");
-  const wd = WEEKDAYS_ABBR[new Date(date + "T00:00:00Z").getUTCDay()];
-  const label = date === today ? "Hoje" : date === addDays(today, 1) ? "Amanhã" : `${wd} ${dd}`;
-  const time = ev.allDay || !ev.startTime ? "Dia todo" : ev.startTime;
-  const border = last ? "" : `border-bottom:1px solid ${C.border};`;
-  return `<tr>
-    <td width="62" valign="top" style="padding:8px 0; ${border} font-size:11px; line-height:18px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:${date === today ? C.primary : C.faint}; white-space:nowrap;">${escapeHtml(label)}</td>
-    <td width="62" valign="top" style="padding:8px 0; ${border} font-size:12px; line-height:18px; color:${C.primaryDark}; font-family:Menlo,Consolas,monospace; white-space:nowrap;">${escapeHtml(time)}</td>
-    <td valign="top" style="padding:8px 0; ${border} font-size:14px; line-height:18px; color:${C.ink};">${escapeHtml(ev.title || "Sem título")}</td>
-  </tr>`;
+function tag(text: string, bg: string, color: string): string {
+  return `<span style="display:inline-block; background:${bg}; color:${color}; font-size:11px; font-weight:700; line-height:14px; padding:3px 9px; border-radius:7px; white-space:nowrap;">${text}</span>`;
 }
 
-function spaceCard(b: SpaceBlock, today: string): string {
-  const taskCount = b.overdue.length + b.today.length;
-  const agendaCount = b.agenda.reduce((n, d) => n + d.events.length, 0);
-  const left = taskCount
-    ? b.overdue.map((t) => taskRow(t, true)).join("") + b.today.map((t) => taskRow(t, false)).join("")
-    : `<p style="margin:0; font-size:13px; color:${C.faint};">Nenhuma tarefa para hoje.</p>`;
-  const flat = b.agenda.flatMap((d) => d.events.map((e) => ({ date: d.date, ev: e })));
-  const right = flat.length
-    ? `<table width="100%" cellpadding="0" cellspacing="0" role="presentation">${flat.map((x, i) => agendaRow(x.date, x.ev, today, i === flat.length - 1)).join("")}</table>`
-    : `<p style="margin:0; font-size:13px; color:${C.faint};">Nada na agenda nos próximos 7 dias.</p>`;
-  const summary = [taskCount ? `${taskCount} tarefa${taskCount > 1 ? "s" : ""}` : "", agendaCount ? `${agendaCount} compromisso${agendaCount > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ");
-  const colLabel = (t: string) => `<div style="font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:${C.faint}; margin-bottom:8px;">${t}</div>`;
-
-  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff; border:1px solid ${C.border}; border-radius:18px; margin:0 0 14px;">
-    <tr><td style="padding:16px 20px 12px;">
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
-        <td width="10" valign="middle"><div style="width:4px; height:20px; border-radius:2px; background:${escapeHtml(b.color)};"></div></td>
-        <td valign="middle" style="font-size:15px; font-weight:700; color:${C.ink};">${escapeHtml(b.name)}</td>
-        <td valign="middle" align="right" style="font-size:12px; color:${C.faint};">${summary}</td>
-      </tr></table>
-    </td></tr>
-    <tr><td style="padding:0 20px 18px;">
-      <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
-        <td class="col" width="46%" valign="top" style="padding-right:12px;">${colLabel("Tarefas")}${left}</td>
-        <td class="col col-agenda" width="54%" valign="top" style="padding-left:12px;">${colLabel("Próximos 7 dias")}${right}</td>
-      </tr></table>
-    </td></tr>
-  </table>`;
+function sectionLabel(text: string): string {
+  return `<tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:22px 0 6px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:${C.faint};">${text}</td></tr>`;
 }
 
-function buildDigestHtml(today: string, blocks: SpaceBlock[]): string {
+/* uma linha: faixa de prioridade + (hora) + título/projeto + selos à direita */
+function itemRow(opts: { strip: string; lead?: string; title: string; sub?: string; right: string }): string {
+  return `<tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; border-bottom:1px solid #EEF1F5;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
+      <td width="4" bgcolor="${opts.strip}" style="background-color:${opts.strip}; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td>
+      ${opts.lead ? `<td width="56" valign="middle" bgcolor="${WHITE}" style="background-color:${WHITE}; padding:11px 0 11px 12px; font-size:12px; font-weight:700; color:${C.primary}; white-space:nowrap;">${opts.lead}</td>` : `<td width="12" bgcolor="${WHITE}" style="background-color:${WHITE};">&nbsp;</td>`}
+      <td valign="middle" bgcolor="${WHITE}" style="background-color:${WHITE}; padding:10px 8px 10px 4px; font-size:14px; line-height:19px; font-weight:600; color:${C.ink};">${opts.title}${opts.sub ? `<div style="font-size:12px; font-weight:400; line-height:17px; color:${C.faint};">${opts.sub}</div>` : ""}</td>
+      <td valign="middle" align="right" bgcolor="${WHITE}" style="background-color:${WHITE}; padding:10px 0 10px 8px; white-space:nowrap;">${opts.right}</td>
+    </tr></table>
+  </td></tr>`;
+}
+
+function kpiCell(n: number, label: string, color: string): string {
+  return `<td width="25%" bgcolor="${WHITE}" style="background-color:${WHITE}; border:1px solid ${C.border}; border-radius:12px; padding:12px 14px;">
+    <div style="font-size:26px; line-height:30px; font-weight:700; color:${color};">${n}</div>
+    <div style="font-size:11px; color:${C.soft};">${label}</div></td>`;
+}
+
+function buildDigestHtml(today: string, g: Digest): string {
   const d = new Date(today + "T00:00:00Z");
-  const dayNum = String(d.getUTCDate()).padStart(2, "0");
-  const month = MONTHS_ABBR[d.getUTCMonth()].toUpperCase();
   const weekday = WEEKDAYS_FULL[d.getUTCDay()];
-  const weekdayShort = weekday.split("-")[0];
-  const overdueN = blocks.reduce((n, b) => n + b.overdue.length, 0);
-  const tasksN = blocks.reduce((n, b) => n + b.overdue.length + b.today.length, 0);
-  const eventsN = blocks.reduce((n, b) => n + b.agenda.reduce((m, x) => m + x.events.length, 0), 0);
-  const empty = blocks.length === 0;
+  const dateLabel = `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${d.getUTCDate()} de ${MONTHS_FULL[d.getUTCMonth()]}`;
+  const empty = !g.overdue.length && !g.dueToday.length && !g.followOnly.length && !g.todayEvents.length && !g.upcoming.length;
+  const retomarTag = (t: any) => (g.followAny.has(t.id) ? tag("Retomar", "#FFF1D6", "#8A5A00") : "");
+  const prio = (t: any) => PRIORITY_STRIP[t.priority] || PRIORITY_STRIP.media;
 
-  const pill = (text: string, bg: string, color: string) =>
-    `<span style="display:inline-block; margin:0 6px 6px 0; padding:5px 12px; border-radius:99px; background:${bg}; color:${color}; font-size:12px; font-weight:700;">${text}</span>`;
-  const pills = [
-    overdueN ? pill(`${overdueN} atrasada${overdueN > 1 ? "s" : ""}`, "#FBE4E1", C.danger) : "",
-    tasksN ? pill(`${tasksN} tarefa${tasksN > 1 ? "s" : ""}`, C.primaryLight, C.primaryDark) : "",
-    eventsN ? pill(`${eventsN} compromisso${eventsN > 1 ? "s" : ""} em 7 dias`, C.primaryLight, C.primaryDark) : "",
-  ].join("");
+  // "Hoje, em ordem": prazos de hoje e compromissos, por horário
+  const dayItems = [
+    ...g.dueToday.map((t) => ({ time: t.dueTime || "", sort: t.dueTime || "99:98", html: itemRow({ strip: prio(t), lead: escapeHtml(t.dueTime || "Dia"), title: escapeHtml(t.title || "Sem título"), sub: g.ctx(t), right: selo(t, today) + (g.followAny.has(t.id) ? " " + retomarTag(t) : "") }) })),
+    ...g.todayEvents.map((e) => ({ time: e.startTime || "", sort: e.allDay || !e.startTime ? "99:99" : e.startTime, html: itemRow({ strip: "#2F9E6B", lead: escapeHtml(e.allDay || !e.startTime ? "Dia" : e.startTime), title: escapeHtml(e.title || "Sem título"), right: tag("Agenda", "#E5F3EC", "#1F6B47") }) })),
+  ].sort((a, b) => a.sort.localeCompare(b.sort)).map((x) => x.html).join("");
+
+  const overdueRows = g.overdue.map((t) => itemRow({ strip: prio(t), title: escapeHtml(t.title || "Sem título"), sub: g.ctx(t), right: selo(t, today) + (g.followAny.has(t.id) ? " " + retomarTag(t) : "") })).join("");
+  const followRows = g.followOnly.map((t) => itemRow({ strip: prio(t), title: escapeHtml(t.title || "Sem título"), sub: g.ctx(t), right: selo(t, today) || `<span style="font-size:12px; color:${C.faint};">${t.dueDate ? "Prazo " + fmtShort(t.dueDate) : "Sem prazo"}</span>` })).join("");
+
+  const upcomingRows = g.upcoming.map((day) => day.events.map((e, i) => {
+    const label = i === 0 ? dayLabel(day.date, today) : "";
+    const time = e.allDay || !e.startTime ? "Dia todo" : e.startTime;
+    return `<tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:7px 0; border-bottom:1px solid #EEF1F5; font-size:13px; color:${C.ink};"><span style="display:inline-block; width:96px; font-weight:700; color:${C.soft}; text-transform:capitalize;">${escapeHtml(label)}</span><span style="display:inline-block; width:62px; color:${C.primaryDark};">${escapeHtml(time)}</span>${escapeHtml(e.title || "Sem título")}</td></tr>`;
+  }).join("")).join("");
+
+  const projectRows = g.projects.map((p) => `<tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:9px 0; border-bottom:1px solid #EEF1F5;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
+      <td bgcolor="${WHITE}" style="background-color:${WHITE}; font-size:14px; font-weight:600; color:${C.ink};"><span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:${escapeHtml(p.color)};"></span>&nbsp;${escapeHtml(p.name)}</td>
+      <td align="right" bgcolor="${WHITE}" style="background-color:${WHITE}; font-size:12px; color:${C.soft};">${p.pct}%${p.late ? ` · <span style="color:${LATE}; font-weight:700;">${p.late} atrasada${p.late > 1 ? "s" : ""}</span>` : ""}${p.next ? ` · próxima entrega ${fmtShort(p.next)}` : ""}</td>
+    </tr><tr><td colspan="2" bgcolor="${WHITE}" style="background-color:${WHITE}; padding-top:6px;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
+        <td width="${Math.max(p.pct, 1)}%" height="6" bgcolor="${escapeHtml(p.color)}" style="background-color:${escapeHtml(p.color)}; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td>
+        <td height="6" bgcolor="#EEF1F5" style="background-color:#EEF1F5; border-radius:3px; font-size:0; line-height:0;">&nbsp;</td>
+      </tr></table></td></tr></table></td></tr>`).join("");
+
+  const greeting = g.name ? `Bom dia, ${escapeHtml(g.name)}` : "Bom dia";
+  const sections = empty
+    ? `<tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:26px 0; font-size:14px; color:${C.soft};">Nada pendente por aqui. Aproveite o dia.</td></tr>`
+    : [
+      dayItems ? sectionLabel("Hoje, em ordem") + dayItems : "",
+      overdueRows ? sectionLabel("Atenção, atrasadas") + overdueRows : "",
+      followRows ? sectionLabel("Retomar hoje") + followRows : "",
+      upcomingRows ? sectionLabel("Próximos dias") + upcomingRows : "",
+      projectRows ? sectionLabel("Projetos") + projectRows : "",
+    ].join("");
 
   return `<!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">
+<html lang="pt-BR" style="color-scheme:light only; supported-color-schemes:light;"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light">
 <style>
-  @media only screen and (max-width:600px){
-    .col{display:block !important; width:100% !important; padding:0 !important;}
-    .col-agenda{padding-top:16px !important;}
-    .pad{padding-left:10px !important; padding-right:10px !important;}
-    .dayblock{display:none !important;}
-  }
+  :root{color-scheme:light only; supported-color-schemes:light;}
+  @media only screen and (max-width:600px){ .pad{padding-left:8px !important; padding-right:8px !important;} .kpi td{display:block !important; width:100% !important;} }
 </style></head>
-<body style="margin:0; padding:0; background:#ffffff;">
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;"><tr><td align="center" class="pad" style="padding:24px 16px;">
-  <table width="640" cellpadding="0" cellspacing="0" role="presentation" style="width:100%; max-width:640px; font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
-    <tr><td style="background:#EAF1FA; background-image:linear-gradient(135deg, #DCE8F7 0%, #F4F8FD 100%); border:1px solid #D6E2F3; border-radius:22px; padding:24px 26px;">
+<body bgcolor="${WHITE}" style="margin:0; padding:0; background-color:${WHITE};">
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" bgcolor="${WHITE}" style="background-color:${WHITE};"><tr><td align="center" class="pad" bgcolor="${WHITE}" style="background-color:${WHITE}; padding:24px 16px;">
+  <table width="600" cellpadding="0" cellspacing="0" role="presentation" bgcolor="${WHITE}" style="width:100%; max-width:600px; background-color:${WHITE}; border:1px solid ${C.border}; border-radius:18px; font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
+    <tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:22px 26px 6px;">
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
-        <td class="dayblock" width="104" valign="middle">
-          <table width="92" cellpadding="0" cellspacing="0" role="presentation" style="background:${C.primary}; border-radius:20px;"><tr><td align="center" style="padding:12px 0 10px;">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.14em; color:#BCD3F2;">${month}</div>
-            <div style="font-size:44px; line-height:48px; font-weight:700; color:#ffffff;">${dayNum}</div>
-            <div style="font-size:12px; font-weight:600; color:#DCE7F6; text-transform:capitalize;">${weekdayShort}</div>
-          </td></tr></table>
-        </td>
-        <td valign="middle">
-          <table cellpadding="0" cellspacing="0" role="presentation"><tr>
-            <td valign="middle"><img src="${LOGO_URL}" width="26" height="26" alt="" style="display:block; border:0; border-radius:8px;"></td>
-            <td valign="middle" style="padding-left:8px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:${C.primary};">DOUNO Tasks</td>
-          </tr></table>
-          <div style="font-size:26px; font-weight:700; letter-spacing:-.02em; color:${C.ink}; margin:10px 0 12px;">Seu resumo de hoje</div>
-          <div>${pills}</div>
-        </td>
+        <td bgcolor="${WHITE}" style="background-color:${WHITE}; font-size:13px; font-weight:800; letter-spacing:.06em; color:${C.primary};">DOUNO <span style="font-weight:600;">Tasks</span></td>
+        <td align="right" bgcolor="${WHITE}" style="background-color:${WHITE}; font-size:12px; color:${C.faint};">${dateLabel}</td>
+      </tr></table>
+      <div style="font-size:24px; line-height:30px; font-weight:700; color:${C.ink}; margin:14px 0 2px;">${greeting}</div>
+      <div style="font-size:13px; color:${C.soft};">Seu dia em números</div>
+      <table width="100%" cellpadding="0" cellspacing="8" role="presentation" class="kpi" style="margin:10px -8px 0;"><tr>
+        ${kpiCell(g.overdue.length, "Atrasadas", g.overdue.length ? LATE : C.ink)}
+        ${kpiCell(g.dueToday.length, "Prazo hoje", g.dueToday.length ? "#D98200" : C.ink)}
+        ${kpiCell(g.followOnly.length + g.overdue.filter((t) => g.followAny.has(t.id)).length + g.dueToday.filter((t) => g.followAny.has(t.id)).length, "Retomar", C.ink)}
+        ${kpiCell(g.todayEvents.length, "Agenda", g.todayEvents.length ? "#1F6B47" : C.ink)}
       </tr></table>
     </td></tr>
-    <tr><td style="height:14px; line-height:14px; font-size:0;">&nbsp;</td></tr>
-    <tr><td>
-      ${empty
-        ? `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff; border:1px solid ${C.border}; border-radius:18px;"><tr><td style="padding:22px; font-size:15px; color:${C.ink};">Tudo em dia. Nada pendente para hoje nem agendado nos próximos 7 dias.</td></tr></table>`
-        : blocks.map((b) => spaceCard(b, today)).join("")}
+    <tr><td bgcolor="${WHITE}" style="background-color:${WHITE}; padding:0 26px 8px;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${sections}</table>
     </td></tr>
-    <tr><td align="center" style="padding:10px 0 14px;">
-      <a href="${APP_URL}" style="display:inline-block; background:${C.primary}; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; padding:13px 30px; border-radius:14px;">Abrir o DOUNO Tasks</a>
+    <tr><td align="center" bgcolor="${WHITE}" style="background-color:${WHITE}; padding:14px 0 6px;">
+      <a href="${APP_URL}" style="display:inline-block; background-color:${C.primary}; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; padding:13px 30px; border-radius:14px;">Abrir o DOUNO Tasks</a>
     </td></tr>
-    <tr><td align="center" style="font-size:12px; color:${C.faint}; padding-bottom:8px;">Enviado automaticamente pelo DOUNO Tasks, todo dia às 7h.</td></tr>
+    <tr><td align="center" bgcolor="${WHITE}" style="background-color:${WHITE}; font-size:12px; color:${C.faint}; padding:6px 0 20px;">Enviado automaticamente pelo DOUNO Tasks, todo dia às 7h.</td></tr>
   </table>
 </td></tr></table>
 </body></html>`;
@@ -272,13 +300,13 @@ Deno.serve(async (req: Request) => {
     const email = stateData.profile?.email;
     if (!email) continue;
 
-    const blocks = buildSpaceBlocks(stateData, today);
-    const html = buildDigestHtml(today, blocks);
-    const taskCount = blocks.reduce((n, b) => n + b.overdue.length + b.today.length, 0);
-    const eventCount = blocks.reduce((n, b) => n + b.agenda.reduce((m, d) => m + d.events.length, 0), 0);
+    const g = buildDigest(stateData, today);
+    const html = buildDigestHtml(today, g);
     const parts = [];
-    if (taskCount) parts.push(`${taskCount} tarefa(s)`);
-    if (eventCount) parts.push(`${eventCount} compromisso(s)`);
+    if (g.overdue.length) parts.push(`${g.overdue.length} atrasada(s)`);
+    if (g.dueToday.length) parts.push(`${g.dueToday.length} com prazo hoje`);
+    if (g.followOnly.length) parts.push(`${g.followOnly.length} para retomar`);
+    if (g.todayEvents.length) parts.push(`${g.todayEvents.length} compromisso(s)`);
 
     const resp = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -289,7 +317,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         from: "DOUNO Tasks <tasks@douno.com.br>",
         to: [email],
-        subject: parts.length ? `Seu resumo diário — ${parts.join(" e ")}` : "Seu resumo diário — tudo em dia",
+        subject: parts.length ? `Seu resumo diário — ${parts.join(", ")}` : "Seu resumo diário — tudo em dia",
         html,
       }),
     });
