@@ -1,3 +1,12 @@
+## [1.10.180] - 2026-10-27 14:00
+
+### Changed
+
+#### Projetos
+
+- Topo do projeto reunido num único bloco branco: ícone, título, descrição, status com progresso e data de entrega, botões e abas.
+
+
 ## [1.10.179] - 2026-10-27 12:00
 
 ### Changed

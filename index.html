@@ -2779,7 +2779,10 @@
     .proj-side.is-resumo .proj-side-top{margin-bottom:0;}
     .proj-toolbar{gap:10px; margin-bottom:8px;}
     .prj-actions .prj-act{flex:1; justify-content:center; padding-left:10px; padding-right:10px;}
-    .proj-tabs{margin-bottom:10px !important;}
+    .prj-head{padding:14px 14px 0; border-radius:20px;}
+    .prj-head .proj-desc-row{margin:10px 0 0;}
+    .prj-meta-bar{flex:1 1 100%; width:auto; order:3;}
+    .prj-head .proj-tabs{margin:10px -14px 0; padding:10px 14px;}
   }
   /* linha do tempo: cor do projeto; concluída chapada, em andamento listrada, não iniciada em tom claro */
   .gantt-wrap{--pc:var(--primary);}
@@ -2833,6 +2836,19 @@
   .gantt-task .gantt-track{display:flex; justify-content:flex-end; align-items:center; padding-right:10px;}
   .gantt-pill{position:sticky; right:10px; top:auto; transform:none; flex:none; z-index:3;}
   @media (max-width:768px){ .gantt-wrap{--gl:200px;} .gantt-filters{margin-left:0; width:100%;} }
+  /* topo do projeto: um único bloco branco */
+  .prj-head{background:var(--surface); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow-sm); padding:16px 18px 0; margin-bottom:14px;}
+  .prj-head .proj-toolbar{margin-bottom:4px;}
+  .prj-head .proj-desc-row{margin:2px 0 0 50px; max-width:780px;}
+  .prj-meta{display:flex; align-items:center; gap:12px; margin:12px 0 4px; flex-wrap:wrap;}
+  .prj-meta .proj-chip{font-size:11.5px; padding:3px 11px; background:var(--primary-light, color-mix(in srgb, var(--primary) 14%, transparent)); color:var(--primary);}
+  .prj-meta .proj-chip.late{background:var(--danger-light); color:var(--danger);}
+  .prj-meta .proj-chip.ok{background:var(--ok-light); color:var(--ok-dark);}
+  .prj-meta-txt{font-size:12.5px; color:var(--ink-soft);}
+  .prj-meta-bar{width:200px; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden;}
+  .prj-meta-bar i{display:block; height:100%; background:var(--primary); border-radius:3px;}
+  .prj-head .proj-tabs{border-top:1px solid var(--border); margin:12px -18px 0; padding:10px 18px;}
+  @media (max-width:768px){ .prj-head .proj-desc-row{margin:10px 0 0;} }
   /* modo Ajustar: tudo cabe na largura da tela, linhas compactas */
   .gantt-wrap.fit{--gl:210px; overflow-x:hidden;}
   .gantt-wrap.fit .gantt-head .gl{padding:8px 14px;}
@@ -3327,6 +3343,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.180', date:'27/10/2026', title:'Topo do projeto em um só bloco', text:'O cabeçalho do projeto agora é um bloco branco único: ícone, título, descrição, status com progresso e entrega, botões e as abas (Linha do tempo e Lista) juntos.' },
   { version:'1.10.179', date:'27/10/2026', title:'Linha do tempo que cabe na tela', text:'A linha do tempo do projeto agora abre no modo Ajustar: o período inteiro é encolhido para a largura da tela, sem rolagem lateral, com linhas mais compactas. Mês, Semana e Dia continuam disponíveis para ampliar.' },
   { version:'1.10.178', date:'27/10/2026', title:'Linha do tempo com zoom, Hoje e filtros', text:'A linha do tempo ganhou controles: zoom (Dia, Semana, Mês, Trimestre), botões para voltar, avançar e ir para Hoje, e filtros por atrasadas e vencem em breve. O cabeçalho mostra meses e semanas, os fins de semana ficam sombreados e a coluna de hoje fica destacada. A faixa de prioridade segue as cores das tarefas.' },
   { version:'1.10.177', date:'26/10/2026', title:'Linha do tempo com a cor do projeto e alertas de prazo', text:'As barras seguem a cor do projeto: concluída chapada, em andamento listrada e não iniciada em tom claro. Cada tarefa ganha uma faixa de prioridade na lateral e um selo no canto direito quando vence em até 3 dias (laranja) ou está atrasada (vermelho).' },
@@ -7066,7 +7083,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.179';
+const APP_VERSION = '1.10.180';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9412,11 +9429,13 @@ function renderProjectDetail(view, p){
       <button type="button" class="proj-side-btn pri" id="stgSideNewTask">+ Nova tarefa nesta etapa</button>
       <button type="button" class="proj-side-btn" id="stgSideEdit">Editar etapa</button>`;
   }
+  const chips = projectChipsHtml(st) || `<span class="proj-chip">${st.pct > 0 ? 'Em andamento' : 'Não iniciado'}</span>`;
+  const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '');
   view.innerHTML = `
+    <div class="prj-head">
     <div class="proj-toolbar">
       <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
       <span class="prj-name-wrap">${projectBadgeHtml(p, 36)}<b class="prj-title">${escapeHtml(p.name)}</b></span>
-      ${projectChipsHtml(st)}
       <span class="prj-actions">
         <button type="button" class="prj-act" id="prjAddStage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>Nova etapa</button>
         <button type="button" class="prj-act pri" id="prjAddTask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova tarefa</button>
@@ -9424,9 +9443,11 @@ function renderProjectDetail(view, p){
       </span>
     </div>
     <div class="proj-desc-row" id="prjDescRow"></div>
-    <div class="proj-tabs" style="margin-bottom:12px;">
+    <div class="prj-meta">${chips}<span class="prj-meta-txt">${st.pct}% · ${st.done} de ${st.total} etapa${st.total === 1 ? '' : 's'}${endTxt ? ' · entrega ' + endTxt : ''}${slip ? ` <b style="color:var(--danger);">${slip}</b>` : ''}</span><span class="prj-meta-bar"><i style="width:${st.pct}%"></i></span></div>
+    <div class="proj-tabs">
       <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
       <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+    </div>
     </div>
     <div class="proj-split">
       <div id="prjBody" style="min-width:0;"></div>
