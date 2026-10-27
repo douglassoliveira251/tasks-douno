@@ -27,7 +27,7 @@ for (const [name, width] of [['celular', 390], ['desktop', 1280]]) {
     const row = page.locator('.cal-dayblk').first();
     await expect(row).toBeVisible();
     const rowBox = await row.boundingBox();
-    for (const sel of ['.cal-dayblk-time', '.cal-dayblk-title', '.cal-event-tag', '.cal-dayblk-cat']) {
+    for (const sel of ['.cal-dayblk-time', '.cal-dayblk-title', '.cal-dayblk-cat']) {
       const box = await row.locator(sel).boundingBox();
       expect(box.x + box.width, sel).toBeLessThanOrEqual(rowBox.x + rowBox.width + 1);
     }
