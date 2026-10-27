@@ -1,3 +1,12 @@
+## [1.10.185] - 2026-10-27 19:00
+
+### Fixed
+
+#### Calendário
+
+- Agenda de vários dias (inclusive a que se repete, como a cada 2 semanas) aparecia só no primeiro dia. Agora aparece em todos os dias do período, em cada repetição.
+
+
 ## [1.10.184] - 2026-10-27 18:00
 
 ### Fixed

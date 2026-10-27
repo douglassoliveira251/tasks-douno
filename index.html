@@ -3372,6 +3372,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.185', date:'27/10/2026', title:'Agenda de vários dias', text:'Uma agenda que dura vários dias agora aparece em todos os dias do período no calendário, e também em cada repetição quando ela se repete.' },
   { version:'1.10.184', date:'27/10/2026', title:'Linha do tempo sem letra solta', text:'Quando o primeiro ou o último mês aparece só em parte, o cabeçalho da linha do tempo não mostra mais uma letra cortada.' },
   { version:'1.10.183', date:'27/10/2026', title:'Projetos na visão geral', text:'No card Projetos da visão geral, cada projeto ganhou o ícone e a cor dele dentro do anel de progresso, com a próxima etapa e a situação ao lado.' },
   { version:'1.10.182', date:'27/10/2026', title:'Topo do projeto estilo perfil', text:'O topo do projeto ganhou um avatar com anel de progresso e números em linha (etapas, tarefas, atrasadas, vencem em 3 dias e entrega). O Resumo sobe para a altura do topo e a linha do tempo fica logo abaixo, aproveitando melhor a tela.' },
@@ -7116,7 +7117,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.184';
+const APP_VERSION = '1.10.185';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7126,8 +7127,10 @@ function eventsInScope(){
 }
 /* Uma agenda recorrente é salva uma vez só (na data de início). As ocorrências são
    calculadas na hora: a partir de ev.date, a cada N dias/semanas/meses/anos, até
-   recurrenceEndDate (se houver). Mês/ano mais curto cai no último dia possível. */
-function eventOccursOn(ev, dateStr){
+   recurrenceEndDate (se houver). Mês/ano mais curto cai no último dia possível.
+   Agenda de vários dias (ev.endDate depois de ev.date) aparece em todos os dias
+   do período, e em cada repetição também. */
+function eventStartsOn(ev, dateStr){
   if(!ev.date || !dateStr) return false;
   if(ev.date === dateStr) return true;
   const rec = ev.recurrence;
@@ -7145,6 +7148,15 @@ function eventOccursOn(ev, dateStr){
     case 'yearly': return (dy-ay) % n === 0 && dm === am && dd === Math.min(ad, lastDayOf(dy, dm));
     default: return false;
   }
+}
+function eventOccursOn(ev, dateStr){
+  if(!ev.date || !dateStr || dateStr < ev.date) return false;
+  const utc = d => { const [y, m, dd] = d.split('-').map(Number); return Date.UTC(y, m - 1, dd); };
+  const span = ev.endDate && ev.endDate > ev.date ? Math.min(400, Math.round((utc(ev.endDate) - utc(ev.date)) / 86400000)) : 0;
+  for(let k = 0; k <= span; k++){
+    if(eventStartsOn(ev, k ? addDaysStr(dateStr, -k) : dateStr)) return true;
+  }
+  return false;
 }
 function eventsOnDate(list, dateStr){
   return list.filter(ev => eventOccursOn(ev, dateStr)).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
