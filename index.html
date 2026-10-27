@@ -1516,6 +1516,17 @@
   }
   .recurrence-detail-fields .tp-field{margin:0;}
   .recurrence-detail-fields .tp-label{font-size:11px; margin-bottom:4px;}
+  .rec-remind{border-top:1px solid var(--border); padding-top:12px; margin-top:2px;}
+  .rec-remind-h{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .rec-remind-h svg{color:#E8A33D;}
+  .rec-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+  .rec-chip{font:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:99px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer;}
+  .rec-chip.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .rec-unit{font-size:12.5px; color:var(--ink-soft);}
+  .rec-occ{display:flex; align-items:center; gap:8px; font-size:12.5px; padding:6px 0; border-top:1px solid var(--border);}
+  .rec-occ .dot{width:8px; height:8px; border-radius:50%; background:#E8A33D; flex:none;}
+  .rec-occ span:nth-child(2){white-space:nowrap;}
+  .rec-occ small{margin-left:auto; color:var(--ink-faint); font-size:11.5px; text-align:right;}
   .tp-tags-popover-list{max-height:180px; overflow-y:auto; margin-bottom:8px;}
   .tp-tags-popover-row{
     display:flex; align-items:center; gap:8px; padding:6px 4px; border-radius:6px; font-size:13px;
@@ -3372,6 +3383,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.186', date:'27/10/2026', title:'Avisar antes nas agendas que se repetem', text:'Na janela Repetir da agenda, a opção Avisar antes (1 dia, 2 dias, 1 semana ou outro prazo) mostra as próximas repetições com a data de cada aviso. O aviso volta a cada repetição e aparece no sino e em Retomar hoje na visão geral.' },
   { version:'1.10.185', date:'27/10/2026', title:'Agenda de vários dias', text:'Uma agenda que dura vários dias agora aparece em todos os dias do período no calendário, e também em cada repetição quando ela se repete.' },
   { version:'1.10.184', date:'27/10/2026', title:'Linha do tempo sem letra solta', text:'Quando o primeiro ou o último mês aparece só em parte, o cabeçalho da linha do tempo não mostra mais uma letra cortada.' },
   { version:'1.10.183', date:'27/10/2026', title:'Projetos na visão geral', text:'No card Projetos da visão geral, cada projeto ganhou o ícone e a cor dele dentro do anel de progresso, com a próxima etapa e a situação ao lado.' },
@@ -3708,6 +3720,7 @@ function normalizeState(){
     if(ev.recurrenceInterval === undefined) ev.recurrenceInterval = 1;
     if(ev.recurrenceBaseDate === undefined) ev.recurrenceBaseDate = ev.date || null;
     if(ev.recurrenceEndDate === undefined) ev.recurrenceEndDate = null;
+    if(ev.remindBefore === undefined) ev.remindBefore = 0;
     if(ev.linkedTaskId === undefined) ev.linkedTaskId = null;
     if(ev.endDate === undefined) ev.endDate = ev.date || null;
     if(ev.updatedAt === undefined) ev.updatedAt = ev.createdAt || null;
@@ -5033,6 +5046,21 @@ function closeRecurrencePortal(e){
 function renderRecurrencePortalContent(portal, task, onChange){
   const enabled = !!(task.recurrence && task.recurrence !== 'none');
   const currentUnit = enabled ? task.recurrence : 'daily';
+  const isEv = task.date !== undefined && task.dueDate === undefined;
+  let remindBlock = '';
+  if(isEv && enabled){
+    const rb = parseInt(task.remindBefore, 10) || 0;
+    const chip = (v, l) => `<button type="button" class="rec-chip ${rb === v ? 'on' : ''}" data-rb="${v}">${l}</button>`;
+    const custom = ![0, 1, 2, 7].includes(rb);
+    const span = task.endDate && task.endDate > task.date ? Math.round((Date.parse(task.endDate) - Date.parse(task.date)) / 86400000) : 0;
+    const nexts = rb ? eventNextStarts(task, todayStr(), 3) : [];
+    remindBlock = `<div class="rec-remind">
+      <div class="rec-remind-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 17V11a6 6 0 0112 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><b>Avisar antes</b></div>
+      <div class="rec-chips">${chip(0, 'Sem aviso')}${chip(1, '1 dia')}${chip(2, '2 dias')}${chip(7, '1 semana')}<button type="button" class="rec-chip ${custom ? 'on' : ''}" data-rb="custom">Outro…</button></div>
+      ${custom ? `<div class="tp-row2" style="margin-top:8px;"><input type="number" class="tp-input" id="recPopRemindDays" min="1" max="365" value="${rb}"><span class="rec-unit">dia(s) antes</span></div>` : ''}
+      ${nexts.length ? `<div class="tp-label" style="margin-top:12px;">Próximas</div>${nexts.map(d => `<div class="rec-occ"><span class="dot"></span><span>Aviso <b>${fmtDate(addDaysStr(d, -rb))}</b></span><small>Agenda ${span ? fmtDate(d) + '–' + fmtDate(addDaysStr(d, span)) : fmtDate(d)}</small></div>`).join('')}` : ''}
+    </div>`;
+  }
   portal.innerHTML = `
     <label class="recurrence-toggle-row">
       <span>Repetir</span>
@@ -5061,6 +5089,7 @@ function renderRecurrencePortalContent(portal, task, onChange){
         <label class="tp-label">Até (opcional)</label>
         <input type="date" class="tp-input" id="recPopEndDate" value="${task.recurrenceEndDate || ''}" placeholder="Não termina">
       </div>
+      ${isEv ? remindBlock : ''}
     </div>
     ` : ''}
   `;
@@ -5121,6 +5150,28 @@ function renderRecurrencePortalContent(portal, task, onChange){
       }
       persistOnly();
       onChange();
+    });
+  }
+  portal.querySelectorAll('.rec-chip[data-rb]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = btn.dataset.rb;
+      task.remindBefore = v === 'custom' ? ([0, 1, 2, 7].includes(parseInt(task.remindBefore, 10) || 0) ? 3 : task.remindBefore) : parseInt(v, 10);
+      persistOnly();
+      onChange();
+      renderRecurrencePortalContent(portal, task, onChange);
+      positionTagsPortalNear(portal, portal._anchorBtn);
+    });
+  });
+  const remindDays = portal.querySelector('#recPopRemindDays');
+  if(remindDays){
+    remindDays.addEventListener('click', e => e.stopPropagation());
+    remindDays.addEventListener('change', e => {
+      task.remindBefore = Math.min(365, Math.max(1, parseInt(e.target.value, 10) || 1));
+      persistOnly();
+      onChange();
+      renderRecurrencePortalContent(portal, task, onChange);
+      positionTagsPortalNear(portal, portal._anchorBtn);
     });
   }
   const endDateInput = portal.querySelector('#recPopEndDate');
@@ -7117,7 +7168,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.185';
+const APP_VERSION = '1.10.186';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7157,6 +7208,29 @@ function eventOccursOn(ev, dateStr){
     if(eventStartsOn(ev, k ? addDaysStr(dateStr, -k) : dateStr)) return true;
   }
   return false;
+}
+/* Aviso antes (agenda recorrente): ev.remindBefore dias antes de cada repetição.
+   eventNextStarts: datas de início das próximas repetições a partir de fromStr. */
+function eventNextStarts(ev, fromStr, count, horizon){
+  const out = [];
+  for(let i = 0; i <= (horizon || 800) && out.length < count; i++){
+    const d = addDaysStr(fromStr, i);
+    if(eventStartsOn(ev, d)) out.push(d);
+  }
+  return out;
+}
+// agendas com aviso ligado cuja próxima repetição começa nos próximos remindBefore dias (hoje fica com "Agenda de hoje")
+function eventReminders(list, todayS){
+  const out = [];
+  list.forEach(ev => {
+    const n = parseInt(ev.remindBefore, 10) || 0;
+    if(!n || !ev.recurrence || ev.recurrence === 'none') return;
+    for(let i = 1; i <= n; i++){
+      const d = addDaysStr(todayS, i);
+      if(eventStartsOn(ev, d)){ out.push({ ev, start: d }); break; }
+    }
+  });
+  return out.sort((a, b) => a.start.localeCompare(b.start));
 }
 function eventsOnDate(list, dateStr){
   return list.filter(ev => eventOccursOn(ev, dateStr)).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
@@ -7386,6 +7460,7 @@ function renderDashboard(){
   /* ===== Resumo (bento) ===== */
   const followToday = open.filter(t => t.followUpDate && t.followUpDate <= todayS)
     .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
+  const eventAvisos = eventReminders(scopeEvents, todayS);
   const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
     .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99'))).slice(0, 5);
   const prStatus = (state.projects || []).filter(p => !dashboardSpace || p.categoryId === dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
@@ -7459,8 +7534,8 @@ function renderDashboard(){
           <span class="rs-link" id="rsSeeProjects">Ver projetos →</span>
         </div>
         <div class="rs-card">
-          <h3>Retomar hoje <span>${followToday.length ? followToday.length : ''}</span></h3>
-          ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="rs-row dash-list-row" data-task-id="${t.id}"><span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></span></div>`).join('')
+          <h3>Retomar hoje <span>${followToday.length + eventAvisos.length ? followToday.length + eventAvisos.length : ''}</span></h3>
+          ${followToday.length || eventAvisos.length ? followToday.slice(0, 4).map(t => `<div class="rs-row dash-list-row" data-task-id="${t.id}"><span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></span></div>`).join('') + eventAvisos.slice(0, Math.max(0, 4 - followToday.length)).map(r => `<div class="rs-row dash-list-row" data-event-id="${r.ev.id}"><span class="tt"><b>${escapeHtml(r.ev.title || 'Sem título')}</b><small>Agenda em ${fmtDate(r.start)}</small></span></div>`).join('')
             : '<div class="rs-empty">Nada para retomar hoje.</div>'}
         </div>
         <div class="rs-card rs-agenda">
@@ -12077,11 +12152,12 @@ function computeNotifItems(){
   /* uma tarefa aparece uma vez só: se já está em Atrasadas/Hoje, a retomada vira só uma marca na linha */
   const shown = new Set(overdueTasks.concat(todayTasks).map(t => t.id));
   const followOnly = followUpTasks.filter(t => !shown.has(t.id));
-  return { overdueTasks, todayTasks, todayEvents, followUpTasks, followOnly };
+  const eventReminds = eventReminders(state.events.filter(inSpace), today);
+  return { overdueTasks, todayTasks, todayEvents, followUpTasks, followOnly, eventReminds };
 }
 function updateNotifBadge(){
-  const { overdueTasks, todayTasks, todayEvents, followOnly } = computeNotifItems();
-  const count = overdueTasks.length + todayTasks.length + todayEvents.length + followOnly.length;
+  const { overdueTasks, todayTasks, todayEvents, followOnly, eventReminds } = computeNotifItems();
+  const count = overdueTasks.length + todayTasks.length + todayEvents.length + followOnly.length + eventReminds.length;
   const badge = document.getElementById('notifBadge');
   if(!badge) return;
   badge.textContent = count > 9 ? '9+' : String(count);
@@ -12089,10 +12165,10 @@ function updateNotifBadge(){
 }
 function renderNotifDropdown(){
   const dd = document.getElementById('notifDropdown');
-  const { overdueTasks, todayTasks, todayEvents, followOnly } = computeNotifItems();
+  const { overdueTasks, todayTasks, todayEvents, followOnly, eventReminds } = computeNotifItems();
   const followToday = t => t.followUpDate && t.followUpDate <= todayStr();
   const withFollow = t => (followToday(t) ? '<span class="notif-follow" title="Também para retomar">↻</span> ' : '');
-  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length && !followOnly.length){
+  if(!overdueTasks.length && !todayTasks.length && !todayEvents.length && !followOnly.length && !eventReminds.length){
     dd.innerHTML = `<div class="notif-dropdown-empty">Nenhuma pendência por aqui. 🎉</div>`;
     dd.style.display = 'block';
     return;
@@ -12114,6 +12190,7 @@ function renderNotifDropdown(){
     group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => withFollow(t) + fmtDate(t.dueDate), 'notif-overdue') +
     group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => withFollow(t) + (t.dueTime || '')) +
     group('Retomar hoje', followOnly, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
+    group('Avisos de agenda', eventReminds.map(r => ({ ...r.ev, _start: r.start })), 'calendar', '#FFF1D6', '#8A5A00', ev => 'em ' + fmtDate(ev._start)) +
     group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''));
   dd.querySelectorAll('.search-result-row').forEach(row => {
     row.onclick = () => {
