@@ -1,3 +1,12 @@
+## [1.10.189] - 2026-10-27 23:00
+
+### Changed
+
+#### Calendário
+
+- Agenda de dia inteiro (linha do topo da semana e painel do dia) segue o padrão das demais agendas: cartão suave com barra lateral colorida e texto na cor padrão.
+
+
 ## [1.10.188] - 2026-10-27 22:00
 
 ### Added

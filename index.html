@@ -2264,6 +2264,14 @@
   .cal-week-hour-line{opacity:.6;}
   .cal-event-block-timed{border-radius:12px !important; border:none !important; border-left:none !important; box-shadow:none !important;}
   .cal-event-block-timed:before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--evc, currentColor); opacity:.9;}
+  /* dia inteiro: mesmo desenho das agendas com horário (cartão suave com barra lateral) */
+  .cal-week-allday-cell{padding:5px 4px; gap:4px;}
+  .cal-week-allday-cell .cal-event-pill{position:relative; display:flex; flex-direction:column; gap:1px; border-radius:12px; padding:6px 8px 6px 12px; color:var(--ink); font-size:12.5px; font-weight:600; line-height:1.25; cursor:pointer;}
+  .cal-week-allday-cell .cal-event-pill:before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:3px; border-radius:3px; background:var(--evc, currentColor); opacity:.9;}
+  .cal-week-allday-cell .cal-event-tag{color:var(--ink-soft);}
+  .cal-dayA-chip{position:relative; background:color-mix(in srgb, var(--c) 13%, var(--surface)); border-radius:12px; padding:8px 12px 8px 16px;}
+  .cal-dayA-chip:before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--c); opacity:.9;}
+  .cal-dayA-chip svg{display:none;}
   .cal-now-line{position:absolute; left:52px; right:0; height:2px; background:#E5484D; z-index:4; pointer-events:none;}
   .cal-now-line:before{content:""; position:absolute; left:-4px; top:-3px; width:8px; height:8px; border-radius:50%; background:#E5484D;}
   @media (max-width: 1100px){ .cal-week-layout{grid-template-columns:1fr;} .cal-side{display:none;} }
@@ -3379,6 +3387,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.189', date:'27/10/2026', title:'Agenda de dia inteiro com o mesmo visual', text:'As agendas de dia inteiro, no topo da semana e no painel do dia, agora usam o mesmo cartão suave com barra colorida das demais agendas.' },
   { version:'1.10.188', date:'27/10/2026', title:'Retornar antes nas tarefas que se repetem', text:'Na janela Repetir da tarefa, a opção Retornar antes (1 semana, 15 dias, 1 mês ou outro prazo) faz a próxima repetição voltar ao Retomar hoje antes do vencimento, para você já começar a tratar.' },
   { version:'1.10.187', date:'27/10/2026', title:'Ajuste na janela Repetir da agenda', text:'O "Avisar antes" da agenda foi retirado, pois o aviso antecipado vai ficar nas tarefas.' },
   { version:'1.10.185', date:'27/10/2026', title:'Agenda de vários dias', text:'Uma agenda que dura vários dias agora aparece em todos os dias do período no calendário, e também em cada repetição quando ela se repete.' },
@@ -7166,7 +7175,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.188';
+const APP_VERSION = '1.10.189';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7753,7 +7762,7 @@ function renderCalendarMonth(body){
     let evHtml = '';
     if(dayEvents.length === 1){
       const ev = dayEvents[0];
-      evHtml = `<div class="cal-event-pill" style="background:${eventColor(ev)}22; color:${eventColor(ev)};">${escapeHtml(ev.title||'Sem título')}</div>`;
+      evHtml = `<div class="cal-event-pill" style="background:${eventColor(ev)}22; --evc:${eventColor(ev)};">${escapeHtml(ev.title||'Sem título')}</div>`;
     } else if(dayEvents.length > 1){
       evHtml = `<div class="cal-month-dots">${dayEvents.slice(0,5).map(ev => `<i style="background:${eventColor(ev)}"></i>`).join('')}${dayEvents.length>5?`<span class="cal-event-more">+${dayEvents.length-5}</span>`:''}</div><div class="cal-month-count">${dayEvents.length} agendas</div>`;
     }
