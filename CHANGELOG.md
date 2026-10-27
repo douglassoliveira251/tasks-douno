@@ -1,3 +1,12 @@
+## [1.10.182] - 2026-10-27 16:00
+
+### Changed
+
+#### Projetos
+
+- Topo do projeto no estilo perfil: avatar com anel de progresso, nome, status, botões, números em linha (etapas, tarefas, atrasadas, em 3 dias, entrega) e abas. O Resumo sobe para a altura do topo e a linha do tempo ocupa a coluna logo abaixo; no celular o quadro de Resumo some, pois os números já estão no topo.
+
+
 ## [1.10.181] - 2026-10-27 15:00
 
 ### Changed

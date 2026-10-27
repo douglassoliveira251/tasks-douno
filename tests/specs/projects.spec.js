@@ -297,7 +297,7 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await expect(page.locator('#prjColorPop')).toBeHidden();
   await page.locator('#prjSave').click();
   expect(await page.evaluate(() => { const p = projectById('p1'); return [p.icon, p.color]; })).toEqual(['rocket', '#E5484D']);
-  await expect(page.locator('.proj-toolbar .prj-badge')).toBeVisible();
+  await expect(page.locator('.prj-head .ig2 svg')).toBeVisible();
   // descrição breve direto no topo
   await page.locator('#prjDescAdd, #prjDescText').first().click();
   await page.locator('#prjDescInline').fill('Casa de dois pavimentos');
@@ -440,4 +440,21 @@ test('linha do tempo no modo Ajustar cabe na largura, sem rolagem lateral', asyn
   await expect(page.locator('.gantt-pill.late')).toBeVisible();
   await page.locator('[data-zoom="week"]').click();
   await expect(page.locator('.gantt-nav')).toHaveCount(1);
+});
+
+test('topo do projeto: números em linha e resumo ao lado na altura do topo', async ({ page }) => {
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, t = todayStr(), A = n => addDaysStr(t, n);
+    state.projects = [{ id: 'p1', name: 'P', categoryId: cat, createdAt: 1, stages: [{ id: 's1', name: 'E1' }] }];
+    const mk = (id, over) => Object.assign({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: A(10), startDate: A(-1), dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), projectId: 'p1', stageId: 's1' }, over);
+    state.tasks = [mk('a', { dueDate: A(-2) }), mk('b', { dueDate: A(1) }), mk('c', { done: true })];
+    activeProjectId = 'p1'; projectTab = 'timeline'; currentView = 'projects'; render();
+  });
+  const st = page.locator('.ph-st');
+  await expect(st).toContainText('1/3');
+  await expect(st).toContainText('atrasada');
+  const [head, side] = await Promise.all([page.locator('.prj-head').boundingBox(), page.locator('.proj-side').boundingBox()]);
+  expect(Math.abs(head.y - side.y)).toBeLessThan(2);
+  expect(side.x).toBeGreaterThan(head.x + head.width);
 });

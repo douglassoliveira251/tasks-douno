@@ -2775,14 +2775,9 @@
     .plist-name b .prj-badge{margin-right:0;}
     .proj-split{gap:12px;}
     .proj-side{order:-1; padding:14px 16px; border-radius:18px;}
-    .proj-side.is-resumo .proj-side-more{display:none;}
-    .proj-side.is-resumo .proj-side-top{margin-bottom:0;}
+    .proj-side.is-resumo{display:none;}
     .proj-toolbar{gap:10px; margin-bottom:8px;}
     .prj-actions .prj-act{flex:1; justify-content:center; padding-left:10px; padding-right:10px;}
-    .prj-head{padding:14px 14px 0; border-radius:20px;}
-    .prj-head .proj-desc-row{margin:10px 0 0;}
-    .prj-meta-bar{flex:1 1 100%; width:auto; order:3;}
-    .prj-head .proj-tabs{margin:10px -14px 0; padding:10px 14px;}
   }
   /* linha do tempo: cor do projeto; concluída chapada, em andamento listrada, não iniciada em tom claro */
   .gantt-wrap{--pc:var(--primary);}
@@ -2838,17 +2833,39 @@
   @media (max-width:768px){ .gantt-wrap{--gl:200px;} .gantt-filters{margin-left:0; width:100%;} }
   /* topo do projeto: um único bloco branco */
   .prj-head{background:var(--surface); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow-sm); padding:16px 18px 0; margin-bottom:14px;}
-  .prj-head .proj-toolbar{margin-bottom:4px;}
-  .prj-head .proj-desc-row{margin:2px 0 0 50px; max-width:780px;}
-  .prj-meta{display:flex; align-items:center; gap:12px; margin:12px 0 4px; flex-wrap:wrap;}
-  .prj-meta .proj-chip{font-size:11.5px; padding:3px 11px; background:var(--primary-light, color-mix(in srgb, var(--primary) 14%, transparent)); color:var(--primary);}
-  .prj-meta .proj-chip.late{background:var(--danger-light); color:var(--danger);}
-  .prj-meta .proj-chip.ok{background:var(--ok-light); color:var(--ok-dark);}
-  .prj-meta-txt{font-size:12.5px; color:var(--ink-soft);}
-  .prj-meta-bar{width:200px; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden;}
-  .prj-meta-bar i{display:block; height:100%; background:var(--primary); border-radius:3px;}
-  .prj-head .proj-tabs{border-top:1px solid var(--border); margin:12px -18px 0; padding:10px 18px;}
+  .prj-head .proj-tabs{border-top:1px solid var(--border); margin:14px -18px 0; padding:10px 18px;}
+  .proj-col{min-width:0;}
+  .proj-col .prj-head{margin-bottom:12px;}
+  .prj-head .ph{display:grid; grid-template-columns:auto minmax(0,1fr) auto; grid-template-areas:"av name act" "av st st" "av ds ds"; column-gap:20px; row-gap:4px; align-items:center;}
+  .ig2{grid-area:av; width:84px; height:84px; border-radius:50%; position:relative; display:grid; place-items:center; background:conic-gradient(var(--pc) 0 calc(var(--pp, 0) * 1%), color-mix(in srgb, var(--pc) 18%, var(--surface)) 0);}
+  .ig2 i{width:72px; height:72px; border-radius:50%; background:var(--surface); display:grid; place-items:center;}
+  .ig2 b{width:60px; height:60px; border-radius:50%; background:color-mix(in srgb, var(--pc) 14%, var(--surface)); color:var(--pc); display:grid; place-items:center;}
+  .ig2 b svg{width:28px; height:28px;}
+  .ig2 em{position:absolute; right:-4px; bottom:-2px; background:var(--pc); color:#fff; font-style:normal; font-size:10px; font-weight:800; border-radius:99px; padding:1px 6px; border:2px solid var(--surface);}
+  .ph-name{grid-area:name; display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0;}
+  .ph-name .proj-chip{font-size:11.5px; padding:3px 11px; background:color-mix(in srgb, var(--primary) 14%, transparent); color:var(--primary);}
+  .ph-name .proj-chip.late{background:var(--danger-light); color:var(--danger);}
+  .ph-name .proj-chip.ok{background:var(--ok-light); color:var(--ok-dark);}
+  .prj-head .prj-actions{grid-area:act;}
+  .ph-st{grid-area:st; display:flex; gap:26px; margin:6px 0 4px;}
+  .ph-st b{display:block; font-size:19px; font-weight:700; line-height:1.15;}
+  .ph-st b span{font-size:12px; color:var(--ink-faint); font-weight:600;}
+  .ph-st b.ph-end{font-size:15px; margin-top:3px;}
+  .ph-st small{font-size:11.5px; color:var(--ink-faint);}
+  .prj-head .proj-desc-row{grid-area:ds; margin:0; max-width:none;}
   @media (max-width:768px){ .prj-head .proj-desc-row{margin:10px 0 0;} }
+  @media (max-width:768px){
+    .prj-head{padding:14px 14px 0; border-radius:20px;}
+    .prj-head .ph{grid-template-columns:auto minmax(0,1fr); grid-template-areas:"av name" "st st" "ds ds" "act act"; column-gap:12px; row-gap:10px;}
+    .ig2{width:60px; height:60px;} .ig2 i{width:52px; height:52px;} .ig2 b{width:42px; height:42px;} .ig2 b svg{width:20px; height:20px;}
+    .ph-st{justify-content:space-between; gap:6px; margin:0; padding:10px 2px; border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+    .ph-st > div:nth-child(5){display:none;}
+    .ph-st b{font-size:17px;}
+    .prj-head .prj-actions{width:100%;}
+        .prj-head .proj-tabs{margin:12px -14px 0; padding:10px 14px;}
+    .ph-name .prj-title{font-size:19px;}
+    .prj-head .prj-actions .prj-act{flex:1; justify-content:center;}
+  }
   /* modo Ajustar: tudo cabe na largura da tela, linhas compactas */
   .gantt-wrap.fit{--gl:210px; overflow-x:hidden;}
   .gantt-wrap.fit .gantt-head .gl{padding:8px 14px;}
@@ -3347,6 +3364,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.182', date:'27/10/2026', title:'Topo do projeto estilo perfil', text:'O topo do projeto ganhou um avatar com anel de progresso e números em linha (etapas, tarefas, atrasadas, vencem em 3 dias e entrega). O Resumo sobe para a altura do topo e a linha do tempo fica logo abaixo, aproveitando melhor a tela.' },
   { version:'1.10.181', date:'27/10/2026', title:'Linha do tempo mais limpa', text:'No modo Ajustar, saíram as faixas de fins de semana e a linha de semanas: ficam só guias discretas no início de cada mês e a linha de hoje. A barra de cada etapa agora mostra o progresso preenchido.' },
   { version:'1.10.180', date:'27/10/2026', title:'Topo do projeto em um só bloco', text:'O cabeçalho do projeto agora é um bloco branco único: ícone, título, descrição, status com progresso e entrega, botões e as abas (Linha do tempo e Lista) juntos.' },
   { version:'1.10.179', date:'27/10/2026', title:'Linha do tempo que cabe na tela', text:'A linha do tempo do projeto agora abre no modo Ajustar: o período inteiro é encolhido para a largura da tela, sem rolagem lateral, com linhas mais compactas. Mês, Semana e Dia continuam disponíveis para ampliar.' },
@@ -7088,7 +7106,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.181';
+const APP_VERSION = '1.10.182';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9434,28 +9452,45 @@ function renderProjectDetail(view, p){
       <button type="button" class="proj-side-btn pri" id="stgSideNewTask">+ Nova tarefa nesta etapa</button>
       <button type="button" class="proj-side-btn" id="stgSideEdit">Editar etapa</button>`;
   }
+  const phTasks = state.tasks.filter(t => t.projectId === p.id);
+  const soonLim = addDaysStr(today, 3);
+  const nLateT = phTasks.filter(t => !t.done && t.dueDate && t.dueDate < today).length;
+  const nSoonT = phTasks.filter(t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLim).length;
   const chips = projectChipsHtml(st) || `<span class="proj-chip">${st.pct > 0 ? 'Em andamento' : 'Não iniciado'}</span>`;
-  const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '');
+  const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
+  const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
   view.innerHTML = `
-    <div class="prj-head">
-    <div class="proj-toolbar">
-      <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
-      <span class="prj-name-wrap">${projectBadgeHtml(p, 36)}<b class="prj-title">${escapeHtml(p.name)}</b></span>
-      <span class="prj-actions">
+    <div class="proj-split">
+    <div class="proj-col">
+    <div class="prj-head" style="--pc:${projectColor(p)}">
+      <div class="ph">
+        <div class="ig2" style="--pp:${st.pct}"><i><b>${projectIconSvg(p.icon || 'briefcase')}</b></i><em>${st.pct}%</em></div>
+        <div class="ph-name">
+          <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <b class="prj-title">${escapeHtml(p.name)}</b>
+          ${chips}
+        </div>
+        <span class="prj-actions">
         <button type="button" class="prj-act" id="prjAddStage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>Nova etapa</button>
         <button type="button" class="prj-act pri" id="prjAddTask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova tarefa</button>
         <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
       </span>
+        <div class="ph-st">
+          ${stat(st.done, st.total, 'etapas')}
+          ${stat(phTasks.filter(t => t.done).length, phTasks.length, 'tarefas')}
+          ${stat(nLateT, null, nLateT === 1 ? 'atrasada' : 'atrasadas', nLateT ? 'var(--danger)' : '')}
+          ${stat(nSoonT, null, 'em 3 dias', nSoonT ? '#C77700' : '')}
+          <div><b class="ph-end">${endTxt}</b><small>entrega${slip ? ` <i style="color:var(--danger); font-style:normal; font-weight:700;">${slip}</i>` : ''}</small></div>
+        </div>
+        <div class="proj-desc-row" id="prjDescRow"></div>
+      </div>
+      <div class="proj-tabs">
+        <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+        <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+      </div>
     </div>
-    <div class="proj-desc-row" id="prjDescRow"></div>
-    <div class="prj-meta">${chips}<span class="prj-meta-txt">${st.pct}% · ${st.done} de ${st.total} etapa${st.total === 1 ? '' : 's'}${endTxt ? ' · entrega ' + endTxt : ''}${slip ? ` <b style="color:var(--danger);">${slip}</b>` : ''}</span><span class="prj-meta-bar"><i style="width:${st.pct}%"></i></span></div>
-    <div class="proj-tabs">
-      <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
-      <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+    <div id="prjBody" style="min-width:0;"></div>
     </div>
-    </div>
-    <div class="proj-split">
-      <div id="prjBody" style="min-width:0;"></div>
       <aside class="proj-side ${selStage ? '' : 'is-resumo'}">
         ${selStage ? stageSideHtml : `
         <div class="proj-side-label">Resumo</div>
