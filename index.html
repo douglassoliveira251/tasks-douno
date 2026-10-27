@@ -1516,6 +1516,13 @@
   }
   .recurrence-detail-fields .tp-field{margin:0;}
   .recurrence-detail-fields .tp-label{font-size:11px; margin-bottom:4px;}
+  .rec-remind{border-top:1px solid var(--border); padding-top:12px; margin-top:2px;}
+  .rec-remind-h{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .rec-remind-h svg{color:#E8A33D;}
+  .rec-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+  .rec-chip{font:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:99px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer;}
+  .rec-chip.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .rec-unit{font-size:12.5px; color:var(--ink-soft);}
   .tp-tags-popover-list{max-height:180px; overflow-y:auto; margin-bottom:8px;}
   .tp-tags-popover-row{
     display:flex; align-items:center; gap:8px; padding:6px 4px; border-radius:6px; font-size:13px;
@@ -3372,6 +3379,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.188', date:'27/10/2026', title:'Retornar antes nas tarefas que se repetem', text:'Na janela Repetir da tarefa, a opção Retornar antes (1 semana, 15 dias, 1 mês ou outro prazo) faz a próxima repetição voltar ao Retomar hoje antes do vencimento, para você já começar a tratar.' },
   { version:'1.10.187', date:'27/10/2026', title:'Ajuste na janela Repetir da agenda', text:'O "Avisar antes" da agenda foi retirado, pois o aviso antecipado vai ficar nas tarefas.' },
   { version:'1.10.185', date:'27/10/2026', title:'Agenda de vários dias', text:'Uma agenda que dura vários dias agora aparece em todos os dias do período no calendário, e também em cada repetição quando ela se repete.' },
   { version:'1.10.184', date:'27/10/2026', title:'Linha do tempo sem letra solta', text:'Quando o primeiro ou o último mês aparece só em parte, o cabeçalho da linha do tempo não mostra mais uma letra cortada.' },
@@ -3776,6 +3784,7 @@ function normalizeState(){
     if(t.recurrenceTime === undefined) t.recurrenceTime = (t.recurrence && t.recurrence !== 'none') ? (t.dueTime || null) : null;
     if(t.recurrenceBaseDate === undefined) t.recurrenceBaseDate = (t.recurrence && t.recurrence !== 'none') ? (t.dueDate || null) : null;
     if(t.recurrenceEndDate === undefined) t.recurrenceEndDate = null;
+    if(t.remindBefore === undefined) t.remindBefore = 0;
   });
   if(state.taskIdCounter === undefined) state.taskIdCounter = 0;
   state.tasks.forEach(t => { if(t.shortId && /^t\d+$/.test(t.shortId)) t.shortId = t.shortId.slice(1); });
@@ -4195,8 +4204,9 @@ function spawnNextRecurrence(task){
     done: false,
     status: 'nao_iniciado',
     dueDate: nextDueDate,
-    /* a próxima ocorrência volta ao radar de retomada no dia dela */
-    followUpDate: nextDueDate,
+    /* a próxima ocorrência volta ao radar de retomada no dia dela, ou remindBefore dias antes (nunca no passado) */
+    followUpDate: (() => { const f = addDaysStr(nextDueDate, -(parseInt(task.remindBefore, 10) || 0)); return f < todayStr() ? todayStr() : f; })(),
+    remindBefore: parseInt(task.remindBefore, 10) || 0,
     dueTime: task.dueTime,
     priority: task.priority,
     description: task.description || '',
@@ -5034,6 +5044,18 @@ function closeRecurrencePortal(e){
 function renderRecurrencePortalContent(portal, task, onChange){
   const enabled = !!(task.recurrence && task.recurrence !== 'none');
   const currentUnit = enabled ? task.recurrence : 'daily';
+  const isTask = task.dueDate !== undefined;
+  let remindBlock = '';
+  if(isTask && enabled){
+    const rb = parseInt(task.remindBefore, 10) || 0;
+    const chip = (v, l) => `<button type="button" class="rec-chip ${rb === v ? 'on' : ''}" data-rb="${v}">${l}</button>`;
+    const custom = ![0, 7, 15, 30].includes(rb);
+    remindBlock = `<div class="rec-remind">
+      <div class="rec-remind-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 12a8 8 0 11-2.6-5.9"/><path d="M20 4v5h-5"/></svg><b>Retornar antes</b></div>
+      <div class="rec-chips">${chip(0, 'No dia')}${chip(7, '1 semana')}${chip(15, '15 dias')}${chip(30, '1 mês')}<button type="button" class="rec-chip ${custom ? 'on' : ''}" data-rb="custom">Outro…</button></div>
+      ${custom ? `<div class="tp-row2" style="margin-top:8px;"><input type="number" class="tp-input" id="recPopRemindDays" min="1" max="365" value="${rb}"><span class="rec-unit">dia(s) antes</span></div>` : ''}
+    </div>`;
+  }
   portal.innerHTML = `
     <label class="recurrence-toggle-row">
       <span>Repetir</span>
@@ -5062,6 +5084,7 @@ function renderRecurrencePortalContent(portal, task, onChange){
         <label class="tp-label">Até (opcional)</label>
         <input type="date" class="tp-input" id="recPopEndDate" value="${task.recurrenceEndDate || ''}" placeholder="Não termina">
       </div>
+      ${isTask ? remindBlock : ''}
     </div>
     ` : ''}
   `;
@@ -5122,6 +5145,31 @@ function renderRecurrencePortalContent(portal, task, onChange){
       }
       persistOnly();
       onChange();
+    });
+  }
+  const rerenderPortal = () => {
+    renderRecurrencePortalContent(portal, task, onChange);
+    positionTagsPortalNear(portal, portal._anchorBtn);
+  };
+  portal.querySelectorAll('.rec-chip[data-rb]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const v = btn.dataset.rb;
+      const cur = parseInt(task.remindBefore, 10) || 0;
+      task.remindBefore = v === 'custom' ? ([0, 7, 15, 30].includes(cur) ? 3 : cur) : parseInt(v, 10);
+      persistOnly();
+      onChange();
+      rerenderPortal();
+    });
+  });
+  const remindDays = portal.querySelector('#recPopRemindDays');
+  if(remindDays){
+    remindDays.addEventListener('click', e => e.stopPropagation());
+    remindDays.addEventListener('change', e => {
+      task.remindBefore = Math.min(365, Math.max(1, parseInt(e.target.value, 10) || 1));
+      persistOnly();
+      onChange();
+      rerenderPortal();
     });
   }
   const endDateInput = portal.querySelector('#recPopEndDate');
@@ -7118,7 +7166,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.187';
+const APP_VERSION = '1.10.188';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

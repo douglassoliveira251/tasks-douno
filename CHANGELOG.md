@@ -1,3 +1,12 @@
+## [1.10.188] - 2026-10-27 22:00
+
+### Added
+
+#### Tarefas
+
+- Janela Repetir da tarefa ganhou "Retornar antes" (no dia, 1 semana, 15 dias, 1 mês ou outro prazo): a próxima repetição passa a ter o "Retomar em" antes do vencimento, mantendo o prazo.
+
+
 ## [1.10.187] - 2026-10-27 21:00
 
 ### Removed
