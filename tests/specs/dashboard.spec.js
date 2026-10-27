@@ -85,7 +85,7 @@ test('Resumo: indicadores de tarefas sem data', async ({ page }) => {
   expect(await page.evaluate(() => activeTaskId)).toBe('4');
 });
 
-test('agenda da visão geral: hoje + próximos dias, 4 no cartão e "Ver mais" lista o resto', async ({ page }) => {
+test('agenda da visão geral: hoje + próximos dias, 5 no cartão e "Ver mais" lista o resto', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate(() => {
@@ -94,7 +94,7 @@ test('agenda da visão geral: hoje + próximos dias, 4 no cartão e "Ver mais" l
     state.events = [0, 1, 2, 3, 4, 6].map((k, i) => ({ id: 'e' + i, title: 'Evento ' + i, date: addDaysStr(today, k), endDate: addDaysStr(today, k), startTime: '09:00', endTime: '10:00', categoryId: cat, tagIds: [], attendees: [], recurrence: 'none', description: '', createdAt: 1 }));
     currentView = 'dashboard'; render();
   });
-  await expect(page.locator('.rs-agenda .rs-row')).toHaveCount(4);
+  await expect(page.locator('.rs-agenda .rs-row')).toHaveCount(5);
   await page.locator('#dashAgendaMore').click();
   await expect(page.locator('#agendaMoreOverlay .rs-row')).toHaveCount(6);
 });

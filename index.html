@@ -2284,6 +2284,8 @@
   .cal-dayblk:before{content:""; position:absolute; left:0; top:9px; bottom:9px; width:3px; border-radius:3px; background:var(--c);}
   .cal-dayblk:hover{filter:brightness(.97);}
   .cal-dayblk-title{display:block; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  /* bloco alto: o título aparece inteiro (quebra em linhas); só encolhe quando o bloco é curto */
+  .cal-dayblk.tall .cal-dayblk-title{white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:var(--tl, 3); line-height:1.3;}
   .cal-dayblk small{display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--ink-faint); font-size:12px; margin-top:2px; min-width:0;}
   .cal-dayblk small span{display:inline-flex; gap:4px; align-items:center; min-width:0;}
   .cal-dayblk .cal-event-tag{max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -2296,7 +2298,11 @@
   .cal-dayA-allday .cal-dayA-chip{position:relative; max-width:100%; min-width:0; background:color-mix(in srgb, var(--c) 13%, var(--surface)); border-radius:12px; padding:8px 12px 8px 16px; color:var(--ink);}
   .cal-dayA-allday .cal-dayA-chip:before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--c); opacity:.9;}
   .cal-dayA-allday .cal-dayA-chip svg{display:none;}
-  .cal-dayA-allday .cal-dayA-chip span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .cal-dayA-allday{flex-direction:column; flex-wrap:nowrap;}
+  .cal-dayA-allday .cal-dayA-chip{display:flex; flex-direction:column; align-items:stretch; gap:1px; width:100%; text-align:left; font:inherit; font-weight:600;}
+  .cal-dayA-allday .cal-dayA-chip em{font-style:normal; font-size:11px; font-weight:600; color:var(--ink-faint);}
+  .cal-dayA-allday .cal-dayA-chip span{font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .cal-dayA-allday .cal-dayA-chip small{font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .cal-day-tasks{margin-top:4px;}
   .cal-day-task{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--border); cursor:pointer; font-size:13px;}
   .cal-day-tasks .cal-day-task:first-child{border-top:none;}
@@ -3388,6 +3394,8 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.192', date:'28/10/2026', title:'Dia inteiro e agendas longas no dia', text:'No modo Dia, a agenda de dia inteiro ganhou três linhas (Dia todo, título e categoria). E nas agendas com horário longas, o título aparece inteiro, encolhendo só quando o bloco é curto.' },
+  { version:'1.10.191', date:'27/10/2026', title:'Agenda da visão geral com 5 itens', text:'O cartão Agenda da visão geral agora mostra as 5 próximas agendas dos próximos 7 dias, e uma agenda de vários dias aparece como uma linha só, com a data de início e a de fim.' },
   { version:'1.10.190', date:'27/10/2026', title:'Dia inteiro em barra contínua', text:'Na semana, a agenda de vários dias vira uma barra única atravessando os dias, como no Outlook, com título preto e reticências quando não cabe.' },
   { version:'1.10.189', date:'27/10/2026', title:'Agenda de dia inteiro com o mesmo visual', text:'As agendas de dia inteiro, no topo da semana e no painel do dia, agora usam o mesmo cartão suave com barra colorida das demais agendas.' },
   { version:'1.10.188', date:'27/10/2026', title:'Retornar antes nas tarefas que se repetem', text:'Na janela Repetir da tarefa, a opção Retornar antes (1 semana, 15 dias, 1 mês ou outro prazo) faz a próxima repetição voltar ao Retomar hoje antes do vencimento, para você já começar a tratar.' },
@@ -7177,7 +7185,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.190';
+const APP_VERSION = '1.10.192';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7329,14 +7337,25 @@ function renderDashboard(){
 
   // Card: Eventos hoje
   const kpiTodayEvents = todayEvents;
-  /* agenda: hoje + próximos 7 dias numa lista só (o cartão mostra 4, o resto abre em "Ver mais") */
+  /* agenda: hoje + próximos 7 dias numa lista só (o cartão mostra 5, o resto abre em "Ver mais").
+     Agenda de vários dias é uma linha só, com início e fim, e não uma por dia. */
   const agendaRows = [];
+  const agendaSeen = new Set();
+  const evSpan = ev => (ev.endDate && ev.endDate > ev.date) ? Math.round((Date.parse(ev.endDate) - Date.parse(ev.date)) / 86400000) : 0;
   for(let k = 0; k <= 7; k++){
     const d = addDaysStr(todayS, k);
-    eventsOnDate(scopeEvents, d).slice().sort((x, y) => (x.allDay ? '' : (x.startTime || '')).localeCompare(y.allDay ? '' : (y.startTime || ''))).forEach(ev => agendaRows.push({ ev, date: d }));
+    eventsOnDate(scopeEvents, d).slice().sort((x, y) => (x.allDay ? '' : (x.startTime || '')).localeCompare(y.allDay ? '' : (y.startTime || ''))).forEach(ev => {
+      const span = evSpan(ev);
+      let start = d;
+      for(let j = 0; j <= span; j++){ const c = addDaysStr(d, -j); if(eventStartsOn(ev, c)){ start = c; break; } }
+      const key = ev.id + '|' + start;
+      if(agendaSeen.has(key)) return;
+      agendaSeen.add(key);
+      agendaRows.push({ ev, date: d, until: span ? addDaysStr(start, span) : null });
+    });
   }
   const agendaDayLabel = d => d === todayS ? '' : (d === addDaysStr(todayS, 1) ? 'Amanhã' : new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', ''));
-  const agendaRowHtml = r => `<div class="rs-row dash-list-row" data-event-id="${r.ev.id}"><span class="rs-tag ok">${r.ev.allDay || !r.ev.startTime ? 'Dia todo' : r.ev.startTime}</span><span class="tt"><b>${escapeHtml(r.ev.title || 'Sem título')}</b></span><span class="dt">${agendaDayLabel(r.date)}</span></div>`;
+  const agendaRowHtml = r => `<div class="rs-row dash-list-row" data-event-id="${r.ev.id}"><span class="rs-tag ok">${r.ev.allDay || !r.ev.startTime ? 'Dia todo' : r.ev.startTime}</span><span class="tt"><b>${escapeHtml(r.ev.title || 'Sem título')}</b>${r.until ? `<small>até ${r.until.slice(8)}/${r.until.slice(5, 7)}</small>` : ''}</span><span class="dt">${r.until ? (agendaDayLabel(r.date) || 'Hoje') : agendaDayLabel(r.date)}</span></div>`;
   const nowTimeStr = new Date().toTimeString().slice(0,5);
   const kpiNextEvent = kpiTodayEvents.find(ev => !ev.startTime || ev.startTime >= nowTimeStr) || kpiTodayEvents[0] || null;
 
@@ -7525,8 +7544,8 @@ function renderDashboard(){
         </div>
         <div class="rs-card rs-agenda">
           <h3>Agenda <span>${todayEvents.length ? todayEvents.length + ' hoje' : ''}</span></h3>
-          ${agendaRows.length ? agendaRows.slice(0, 4).map(r => agendaRowHtml(r)).join('') : '<div class="rs-empty">Nenhum evento nos próximos 7 dias.</div>'}
-          <span class="rs-link" id="${agendaRows.length > 4 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 4 ? 'Ver mais (' + (agendaRows.length - 4) + ') →' : 'Ver calendário →'}</span>
+          ${agendaRows.length ? agendaRows.slice(0, 5).map(r => agendaRowHtml(r)).join('') : '<div class="rs-empty">Nenhum evento nos próximos 7 dias.</div>'}
+          <span class="rs-link" id="${agendaRows.length > 5 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 5 ? 'Ver mais (' + (agendaRows.length - 5) + ') →' : 'Ver calendário →'}</span>
         </div>
       </div>
 
@@ -7618,7 +7637,7 @@ function renderDashboard(){
     let lastDay = null;
     ov.innerHTML = `<div class="modal" style="width:440px; max-width:calc(100vw - 24px); max-height:80vh; overflow-y:auto;">
       <h3 style="margin-bottom:10px;">Agenda dos próximos 7 dias</h3>
-      ${agendaRows.map(r => { const head = r.date !== lastDay ? `<div class="search-results-group-label" style="padding-left:0;">${r.date === todayS ? 'Hoje' : (agendaDayLabel(r.date))}</div>` : ''; lastDay = r.date; return head + agendaRowHtml({ ev: r.ev, date: todayS }); }).join('')}
+      ${agendaRows.map(r => { const head = r.date !== lastDay ? `<div class="search-results-group-label" style="padding-left:0;">${r.date === todayS ? 'Hoje' : (agendaDayLabel(r.date))}</div>` : ''; lastDay = r.date; return head + agendaRowHtml({ ev: r.ev, date: todayS, until: r.until }); }).join('')}
       <div class="modal-footer" style="margin-top:12px;"><button type="button" class="btn" id="agendaMoreClose">Fechar</button></div></div>`;
     document.body.appendChild(ov);
     const close = () => ov.remove();
@@ -8089,6 +8108,8 @@ function renderCalendarDay(body){
     const widthPct = 100 / it.cols;
     blk.style.cssText = `top:${it.st/60*hourHeight}px; height:${Math.max((it.en-it.st)/60*hourHeight - 3, 24)}px; left:calc(${it.col*widthPct}% + 2px); width:calc(${widthPct}% - 4px); --c:${c};`;
     const att = (ev.attendees || []).length;
+    const blkH = Math.max((it.en-it.st)/60*hourHeight - 3, 24);
+    if(blkH >= 84){ blk.classList.add('tall'); blk.style.setProperty('--tl', Math.max(1, Math.floor((blkH - 56) / 19))); }
     blk.innerHTML = `
       <b class="cal-dayblk-title">${escapeHtml(ev.title||'Sem título')}</b>
       <small>
@@ -8129,8 +8150,7 @@ function renderCalendarDay(body){
     <div class="cal-day-panel-kicker">${WEEKDAY_FULL[d.getDay()]}${isToday ? ' · hoje' : ''}</div>
     <div class="cal-day-panel-title">${d.getDate()} de ${MONTH_LABELS[d.getMonth()].toLowerCase()}</div>
     <div class="cal-day-panel-sub">${summary}</div>
-    ${allDayEvents.length ? `<div class="cal-day-panel-kicker" style="margin-top:14px;">Dia inteiro</div>
-      <div class="cal-dayA-allday">${allDayEvents.map(ev => `<button type="button" class="cal-dayA-chip" data-event-id="${ev.id}" style="--c:${eventColor(ev)}">${calIcon('clock')}<span>${escapeHtml(ev.title||'Sem título')}</span></button>`).join('')}</div>` : ''}
+    ${allDayEvents.length ? `<div class="cal-dayA-allday" style="margin-top:14px;">${allDayEvents.map(ev => { const cat = catById(ev.categoryId); return `<button type="button" class="cal-dayA-chip" data-event-id="${ev.id}" style="--c:${eventColor(ev)}"><em>Dia todo</em><span>${escapeHtml(ev.title||'Sem título')}</span>${cat ? `<small style="color:${cat.color};">${escapeHtml(cat.name)}</small>` : ''}</button>`; }).join('')}</div>` : ''}
     ${nTk ? `<div class="cal-day-panel-kicker" style="margin-top:14px;">Tarefas${isToday ? ' para hoje' : ' do dia'}</div>
       <div class="cal-day-tasks">${dayTasks.map(t => taskHtml(t, false)).join('')}${lateTasks.map(t => taskHtml(t, true)).join('')}</div>` : ''}
     <button type="button" class="cal-day-add" id="calDayAdd" style="margin-top:auto;">${calIcon('plus', 15)} Adicionar neste dia</button>`;

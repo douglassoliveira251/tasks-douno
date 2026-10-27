@@ -1,3 +1,21 @@
+## [1.10.192] - 2026-10-28 09:00
+
+### Changed
+
+#### Calendário
+
+- Modo Dia: agenda de dia inteiro em três linhas (Dia todo, título e categoria), sem o rótulo "Dia inteiro" acima. Agendas com horário longas mostram o título inteiro (em várias linhas) e só abreviam quando o bloco é curto.
+
+
+## [1.10.191] - 2026-10-28 08:00
+
+### Changed
+
+#### Visão geral
+
+- Cartão Agenda mostra as 5 próximas agendas (antes 4) dos próximos 7 dias; agenda de vários dias vira uma linha só, com início e fim, em vez de uma por dia (também na lista "Ver mais").
+
+
 ## [1.10.190] - 2026-10-27 23:30
 
 ### Changed
