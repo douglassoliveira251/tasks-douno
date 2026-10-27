@@ -1,3 +1,12 @@
+## [1.10.194] - 2026-10-28 11:00
+
+### Changed
+
+#### Calendário
+
+- Agenda de dia inteiro (modo Dia e Semana): título em cima e, na linha de baixo, relógio com "Dia todo" no lugar do horário, com a categoria ao lado.
+
+
 ## [1.10.193] - 2026-10-28 10:00
 
 ### Changed
