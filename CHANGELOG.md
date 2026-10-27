@@ -1,3 +1,12 @@
+## [1.10.196] - 2026-10-28 13:00
+
+### Fixed
+
+#### Calendário
+
+- Semana: agendas que se cruzam no horário ficam lado a lado, cada uma na sua coluna, em vez de sobrepostas e ilegíveis.
+
+
 ## [1.10.195] - 2026-10-28 12:00
 
 ### Changed
