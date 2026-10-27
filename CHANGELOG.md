@@ -1,12 +1,3 @@
-## [1.10.186] - 2026-10-27 20:00
-
-### Added
-
-#### Calendário
-
-- Agenda que se repete ganhou "Avisar antes" (1 dia, 2 dias, 1 semana ou outro prazo), com prévia das próximas repetições e a data de cada aviso. O aviso aparece no sino e em Retomar hoje da visão geral a cada repetição.
-
-
 ## [1.10.185] - 2026-10-27 19:00
 
 ### Fixed
