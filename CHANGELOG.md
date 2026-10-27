@@ -1,3 +1,12 @@
+## [1.10.190] - 2026-10-27 23:30
+
+### Changed
+
+#### Calendário
+
+- Agenda de dia inteiro na semana: agendas de vários dias viram uma barra contínua atravessando os dias (estilo Outlook); título na cor padrão (preto) e com reticências quando não cabe. Corrigida a cor do texto das agendas do mês, que tinha sido alterada por engano na 1.10.189.
+
+
 ## [1.10.189] - 2026-10-27 23:00
 
 ### Changed
