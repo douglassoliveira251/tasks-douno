@@ -1,3 +1,12 @@
+## [1.10.179] - 2026-10-27 12:00
+
+### Changed
+
+#### Projetos
+
+- Linha do tempo: novo modo Ajustar (padrão) que encolhe o período inteiro do projeto para a largura da tela, sem rolagem lateral; linhas mais compactas e selo de prazo logo após a barra. Zoom Trimestre substituído por Ajustar; Mês, Semana e Dia continuam.
+
+
 ## [1.10.178] - 2026-10-27 10:00
 
 ### Added

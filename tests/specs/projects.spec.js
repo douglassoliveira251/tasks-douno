@@ -423,3 +423,21 @@ test('linha do tempo: zoom, filtro de atrasadas e cores de prioridade das tarefa
   expect(await page.locator('.gantt-task[data-task-id="atrasada"]').evaluate(e => e.style.getPropertyValue('--pr'))).toBe('var(--priority-critica)');
   expect(await page.locator('.gantt-task[data-task-id="perto"]').evaluate(e => e.style.getPropertyValue('--pr'))).toBe('var(--priority-baixa)');
 });
+
+test('linha do tempo no modo Ajustar cabe na largura, sem rolagem lateral', async ({ page }) => {
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, t = todayStr(), A = n => addDaysStr(t, n);
+    state.projects = [{ id: 'p1', name: 'P', categoryId: cat, createdAt: 1, stages: [{ id: 's1', name: 'E1' }] }];
+    const mk = (id, over) => Object.assign({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: A(10), startDate: A(-1), dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), projectId: 'p1', stageId: 's1' }, over);
+    state.tasks = [mk('atrasada', { dueDate: A(-3) }), mk('longe', { dueDate: A(120) })];
+    activeProjectId = 'p1'; projectTab = 'timeline'; currentView = 'projects'; ganttZoom = 'fit'; ganttFilter = 'all'; render();
+  });
+  await expect(page.locator('.gantt-seg button.on')).toHaveText('Ajustar');
+  const m = await page.locator('.gantt-wrap').evaluate(e => ({ sw: e.scrollWidth, cw: e.clientWidth }));
+  expect(m.sw).toBeLessThanOrEqual(m.cw + 1);
+  await expect(page.locator('.gantt-nav')).toHaveCount(0);
+  await expect(page.locator('.gantt-pill.late')).toBeVisible();
+  await page.locator('[data-zoom="week"]').click();
+  await expect(page.locator('.gantt-nav')).toHaveCount(1);
+});
