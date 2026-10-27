@@ -1,3 +1,12 @@
+## [1.10.184] - 2026-10-27 18:00
+
+### Fixed
+
+#### Projetos
+
+- Linha do tempo: o nome do mês não aparece mais cortado (como um "S" solto) quando o mês é visível só em parte.
+
+
 ## [1.10.183] - 2026-10-27 17:00
 
 ### Changed

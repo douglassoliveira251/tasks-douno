@@ -3372,6 +3372,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.184', date:'27/10/2026', title:'Linha do tempo sem letra solta', text:'Quando o primeiro ou o último mês aparece só em parte, o cabeçalho da linha do tempo não mostra mais uma letra cortada.' },
   { version:'1.10.183', date:'27/10/2026', title:'Projetos na visão geral', text:'No card Projetos da visão geral, cada projeto ganhou o ícone e a cor dele dentro do anel de progresso, com a próxima etapa e a situação ao lado.' },
   { version:'1.10.182', date:'27/10/2026', title:'Topo do projeto estilo perfil', text:'O topo do projeto ganhou um avatar com anel de progresso e números em linha (etapas, tarefas, atrasadas, vencem em 3 dias e entrega). O Resumo sobe para a altura do topo e a linha do tempo fica logo abaixo, aproveitando melhor a tela.' },
   { version:'1.10.181', date:'27/10/2026', title:'Linha do tempo mais limpa', text:'No modo Ajustar, saíram as faixas de fins de semana e a linha de semanas: ficam só guias discretas no início de cada mês e a linha de hoje. A barra de cada etapa agora mostra o progresso preenchido.' },
@@ -7115,7 +7116,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.183';
+const APP_VERSION = '1.10.184';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9659,7 +9660,7 @@ function renderProjectDetail(view, p){
     const monthEnd = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
     const segEnd = monthEnd < rangeEnd ? monthEnd : rangeEnd;
     const days = Math.round((segEnd - cur) / DAYMS);
-    months.push({ label: MONTH_LABELS[cur.getMonth()].slice(0, 3) + (cur.getMonth() === 0 || months.length === 0 ? ' ' + String(cur.getFullYear()).slice(2) : ''), w: days * dpx, at: Math.round((cur - rangeStart) / DAYMS) * dpx });
+    months.push({ label: days * dpx < 44 ? '' : MONTH_LABELS[cur.getMonth()].slice(0, 3) + (cur.getMonth() === 0 || months.length === 0 ? ' ' + String(cur.getFullYear()).slice(2) : ''), w: days * dpx, at: Math.round((cur - rangeStart) / DAYMS) * dpx });
     cur = segEnd;
   }
   const todayIdx = dayIdx(today);
