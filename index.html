@@ -2854,9 +2854,13 @@
   .gantt-wrap.fit .gantt-head .gl{padding:8px 14px;}
   .gantt-wrap.fit .gantt-months span{padding:7px 7px;}
   .gantt-wrap.fit .gantt-weeks span{padding:3px 0 4px 3px; font-size:9.5px; font-weight:500;}
-  .gantt-wrap.fit .gantt-row{min-height:42px;}
+  .gantt-wrap.fit .gantt-row{min-height:42px; background:var(--surface-2); border-bottom-color:transparent;}
+  .gantt-wrap.fit .gantt-task{border-bottom-color:transparent;}
+  .gantt-wrap.fit .gantt-bar{background:color-mix(in srgb, var(--pc) 22%, transparent); overflow:hidden; top:15px; height:12px;}
+  .gantt-wrap.fit .gantt-bar .fill{display:block; background:var(--pc); opacity:1;}
+  .gantt-wrap.fit .gantt-bar span{display:none;}
+  .gantt-wrap.fit .gantt-cols .wk{opacity:.8;}
   .gantt-wrap.fit .gantt-row .gl{padding:5px 14px;}
-  .gantt-wrap.fit .gantt-bar{top:11px; height:20px;}
   .gantt-wrap.fit .gantt-task{min-height:30px;}
   .gantt-wrap.fit .gantt-task .gantt-track{min-height:30px; display:block;}
   .gantt-wrap.fit .gantt-task-mark{top:9px;}
@@ -3343,6 +3347,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.181', date:'27/10/2026', title:'Linha do tempo mais limpa', text:'No modo Ajustar, saíram as faixas de fins de semana e a linha de semanas: ficam só guias discretas no início de cada mês e a linha de hoje. A barra de cada etapa agora mostra o progresso preenchido.' },
   { version:'1.10.180', date:'27/10/2026', title:'Topo do projeto em um só bloco', text:'O cabeçalho do projeto agora é um bloco branco único: ícone, título, descrição, status com progresso e entrega, botões e as abas (Linha do tempo e Lista) juntos.' },
   { version:'1.10.179', date:'27/10/2026', title:'Linha do tempo que cabe na tela', text:'A linha do tempo do projeto agora abre no modo Ajustar: o período inteiro é encolhido para a largura da tela, sem rolagem lateral, com linhas mais compactas. Mês, Semana e Dia continuam disponíveis para ampliar.' },
   { version:'1.10.178', date:'27/10/2026', title:'Linha do tempo com zoom, Hoje e filtros', text:'A linha do tempo ganhou controles: zoom (Dia, Semana, Mês, Trimestre), botões para voltar, avançar e ir para Hoje, e filtros por atrasadas e vencem em breve. O cabeçalho mostra meses e semanas, os fins de semana ficam sombreados e a coluna de hoje fica destacada. A faixa de prioridade segue as cores das tarefas.' },
@@ -7083,7 +7088,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.180';
+const APP_VERSION = '1.10.181';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9598,7 +9603,7 @@ function renderProjectDetail(view, p){
   /* Ajustar: encolhe o período inteiro para a largura disponível (sem rolagem lateral) */
   const glFit = window.matchMedia('(max-width:768px)').matches ? 104 : 210;
   const dpx = fit ? Math.max(((body.clientWidth || 900) - 2 - glFit) / total, 1.4) : ZOOMS[ganttZoom].dpx;
-  const fine = ganttZoom === 'day' || ganttZoom === 'week' || (fit && dpx >= 3);
+  const fine = ganttZoom === 'day' || ganttZoom === 'week';
   const W = fit ? total * dpx : Math.round(total * dpx);
   const dayIdx = dateStr => Math.round((new Date(dateStr + 'T00:00:00') - rangeStart) / DAYMS);
   const pos = dateStr => Math.max(0, Math.min(W, dayIdx(dateStr) * dpx));
@@ -9616,7 +9621,7 @@ function renderProjectDetail(view, p){
   const subRow = [];
   if(ganttZoom === 'day'){
     for(let i = 0; i < total; i++){ const dt = dayAt(i); subRow.push(`<span class="${i === todayIdx ? 'now' : ''}" style="width:${dpx}px">${dt.getDate()}</span>`); }
-  } else if(ganttZoom === 'week' || (fit && dpx * 7 >= 22)){
+  } else if(ganttZoom === 'week'){
     for(let i = 0; i < total; i += 7){ const dt = dayAt(i); subRow.push(`<span class="${todayIdx >= i && todayIdx < i + 7 ? 'now' : ''}" style="width:${7 * dpx}px">${String(dt.getDate()).padStart(2, '0')}</span>`); }
   }
   // colunas: fins de semana, início das semanas e a coluna de hoje

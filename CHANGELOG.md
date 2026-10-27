@@ -1,3 +1,12 @@
+## [1.10.181] - 2026-10-27 15:00
+
+### Changed
+
+#### Projetos
+
+- Linha do tempo (modo Ajustar) mais limpa: sem faixas de fins de semana nem linha de semanas, apenas guias discretas no início de cada mês e a linha de hoje; barra da etapa mostra o progresso preenchido em vez de listras.
+
+
 ## [1.10.180] - 2026-10-27 14:00
 
 ### Changed
