@@ -1,3 +1,12 @@
+## [1.10.195] - 2026-10-28 12:00
+
+### Changed
+
+#### Calendário
+
+- Agendas (Dia e Semana): o texto destacado ao lado do horário passa a ser a tag, em tom escuro e sem cor, em vez do espaço. Na semana, se não couber ao lado do horário, a tag desce para a linha de baixo.
+
+
 ## [1.10.194] - 2026-10-28 11:00
 
 ### Changed
