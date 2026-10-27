@@ -1,3 +1,12 @@
+## [1.10.187] - 2026-10-27 21:00
+
+### Removed
+
+#### Calendário
+
+- Removido o "Avisar antes" da janela Repetir da agenda (1.10.186); o aviso antecipado será das tarefas.
+
+
 ## [1.10.185] - 2026-10-27 19:00
 
 ### Fixed
