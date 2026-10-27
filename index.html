@@ -1958,8 +1958,16 @@
   .rs-datas .rs-drow.warn .n{color:#B26A00;} [data-theme="dark"] .rs-datas .rs-drow.warn .n{color:#F6B25C;}
   .rs-three{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:16px;}
   .rs-two{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  .rs-proj{padding:9px 0; cursor:pointer;}
-  .rs-proj .top{display:flex; align-items:center; gap:8px; font-weight:600; font-size:13.5px;}
+  .rs-proj{display:flex; align-items:center; gap:12px; padding:10px 0; cursor:pointer; border-top:1px solid var(--border);}
+  .rs-proj:first-of-type{border-top:0;}
+  .pj-ig{width:46px; height:46px; border-radius:50%; display:grid; place-items:center; flex:none; position:relative; background:conic-gradient(var(--c) 0 calc(var(--p) * 1%), color-mix(in srgb, var(--c) 18%, var(--surface)) 0);}
+  .pj-ig i{width:38px; height:38px; border-radius:50%; background:var(--surface); display:grid; place-items:center;}
+  .pj-ig b{width:30px; height:30px; border-radius:50%; background:color-mix(in srgb, var(--c) 14%, var(--surface)); color:var(--c); display:grid; place-items:center;}
+  .pj-ig b svg{width:16px; height:16px;}
+  .pj-ig em{position:absolute; right:-5px; bottom:-3px; background:var(--c); color:#fff; font-style:normal; font-size:9px; font-weight:800; border-radius:99px; padding:1px 5px; border:2px solid var(--surface);}
+  .pj-tx{flex:1; min-width:0;}
+  .pj-tx b{display:block; font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pj-tx small{font-size:11.5px; color:var(--ink-faint); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .rs-empty{color:var(--ink-faint); font-size:13px; padding:14px 2px;}
   .notif-follow{color:#8A5A00; font-weight:700;} [data-theme="dark"] .notif-follow{color:#F6B25C;}
   .rs-link{display:inline-block; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--primary); cursor:pointer;}
@@ -3364,6 +3372,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.183', date:'27/10/2026', title:'Projetos na visão geral', text:'No card Projetos da visão geral, cada projeto ganhou o ícone e a cor dele dentro do anel de progresso, com a próxima etapa e a situação ao lado.' },
   { version:'1.10.182', date:'27/10/2026', title:'Topo do projeto estilo perfil', text:'O topo do projeto ganhou um avatar com anel de progresso e números em linha (etapas, tarefas, atrasadas, vencem em 3 dias e entrega). O Resumo sobe para a altura do topo e a linha do tempo fica logo abaixo, aproveitando melhor a tela.' },
   { version:'1.10.181', date:'27/10/2026', title:'Linha do tempo mais limpa', text:'No modo Ajustar, saíram as faixas de fins de semana e a linha de semanas: ficam só guias discretas no início de cada mês e a linha de hoje. A barra de cada etapa agora mostra o progresso preenchido.' },
   { version:'1.10.180', date:'27/10/2026', title:'Topo do projeto em um só bloco', text:'O cabeçalho do projeto agora é um bloco branco único: ícone, título, descrição, status com progresso e entrega, botões e as abas (Linha do tempo e Lista) juntos.' },
@@ -7106,7 +7115,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.182';
+const APP_VERSION = '1.10.183';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7429,9 +7438,10 @@ function renderDashboard(){
       <div class="rs-three">
         <div class="rs-card">
           <h3>Projetos <span>${prStatus.length ? prStatus.length + ' ativo' + (prStatus.length > 1 ? 's' : '') : ''}</span></h3>
-          ${prStatus.length ? prStatus.slice(0, 4).map(x => `<div class="rs-proj" data-project="${x.p.id}">
-            <div class="top">${escapeHtml(x.p.name || 'Projeto')}<span class="rs-tag ${x.st.late ? 'late' : (x.st.total && x.st.done === x.st.total ? 'ok' : '')}" style="margin-left:auto">${x.st.late ? x.st.lateCount + ' etapa' + (x.st.lateCount > 1 ? 's' : '') + ' atrasada' + (x.st.lateCount > 1 ? 's' : '') : (x.st.total && x.st.done === x.st.total ? 'Concluído' : 'No prazo')}</span></div>
-            <div class="rs-bar"><i style="width:${x.st.pct}%"></i></div></div>`).join('')
+          ${prStatus.length ? prStatus.slice(0, 4).map(x => { const fin = x.st.total && x.st.done === x.st.total; return `<div class="rs-proj" data-project="${x.p.id}" style="--c:${projectColor(x.p)}; --p:${x.st.pct}">
+            <div class="pj-ig"><i><b>${projectIconSvg(x.p.icon || 'briefcase')}</b></i><em>${x.st.pct}%</em></div>
+            <div class="pj-tx"><b>${escapeHtml(x.p.name || 'Projeto')}</b><small>${fin ? 'Concluído' : (x.st.next ? escapeHtml(x.st.next.name || 'Etapa') + ' · ' + fmtDate(x.st.next.end) : (x.st.end ? 'Entrega ' + fmtDate(x.st.end) : 'Sem etapas'))}</small></div>
+            <span class="rs-tag ${x.st.late ? 'late' : (fin ? 'ok' : '')}">${x.st.late ? x.st.lateCount + ' atrasada' + (x.st.lateCount > 1 ? 's' : '') : (fin ? 'Concluído' : 'No prazo')}</span></div>`; }).join('')
             : '<div class="rs-empty">Nenhum projeto ainda.</div>'}
           <span class="rs-link" id="rsSeeProjects">Ver projetos →</span>
         </div>

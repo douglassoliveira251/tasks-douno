@@ -20,6 +20,7 @@ test.describe('Resumo', () => {
     await expect(page.locator('.rs-hero')).toContainText('1 atrasada');
     await expect(page.locator('.rs-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.rs-proj')).toContainText('Casa');
+    await expect(page.locator('.rs-proj .pj-ig svg')).toBeVisible();
     await expect(page.locator('.rs-agenda')).toContainText('Reunião');
     await expect(page.locator('.rs-card', { hasText: 'Retomar hoje' }).first()).toContainText('Hoje 2');
   });

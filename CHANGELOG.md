@@ -1,3 +1,12 @@
+## [1.10.183] - 2026-10-27 17:00
+
+### Changed
+
+#### Visão geral
+
+- Card Projetos: ícone e cor do projeto dentro do anel de progresso (com a porcentagem no selo), próxima etapa e situação ao lado.
+
+
 ## [1.10.182] - 2026-10-27 16:00
 
 ### Changed
