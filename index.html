@@ -806,7 +806,7 @@
   .proj-tab.on{background:var(--primary); color:#fff;}
   .gantt-wrap{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow-x:auto;}
   .gantt{min-width:760px; position:relative;}
-  .gantt-head, .gantt-row{display:grid; grid-template-columns:260px 1fr;}
+  .gantt-head, .gantt-row{display:grid; grid-template-columns:var(--gl, 260px) 1fr;}
   .gantt-head{background:var(--surface-2); border-bottom:1px solid var(--border);}
   .gantt-head .gl{padding:10px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);}
   .gantt-months{display:flex;}
@@ -847,7 +847,7 @@
   .proj-split .gantt-wrap{border-radius:22px; box-shadow:none;}
   .proj-split{grid-template-columns:minmax(0,1fr) 360px;}
   .gantt-nodates{position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:11.5px; color:var(--ink-faint);}
-  .gantt-add{display:grid; grid-template-columns:260px 1fr; border-bottom:1px solid var(--border); min-height:34px;}
+  .gantt-add{display:grid; grid-template-columns:var(--gl, 260px) 1fr; border-bottom:1px solid var(--border); min-height:34px;}
   .gantt-add .gl{padding:4px 14px 4px 36px; display:flex; align-items:center;}
   .gantt-add-input{width:100%; border:none; background:transparent; font:inherit; font-size:12.5px; color:var(--ink); padding:5px 0;}
   .gantt-add-input::placeholder{color:var(--ink-faint);}
@@ -948,7 +948,7 @@
   .gantt-toggle{border:none; background:none; padding:0; width:18px; height:18px; color:var(--ink-faint); cursor:pointer; display:grid; place-items:center; flex:none;}
   .gantt-toggle svg{width:14px; height:14px; transition:transform .15s;}
   .gantt-toggle.closed svg{transform:rotate(-90deg);}
-  .gantt-task{display:grid; grid-template-columns:260px 1fr; border-bottom:1px solid var(--border); min-height:36px; cursor:pointer;}
+  .gantt-task{display:grid; grid-template-columns:var(--gl, 260px) 1fr; border-bottom:1px solid var(--border); min-height:36px; cursor:pointer;}
   .gantt-task:hover{background:var(--surface-2);}
   .gantt-task .gl{padding:6px 14px 6px 36px; display:flex; align-items:center; min-width:0;}
   .gantt-task-name{display:flex; align-items:center; gap:7px; font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -2739,7 +2739,7 @@
     .plist-row{grid-template-columns:1fr auto;}
     .plist-row .plist-name{grid-column:1 / -1;}
     .plist-row .plist-prog{grid-column:1 / -1;}
-    .gantt-head, .gantt-row, .gantt-task, .gantt-add{grid-template-columns:200px 1fr;}
+    .gantt-head, .gantt-row, .gantt-task, .gantt-add{grid-template-columns:var(--gl, 200px) 1fr;}
     .gantt-head .gl, .gantt-row .gl, .gantt-task .gl, .gantt-add .gl{position:sticky; left:0; z-index:2; background:var(--surface);}
     .gantt-row .gl{background:var(--surface-2);}
     .proj-toolbar .prj-name-wrap{flex:1 1 calc(100% - 60px); min-width:0;}
@@ -2794,10 +2794,45 @@
   .gantt-task-mark.done{background:var(--pc); display:flex; align-items:center; padding-left:5px;}
   .gantt-task-mark svg{width:10px; height:10px; fill:none; stroke:#fff; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round;}
   .gantt-task{position:relative;}
-  .gantt-task::before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:4px; border-radius:0 3px 3px 0; background:var(--pr, transparent); z-index:3;}
+  .gantt-task .gl::before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:4px; border-radius:0 3px 3px 0; background:var(--pr, transparent);}
   .gantt-pill{position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:#fff; border-radius:99px; padding:2px 8px 2px 6px; white-space:nowrap; background:#F59E0B; z-index:2;}
   .gantt-pill.late{background:var(--danger);}
   .gantt-pill svg{width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;}
+  /* linha do tempo: controles, cabeçalho em semanas e colunas */
+  .gantt-wrap{--gl:260px;}
+  .gantt-card{background:var(--surface); border:1px solid var(--border); border-radius:22px; overflow:hidden;}
+  .gantt-card .gantt-wrap{border:none; border-radius:0; box-shadow:none;}
+  .gantt-tools{display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid var(--border); flex-wrap:wrap;}
+  .gantt-seg{display:inline-flex; background:var(--surface-2); border-radius:11px; padding:3px;}
+  .gantt-seg button{border:none; background:transparent; font:inherit; font-size:12px; font-weight:600; color:var(--ink-soft); padding:5px 12px; border-radius:8px; cursor:pointer;}
+  .gantt-seg button.on{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(20,30,50,.14);}
+  .gantt-nav{display:inline-flex; align-items:center; gap:6px;}
+  .gantt-nav button{height:30px; min-width:30px; border-radius:99px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; padding:0; font:inherit; font-size:12.5px; font-weight:600;}
+  .gantt-nav button.txt{padding:0 13px; border-radius:11px; color:var(--ink);}
+  .gantt-nav svg{width:14px; height:14px;}
+  .gantt-filters{margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;}
+  .gantt-filters button{border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); font:inherit; font-size:12px; font-weight:600; padding:6px 12px; border-radius:99px; cursor:pointer; display:inline-flex; gap:6px; align-items:center;}
+  .gantt-filters button.on{background:var(--ink); color:var(--surface); border-color:var(--ink);}
+  .gantt-filters b.late{color:var(--danger);} .gantt-filters b.soon{color:#C77700;}
+  .gantt-filters button.on b{color:inherit;}
+  .gantt-head{background:var(--surface);}
+  .gantt-scale{min-width:0;}
+  .gantt-months{display:flex;}
+  .gantt-months em{position:sticky; left:calc(var(--gl) + 8px); font-style:normal;}
+  .gantt-weeks{display:flex; border-top:1px solid var(--border);}
+  .gantt-weeks span{padding:6px 6px; font-size:11px; font-weight:600; color:var(--ink-faint); border-left:1px solid var(--border); overflow:hidden; white-space:nowrap; text-align:left;}
+  .gantt-weeks span.now{color:var(--danger); font-weight:800;}
+  .gantt-head .gl, .gantt-row .gl, .gantt-task .gl, .gantt-add .gl{position:sticky; left:0; z-index:4; background:var(--surface);}
+  .gantt-row .gl{background:var(--surface-2);}
+  .gantt-body{position:relative;}
+  .gantt-cols{position:absolute; top:0; bottom:0; z-index:2; pointer-events:none;}
+  .gantt-cols i{position:absolute; top:0; bottom:0;}
+  .gantt-cols .wknd{background:rgba(128,128,128,.07);}
+  .gantt-cols .wk{width:1px; background:var(--border); opacity:.7;}
+  .gantt-cols .todayband{background:rgba(229,72,77,.09);}
+  .gantt-task .gantt-track{display:flex; justify-content:flex-end; align-items:center; padding-right:10px;}
+  .gantt-pill{position:sticky; right:10px; top:auto; transform:none; flex:none; z-index:3;}
+  @media (max-width:768px){ .gantt-wrap{--gl:200px;} .gantt-filters{margin-left:0; width:100%;} }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -3267,6 +3302,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.178', date:'27/10/2026', title:'Linha do tempo com zoom, Hoje e filtros', text:'A linha do tempo ganhou controles: zoom (Dia, Semana, Mês, Trimestre), botões para voltar, avançar e ir para Hoje, e filtros por atrasadas e vencem em breve. O cabeçalho mostra meses e semanas, os fins de semana ficam sombreados e a coluna de hoje fica destacada. A faixa de prioridade segue as cores das tarefas.' },
   { version:'1.10.177', date:'26/10/2026', title:'Linha do tempo com a cor do projeto e alertas de prazo', text:'As barras seguem a cor do projeto: concluída chapada, em andamento listrada e não iniciada em tom claro. Cada tarefa ganha uma faixa de prioridade na lateral e um selo no canto direito quando vence em até 3 dias (laranja) ou está atrasada (vermelho).' },
   { version:'1.10.176', date:'25/10/2026', title:'Busca mais limpa, só com itens abertos', text:'A busca agora mostra só tarefas em aberto. Para ver as concluídas, use "Mostrar concluídas" no rodapé. Os resultados também ficaram mais simples: ícone, título, espaço e data.' },
   { version:'1.10.175', date:'24/10/2026', title:'Agenda dos próximos dias, notificações sem repetição e etapas pela criação', text:'A Visão geral mostra a agenda de hoje e dos próximos 7 dias (com "Ver mais"). As notificações não repetem mais a mesma tarefa em atrasada/hoje e retomar. O PDF do projeto leva o ícone e as etapas passam a contar a data de criação das tarefas na linha do tempo.' },
@@ -7004,7 +7040,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.177';
+const APP_VERSION = '1.10.178';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -8939,6 +8975,7 @@ function renderSettingsView(){
 /* ===================== PROJETOS ===================== */
 let activeProjectId = null;
 let projectTab = 'timeline';
+let ganttZoom = 'week', ganttFilter = 'all', ganttScroll = 0, ganttCenterToday = true, ganttLastProject = null;
 function defaultProjectTab(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 'lista' : 'timeline'; }
 let selectedStageId = null;
 
@@ -9493,49 +9530,110 @@ function renderProjectDetail(view, p){
   }
 
   // linha do tempo
+  const ZOOMS = { day: { dpx: 34, label: 'Dia' }, week: { dpx: 14, label: 'Semana' }, month: { dpx: 5, label: 'Mês' }, quarter: { dpx: 2.2, label: 'Trimestre' } };
+  if(!ZOOMS[ganttZoom]) ganttZoom = 'week';
+  const dpx = ZOOMS[ganttZoom].dpx;
+  const DAYMS = 86400000;
   const dates = [];
   stages.forEach(sg => { if(sg.start) dates.push(sg.start); if(sg.end) dates.push(sg.end); });
   if(p.startDate) dates.push(p.startDate);
   if(p.endDate) dates.push(p.endDate);
-  state.tasks.forEach(t => { if(t.projectId === p.id && t.startDate) dates.push(t.startDate); });
+  state.tasks.forEach(t => { if(t.projectId === p.id){ if(t.startDate) dates.push(t.startDate); if(t.dueDate) dates.push(t.dueDate); } });
   dates.push(today);
   dates.sort();
   const first = new Date(dates[0] + 'T00:00:00');
   const last = new Date(dates[dates.length - 1] + 'T00:00:00');
-  const rangeStart = new Date(first.getFullYear(), first.getMonth(), 1);
+  let rangeStart = new Date(first.getFullYear(), first.getMonth(), 1);
+  rangeStart = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate() - ((rangeStart.getDay() + 6) % 7)); // começa numa segunda
   const rangeEnd = new Date(last.getFullYear(), last.getMonth() + 1, 1);
-  const total = Math.round((rangeEnd - rangeStart) / 86400000);
-  const pos = dateStr => Math.max(0, Math.min(100, (Math.round((new Date(dateStr + 'T00:00:00') - rangeStart) / 86400000)) / total * 100));
+  const total = Math.round((rangeEnd - rangeStart) / DAYMS);
+  const W = Math.round(total * dpx);
+  const dayIdx = dateStr => Math.round((new Date(dateStr + 'T00:00:00') - rangeStart) / DAYMS);
+  const pos = dateStr => Math.max(0, Math.min(W, dayIdx(dateStr) * dpx));
+  const dayAt = i => new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate() + i);
+  // cabeçalho: linha dos meses e, nos zooms Dia/Semana, uma linha de dias/semanas
   const months = [];
-  for(let d = new Date(rangeStart); d < rangeEnd; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)){
-    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-    months.push({ label: MONTH_LABELS[d.getMonth()].slice(0, 3) + (d.getMonth() === 0 || months.length === 0 ? ' ' + String(d.getFullYear()).slice(2) : ''), w: (next - d) / 86400000 / total * 100 });
+  for(let cur = new Date(rangeStart); cur < rangeEnd; ){
+    const monthEnd = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+    const segEnd = monthEnd < rangeEnd ? monthEnd : rangeEnd;
+    const days = Math.round((segEnd - cur) / DAYMS);
+    months.push({ label: MONTH_LABELS[cur.getMonth()].slice(0, 3) + (cur.getMonth() === 0 || months.length === 0 ? ' ' + String(cur.getFullYear()).slice(2) : ''), w: days * dpx, at: Math.round((cur - rangeStart) / DAYMS) * dpx });
+    cur = segEnd;
   }
-  const todayPos = pos(today);
+  const todayIdx = dayIdx(today);
+  const subRow = [];
+  if(ganttZoom === 'day'){
+    for(let i = 0; i < total; i++){ const dt = dayAt(i); subRow.push(`<span class="${i === todayIdx ? 'now' : ''}" style="width:${dpx}px">${dt.getDate()}</span>`); }
+  } else if(ganttZoom === 'week'){
+    for(let i = 0; i < total; i += 7){ const dt = dayAt(i); subRow.push(`<span class="${todayIdx >= i && todayIdx < i + 7 ? 'now' : ''}" style="width:${7 * dpx}px">${String(dt.getDate()).padStart(2, '0')}</span>`); }
+  }
+  // colunas: fins de semana, início das semanas e a coluna de hoje
+  let cols = '';
+  if(ganttZoom === 'day' || ganttZoom === 'week'){
+    for(let i = 0; i < total; i++){
+      const dow = dayAt(i).getDay();
+      if(dow === 0 || dow === 6) cols += `<i class="wknd" style="left:${i * dpx}px; width:${dpx}px"></i>`;
+      else if(dow === 1 && i > 0) cols += `<i class="wk" style="left:${i * dpx}px"></i>`;
+    }
+    cols += `<i class="todayband" style="left:${todayIdx * dpx}px; width:${dpx}px"></i>`;
+  } else {
+    months.forEach(m => { if(m.at > 0) cols += `<i class="wk" style="left:${m.at}px"></i>`; });
+  }
+  const todayX = Math.max(0, todayIdx * dpx) + (ganttZoom === 'day' || ganttZoom === 'week' ? dpx / 2 : 0);
+  // filtro rápido (atrasadas / vencem em até 3 dias)
+  const soonLimit = addDaysStr(today, 3);
+  const isLate = t => !t.done && t.dueDate && t.dueDate < today;
+  const isSoon = t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLimit;
+  const pass = t => ganttFilter === 'all' || (ganttFilter === 'late' ? isLate(t) : isSoon(t));
+  const projTasks = state.tasks.filter(t => t.projectId === p.id);
+  const nLate = projTasks.filter(isLate).length, nSoon = projTasks.filter(isSoon).length;
+  const chev = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   body.innerHTML = `
-    <div class="gantt-wrap" style="--pc:${projectColor(p)}"><div class="gantt">
-      <div class="gantt-head"><div class="gl">Etapa</div><div class="gantt-months">${months.map(m => `<span style="width:${m.w}%">${m.label}</span>`).join('')}</div></div>
+    <div class="gantt-card">
+    <div class="gantt-tools">
+      <span class="gantt-seg">${Object.keys(ZOOMS).map(k => `<button type="button" data-zoom="${k}" class="${ganttZoom === k ? 'on' : ''}">${ZOOMS[k].label}</button>`).join('')}</span>
+      <span class="gantt-nav"><button type="button" id="ganttPrev" aria-label="Voltar no tempo">${chev('M15 6l-6 6 6 6')}</button><button type="button" id="ganttToday" class="txt">Hoje</button><button type="button" id="ganttNext" aria-label="Avançar no tempo">${chev('M9 6l6 6-6 6')}</button></span>
+      <span class="gantt-filters">
+        <button type="button" data-gfilter="all" class="${ganttFilter === 'all' ? 'on' : ''}">Todas</button>
+        <button type="button" data-gfilter="late" class="${ganttFilter === 'late' ? 'on' : ''}">Atrasadas <b class="late">${nLate}</b></button>
+        <button type="button" data-gfilter="soon" class="${ganttFilter === 'soon' ? 'on' : ''}">Vencem em breve <b class="soon">${nSoon}</b></button>
+      </span>
+    </div>
+    <div class="gantt-wrap" style="--pc:${projectColor(p)}"><div class="gantt" style="width:calc(var(--gl) + ${W}px); min-width:100%;">
+      <div class="gantt-head"><div class="gl">Etapa</div><div class="gantt-scale"><div class="gantt-months">${months.map(m => `<span style="width:${m.w}px"><em>${m.label}</em></span>`).join('')}</div>${subRow.length ? `<div class="gantt-weeks">${subRow.join('')}</div>` : ''}</div></div>
       <div class="gantt-body" style="position:relative;">
+        <div class="gantt-cols" style="left:var(--gl); width:${W}px">${cols}</div>
         ${stages.map(sg => {
           const state_ = stageState(p, sg), pct = stagePercent(p, sg);
           const a = pos(sg.start || sg.end || today), b = pos(sg.end || sg.start || today);
-          const w = Math.max(b - a, 1.2);
-          const tks = stageTasks(p, sg);
+          const w = Math.max(b - a, 18);
+          const tks = stageTasks(p, sg).filter(pass);
           const collapsed = projectCollapsedStages.has(sg.id);
           return `<div class="gantt-row${sg.id === selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
-            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]} · ${sg.end ? 'prazo ' + fmtDate(sg.end) : 'sem prazo'}${tks.length ? ' · ' + tks.filter(t => t.done).length + '/' + tks.length + ' tarefas' : ''}</small></div>
-            <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}%; width:${w}%;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
-          </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + ganttAddRow(sg.id));
+            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
+            <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
+          </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}
         ${(() => {
-          const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId);
+          const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId).filter(pass);
           if(!loose.length) return '';
           return `<div class="gantt-row gantt-loose"><div class="gl"><b>Sem etapa</b><small>${loose.length} tarefa${loose.length === 1 ? '' : 's'} sem etapa definida</small></div><div class="gantt-track"></div></div>` +
             loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('');
         })()}
-        <div class="gantt-today" style="left:calc(260px + (100% - 260px) * ${todayPos / 100});"><em>Hoje</em></div>
+        <div class="gantt-today" style="left:calc(var(--gl) + ${todayX}px);"><em>Hoje</em></div>
       </div>
-    </div></div>`;
+    </div></div></div>`;
+  const wrapEl = body.querySelector('.gantt-wrap');
+  const glW = parseInt(getComputedStyle(wrapEl).getPropertyValue('--gl'), 10) || 260;
+  const goToday = (smooth) => wrapEl.scrollTo({ left: Math.max(0, todayX - (wrapEl.clientWidth - glW) / 2), behavior: smooth ? 'smooth' : 'auto' });
+  if(ganttCenterToday || ganttLastProject !== p.id){ goToday(false); ganttCenterToday = false; ganttLastProject = p.id; }
+  else wrapEl.scrollLeft = ganttScroll || 0;
+  wrapEl.addEventListener('scroll', () => { ganttScroll = wrapEl.scrollLeft; });
+  body.querySelectorAll('[data-zoom]').forEach(btn => { btn.onclick = () => { ganttZoom = btn.dataset.zoom; ganttCenterToday = true; render(); }; });
+  body.querySelectorAll('[data-gfilter]').forEach(btn => { btn.onclick = () => { ganttFilter = btn.dataset.gfilter; render(); }; });
+  body.querySelector('#ganttToday').onclick = () => goToday(true);
+  body.querySelector('#ganttPrev').onclick = () => wrapEl.scrollBy({ left: -(wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
+  body.querySelector('#ganttNext').onclick = () => wrapEl.scrollBy({ left: (wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
   body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { selectedStageId = selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
   body.querySelectorAll('.gantt-add-input').forEach(inp => {
     inp.addEventListener('click', (e) => e.stopPropagation());
@@ -9952,15 +10050,15 @@ function ganttTaskRow(t, stageStateKey, pos){
   const check = t.done ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '';
   if(t.dueDate){
     const end = pos(t.dueDate);
-    const from = es.date <= t.dueDate ? pos(es.date) : Math.max(end - 2.6, 0);
-    const w = Math.max(end - from, 2.6);
-    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}%; width:${w}%;" title="${startLbl} · Prazo ${fmtDate(t.dueDate)}">${check}</div>`;
+    const from = es.date <= t.dueDate ? pos(es.date) : Math.max(end - 12, 0);
+    const w = Math.max(end - from, 12);
+    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}px; width:${w}px;" title="${startLbl} · Prazo ${fmtDate(t.dueDate)}">${check}</div>`;
   } else {
     /* sem prazo: a barra vai do início (ou criação) até hoje */
     const from = pos(es.date);
     const to = es.date < today ? pos(today) : from;
-    const w = Math.max(to - from, 2.6);
-    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}%; width:${w}%;" title="${startLbl} · sem prazo">${check}</div>`;
+    const w = Math.max(to - from, 12);
+    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}px; width:${w}px;" title="${startLbl} · sem prazo">${check}</div>`;
   }
   /* alerta de prazo (só tarefa aberta): atrasada em vermelho, hoje ou até 3 dias em laranja */
   let pill = '';
@@ -9970,8 +10068,8 @@ function ganttTaskRow(t, stageStateKey, pos){
     if(diff < 0) pill = `<span class="gantt-pill late" title="Atrasada há ${-diff} dia${diff === -1 ? '' : 's'}">${clock}+${-diff}d</span>`;
     else if(diff <= 3) pill = `<span class="gantt-pill" title="${diff === 0 ? 'Vence hoje' : 'Vence em ' + diff + ' dia' + (diff === 1 ? '' : 's')}">${clock}${diff === 0 ? 'hoje' : diff + 'd'}</span>`;
   }
-  const PR_COLOR = { critica: 'var(--priority-critica)', alta: 'var(--priority-alta)', media: '#94A3B8', baixa: '#CBD5E1' };
-  return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" style="--pr:${PR_COLOR[t.priority] || 'transparent'}" title="Arraste para outra etapa para mover a tarefa">
+  const prCfg = PRIORITY_CONFIG.find(x => x.key === t.priority);
+  return `<div class="gantt-task" data-task-id="${t.id}" data-stage="${t.stageId || ''}" draggable="true" style="--pr:${prCfg ? prCfg.color : 'transparent'}" title="Arraste para outra etapa para mover a tarefa">
     <div class="gl"><span class="gantt-task-name ${t.done ? 'done' : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>${t.done ? '<path d="M8.5 12l2.5 2.5 4.5-5"/>' : ''}</svg>${escapeHtml(t.title || 'Sem título')}</span></div>
     <div class="gantt-track">${mark}${pill}</div>
   </div>`;

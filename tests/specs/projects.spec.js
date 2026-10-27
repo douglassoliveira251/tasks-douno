@@ -394,3 +394,32 @@ test('linha do tempo: estado pela cor do projeto, faixa de prioridade e selo de 
   await expect(page.locator('[data-task-id="feita"] .gantt-task-mark')).toHaveClass(/done/);
   expect(await page.locator('.gantt-wrap').evaluate(e => e.style.getPropertyValue('--pc'))).toBe('#E0457B');
 });
+
+test('linha do tempo: zoom, filtro de atrasadas e cores de prioridade das tarefas', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'projects' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, t = todayStr(), A = n => addDaysStr(t, n);
+    state.projects = [{ id: 'p1', name: 'P', categoryId: cat, createdAt: 1, stages: [{ id: 's1', name: 'E1' }] }];
+    const mk = (id, over) => Object.assign({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: A(10), startDate: A(-1), dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now(), projectId: 'p1', stageId: 's1' }, over);
+    state.tasks = [mk('atrasada', { dueDate: A(-3), priority: 'critica' }), mk('perto', { dueDate: A(2), priority: 'baixa' }), mk('longe', { dueDate: A(30) })];
+    activeProjectId = 'p1'; projectTab = 'timeline'; currentView = 'projects'; ganttZoom = 'week'; ganttFilter = 'all'; render();
+  });
+  await expect(page.locator('.gantt-seg button.on')).toHaveText('Semana');
+  const wWeek = await page.locator('.gantt').evaluate(e => e.getBoundingClientRect().width);
+  await page.locator('[data-zoom="month"]').click();
+  await expect(page.locator('.gantt-seg button.on')).toHaveText('Mês');
+  expect(await page.locator('.gantt').evaluate(e => e.getBoundingClientRect().width)).toBeLessThan(wWeek);
+  await page.locator('[data-zoom="day"]').click();
+  await expect(page.locator('.gantt-weeks span').first()).toBeVisible();
+  await page.locator('[data-zoom="week"]').click();
+  await expect(page.locator('.gantt-filters b.late')).toHaveText('1');
+  await page.locator('[data-gfilter="late"]').click();
+  await expect(page.locator('.gantt-task')).toHaveCount(1);
+  await expect(page.locator('.gantt-add')).toHaveCount(0);
+  await page.locator('[data-gfilter="all"]').click();
+  await expect(page.locator('.gantt-task')).toHaveCount(3);
+  // faixa de prioridade segue as cores das tarefas
+  expect(await page.locator('.gantt-task[data-task-id="atrasada"]').evaluate(e => e.style.getPropertyValue('--pr'))).toBe('var(--priority-critica)');
+  expect(await page.locator('.gantt-task[data-task-id="perto"]').evaluate(e => e.style.getPropertyValue('--pr'))).toBe('var(--priority-baixa)');
+});

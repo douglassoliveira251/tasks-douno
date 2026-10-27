@@ -1,3 +1,16 @@
+## [1.10.178] - 2026-10-27 10:00
+
+### Added
+
+#### Projetos
+
+- Linha do tempo: zoom (Dia/Semana/Mês/Trimestre), botões ‹ Hoje › para navegar, filtros Todas/Atrasadas/Vencem em breve, cabeçalho em meses e semanas, fins de semana sombreados e coluna de hoje destacada. A coluna de nomes fica fixa ao rolar.
+
+### Changed
+
+- Faixa de prioridade das tarefas na linha do tempo usa as cores de prioridade das tarefas (baixa azul, média verde, alta laranja, crítica vermelha).
+
+
 ## [1.10.177] - 2026-10-26 10:00
 
 ### Changed
