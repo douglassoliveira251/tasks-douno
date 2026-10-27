@@ -2351,6 +2351,22 @@
   .cal-event-tag{
     font-size:10px; font-weight:600; opacity:.75; white-space:nowrap;
   }
+  /* mesmo desenho do modo Dia em todas as visões: barra lateral, título preto, linha pequena com relógio/horário e categoria */
+  .cal-event-block-timed{padding:6px 8px 6px 12px !important; gap:1px; border-radius:14px !important;}
+  .cal-event-block-timed .cal-event-title{display:block; font-size:12.5px; font-weight:600; color:var(--ink); line-height:1.3;}
+  .cal-event-block-timed .cal-evb-meta{display:flex; gap:8px; align-items:center; flex-wrap:nowrap; min-width:0; font-size:11px; color:var(--ink-faint); margin-top:1px;}
+  .cal-event-block-timed .cal-evb-time{display:inline-flex; gap:4px; align-items:center; white-space:nowrap; flex:none;}
+  .cal-event-block-timed .cal-evb-time svg{width:11px; height:11px;}
+  .cal-event-block-timed .cal-evb-cat{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .cal-event-block-timed.sz-s{padding-top:2px !important; padding-bottom:2px !important; justify-content:center;}
+  .cal-event-block-timed.sz-s .cal-evb-meta, .cal-event-block-timed.sz-m .cal-evb-cat{display:none;}
+  .cal-event-block-timed.tall .cal-event-title{white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:var(--tl, 3);}
+  .cal-week-alldayrow .cal-allday-seg{flex-direction:column; align-items:stretch; gap:1px; border-radius:14px;}
+  .cal-week-alldayrow .cal-allday-seg em{font-style:normal; font-size:11px; font-weight:600; color:var(--ink-faint);}
+  .cal-week-alldayrow .cal-allday-seg small{font-size:11px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cal-month-card .cal-mpill{position:relative; padding:3px 6px 3px 10px; border-radius:8px; color:var(--ink); font-weight:600;}
+  .cal-month-card .cal-mpill:before{content:""; position:absolute; left:0; top:4px; bottom:4px; width:3px; border-radius:3px; background:var(--evc, currentColor); opacity:.9;}
+  .cal-month-card .cal-mpill em{font-style:normal; font-weight:500; color:var(--ink-faint);}
   .cal-empty-day{font-size:11.5px; color:var(--ink-faint); text-align:center; padding-top:20px;}
 
   .cal-day-list{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
@@ -3394,6 +3410,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.193', date:'28/10/2026', title:'Agendas com o mesmo visual em todas as visões', text:'O desenho das agendas do modo Dia (barra colorida, título, relógio com horário e categoria) agora vale também na Semana e no Mês, e a agenda de dia inteiro mostra Dia todo, título e categoria. O texto só se reduz quando falta espaço.' },
   { version:'1.10.192', date:'28/10/2026', title:'Dia inteiro e agendas longas no dia', text:'No modo Dia, a agenda de dia inteiro ganhou três linhas (Dia todo, título e categoria). E nas agendas com horário longas, o título aparece inteiro, encolhendo só quando o bloco é curto.' },
   { version:'1.10.191', date:'27/10/2026', title:'Agenda da visão geral com 5 itens', text:'O cartão Agenda da visão geral agora mostra as 5 próximas agendas dos próximos 7 dias, e uma agenda de vários dias aparece como uma linha só, com a data de início e a de fim.' },
   { version:'1.10.190', date:'27/10/2026', title:'Dia inteiro em barra contínua', text:'Na semana, a agenda de vários dias vira uma barra única atravessando os dias, como no Outlook, com título preto e reticências quando não cabe.' },
@@ -7185,7 +7202,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.192';
+const APP_VERSION = '1.10.193';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7783,7 +7800,7 @@ function renderCalendarMonth(body){
     let evHtml = '';
     if(dayEvents.length === 1){
       const ev = dayEvents[0];
-      evHtml = `<div class="cal-event-pill" style="background:${eventColor(ev)}22; color:${eventColor(ev)};">${escapeHtml(ev.title||'Sem título')}</div>`;
+      evHtml = `<div class="cal-event-pill cal-mpill" style="background:${eventColor(ev)}22; --evc:${eventColor(ev)};">${!ev.allDay && ev.startTime ? `<em>${ev.startTime}</em> ` : ''}${escapeHtml(ev.title||'Sem título')}</div>`;
     } else if(dayEvents.length > 1){
       evHtml = `<div class="cal-month-dots">${dayEvents.slice(0,5).map(ev => `<i style="background:${eventColor(ev)}"></i>`).join('')}${dayEvents.length>5?`<span class="cal-event-more">+${dayEvents.length-5}</span>`:''}</div><div class="cal-month-count">${dayEvents.length} agendas</div>`;
     }
@@ -7960,8 +7977,8 @@ function renderCalendarWeek(body){
     const isWeekend = d.getDay()===0 || d.getDay()===6;
     return `<div class="cal-week-allday-cell${isWeekend?' weekend':''}" style="grid-row:1 / span ${lanes}; grid-column:${i + 2}"></div>`;
   }).join('') + segs.map(sg => {
-    const ev = sg.ev, c = eventColor(ev);
-    return `<div class="cal-event-pill cal-allday-seg" data-event-id="${ev.id}" title="${escapeHtml(ev.title||'Sem título')}" style="grid-row:${sg.lane + 1}; grid-column:${sg.start + 2} / ${sg.end + 3}; background:${c}22; --evc:${c};"><span class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</span></div>`;
+    const ev = sg.ev, c = eventColor(ev), evCat = catById(ev.categoryId);
+    return `<div class="cal-event-pill cal-allday-seg" data-event-id="${ev.id}" title="${escapeHtml(ev.title||'Sem título')}" style="grid-row:${sg.lane + 1}; grid-column:${sg.start + 2} / ${sg.end + 3}; background:${c}22; --evc:${c};"><em>Dia todo</em><span class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</span>${evCat ? `<small style="color:${evCat.color};">${escapeHtml(evCat.name)}</small>` : ''}</div>`;
   }).join('');
   wrap.appendChild(alldayRow);
 
@@ -8007,7 +8024,11 @@ function renderCalendarWeek(body){
       block.style.background = eventColor(ev)+'22';
       block.style.borderColor = eventColor(ev);
       block.style.setProperty('--evc', eventColor(ev));
-      block.innerHTML = `<span class="cal-event-time">${ev.startTime}</span><span class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</span>${eventPrimaryTagName(ev)?`<span class="cal-event-tag">${escapeHtml(eventPrimaryTagName(ev))}</span>`:''}`;
+      const evCat = catById(ev.categoryId);
+      const bh = Math.max(20, ((endMin-startMin)/60) * hourHeight);
+      block.classList.add(bh < 38 ? 'sz-s' : (bh < 62 ? 'sz-m' : 'sz-l'));
+      if(bh >= 90){ block.classList.add('tall'); block.style.setProperty('--tl', Math.max(1, Math.floor((bh - 56) / 17))); }
+      block.innerHTML = `<b class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</b><small class="cal-evb-meta"><span class="cal-evb-time">${calIcon('clock')} ${ev.startTime}${ev.endTime ? ' – ' + ev.endTime : ''}</span>${evCat ? `<span class="cal-evb-cat" style="color:${evCat.color};">${escapeHtml(evCat.name)}</span>` : ''}</small>`;
       block.onclick = (e) => { e.stopPropagation(); openEventComposer(ev); };
       col.appendChild(block);
     });

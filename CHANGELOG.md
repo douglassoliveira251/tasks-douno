@@ -1,3 +1,12 @@
+## [1.10.193] - 2026-10-28 10:00
+
+### Changed
+
+#### Calendário
+
+- Visual das agendas do modo Dia aplicado à Semana (blocos com horário e barras de dia inteiro) e ao Mês: barra lateral, título preto, linha com relógio/horário e categoria colorida. O texto reduz conforme o espaço do bloco.
+
+
 ## [1.10.192] - 2026-10-28 09:00
 
 ### Changed
