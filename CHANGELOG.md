@@ -1,3 +1,12 @@
+## [1.10.197] - 2026-10-28 14:00
+
+### Fixed
+
+#### Calendário
+
+- Semana: nas agendas lado a lado, o horário desce de linha para aparecer completo, em vez de ficar cortado.
+
+
 ## [1.10.196] - 2026-10-28 13:00
 
 ### Fixed

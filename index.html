@@ -2368,6 +2368,7 @@
   .cal-event-block-timed[class*="cols-"] .cal-event-title{white-space:normal; overflow-wrap:break-word; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; font-size:11px; line-height:1.25;}
   .cal-event-block-timed.cols-3 .cal-event-title{white-space:nowrap; display:block; text-overflow:ellipsis;}
   .cal-event-block-timed[class*="cols-"] .cal-evb-cat, .cal-event-block-timed[class*="cols-"] .cal-evb-time svg{display:none;}
+  .cal-event-block-timed[class*="cols-"] .cal-evb-time{white-space:normal; flex:0 1 auto; min-width:0; overflow-wrap:anywhere;}
   .cal-event-block-timed.cols-3 .cal-evb-meta{display:none;}
   .cal-event-block-timed.tall .cal-event-title{white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:var(--tl, 3);}
   .cal-week-alldayrow .cal-allday-seg{flex-direction:column; align-items:stretch; gap:1px; border-radius:14px;}
@@ -3421,6 +3422,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.197', date:'28/10/2026', title:'Horário completo nas agendas lado a lado', text:'Na Semana, quando duas agendas dividem o dia, o horário desce de linha para caber inteiro em vez de ficar cortado.' },
   { version:'1.10.196', date:'28/10/2026', title:'Agendas no mesmo horário lado a lado', text:'Na visão Semana, agendas que se cruzam no horário agora dividem o dia em colunas, em vez de ficarem uma por cima da outra.' },
   { version:'1.10.195', date:'28/10/2026', title:'Tag no lugar do espaço nas agendas', text:'Nas agendas do calendário, o texto destacado ao lado do horário agora é a tag (em tom escuro, sem cor). Na semana, se a tag não couber ao lado do horário, ela desce para a linha de baixo.' },
   { version:'1.10.194', date:'28/10/2026', title:'Dia todo no lugar do horário', text:'Nas agendas de dia inteiro, o título fica em cima e embaixo vem o relógio com "Dia todo" e a categoria ao lado, igual às agendas com horário.' },
@@ -7216,7 +7218,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.196';
+const APP_VERSION = '1.10.197';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
