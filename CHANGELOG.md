@@ -1,3 +1,13 @@
+## [1.10.205] - 2026-10-30 16:00
+
+### Fixed
+
+#### Calendário
+
+- Semana: a barra de rolagem da grade de horas deslocava as colunas em relação ao cabeçalho dos dias e à faixa de dia todo (até 8px no último dia); a largura da barra agora é compensada.
+- Raia cinza do fim de semana mais suave.
+
+
 ## [1.10.204] - 2026-10-30 15:30
 
 ### Fixed
