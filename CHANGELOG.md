@@ -1,3 +1,12 @@
+## [1.10.200] - 2026-10-30 12:00
+
+### Changed
+
+#### Projetos
+
+- Lista de projetos: ícone num quadrado cheio na cor do projeto, próxima etapa sobre a barra de progresso (na cor do projeto), entrega e situação. A coluna Linha do tempo saiu da lista (continua dentro do projeto).
+
+
 ## [1.10.199] - 2026-10-30 10:00
 
 ### Changed

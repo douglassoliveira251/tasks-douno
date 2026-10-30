@@ -864,6 +864,20 @@
   .report-menu small{display:block; font-size:11.5px; color:var(--ink-faint); margin-top:1px;}
   .prj-badge{display:inline-grid; place-items:center; border-radius:50%; flex:none; color:var(--pc); background:color-mix(in srgb, var(--pc) 16%, transparent);}
   .prj-badge svg{width:56%; height:56%;}
+  /* lista de projetos: quadrado cheio na cor do projeto, progresso com a próxima etapa */
+  .plist-head, .plist-row{grid-template-columns:minmax(0,1.5fr) minmax(0,2.4fr) 110px 130px; gap:18px;}
+  .plist-row{min-height:78px;}
+  .plist-name{display:flex; align-items:center; gap:14px;}
+  .plist-nm{min-width:0;}
+  .plist-nm b{display:block; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .plist-nm small{display:block; font-size:11.5px; color:var(--ink-faint); margin-top:2px;}
+  .prj-tile{flex:none; width:46px; height:46px; border-radius:14px; display:grid; place-items:center; background:var(--pc); color:#fff;}
+  .prj-tile svg{width:55%; height:55%;}
+  .plist-prog{display:block; min-width:0;}
+  .plist-ptop{display:flex; justify-content:space-between; gap:10px; font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:6px;}
+  .plist-ptop span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .plist-end{font-size:12.5px; color:var(--ink-soft);}
+  .plist-end small{display:block; font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-faint);}
   .plist-name b .prj-badge{margin-right:8px; vertical-align:middle;}
   .prj-name-wrap{display:inline-flex; align-items:center; gap:10px; min-width:0;}
   .prj-headrow{display:flex; align-items:center; gap:12px; margin-top:2px;}
@@ -3427,6 +3441,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.200', date:'30/10/2026', title:'Lista de projetos renovada', text:'Cada projeto aparece com o ícone num quadrado na cor dele, a próxima etapa sobre a barra de progresso, a data de entrega e a situação.' },
   { version:'1.10.199', date:'30/10/2026', title:'Tarefas mais práticas', text:'Ao escolher o prazo, o horário já vem às 08:00. A subtarefa concluída vai para o fim da lista e, se desmarcada, volta ao lugar de antes. A descrição cresce conforme você escreve e pode ser esticada à mão. O nome longo do projeto no chip agora é cortado com reticências.' },
   { version:'1.10.198', date:'28/10/2026', title:'Tag nas agendas lado a lado', text:'Na Semana, as agendas que dividem o dia voltam a mostrar a tag abaixo do horário.' },
   { version:'1.10.197', date:'28/10/2026', title:'Horário completo nas agendas lado a lado', text:'Na Semana, quando duas agendas dividem o dia, o horário desce de linha para caber inteiro em vez de ficar cortado.' },
@@ -7238,7 +7253,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.199';
+const APP_VERSION = '1.10.200';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9600,14 +9615,15 @@ function renderProjectList(view){
         <button type="button" class="btn small" id="prjNewBtn" style="margin-left:auto;">+ Novo projeto</button>
       </div>
       ${all.length ? `
-      <div class="plist-head"><span>Projeto</span><span>Progresso</span><span>Linha do tempo</span><span>Entrega</span><span>Status</span></div>
+      <div class="plist-head"><span>Projeto</span><span>Progresso</span><span>Entrega</span><span>Status</span></div>
       ${filtered.length ? filtered.map(r => {
         const cat = catById(r.p.categoryId);
-        return `<div class="plist-row" data-id="${r.p.id}">
-          <div class="plist-name"><b>${projectBadgeHtml(r.p, 24)}${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}${r.st.next ? ' · ' + escapeHtml(r.st.next.name) : ''}</small></div>
-          <div class="plist-prog"><div class="proj-bar"><i style="width:${r.st.pct}%; ${r.kind === 'concluido' ? 'background:var(--ok);' : (r.kind === 'atrasado' ? 'background:var(--danger);' : '')}"></i></div><span class="plist-pc">${r.st.pct}%</span></div>
-          <span class="plist-stage">${miniTimelineHtml(r.p)}</span>
-          <span class="plist-end">${r.st.end ? fmtDate(r.st.end) : '—'}</span>
+        const pc = projectColor(r.p);
+        const nextTxt = r.kind === 'concluido' ? 'Concluído' : (r.st.next ? 'Próxima: ' + r.st.next.name : (r.st.total ? '' : 'Sem etapas'));
+        return `<div class="plist-row" data-id="${r.p.id}" style="--pc:${pc}">
+          <div class="plist-name"><span class="prj-tile">${projectIconSvg(r.p.icon || 'briefcase')}</span><div class="plist-nm"><b>${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}</small></div></div>
+          <div class="plist-prog"><div class="plist-ptop"><span>${escapeHtml(nextTxt)}</span><b>${r.st.pct}%</b></div><div class="proj-bar"><i style="width:${r.st.pct}%; background:var(--pc);"></i></div></div>
+          <span class="plist-end"><small>Entrega</small>${r.st.end ? fmtDate(r.st.end) : '—'}</span>
           <span>${statusChip(r)}</span>
         </div>`;
       }).join('') : '<div class="plist-empty">Nenhum projeto neste filtro.</div>'}` : `
