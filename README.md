@@ -50,6 +50,7 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 
 ```
 ├── index.html       # estrutura da página (HTML) e carregamento dos arquivos abaixo
+├── vercel.json      # /app e /app/* devolvem o index.html (um endereço por tela)
 ├── assets/css/       # app.css (estilos)
 ├── assets/js/        # JavaScript dividido por seção, carregado em ordem (NN-secao.js)
 ├── api/              # funções serverless da Vercel (integração com o Outlook)

@@ -1,3 +1,15 @@
+## [1.12.0] - 2026-10-30 19:30
+
+### Added
+
+#### Navegação
+
+- A aplicação passa a viver em `/app`, com um endereço por tela: `/app/resumo`, `/app/tarefas`, `/app/notas`, `/app/calendario`, `/app/projetos`, `/app/configuracoes`. O endereço acompanha a tela, o botão voltar/avançar do navegador funciona e recarregar mantém a tela. O título da aba mostra a tela.
+- Em `/` ou `/app` abre a última tela usada (Tarefas na primeira vez); o Resumo deixa de ser a tela inicial.
+- Aberto como arquivo (sem servidor) ou hospedado fora da raiz, usa `#/tarefas` no lugar do caminho.
+- `vercel.json` com os redirecionamentos de `/app` e `/app/*` para o `index.html`; os arquivos são buscados a partir da raiz do site (`<base href="/">` quando servido por http/https).
+
+
 ## [1.11.2] - 2026-10-30 18:30
 
 ### Fixed

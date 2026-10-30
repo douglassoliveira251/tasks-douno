@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.12.0', date:'30/10/2026', title:'Um endereço para cada tela', text:'O sistema agora mora em /app, e cada tela tem seu próprio endereço: /app/tarefas, /app/notas, /app/calendario, /app/projetos e /app/configuracoes. Dá para guardar nos favoritos, e o botão voltar do navegador acompanha as telas. Ao abrir o sistema, ele vai para a última tela que você usou.' },
   { version:'1.11.2', date:'30/10/2026', title:'Subtarefas no lugar certo', text:'Ao desmarcar uma subtarefa, ela volta para a posição em que estava antes de ser concluída. Se não houver posição anterior, ela fica onde está, sem descer para o fim da lista.' },
   { version:'1.11.1', date:'30/10/2026', title:'Bastidores reorganizados', text:'O código do sistema foi dividido em vários arquivos para facilitar as próximas melhorias. Nada muda no que você vê.' },
   { version:'1.11.0', date:'30/10/2026', title:'Crie sua conta', text:'Agora dá para criar uma conta direto na tela de entrada: informe nome, e-mail e senha e confirme com o código de 6 dígitos enviado ao seu e-mail.' },

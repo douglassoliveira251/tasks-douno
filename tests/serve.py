@@ -8,6 +8,26 @@ import functools
 import socket
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
+
+APP_PREFIX = 'app'
+
+
+class Handler(SimpleHTTPRequestHandler):
+    """Como a Vercel: /app e /app/<tela> devolvem o index.html."""
+
+    def do_GET(self):
+        self._route()
+        super().do_GET()
+
+    def do_HEAD(self):
+        self._route()
+        super().do_HEAD()
+
+    def _route(self):
+        parts = urlsplit(self.path)
+        if parts.path.strip('/').split('/')[0] == APP_PREFIX:
+            self.path = '/index.html' + ('?' + parts.query if parts.query else '')
 
 
 class Server(ThreadingHTTPServer):
@@ -25,7 +45,7 @@ class Server4(ThreadingHTTPServer):
 
 if __name__ == '__main__':
     port = int(sys.argv[1])
-    handler = functools.partial(SimpleHTTPRequestHandler, directory=sys.argv[2])
+    handler = functools.partial(Handler, directory=sys.argv[2])
     try:
         httpd = Server(('::', port), handler)
     except OSError:  # sem IPv6

@@ -10,7 +10,6 @@ function loadUiSession(){
     const raw = sessionStorage.getItem('taskinUiSession');
     if(!raw) return;
     const saved = JSON.parse(raw);
-    if(saved && typeof saved.currentView === 'string' && VIEW_TITLES[saved.currentView]) currentView = saved.currentView;
     if(saved && (typeof saved.activeCategoryFilter === 'string' || saved.activeCategoryFilter === null)) activeCategoryFilter = saved.activeCategoryFilter;
   }catch(e){}
 }
@@ -22,6 +21,7 @@ const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada']
 function groupModeKey(){ return activeCategoryFilter || '__all'; }
 function render(){
   saveUiSession();
+  syncRouteToView();
   render_syncStages();
   // trocou de espaço (ou acabou de abrir): usa o agrupamento guardado para ele
   if(groupModeKey() !== lastGroupModeKey){
