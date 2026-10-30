@@ -1,3 +1,12 @@
+## [1.12.1] - 2026-10-30 20:30
+
+### Changed
+
+#### Código
+
+- `renderTaskPanel` (838 linhas numa função só) dividida em `taskPanelHtml` (monta o HTML) e oito funções `bindTp*` (menu ⋮, cabeçalho, espaço/agendas/notas, descrição/anexos, datas, prioridade/etiquetas, recorrência/subtarefas, comentários), em cinco arquivos `17`–`21-painel-lateral-*.js`. A ordem de ligação dos eventos é a mesma de antes; sem mudança de comportamento.
+
+
 ## [1.12.0] - 2026-10-30 19:30
 
 ### Added
