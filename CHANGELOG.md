@@ -1,3 +1,18 @@
+## [1.11.2] - 2026-10-30 18:30
+
+### Fixed
+
+#### Tarefas
+
+- Subtarefa: desmarcar não manda mais a subtarefa para o fim da lista. Ela volta ao lugar em que estava antes de ser concluída (a posição fica guardada na própria tarefa, então vale também depois de recarregar e entre dispositivos); sem posição guardada, ela permanece onde está.
+
+### Changed
+
+#### Código
+
+- Arquivos grandes divididos por área (de 26 para 45 arquivos em `assets/js/`): calendário (vistas e eventos), notas, perfil e configurações, portais de tarefa, painel lateral, projetos, login e busca/notificações. Conteúdo idêntico ao original, validado por teste de carregamento sem erros.
+
+
 ## [1.11.1] - 2026-10-30 17:30
 
 ### Changed
