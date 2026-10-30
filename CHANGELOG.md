@@ -1,3 +1,12 @@
+## [1.10.202] - 2026-10-30 14:00
+
+### Added
+
+#### Calendário
+
+- Feriados nacionais do Brasil (fixos, Sexta-feira Santa, Carnaval e Corpus Christi, calculados pela Páscoa) no Mês, Semana e Dia. Liga e desliga em Configurações > Personalização > Calendário.
+
+
 ## [1.10.201] - 2026-10-30 13:00
 
 ### Changed
