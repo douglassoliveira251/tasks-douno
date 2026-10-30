@@ -16,6 +16,10 @@ test('feriados nacionais: datas calculadas, mês/semana/dia e liga-desliga', asy
   await expect(page.locator('.cal-allday-hol')).toHaveText('Tiradentes');
   await expect(page.locator('.cal-week-daycol.holiday')).toHaveCount(1);
   await expect(page.locator('.cal-week-daycol.weekend')).toHaveCount(2);
+  // a faixa de dia todo também leva a raia cinza do fim de semana
+  const bg = await page.evaluate(() => { const g = s => getComputedStyle(document.querySelector(s)).backgroundColor; return [g('.cal-week-allday-cell.weekend'), g('.cal-week-daycol.weekend')]; });
+  expect(bg[0]).toBe(bg[1]);
+  expect(bg[0]).not.toBe('rgba(0, 0, 0, 0)');
   // dia
   await page.evaluate(() => { calendarView = 'day'; calendarFocusDate = '2026-04-21'; render(); });
   await expect(page.locator('.cal-hol-chip')).toContainText('Tiradentes');

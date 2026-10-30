@@ -1,3 +1,12 @@
+## [1.10.204] - 2026-10-30 15:30
+
+### Fixed
+
+#### Calendário
+
+- Semana: a faixa de compromissos de dia todo passa a mostrar a raia cinza no sábado e no domingo (uma regra antiga a deixava sem cor).
+
+
 ## [1.10.203] - 2026-10-30 15:00
 
 ### Changed

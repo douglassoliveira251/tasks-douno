@@ -2317,7 +2317,6 @@
   .cal-week-daycol.holiday, .cal-week-daycol.holiday.today, .cal-week-headrow .cal-week-colhead.holiday, .cal-week-allday-cell.holiday{background:var(--cal-hl) !important;}
   .cal-week-headrow .cal-week-colhead.holiday span{color:var(--primary-dark);}
   .cal-week-headrow .cal-week-colhead.holiday.today span{color:#fff;}
-  .cal-week-allday-cell.weekend{background:transparent !important;}
   .cal-week-hour-line{opacity:.6;}
   .cal-event-block-timed{border-radius:12px !important; border:none !important; border-left:none !important; box-shadow:none !important;}
   .cal-event-block-timed:before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:3px; background:var(--evc, currentColor); opacity:.9;}
@@ -3480,6 +3479,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.204', date:'30/10/2026', title:'Fim de semana cinza também no dia todo', text:'Na Semana, a faixa dos compromissos de dia todo agora também leva a raia cinza no sábado e no domingo.' },
   { version:'1.10.203', date:'30/10/2026', title:'Feriados em azul e fim de semana em cinza', text:'No Mês e na Semana, o dia de feriado ganha uma raia azul clarinha com o nome, e sábado e domingo uma raia cinza suave. O novo botão Camadas, no topo do calendário, liga e desliga os feriados e os facultativos.' },
   { version:'1.10.202', date:'30/10/2026', title:'Feriados nacionais no calendário', text:'O calendário agora mostra os feriados do Brasil no Mês, na Semana e no Dia (dia em vermelho com o nome). Dá para desligar em Configurações > Personalização > Calendário.' },
   { version:'1.10.201', date:'30/10/2026', title:'Novo cadastro de projeto', text:'Ao criar um projeto, o ícone aparece grande na frente do nome, e a cor e o ícone são escolhidos pelos botões redondos ao lado, sem lista de ícones ocupando a tela.' },
@@ -7295,7 +7295,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.203';
+const APP_VERSION = '1.10.204';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
