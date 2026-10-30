@@ -1,3 +1,22 @@
+## [1.11.0] - 2026-10-30 17:00
+
+### Added
+
+#### Conta
+
+- Cadastro próprio na tela de entrada (aba "Criar conta"): nome, e-mail, senha com indicador de força e aceite dos termos.
+- Confirmação do e-mail por código de 6 dígitos, com campos que avançam sozinhos, suporte a colar o código e reenvio com espera de 60 s.
+- Quem tenta entrar com e-mail ainda não confirmado é levado direto à tela do código.
+
+### Changed
+
+- Acesso liberado a qualquer conta confirmada (a lista fixa de e-mails permitidos foi removida).
+
+### Fixed
+
+- Cache local agora pertence a uma conta: ao entrar com outra conta no mesmo navegador, os dados da anterior não são herdados nem enviados à nuvem; ao sair, o cache é limpo.
+
+
 ## [1.10.206] - 2026-10-30 16:30
 
 ### Changed

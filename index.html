@@ -2645,6 +2645,22 @@
     color:var(--ink-faint); font-size:13px;
   }
   .login-forgot-btn:hover{color:var(--primary); text-decoration:underline;}
+  .login-tabs{display:flex; background:var(--surface-2); border-radius:12px; padding:3px; margin-top:22px;}
+  .login-tab{flex:1; height:36px; border:none; background:none; border-radius:9px; font-size:13.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .login-tab.active{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.12);}
+  .login-tabs + .login-form{margin-top:18px;}
+  .login-strength{display:flex; gap:4px; margin-top:8px;}
+  .login-strength i{flex:1; height:4px; border-radius:3px; background:var(--border);}
+  .login-strength i.warn{background:#F59E0B;}
+  .login-strength i.on{background:#16A34A;}
+  .login-hint{font-size:12px; color:var(--ink-faint); margin-top:6px;}
+  .login-terms{display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--ink-soft); line-height:1.4; margin-top:16px; cursor:pointer;}
+  .login-terms input{width:16px; height:16px; margin:1px 0 0; accent-color:var(--primary); flex:none;}
+  .login-mail-ic{width:46px; height:46px; border-radius:13px; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; margin-bottom:16px;}
+  .login-otp{display:flex; gap:8px; margin-top:4px;}
+  .login-otp input{flex:1; min-width:0; width:100%; height:52px; text-align:center; font-size:21px; font-weight:700; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); color:var(--ink); padding:0;}
+  .login-otp input:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light);}
+  .login-forgot-btn:disabled{opacity:.6; cursor:default; text-decoration:none; color:var(--ink-faint);}
 
   .cat-row{
     display:flex; align-items:center; gap:10px; margin-bottom:8px;
@@ -3232,18 +3248,21 @@
 const LS_KEY = 'tyvraTasksState';
 const DEFAULT_COLORS = ['#E2A83D','#2F6F5E','#4A6FA5','#9B5DE5','#C0453A','#3D8B8B','#B5838D'];
 
-let state = {
-  profile: { name: '', email: '', avatar: null },
-  categories: [{ id: 'cat_geral', name: 'Geral', color: '#2F6F5E' }],
-  tags: [],
-  tasks: [],
-  notes: [],
-  events: [],
-  uiGroupCollapse: {},
-  showCompletedTasks: false,
-  taskIdCounter: 0,
-  theme: 'light'
-};
+function freshState(){
+  return {
+    profile: { name: '', email: '', avatar: null },
+    categories: [{ id: 'cat_geral', name: 'Geral', color: '#2F6F5E' }],
+    tags: [],
+    tasks: [],
+    notes: [],
+    events: [],
+    uiGroupCollapse: {},
+    showCompletedTasks: false,
+    taskIdCounter: 0,
+    theme: 'light'
+  };
+}
+let state = freshState();
 
 let currentView = 'dashboard';
 let calendarView = 'month'; // 'month' | 'week' | 'day'
@@ -3279,11 +3298,20 @@ const sbClient = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
   : null;
 let cloudSession = null;
 
-/* Ainda não há cadastro próprio: só os e-mails desta lista entram, mesmo que
-   exista outra conta no projeto. */
-const ALLOWED_EMAILS = ['douglas.soliveira+tasks@outlook.com.br'];
-function isEmailAllowed(email){
-  return !!email && ALLOWED_EMAILS.includes(String(email).trim().toLowerCase());
+/* O cache local (localStorage) pertence a uma conta. Quem entra com outra conta no
+   mesmo navegador começa do zero, em vez de herdar (e subir para a nuvem) os dados
+   da conta anterior. Cache antigo, sem dono registrado, é da conta original. */
+const LS_OWNER_KEY = 'tyvraTasksOwner';
+const LEGACY_OWNER_EMAIL = 'douglas.soliveira+tasks@outlook.com.br';
+function claimLocalCache(user){
+  let owner = null;
+  try{ owner = localStorage.getItem(LS_OWNER_KEY); }catch(e){}
+  const legacy = !owner && String(user.email || '').trim().toLowerCase() === LEGACY_OWNER_EMAIL;
+  if(owner !== user.id && !legacy){
+    state = freshState();
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  }
+  try{ localStorage.setItem(LS_OWNER_KEY, user.id); }catch(e){}
 }
 
 /* ===================== OUTLOOK (Microsoft Graph, via API server-side) =====================
@@ -3480,6 +3508,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.11.0', date:'30/10/2026', title:'Crie sua conta', text:'Agora dá para criar uma conta direto na tela de entrada: informe nome, e-mail e senha e confirme com o código de 6 dígitos enviado ao seu e-mail.' },
   { version:'1.10.206', date:'30/10/2026', title:'Fim de semana mais marcado', text:'A raia cinza de sábado e domingo no calendário ficou um pouco mais escura, para se destacar melhor dos dias úteis.' },
   { version:'1.10.205', date:'30/10/2026', title:'Semana alinhada', text:'Na Semana, o cabeçalho dos dias e a faixa de dia todo agora ficam alinhados com as colunas da grade de horas. A raia cinza do fim de semana ficou ainda mais suave.' },
   { version:'1.10.204', date:'30/10/2026', title:'Fim de semana cinza também no dia todo', text:'Na Semana, a faixa dos compromissos de dia todo agora também leva a raia cinza no sábado e no domingo.' },
@@ -7298,7 +7327,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.206';
+const APP_VERSION = '1.11.0';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -11811,11 +11840,17 @@ async function writeStateToCloud(){
 }
 
 async function startCloudSession(){
+  claimLocalCache(cloudSession.user);
   try{
     await loadStateFromCloud();
   }catch(e){ console.error('Erro ao carregar dados da nuvem', e); }
   if(cloudSession.user.email && state.profile.email !== cloudSession.user.email){
     state.profile.email = cloudSession.user.email;
+  }
+  const metaName = cloudSession.user.user_metadata && cloudSession.user.user_metadata.name;
+  if(metaName && !state.profile.name){
+    state.profile.name = String(metaName).trim().slice(0, 80);
+    markDirty();
   }
   applyTheme();
   if(state.defaultCategoryFilter) activeCategoryFilter = state.defaultCategoryFilter;
@@ -11845,8 +11880,109 @@ function dounoIconSvg(color){
 }
 const DOUNO_WORDMARK_SRC = document.querySelector('.sidebar-wordmark-img').getAttribute('src');
 
+let loginMode = 'login'; // 'login' | 'signup' | 'verify'
+let signupDraft = { name: '', email: '', terms: false };
+let resendUntil = 0;
+let resendTimer = null;
+
+const LOGIN_EYE_OPEN = '<svg id="loginPwEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const LOGIN_EYE_CLOSED = '<svg id="loginPwEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.4 21.4 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.4 21.4 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+const LOGIN_ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+const LOGIN_MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px; height:22px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+
+function loginErrorText(err){
+  const code = err && err.code ? String(err.code) : '';
+  const msg = err && err.message ? String(err.message) : '';
+  if(code === 'user_already_exists' || /already registered/i.test(msg)) return 'Este e-mail já tem conta. Entre ou use "Esqueci minha senha".';
+  if(code === 'weak_password') return 'Senha fraca. Use 8 ou mais caracteres, com letras e números.';
+  if(code === 'email_address_invalid') return 'E-mail inválido.';
+  if(code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' || (err && err.status === 429)) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
+  if(code === 'otp_expired' || /expired or is invalid/i.test(msg)) return 'Código inválido ou expirado. Peça um novo.';
+  return 'Não foi possível concluir agora. Tente de novo.';
+}
+function passwordIssue(pw){
+  if(pw.length < 8 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) return 'Use 8 ou mais caracteres, com letras e números.';
+  return '';
+}
+function passwordStrength(pw){
+  let s = 0;
+  if(pw.length >= 8) s++;
+  if(/[A-Za-z]/.test(pw) && /\d/.test(pw)) s++;
+  if(pw.length >= 12) s++;
+  if(/[^A-Za-z0-9]/.test(pw) && /[A-Z]/.test(pw)) s++;
+  return s;
+}
+
+function loginPasswordFieldHtml(autocomplete){
+  return `<div class="login-field">
+    <label for="loginPassword">Senha</label>
+    <div class="login-password-wrap">
+      <input type="password" id="loginPassword" required autocomplete="${autocomplete}">
+      <button type="button" class="login-password-toggle" id="loginPasswordToggle" aria-label="Mostrar senha">${LOGIN_EYE_OPEN}${LOGIN_EYE_CLOSED}</button>
+    </div>
+  </div>`;
+}
+function loginTabsHtml(){
+  return `<div class="login-tabs" role="tablist">
+    <button type="button" class="login-tab${loginMode === 'login' ? ' active' : ''}" data-mode="login" role="tab">Entrar</button>
+    <button type="button" class="login-tab${loginMode === 'signup' ? ' active' : ''}" data-mode="signup" role="tab">Criar conta</button>
+  </div>`;
+}
+
 function renderLoginGate(errorMsg){
   const body = document.getElementById('loginModalBody');
+  clearInterval(resendTimer);
+  const err = errorMsg ? `<div class="login-error">${LOGIN_ERR_ICON}<span>${escapeHtml(errorMsg)}</span></div>` : '';
+  let inner;
+  if(loginMode === 'verify'){
+    inner = `
+      <div class="login-mail-ic">${LOGIN_MAIL_ICON}</div>
+      <h1 class="login-title">Confirme seu e-mail</h1>
+      <p class="login-subtitle">Enviamos um código de 6 dígitos para <b>${escapeHtml(signupDraft.email)}</b>.</p>
+      <form id="verifyForm" class="login-form" novalidate>
+        <div class="login-otp" id="loginOtp">${[0,1,2,3,4,5].map(i => `<input type="text" inputmode="numeric" autocomplete="${i === 0 ? 'one-time-code' : 'off'}" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
+        ${err}
+        <button type="submit" class="btn login-submit-btn" id="verifySubmitBtn">Confirmar</button>
+        <button type="button" id="loginResendBtn" class="login-forgot-btn"></button>
+        <button type="button" id="loginBackBtn" class="login-forgot-btn" style="margin-top:4px;">E-mail errado? Voltar</button>
+      </form>`;
+  } else if(loginMode === 'signup'){
+    inner = `
+      <h1 class="login-title">Criar conta</h1>
+      <p class="login-subtitle">Leva menos de um minuto.</p>
+      ${loginTabsHtml()}
+      <form id="signupForm" class="login-form" novalidate>
+        <div class="login-field">
+          <label for="signupName">Nome</label>
+          <input type="text" id="signupName" required autocomplete="name" maxlength="80" value="${escapeHtml(signupDraft.name)}">
+        </div>
+        <div class="login-field">
+          <label for="signupEmail">E-mail</label>
+          <input type="email" id="signupEmail" required autocomplete="username" value="${escapeHtml(signupDraft.email)}">
+        </div>
+        ${loginPasswordFieldHtml('new-password')}
+        <div class="login-strength" id="loginStrength"><i></i><i></i><i></i><i></i></div>
+        <div class="login-hint">Use 8 ou mais caracteres, com letras e números.</div>
+        <label class="login-terms"><input type="checkbox" id="signupTerms"${signupDraft.terms ? ' checked' : ''}><span>Li e aceito os Termos de Uso e a Política de Privacidade.</span></label>
+        ${err}
+        <button type="submit" class="btn login-submit-btn" id="signupSubmitBtn">Criar conta</button>
+      </form>`;
+  } else {
+    inner = `
+      <h1 class="login-title">Entrar</h1>
+      <p class="login-subtitle">Acesse sua conta do Douno Tasks.</p>
+      ${loginTabsHtml()}
+      <form id="loginForm" class="login-form" novalidate>
+        <div class="login-field">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" required autocomplete="username">
+        </div>
+        ${loginPasswordFieldHtml('current-password')}
+        ${err}
+        <button type="submit" class="btn login-submit-btn" id="loginSubmitBtn">Entrar</button>
+        <button type="button" id="loginForgotBtn" class="login-forgot-btn">Esqueci minha senha</button>
+      </form>`;
+  }
   body.innerHTML = `
     <aside class="login-aside">
       <div class="login-aside-brand login-brand-lockup"><img class="login-wordmark-img" src="${DOUNO_WORDMARK_SRC}" alt="Douno"><span class="login-brand-sub">Tasks</span></div>
@@ -11860,38 +11996,28 @@ function renderLoginGate(errorMsg){
     <div class="login-main">
       <div class="login-main-inner">
         <div class="login-mobile-brand login-brand-lockup"><img class="login-wordmark-img" src="${DOUNO_WORDMARK_SRC}" alt="Douno"><span class="login-brand-sub">Tasks</span></div>
-        <h1 class="login-title">Entrar</h1>
-        <p class="login-subtitle">Acesse sua conta do Douno Tasks.</p>
-        <form id="loginForm" class="login-form" novalidate>
-          <div class="login-field">
-            <label for="loginEmail">E-mail</label>
-            <input type="email" id="loginEmail" required autocomplete="username">
-          </div>
-          <div class="login-field">
-            <label for="loginPassword">Senha</label>
-            <div class="login-password-wrap">
-              <input type="password" id="loginPassword" required autocomplete="current-password">
-              <button type="button" class="login-password-toggle" id="loginPasswordToggle" aria-label="Mostrar senha">
-                <svg id="loginPwEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg id="loginPwEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.4 21.4 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.4 21.4 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>
-              </button>
-            </div>
-          </div>
-          ${errorMsg ? `<div class="login-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span>${escapeHtml(errorMsg)}</span></div>` : ''}
-          <button type="submit" class="btn login-submit-btn" id="loginSubmitBtn">Entrar</button>
-          <button type="button" id="loginForgotBtn" class="login-forgot-btn">Esqueci minha senha</button>
-        </form>
+        ${inner}
       </div>
     </div>
   `;
-  document.getElementById('loginPasswordToggle').onclick = () => {
+  document.querySelectorAll('.login-tab').forEach(b => {
+    b.onclick = () => { loginMode = b.dataset.mode; renderLoginGate(); };
+  });
+  const toggle = document.getElementById('loginPasswordToggle');
+  if(toggle) toggle.onclick = () => {
     const input = document.getElementById('loginPassword');
     const isPw = input.type === 'password';
     input.type = isPw ? 'text' : 'password';
     document.getElementById('loginPwEyeOpen').style.display = isPw ? 'none' : 'block';
     document.getElementById('loginPwEyeClosed').style.display = isPw ? 'block' : 'none';
-    document.getElementById('loginPasswordToggle').setAttribute('aria-label', isPw ? 'Ocultar senha' : 'Mostrar senha');
+    toggle.setAttribute('aria-label', isPw ? 'Ocultar senha' : 'Mostrar senha');
   };
+  if(loginMode === 'verify') bindLoginVerify();
+  else if(loginMode === 'signup') bindLoginSignup();
+  else bindLoginSignin();
+}
+
+function bindLoginSignin(){
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -11902,15 +12028,17 @@ function renderLoginGate(errorMsg){
     try{
       const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
       if(error) throw error;
-      if(!isEmailAllowed(data.session.user.email)){
-        await sbClient.auth.signOut();
-        renderLoginGate('Esta conta não tem acesso ao DOUNO Tasks.');
-        return;
-      }
       cloudSession = data.session;
       await startCloudSession();
     }catch(err){
       console.error(err);
+      if(err && err.code === 'email_not_confirmed'){
+        signupDraft.email = email;
+        loginMode = 'verify';
+        try{ await sbClient.auth.resend({ type: 'signup', email }); resendUntil = Date.now() + 60000; }catch(e2){ console.error(e2); }
+        renderLoginGate();
+        return;
+      }
       renderLoginGate('E-mail ou senha inválidos.');
     }
   });
@@ -11924,6 +12052,111 @@ function renderLoginGate(errorMsg){
     }catch(err){
       console.error(err);
       renderLoginGate('Não foi possível enviar o e-mail de redefinição agora.');
+    }
+  };
+}
+
+function bindLoginSignup(){
+  const pw = document.getElementById('loginPassword');
+  const bars = document.querySelectorAll('#loginStrength i');
+  pw.addEventListener('input', () => {
+    const s = passwordStrength(pw.value);
+    bars.forEach((b, i) => { b.className = i < s ? (s <= 2 ? 'warn' : 'on') : ''; });
+  });
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = pw.value;
+    const terms = document.getElementById('signupTerms').checked;
+    signupDraft = { name, email, terms };
+    if(!name){ renderLoginGate('Informe seu nome.'); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ renderLoginGate('Informe um e-mail válido.'); return; }
+    const issue = passwordIssue(password);
+    if(issue){ renderLoginGate(issue); return; }
+    if(!terms){ renderLoginGate('Aceite os Termos e a Política de Privacidade para continuar.'); return; }
+    const btn = document.getElementById('signupSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Criando...';
+    try{
+      const { data, error } = await sbClient.auth.signUp({ email, password, options: { data: { name } } });
+      if(error) throw error;
+      if(data.session){
+        cloudSession = data.session;
+        await startCloudSession();
+        return;
+      }
+      loginMode = 'verify';
+      resendUntil = Date.now() + 60000;
+      renderLoginGate();
+    }catch(err){
+      console.error(err);
+      renderLoginGate(loginErrorText(err));
+    }
+  });
+}
+
+function bindLoginVerify(){
+  const inputs = Array.from(document.querySelectorAll('#loginOtp input'));
+  const submit = async () => {
+    const token = inputs.map(i => i.value).join('');
+    if(token.length < 6) return;
+    inputs.forEach(i => { i.disabled = true; });
+    const btn = document.getElementById('verifySubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Confirmando...';
+    try{
+      const { data, error } = await sbClient.auth.verifyOtp({ email: signupDraft.email, token, type: 'signup' });
+      if(error) throw error;
+      cloudSession = data.session;
+      await startCloudSession();
+    }catch(err){
+      console.error(err);
+      renderLoginGate(loginErrorText(err));
+    }
+  };
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '').slice(-1);
+      if(inp.value && inputs[i + 1]) inputs[i + 1].focus();
+      if(inputs.every(x => x.value)) submit();
+    });
+    inp.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Backspace' && !inp.value && inputs[i - 1]){ inputs[i - 1].value = ''; inputs[i - 1].focus(); }
+    });
+    inp.addEventListener('paste', (ev) => {
+      const digits = ((ev.clipboardData || window.clipboardData).getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if(!digits) return;
+      ev.preventDefault();
+      inputs.forEach((x, k) => { x.value = digits[k] || ''; });
+      (inputs[Math.min(digits.length, 5)]).focus();
+      if(digits.length === 6) submit();
+    });
+  });
+  inputs[0].focus();
+  document.getElementById('verifyForm').addEventListener('submit', (e) => { e.preventDefault(); submit(); });
+  document.getElementById('loginBackBtn').onclick = () => { loginMode = 'signup'; renderLoginGate(); };
+  const rb = document.getElementById('loginResendBtn');
+  const tick = () => {
+    const s = Math.ceil((resendUntil - Date.now()) / 1000);
+    if(s > 0){ rb.disabled = true; rb.textContent = 'Reenviar código (' + s + 's)'; }
+    else { rb.disabled = false; rb.textContent = 'Reenviar código'; clearInterval(resendTimer); }
+  };
+  tick();
+  resendTimer = setInterval(tick, 500);
+  rb.onclick = async () => {
+    rb.disabled = true;
+    try{
+      const { error } = await sbClient.auth.resend({ type: 'signup', email: signupDraft.email });
+      if(error) throw error;
+      resendUntil = Date.now() + 60000;
+      showToast('Novo código enviado.');
+      clearInterval(resendTimer);
+      resendTimer = setInterval(tick, 500);
+      tick();
+    }catch(err){
+      console.error(err);
+      renderLoginGate(loginErrorText(err));
     }
   };
 }
@@ -11987,6 +12220,9 @@ async function disconnectFile(e){
       try{ await sbClient.auth.signOut(); }catch(e2){ console.error(e2); }
       cloudSession = null;
       dirty = false;
+      try{ localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_OWNER_KEY); }catch(e3){}
+      state = freshState();
+      loginMode = 'login';
       renderLoginGate();
       document.getElementById('loginOverlay').classList.add('show');
     }, 'Sair');
@@ -12608,13 +12844,6 @@ async function boot(){
     try{
       const { data } = await sbClient.auth.getSession();
       if(data && data.session){
-        if(!isEmailAllowed(data.session.user.email)){
-          await sbClient.auth.signOut();
-          render();
-          renderLoginGate('Esta conta não tem acesso ao DOUNO Tasks.');
-          document.getElementById('loginOverlay').classList.add('show');
-          return;
-        }
         cloudSession = data.session;
         await startCloudSession();
         return;
