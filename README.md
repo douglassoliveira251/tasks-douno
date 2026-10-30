@@ -49,7 +49,9 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 ## 📁 Estrutura do projeto
 
 ```
-├── index.html       # aplicação completa (HTML + CSS + JS em um único arquivo)
+├── index.html       # estrutura da página (HTML) e carregamento dos arquivos abaixo
+├── assets/css/       # app.css (estilos)
+├── assets/js/        # JavaScript dividido por seção, carregado em ordem (NN-secao.js)
 ├── api/              # funções serverless da Vercel (integração com o Outlook)
 ├── tests/            # testes automatizados (Playwright) — não afeta o deploy
 ├── CHANGELOG.md      # histórico de versões
@@ -58,7 +60,7 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 
 ## ✅ Testes
 
-Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json` — não interferem no deploy do `index.html`, que continua sem build step.
+Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json` — não interferem no deploy, que continua sem build step (arquivos estáticos).
 
 ```bash
 cd tests

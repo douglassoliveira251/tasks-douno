@@ -10,7 +10,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'python -m http.server 8724 --directory ..',
+    command: 'python serve.py 8724 ..',
     url: 'http://localhost:8724/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 20000,

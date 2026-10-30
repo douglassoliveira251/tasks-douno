@@ -1,3 +1,13 @@
+## [1.11.1] - 2026-10-30 17:30
+
+### Changed
+
+#### Código
+
+- `index.html` deixou de ser um arquivo único de ~12 mil linhas: o CSS foi para `assets/css/app.css` e o JavaScript foi dividido em `assets/js/NN-secao.js` (26 arquivos, um por seção, carregados em ordem), sem mudança de comportamento. O conteúdo extraído é idêntico ao original.
+- A versão do sistema passou para `assets/js/00-versao.js`; a checagem de atualização lê esse arquivo e, ao atualizar, recarrega também o CSS e os scripts.
+
+
 ## [1.11.0] - 2026-10-30 17:00
 
 ### Added
