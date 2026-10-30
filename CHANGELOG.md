@@ -1,3 +1,13 @@
+## [1.14.1] - 2026-10-30 23:50
+
+### Changed
+
+#### Painel da tarefa
+
+- O chip do projeto sai da linha do Espaço (onde era cortado na borda do painel) e passa para a linha de "Criada em …". O nome encurta com reticências e o nome completo (projeto · etapa) aparece ao passar o mouse.
+- Clicar no chip abre um menu com "Ir até o projeto", que fecha o painel e abre o projeto. Trocar de projeto/etapa e desvincular ficam só no menu ⋮ (o × do chip foi removido).
+
+
 ## [1.14.0] - 2026-10-30 23:30
 
 ### Changed

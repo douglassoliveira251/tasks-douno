@@ -182,13 +182,6 @@ export function bindTpSpaceAndLinks(panel, task){
     openNoteComposer(null, t.id);
   };
 
-  const tpProjChipX = document.getElementById('tpProjChipX');
-  if(tpProjChipX) tpProjChipX.onclick = (e) => {
-    e.stopPropagation();
-    const t = getOrCreateActiveTask(); if(!t) return;
-    t.projectId = null; t.stageId = null;
-    markDirty();
-  };
 }
 
 /* Descrição e anexos. */

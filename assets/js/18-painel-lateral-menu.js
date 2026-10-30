@@ -3,7 +3,7 @@ import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, uid } from './10-helpers.js';
 import { closeAllTaskMenus, ensureTaskMenuPortal, openConfirmPortal } from './13-portais-de-tarefa.js';
 import { closeTaskPanel, getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
-import { clampToStage, projectById } from './31-projetos.js';
+import { clampToStage, defaultProjectTab, projectById } from './31-projetos.js';
 import { createTaskFromTemplate, openTemplateEditor, templateFromTask, templatesForSpace } from './35-templates-de-tarefa.js';
 import { render } from './48-render-principal.js';
 
@@ -138,12 +138,23 @@ export function bindTpMenu(panel, task){
   const tpProjChipEl = document.getElementById('tpProjChip');
   if(tpProjChipEl){
     tpProjChipEl.onclick = (e) => {
-      if(e.target.closest('#tpProjChipX')) return;
       e.stopPropagation();
+      const portal = ensureTaskMenuPortal();
+      if(portal.classList.contains('show') && portal.querySelector('[data-m="goproj"]')){ closeAllTaskMenus(); return; }
       closeAllTaskMenus();
       menuAnchor = tpProjChipEl;
-      showStageList(task.projectId);
-      ensureTaskMenuPortal().classList.add('show');
+      portal.innerHTML = `<button type="button" class="task-menu-item" data-m="goproj">${ICO_PROJ}Ir até o projeto</button>`;
+      placeMenu(portal, tpProjChipEl);
+      portal.classList.add('show');
+      portal.querySelector('[data-m="goproj"]').onclick = (ev) => {
+        ev.stopPropagation();
+        const projectId = task.projectId;
+        closeAllTaskMenus();
+        closeTaskPanel(true);
+        G.activeProjectId = projectId; G.projectTab = defaultProjectTab(); G.selectedStageId = null;
+        G.currentView = 'projects';
+        render();
+      };
     };
   }
   tpMenuBtn.onclick = (e) => {

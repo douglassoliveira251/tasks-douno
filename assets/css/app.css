@@ -1077,7 +1077,9 @@
     display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 10px; border-radius:20px; font-size:12px; font-weight:600;
     background:var(--primary-light); color:var(--primary-dark); white-space:nowrap; max-width:260px;
   }
-  .tp-proj-chip{min-width:0; max-width:100%;}
+  .tp-proj-chip{min-width:0; max-width:100%; border:none; font-family:inherit; padding:3px 10px 3px 8px; font-size:11.5px; cursor:pointer;}
+  .tp-created-line{display:flex; align-items:center; gap:10px; min-width:0; margin-top:3px;}
+  .tp-created-line .tp-created-at{white-space:nowrap; margin-top:0; flex:none;}
   .tp-proj-chip-t{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .tp-proj-chip button{flex:none;}
   .tp-proj-chip svg{width:12px; height:12px; flex-shrink:0;}
@@ -1440,6 +1442,7 @@
   .task-panel .tp-label span{text-transform:none; letter-spacing:0; font-size:11px; font-weight:400;}
   .task-panel .tp-name-input{font-size:20px; font-weight:600; letter-spacing:-.01em; height:36px; line-height:36px;}
   .task-panel .tp-created-at{font-size:11.5px; margin-top:3px;}
+  .task-panel .tp-created-line .tp-created-at{margin-top:0;}
   .task-panel .tp-field{margin-bottom:14px;}
   .task-panel .tp-select, .task-panel .tp-input, .task-panel .tp-textarea{
     background:var(--surface-2); border:1px solid transparent; border-radius:12px; padding:10px 12px;

@@ -149,7 +149,7 @@ test('lista de projetos: filtros por situação', async ({ page }) => {
   await expect(page.locator('.plist-row')).toContainText('Em dia');
 });
 
-test('tarefa de projeto: desvincular pela etiqueta e criar tarefa pelo projeto', async ({ page }) => {
+test('tarefa de projeto: desvincular pelo menu ⋮ e criar tarefa pelo projeto', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'projects' });
   await page.evaluate((src) => { eval('(' + src + ')')(); activeProjectId = 'p1'; currentView = 'projects'; render(); }, seed.toString());
@@ -157,7 +157,8 @@ test('tarefa de projeto: desvincular pela etiqueta e criar tarefa pelo projeto',
   const t = await page.evaluate(() => state.tasks[state.tasks.length - 1]);
   expect(t.projectId).toBe('p1');
   await expect(page.locator('#tpProjChip')).toContainText('Construção da casa');
-  await page.locator('#tpProjChipX').click();
+  await page.locator('#tpMenuBtn').click();
+  await page.locator('[data-m="unproj"]').click();
   expect(await page.evaluate((id) => state.tasks.find(x => x.id === id).projectId, t.id)).toBeNull();
   await expect(page.locator('#tpProjChip')).toHaveCount(0);
 });
@@ -211,8 +212,10 @@ test('trocar a etapa pelo chip e arrastando na linha do tempo', async ({ page })
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'tasks' });
   await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'tasks'; activeTaskId = 'c'; render(); }, seed.toString());
-  // chip do projeto abre a lista de etapas (a atual marcada) sem precisar desvincular
-  await page.locator('#tpProjChip').click();
+  // menu ⋮ → "Mudar de projeto/etapa" abre a lista de etapas (a atual marcada) sem precisar desvincular
+  await page.locator('#tpMenuBtn').click();
+  await page.locator('[data-m="proj"]').click();
+  await page.locator('[data-p="p1"]').click();
   await expect(page.locator('.task-menu-item.current')).toContainText('Estrutura');
   await page.locator('[data-s="s3"]').click();
   expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').stageId)).toBe('s3');
@@ -224,6 +227,20 @@ test('trocar a etapa pelo chip e arrastando na linha do tempo', async ({ page })
   const stageRow = page.locator('.gantt-row[data-id="s2"]');
   await task.dragTo(stageRow);
   expect(await page.evaluate(() => state.tasks.find(t => t.id === 'c').stageId)).toBe('s2');
+});
+
+test('chip do projeto: "Ir até o projeto" abre o projeto; nome longo encurta', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'tasks'; activeTaskId = 'c'; state.projects[0].name = 'Actualización de SKUs VMs Azure · Ola 2 - DEV y QA con un nombre larguísimo para forzar el corte'; render(); }, seed.toString());
+  const chip = page.locator('#tpProjChip');
+  await expect(chip).toBeVisible();
+  const cut = await chip.evaluate(el => { const t = el.querySelector('.tp-proj-chip-t'); return t.scrollWidth > t.clientWidth && el.getBoundingClientRect().right <= el.closest('.task-panel').getBoundingClientRect().right; });
+  expect(cut).toBe(true);
+  await chip.click();
+  await expect(page.locator('.task-menu-item')).toHaveCount(1);
+  await page.locator('[data-m="goproj"]').click();
+  expect(await page.evaluate(() => [currentView, activeProjectId, activeTaskId])).toEqual(['projects', 'p1', null]);
 });
 
 test('datas da etapa vêm das tarefas (sem campos de data no formulário)', async ({ page }) => {

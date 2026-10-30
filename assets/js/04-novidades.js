@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.14.1', date:'30/10/2026', title:'Projeto da tarefa sempre visível', text:'O projeto agora aparece ao lado de "Criada em", no topo do painel, e o nome longo é encurtado com reticências em vez de ser cortado. Ao clicar nele, "Ir até o projeto" abre o projeto. Trocar de projeto/etapa e desvincular continuam no menu ⋮.' },
   { version:'1.14.0', date:'30/10/2026', title:'Carregamento mais rápido', text:'O sistema agora é empacotado e compactado antes de ser publicado: abre mais rápido e as atualizações chegam sem ficar presas em versões antigas guardadas pelo navegador.' },
   { version:'1.13.0', date:'30/10/2026', title:'Sistema modularizado', text:'O código do sistema agora é feito de módulos de verdade, o que deixa as próximas melhorias mais seguras e rápidas de fazer. Nada muda no que você vê.' },
   { version:'1.12.2', date:'30/10/2026', title:'Resumo é a página inicial', text:'O Resumo agora abre em /app, e o sistema sempre começa por ele. Tarefas, notas, calendário, projetos e configurações continuam com endereço próprio.' },
