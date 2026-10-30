@@ -10,6 +10,6 @@ test('a página carrega todos os arquivos sem erro', async ({ page }) => {
   await page.waitForFunction(() => typeof render === 'function' && typeof boot === 'function');
   await page.waitForTimeout(500);
   expect(errors).toEqual([]);
-  const entry = await page.evaluate(() => Array.from(document.querySelectorAll('script[type="module"][src$="main.js"]')).length);
+  const entry = await page.evaluate(() => Array.from(document.querySelectorAll('script[type="module"][src]')).length);
   expect(entry).toBe(1);
 });

@@ -29,11 +29,14 @@ Nenhum dado é enviado para fora do seu navegador.
 
 ### Opção 1 — Rodar localmente
 
-O código é feito de módulos ES, que o navegador não carrega a partir de um arquivo aberto direto (`file://`). Sirva a pasta com qualquer servidor estático e abra `http://localhost:8000/app`, por exemplo:
+O código é feito de módulos ES e é empacotado com [Vite](https://vite.dev). Na raiz do projeto:
 
 ```bash
-python -m http.server 8000
+npm install
+npm run dev
 ```
+
+e abra o endereço mostrado (por exemplo `http://localhost:5173/app`). O navegador não carrega módulos a partir de um arquivo aberto direto (`file://`). Para gerar a versão publicada: `npm run build` (saída em `dist/`) e `npm run preview` para vê-la.
 
 Chrome ou Edge são recomendados, para suporte completo à File System Access API.
 
@@ -56,7 +59,8 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 
 ```
 ├── index.html       # estrutura da página (HTML) e carregamento dos arquivos abaixo
-├── vercel.json      # /app e /app/* devolvem o index.html (um endereço por tela)
+├── vercel.json      # build (Vite), cache dos arquivos com hash e /app, /app/* → index.html
+├── vite.config.mjs  # empacotamento; gera também version.json (versão publicada)
 ├── assets/css/       # app.css (estilos)
 ├── assets/js/        # módulos ES por área (NN-area.js); main.js é a entrada; globais.js guarda o estado compartilhado (G)
 ├── api/              # funções serverless da Vercel (integração com o Outlook)
@@ -67,13 +71,14 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 
 ## ✅ Testes
 
-Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json` — não interferem no deploy, que continua sem build step (arquivos estáticos; os módulos são carregados direto pelo navegador).
+Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json`. Por padrão testam os arquivos-fonte; com `TEST_DIST=1` (depois de `npm run build` na raiz) testam o resultado do build, que é o que vai ao ar.
 
 ```bash
 cd tests
 npm install
 npx playwright install chromium   # só na primeira vez
-npm test
+npm test                          # arquivos-fonte
+TEST_DIST=1 npm test              # resultado do build (rode npm run build antes)
 ```
 
 Também rodam automaticamente a cada push/PR na branch `main` (veja `.github/workflows/tests.yml`).

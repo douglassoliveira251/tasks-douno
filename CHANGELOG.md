@@ -1,3 +1,19 @@
+## [1.14.0] - 2026-10-30 23:30
+
+### Changed
+
+#### Publicação
+
+- O sistema passa a ser empacotado com **Vite** (`npm run build` → `dist/`): os 50 módulos viram um único arquivo minificado (de ~53 requisições para 3, ~115 KB comprimido), com **hash no nome** dos arquivos (`/assets/index-<hash>.js`). Cada deploy gera nomes novos, então o navegador nunca mistura versões antigas e novas.
+- `vercel.json`: `buildCommand`, `outputDirectory: dist` e cabeçalhos de cache (`/assets/*` imutável por 1 ano, `/version.json` sem cache).
+- O aviso de atualização agora compara a versão carregada com `version.json`, gerado no build; sem ele (rodando sem build) continua lendo `assets/js/00-versao.js`.
+- Para desenvolver: `npm install` e `npm run dev` na raiz (servidor do Vite, com as rotas `/app/...`).
+
+#### Testes
+
+- `TEST_DIST=1 npm test` (em `tests/`) roda a suíte contra o resultado do build; o GitHub Actions faz as duas execuções (código-fonte e build).
+
+
 ## [1.13.0] - 2026-10-30 22:30
 
 ### Changed

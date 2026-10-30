@@ -10,7 +10,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'python serve.py 8724 ..',
+    // TEST_DIST=1: testa o resultado do build (npm run build na raiz) em vez dos arquivos-fonte
+    command: process.env.TEST_DIST ? 'python serve.py 8724 ../dist' : 'python serve.py 8724 ..',
     url: 'http://localhost:8724/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 20000,

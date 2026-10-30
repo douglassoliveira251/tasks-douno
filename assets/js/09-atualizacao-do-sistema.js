@@ -24,10 +24,16 @@ export function versionIsNewer(remote, local){
   return false;
 }
 async function fetchPublishedVersion(){
-  const res = await fetch('assets/js/00-versao.js?_v=' + Date.now(), { cache: 'no-store' });
-  if(!res.ok) return null;
+  // publicado: version.json (gerado no build). Em desenvolvimento, sem build, lê o próprio arquivo da versão.
+  const res = await fetch('/version.json?_v=' + Date.now(), { cache: 'no-store' });
+  if(res.ok && (res.headers.get('content-type') || '').includes('json')){
+    const v = (await res.json()).version;
+    return /^\d+(?:\.\d+)+$/.test(v) ? v : null;
+  }
+  const src = await fetch('/assets/js/00-versao.js?_v=' + Date.now(), { cache: 'no-store' });
+  if(!src.ok) return null;
   // só números: a própria expressão (que aparece neste arquivo) não pode casar consigo mesma
-  const m = (await res.text()).match(/const APP_VERSION = '(\d+(?:\.\d+)+)'/);
+  const m = (await src.text()).match(/const APP_VERSION = '(\d+(?:\.\d+)+)'/);
   return m ? m[1] : null;
 }
 export async function checkForAppUpdate(force){
@@ -41,7 +47,7 @@ export async function checkForAppUpdate(force){
 }
 function reloadForUpdate(){
   // busca a página e os arquivos novos ignorando o cache do navegador e só então recarrega
-  const urls = [location.pathname].concat(Array.from(document.querySelectorAll('script[src^="assets/"], link[rel="stylesheet"][href^="assets/"]')).map(el => el.getAttribute('src') || el.getAttribute('href')));
+  const urls = [location.pathname].concat(Array.from(document.querySelectorAll('script[type="module"][src], link[rel="stylesheet"][href]')).map(el => el.getAttribute('src') || el.getAttribute('href')));
   Promise.all(urls.map(u => fetch(u, { cache: 'reload' }).catch(() => {}))).then(() => location.reload());
 }
 export function showUpdatePrompt(remoteVersion){
