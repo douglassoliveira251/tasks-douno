@@ -288,8 +288,12 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await page.locator('.plist-row').click();
   await page.locator('#prjMore').click();
   await page.locator('#prjEdit').click();
+  // nem ícones nem cores ficam na tela: só abrem pelos botões ao lado do nome
+  await expect(page.locator('#prjIconPop')).toBeHidden();
+  await page.locator('#prjIconBtn').click();
+  await expect(page.locator('#prjIconPop')).toBeVisible();
   await page.locator('.prj-icon-btn[data-icon="rocket"]').click();
-  // a paleta só aparece ao clicar na bolinha
+  await expect(page.locator('#prjIconPop')).toBeHidden();
   await expect(page.locator('#prjColorPop')).toBeHidden();
   await page.locator('#prjColorDot').click();
   await expect(page.locator('#prjColorPop')).toBeVisible();

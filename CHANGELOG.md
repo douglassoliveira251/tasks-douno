@@ -1,3 +1,12 @@
+## [1.10.201] - 2026-10-30 13:00
+
+### Changed
+
+#### Projetos
+
+- Cadastro do projeto: ícone grande na cor do projeto na frente do campo de nome; cor e ícone escolhidos por dois botões redondos ao lado do nome, que abrem a paleta e a grade de ícones. A lista de ícones não ocupa mais a tela.
+
+
 ## [1.10.200] - 2026-10-30 12:00
 
 ### Changed

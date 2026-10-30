@@ -885,12 +885,24 @@
   .modal.nm .prj-body{padding-top:10px;}
   .prj-row3{display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px;}
   .prj-row3 .tp-field, .prj-body .tp-field{margin-bottom:10px;}
-  .prj-iconhead{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
-  .prj-iconhead .tp-label{margin:0;}
-  .prj-colordot{width:20px; height:20px; border-radius:50%; border:2px solid var(--surface); box-shadow:0 0 0 1.5px var(--border); cursor:pointer; padding:0;}
-  .prj-colordot:hover{box-shadow:0 0 0 2px var(--ink-faint);}
-  .prj-colorpop{position:absolute; left:46px; top:26px; z-index:20; display:flex; flex-wrap:wrap; gap:8px; width:206px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:10px; box-shadow:0 12px 28px rgba(20,30,50,.2);}
-  .prj-colorpop[hidden]{display:none;}
+  .prj-headrow.big{align-items:flex-end; gap:14px; margin-top:8px;}
+  .prj-headrow.big .prj-badge{flex:none; border-radius:18px;}
+  .prj-headrow.big .prj-badge svg{width:34px; height:34px;}
+  .prj-namefld{flex:1; min-width:0;}
+  .prj-namefld > label{display:block; font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
+  .prj-namebox{position:relative; display:flex; align-items:center; gap:8px; height:68px; border-radius:16px; background:var(--surface-2); padding:0 12px 0 18px;}
+  .prj-namebox .nm-title-input{flex:1; min-width:0; font-size:19px; margin:0; padding:0; text-overflow:ellipsis;}
+  .prj-ctl{width:42px; height:42px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; padding:0; flex:none;}
+  .prj-ctl:hover, .prj-ctl.open{border-color:var(--primary); box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);}
+  .prj-ctl svg{width:18px; height:18px;}
+  .prj-colordot{display:block; width:22px; height:22px; border-radius:50%;}
+  .prj-pop{position:absolute; right:-4px; top:calc(100% + 8px); z-index:20; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:12px; box-shadow:0 12px 28px rgba(20,30,50,.2);}
+  .prj-pop[hidden]{display:none;}
+  .prj-colorpop{display:grid; grid-template-columns:repeat(5, 28px); gap:10px;}
+  .prj-colorpop .prj-swatch{width:28px; height:28px;}
+  .prj-iconpop{width:min(272px, calc(100vw - 56px));}
+  .prj-iconpop .prj-icons{grid-template-columns:repeat(6, 1fr); max-height:196px; overflow-y:auto;}
+  @media (max-width:600px){ .prj-headrow.big .prj-badge{width:56px !important; height:56px !important; border-radius:15px;} .prj-headrow.big .prj-badge svg{width:28px; height:28px;} .prj-namebox{height:56px; padding-left:14px; gap:6px;} .prj-ctl{width:38px; height:38px;} .prj-namebox .nm-title-input{font-size:17px;} }
   .prj-picker{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
   .prj-swatches{display:flex; flex-wrap:wrap; gap:8px;}
   .prj-swatch{width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;}
@@ -3441,6 +3453,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.201', date:'30/10/2026', title:'Novo cadastro de projeto', text:'Ao criar um projeto, o ícone aparece grande na frente do nome, e a cor e o ícone são escolhidos pelos botões redondos ao lado, sem lista de ícones ocupando a tela.' },
   { version:'1.10.200', date:'30/10/2026', title:'Lista de projetos renovada', text:'Cada projeto aparece com o ícone num quadrado na cor dele, a próxima etapa sobre a barra de progresso, a data de entrega e a situação.' },
   { version:'1.10.199', date:'30/10/2026', title:'Tarefas mais práticas', text:'Ao escolher o prazo, o horário já vem às 08:00. A subtarefa concluída vai para o fim da lista e, se desmarcada, volta ao lugar de antes. A descrição cresce conforme você escreve e pode ser esticada à mão. O nome longo do projeto no chip agora é cortado com reticências.' },
   { version:'1.10.198', date:'28/10/2026', title:'Tag nas agendas lado a lado', text:'Na Semana, as agendas que dividem o dia voltam a mostrar a tag abaixo do horário.' },
@@ -7253,7 +7266,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.200';
+const APP_VERSION = '1.10.201';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -9391,9 +9404,17 @@ function openProjectEditor(project){
     <button type="button" class="nm-x" id="prjClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="nm-head">
       <div class="nm-kicker">${project ? 'Editar projeto' : 'Novo projeto'}</div>
-      <div class="prj-headrow">
-        <span class="prj-badge" id="prjIconPreview" style="--pc:${projectColor(p)}; width:46px; height:46px;">${projectIconSvg(p.icon || 'briefcase')}</span>
-        <input type="text" class="nm-title-input" id="prjName" placeholder="Nome do projeto" value="${escapeHtml(p.name || '')}">
+      <div class="prj-headrow big">
+        <span class="prj-badge" id="prjIconPreview" style="--pc:${projectColor(p)}; width:68px; height:68px;">${projectIconSvg(p.icon || 'briefcase')}</span>
+        <div class="prj-namefld"><label for="prjName">Nome do projeto</label>
+          <div class="prj-namebox">
+            <input type="text" class="nm-title-input" id="prjName" placeholder="Ex.: Reforma da casa" value="${escapeHtml(p.name || '')}">
+            <button type="button" class="prj-ctl" id="prjColorDot" title="Cor" aria-label="Escolher a cor do projeto"><i class="prj-colordot" style="background:${projectColor(p)}"></i></button>
+            <button type="button" class="prj-ctl" id="prjIconBtn" title="Ícone" aria-label="Escolher o ícone do projeto">${projectIconSvg(p.icon || 'briefcase')}</button>
+            <div class="prj-pop prj-colorpop" id="prjColorPop" hidden>${PROJECT_COLORS.map(c => `<button type="button" class="prj-swatch" data-color="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}</div>
+            <div class="prj-pop prj-iconpop" id="prjIconPop" hidden><div class="prj-icons">${Object.keys(PROJECT_ICONS).map(n => `<button type="button" class="prj-icon-btn" data-icon="${n}" title="${n}">${projectIconSvg(n)}</button>`).join('')}</div></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="nm-body prj-body">
@@ -9402,13 +9423,6 @@ function openProjectEditor(project){
         <select class="tp-select" id="prjCategory">${state.categories.map(c => `<option value="${c.id}" ${p.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select></div>
       <div class="tp-field"><label class="tp-label">Início</label><input type="date" class="tp-input" id="prjStart" value="${p.startDate || ''}"></div>
       <div class="tp-field"><label class="tp-label">Entrega prevista</label><input type="date" class="tp-input" id="prjEnd" value="${p.endDate || ''}"></div>
-    </div>
-    <div class="tp-field" style="position:relative;">
-      <div class="prj-iconhead"><label class="tp-label">Ícone</label>
-        <button type="button" class="prj-colordot" id="prjColorDot" title="Escolher a cor" aria-label="Escolher a cor do projeto" style="background:${projectColor(p)}"></button>
-        <div class="prj-colorpop" id="prjColorPop" hidden>${PROJECT_COLORS.map(c => `<button type="button" class="prj-swatch" data-color="${c}" style="background:${c}" aria-label="Cor ${c}"></button>`).join('')}</div>
-      </div>
-      <div class="prj-icons">${Object.keys(PROJECT_ICONS).map(n => `<button type="button" class="prj-icon-btn" data-icon="${n}" title="${n}">${projectIconSvg(n)}</button>`).join('')}</div>
     </div>
     <div class="tp-field"><label class="tp-label">Descrição</label>
       <textarea class="tp-textarea" id="prjDesc" rows="2" placeholder="Breve descrição do projeto...">${escapeHtml(p.description || '')}</textarea></div>
@@ -9430,14 +9444,20 @@ function openProjectEditor(project){
     modal.querySelectorAll('[data-icon]').forEach(b => b.classList.toggle('on', b.dataset.icon === selIcon));
     modal.querySelectorAll('[data-color]').forEach(b => b.classList.toggle('on', b.dataset.color === selColor));
     modal.querySelectorAll('.prj-icon-btn').forEach(b => { b.style.setProperty('--pc', selColor); });
-    const dot = modal.querySelector('#prjColorDot'); if(dot) dot.style.background = selColor;
+    modal.querySelector('.prj-colordot').style.background = selColor;
+    modal.querySelector('#prjIconBtn').innerHTML = projectIconSvg(selIcon);
+    modal.querySelector('.nm-flag').style.background = selColor;
   }
-  const colorPop = modal.querySelector('#prjColorPop');
-  modal.querySelector('#prjColorDot').onclick = (e) => { e.stopPropagation(); colorPop.hidden = !colorPop.hidden; };
-  colorPop.onclick = (e) => e.stopPropagation();
-  modal.addEventListener('click', () => { colorPop.hidden = true; });
-  modal.querySelectorAll('[data-icon]').forEach(b => { b.onclick = () => { selIcon = b.dataset.icon; paintProjectPicker(); }; });
-  modal.querySelectorAll('[data-color]').forEach(b => { b.onclick = () => { selColor = b.dataset.color; paintProjectPicker(); colorPop.hidden = true; }; });
+  const colorPop = modal.querySelector('#prjColorPop'), iconPop = modal.querySelector('#prjIconPop');
+  const colorBtn = modal.querySelector('#prjColorDot'), iconBtn = modal.querySelector('#prjIconBtn');
+  function closePrjPops(){ colorPop.hidden = true; iconPop.hidden = true; colorBtn.classList.remove('open'); iconBtn.classList.remove('open'); }
+  function togglePrjPop(pop, btn){ const open = pop.hidden; closePrjPops(); pop.hidden = !open; btn.classList.toggle('open', open); }
+  colorBtn.onclick = (e) => { e.stopPropagation(); togglePrjPop(colorPop, colorBtn); };
+  iconBtn.onclick = (e) => { e.stopPropagation(); togglePrjPop(iconPop, iconBtn); };
+  colorPop.onclick = iconPop.onclick = (e) => e.stopPropagation();
+  modal.addEventListener('click', closePrjPops);
+  modal.querySelectorAll('[data-icon]').forEach(b => { b.onclick = () => { selIcon = b.dataset.icon; paintProjectPicker(); closePrjPops(); }; });
+  modal.querySelectorAll('[data-color]').forEach(b => { b.onclick = () => { selColor = b.dataset.color; paintProjectPicker(); closePrjPops(); }; });
   paintProjectPicker();
   if(project){
     modal.querySelector('#prjDelete').onclick = () => {
