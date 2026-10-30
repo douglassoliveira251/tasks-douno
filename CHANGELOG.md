@@ -1,3 +1,13 @@
+## [1.12.2] - 2026-10-30 21:00
+
+### Changed
+
+#### Navegação
+
+- O Resumo passa a ser a página inicial e fica em `/app` (deixa de existir `/app/resumo`; esse endereço, `/` e qualquer `/app/xyz` redirecionam para `/app`). Tarefas, notas, calendário, projetos e configurações seguem em `/app/<tela>`.
+- Removida a lógica de abrir na última tela usada.
+
+
 ## [1.12.1] - 2026-10-30 20:30
 
 ### Changed
