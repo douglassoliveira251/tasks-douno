@@ -1,3 +1,12 @@
+## [1.10.206] - 2026-10-30 16:30
+
+### Changed
+
+#### Calendário
+
+- Raia cinza do fim de semana (Mês e Semana) mais escura, para destacar melhor sábado e domingo.
+
+
 ## [1.10.205] - 2026-10-30 16:00
 
 ### Fixed
