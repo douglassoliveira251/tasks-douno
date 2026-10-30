@@ -13,10 +13,21 @@ test('feriados nacionais: datas calculadas, mês/semana/dia e liga-desliga', asy
   await expect(page.locator('.cal-month-cell[data-date="2026-04-22"] .cal-hol')).toHaveCount(0);
   // semana
   await page.evaluate(() => { calendarView = 'week'; calendarFocusDate = '2026-04-21'; render(); });
-  await expect(page.locator('.cal-week-colhead .cal-hol')).toHaveText('Tiradentes');
+  await expect(page.locator('.cal-allday-hol')).toHaveText('Tiradentes');
+  await expect(page.locator('.cal-week-daycol.holiday')).toHaveCount(1);
+  await expect(page.locator('.cal-week-daycol.weekend')).toHaveCount(2);
   // dia
   await page.evaluate(() => { calendarView = 'day'; calendarFocusDate = '2026-04-21'; render(); });
   await expect(page.locator('.cal-hol-chip')).toContainText('Tiradentes');
+  // facultativos podem ser desligados pelo menu Camadas sem esconder os demais
+  await page.evaluate(() => { calendarView = 'month'; calendarFocusDate = '2026-02-10'; render(); });
+  await expect(page.locator('.cal-month-cell[data-date="2026-02-16"] .cal-hol')).toHaveText('Carnaval');
+  await page.locator('#calLayersBtn').click();
+  await page.locator('#layOpt').evaluate(el => el.click());
+  await expect(page.locator('.cal-month-cell[data-date="2026-02-16"] .cal-hol')).toHaveCount(0);
+  await page.evaluate(() => { calendarFocusDate = '2026-04-10'; render(); });
+  await expect(page.locator('.cal-month-cell[data-date="2026-04-21"] .cal-hol')).toHaveText('Tiradentes');
+  await page.evaluate(() => { state.showOptionalHolidays = true; });
   // desligar nas configurações some tudo
   await page.evaluate(() => { state.showHolidays = false; calendarView = 'month'; render(); });
   await expect(page.locator('.cal-hol')).toHaveCount(0);

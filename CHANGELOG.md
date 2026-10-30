@@ -1,3 +1,13 @@
+## [1.10.203] - 2026-10-30 15:00
+
+### Changed
+
+#### Calendário
+
+- Feriados deixam de ser vermelhos: raia azul clarinha com pílula e bandeira no Mês e na Semana (pílula na faixa de dia todo). Sábado e domingo ganham raia cinza suave.
+- Novo botão Camadas no topo do calendário para ligar/desligar feriados nacionais e facultativos (Carnaval, Corpus Christi).
+
+
 ## [1.10.202] - 2026-10-30 14:00
 
 ### Added

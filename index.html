@@ -2212,15 +2212,26 @@
   }
   .cal-month-weekday.weekend{color:var(--danger);}
   .cal-month-daynum{font-size:12.5px; font-weight:600;}
-  .cal-hol{display:block; font-size:10px; font-weight:700; line-height:1.2; color:var(--danger); font-style:normal; letter-spacing:0; text-transform:none; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; min-width:0;}
-  .cal-month-cell.holiday .cal-month-daynum span{color:var(--danger);}
+  :root{--cal-wk:color-mix(in srgb, var(--ink) 3.5%, var(--surface)); --cal-hl:color-mix(in srgb, #2D5F9A 8%, var(--surface)); --cal-hl-pill:color-mix(in srgb, #2D5F9A 16%, var(--surface));}
+  .cal-hol{display:flex; align-items:center; gap:4px; font-size:10px; font-weight:700; line-height:1.2; color:var(--primary-dark); background:var(--cal-hl-pill); border-radius:8px; padding:3px 6px; font-style:normal; letter-spacing:0; text-transform:none; min-width:0;}
+  .cal-hol svg{width:10px; height:10px; flex:none;}
+  .cal-hol span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .cal-month-cell.holiday .cal-month-daynum span{color:var(--primary-dark);}
   .cal-month-cell.holiday.today .cal-month-daynum span{color:#fff;}
-  .cal-week-headrow .cal-week-colhead.holiday{padding-bottom:4px;}
-  .cal-week-headrow .cal-week-colhead.holiday span{color:var(--danger);}
-  .cal-week-headrow .cal-week-colhead.holiday.today span{color:#fff;}
-  .cal-week-colhead .cal-hol{margin:2px 4px 0; text-align:center;}
-  .cal-hol-chip{display:inline-block; margin-top:10px; padding:4px 12px; border-radius:99px; background:color-mix(in srgb, var(--danger) 12%, transparent); color:var(--danger); font-size:12px; font-weight:700;}
-  @media (max-width:600px){ .cal-month-cell .cal-hol{display:none;} .cal-week-colhead .cal-hol{display:none;} }
+  .cal-allday-hol{font-size:10.5px; padding:4px 8px; border-radius:9px; align-self:start; margin:1px 0;}
+  .cal-hol-chip{display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:4px 12px; border-radius:99px; background:var(--cal-hl-pill); color:var(--primary-dark); font-size:12px; font-weight:700;}
+  .cal-hol-chip svg{width:12px; height:12px;}
+  @media (max-width:600px){ .cal-month-cell .cal-hol{display:none;} .cal-allday-hol{justify-content:center; padding:4px 0;} .cal-allday-hol span{display:none;} }
+  .cal-layers{position:relative; margin-left:auto;}
+  .cal-layers-btn{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 13px; border-radius:99px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); font-size:12.5px; font-weight:700; cursor:pointer;}
+  .cal-layers-btn svg{width:15px; height:15px;}
+  .cal-layers-btn:hover, .cal-layers-btn.open{border-color:var(--primary); color:var(--primary);}
+  .cal-layers-pop{position:absolute; right:0; top:calc(100% + 8px); z-index:30; width:300px; max-width:calc(100vw - 32px); background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:10px 12px; box-shadow:0 12px 28px rgba(20,30,50,.2);}
+  .cal-layers-pop h4{margin:0 0 4px; font-size:10px; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-faint);}
+  .cal-lay-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 2px; border-top:1px solid var(--border); font-size:12.5px; font-weight:600; cursor:pointer;}
+  .cal-lay-row.sub{padding-left:14px; font-weight:500; color:var(--ink-soft); font-size:12px;}
+  .cal-lay-row.off{opacity:.5; pointer-events:none;}
+  @media (max-width:768px){ .cal-header{flex-wrap:wrap;} .cal-layers{margin-left:0;} }
   .cal-month-events{display:flex; flex-direction:column; gap:3px; min-width:0;}
   .cal-event-pill{
     font-size:10.5px; font-weight:600; padding:2px 6px; border-radius:5px;
@@ -2245,6 +2256,9 @@
   .cal-month-card .cal-month-cell.weekend{background:transparent;}
   .cal-month-card .cal-month-cell.other-month{background:transparent; opacity:.5;}
   .cal-month-card .cal-month-cell:hover{background:var(--surface-2); border-radius:14px; border-top-color:transparent;}
+  .cal-month-card .cal-month-cell.weekend{background:var(--cal-wk);}
+  .cal-month-card .cal-month-cell.holiday{background:var(--cal-hl);}
+  .cal-month-card .cal-month-cell.other-month{background:transparent;}
   .cal-month-card .cal-month-cell.selected{background:color-mix(in srgb, var(--primary) 8%, transparent); border-top-color:transparent; border-radius:14px; box-shadow:inset 0 0 0 1.5px var(--primary);}
   .cal-month-card .cal-month-cell.today .cal-month-daynum{background:none; width:auto; height:auto; display:block;}
   .cal-month-card .cal-month-cell.today .cal-month-daynum span{background:var(--primary); color:#fff; border-radius:99px; padding:1px 8px;}
@@ -2299,6 +2313,10 @@
   .cal-week-headrow .cal-week-colhead span{width:34px; height:34px; margin:4px auto 0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; line-height:1; letter-spacing:0; text-transform:none; font-weight:700;}
   .cal-week-headrow .cal-week-colhead.today span{background:var(--primary); color:#fff;}
   .cal-week-daycol, .cal-week-daycol.weekend, .cal-week-daycol.today, .cal-week-daycol.weekend.today{background:transparent !important; border-right:none; border-left:1px solid var(--border);}
+  .cal-week-daycol.weekend, .cal-week-daycol.weekend.today, .cal-week-headrow .cal-week-colhead.weekend, .cal-week-allday-cell.weekend{background:var(--cal-wk) !important;}
+  .cal-week-daycol.holiday, .cal-week-daycol.holiday.today, .cal-week-headrow .cal-week-colhead.holiday, .cal-week-allday-cell.holiday{background:var(--cal-hl) !important;}
+  .cal-week-headrow .cal-week-colhead.holiday span{color:var(--primary-dark);}
+  .cal-week-headrow .cal-week-colhead.holiday.today span{color:#fff;}
   .cal-week-allday-cell.weekend{background:transparent !important;}
   .cal-week-hour-line{opacity:.6;}
   .cal-event-block-timed{border-radius:12px !important; border:none !important; border-left:none !important; box-shadow:none !important;}
@@ -3462,6 +3480,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.203', date:'30/10/2026', title:'Feriados em azul e fim de semana em cinza', text:'No Mês e na Semana, o dia de feriado ganha uma raia azul clarinha com o nome, e sábado e domingo uma raia cinza suave. O novo botão Camadas, no topo do calendário, liga e desliga os feriados e os facultativos.' },
   { version:'1.10.202', date:'30/10/2026', title:'Feriados nacionais no calendário', text:'O calendário agora mostra os feriados do Brasil no Mês, na Semana e no Dia (dia em vermelho com o nome). Dá para desligar em Configurações > Personalização > Calendário.' },
   { version:'1.10.201', date:'30/10/2026', title:'Novo cadastro de projeto', text:'Ao criar um projeto, o ícone aparece grande na frente do nome, e a cor e o ícone são escolhidos pelos botões redondos ao lado, sem lista de ícones ocupando a tela.' },
   { version:'1.10.200', date:'30/10/2026', title:'Lista de projetos renovada', text:'Cada projeto aparece com o ícone num quadrado na cor dele, a próxima etapa sobre a barra de progresso, a data de entrega e a situação.' },
@@ -7276,7 +7295,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.202';
+const APP_VERSION = '1.10.203';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -7758,6 +7777,8 @@ function renderDashboard(){
 }
 
 
+let calLayersOpen = false;
+document.addEventListener('click', e => { if(calLayersOpen && !e.target.closest('.cal-layers')){ calLayersOpen = false; render(); } });
 function renderCalendar(){
   const view = document.getElementById('calendarView');
   view.innerHTML = '';
@@ -7788,8 +7809,20 @@ function renderCalendar(){
       <button type="button" id="calNextBtn" title="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
     <div class="cal-period-label">${periodLabel}</div>
+    <div class="cal-layers">
+      <button type="button" class="cal-layers-btn${calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${calLayersOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Camadas</button>
+      ${calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Camadas do calendário</h4>
+        <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
+        <label class="cal-lay-row sub ${state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
+      </div>` : ''}
+    </div>
   `;
   view.appendChild(header);
+  header.querySelector('#calLayersBtn').onclick = (e) => { e.stopPropagation(); calLayersOpen = !calLayersOpen; render(); };
+  if(calLayersOpen){
+    header.querySelector('#layHol').onchange = e => { state.showHolidays = e.target.checked; markDirty(); };
+    header.querySelector('#layOpt').onchange = e => { state.showOptionalHolidays = e.target.checked; markDirty(); };
+  }
 
   header.querySelectorAll('[data-cv]').forEach(btn => {
     btn.onclick = () => {
@@ -7869,7 +7902,7 @@ function renderCalendarMonth(body){
     const cellStr = dateToStr(cellDate);
     const cell = document.createElement('div');
     const hol = holidayOn(cellStr);
-    cell.className = 'cal-month-cell' + (cellDate.getMonth()!==month?' other-month':'') + (cellStr===todayS?' today':'') + (cellStr===calSelectedDate?' selected':'') + (hol?' holiday':'');
+    cell.className = 'cal-month-cell' + (cellDate.getMonth()!==month?' other-month':'') + (cellStr===todayS?' today':'') + (cellStr===calSelectedDate?' selected':'') + (hol?' holiday':'') + ((cellDate.getDay()===0 || cellDate.getDay()===6)?' weekend':'');
     cell.dataset.date = cellStr;
     const dayEvents = getEventsForDate(cellStr);
     let evHtml = '';
@@ -7879,7 +7912,7 @@ function renderCalendarMonth(body){
     } else if(dayEvents.length > 1){
       evHtml = `<div class="cal-month-dots">${dayEvents.slice(0,5).map(ev => `<i style="background:${eventColor(ev)}"></i>`).join('')}${dayEvents.length>5?`<span class="cal-event-more">+${dayEvents.length-5}</span>`:''}</div><div class="cal-month-count">${dayEvents.length} agendas</div>`;
     }
-    cell.innerHTML = `<div class="cal-month-daynum"><span>${cellDate.getDate()}</span></div>${hol ? `<div class="cal-hol" title="${escapeHtml(hol.name)}${hol.optional ? ' (ponto facultativo)' : ''}">${escapeHtml(hol.name)}</div>` : ''}${evHtml}`;
+    cell.innerHTML = `<div class="cal-month-daynum"><span>${cellDate.getDate()}</span></div>${hol ? `<div class="cal-hol" title="${escapeHtml(hol.name)}${hol.optional ? ' (ponto facultativo)' : ''}">${HOL_FLAG}<span>${escapeHtml(hol.name)}</span></div>` : ''}${evHtml}`;
     cell.addEventListener('click', () => { calSelectedDate = cellStr; render(); });
     cell.addEventListener('dblclick', () => openEventComposer(null, cellStr));
     grid.appendChild(cell);
@@ -7900,7 +7933,7 @@ function renderCalendarMonth(body){
     <div class="cal-day-panel-kicker">${WEEKDAY_LABELS[sd.getDay()]}${calSelectedDate===todayS?' · hoje':''}</div>
     <div class="cal-day-panel-title">${sd.getDate()} de ${MONTH_LABELS[sd.getMonth()].toLowerCase()}</div>
     <div class="cal-day-panel-sub">${summary}</div>
-    ${holidayOn(calSelectedDate) ? `<div class="cal-hol-chip">${holidayOn(calSelectedDate).name}${holidayOn(calSelectedDate).optional ? ' · facultativo' : ''}</div>` : ''}
+    ${holidayOn(calSelectedDate) ? `<div class="cal-hol-chip">${HOL_FLAG}${holidayOn(calSelectedDate).name}${holidayOn(calSelectedDate).optional ? ' · facultativo' : ''}</div>` : ''}
     <div class="cal-day-timeline">
       ${dayEvents.map(ev => `
         <div class="cal-day-item" data-event-id="${ev.id}" style="--c:${eventColor(ev)}">
@@ -7930,6 +7963,7 @@ function renderCalendarMonth(body){
 }
 
 /* feriados nacionais do Brasil: fixos + os que dependem da Páscoa (calculados, sem serviço externo) */
+const HOL_FLAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
 const _holCache = {};
 function brHolidays(year){
   if(_holCache[year]) return _holCache[year];
@@ -7949,7 +7983,9 @@ function brHolidays(year){
 }
 function holidayOn(dateStr){
   if(state.showHolidays === false) return null;
-  return brHolidays(+dateStr.slice(0, 4))[dateStr] || null;
+  const h = brHolidays(+dateStr.slice(0, 4))[dateStr] || null;
+  if(h && h.optional && state.showOptionalHolidays === false) return null;
+  return h;
 }
 
 const CAL_HOUR_HEIGHT = 48;
@@ -8049,7 +8085,7 @@ function renderCalendarWeek(body){
     const d = new Date(dStr+'T00:00:00');
     const isWeekend = d.getDay()===0 || d.getDay()===6;
     const hol = holidayOn(dStr);
-    return `<div class="cal-week-colhead${dStr===todayS?' today':''}${isWeekend?' weekend':''}${hol?' holiday':''}"${hol ? ` title="${escapeHtml(hol.name)}${hol.optional ? ' (ponto facultativo)' : ''}"` : ''}>${WEEKDAY_LABELS[d.getDay()]}<span>${d.getDate()}</span>${hol ? `<em class="cal-hol">${escapeHtml(hol.name)}</em>` : ''}</div>`;
+    return `<div class="cal-week-colhead${dStr===todayS?' today':''}${isWeekend?' weekend':''}${hol?' holiday':''}"${hol ? ` title="${escapeHtml(hol.name)}${hol.optional ? ' (ponto facultativo)' : ''}"` : ''}>${WEEKDAY_LABELS[d.getDay()]}<span>${d.getDate()}</span></div>`;
   }).join('');
   wrap.appendChild(headRow);
 
@@ -8058,6 +8094,8 @@ function renderCalendarWeek(body){
   /* dia inteiro: agenda de vários dias vira uma barra só atravessando os dias (como no Outlook) */
   const segs = [];
   days.forEach((dStr, i) => {
+    const hol = holidayOn(dStr);
+    if(hol) segs.push({ ev: { id: 'hol-' + dStr }, hol, start: i, end: i });
     getEventsForDate(dStr).filter(ev => ev.allDay || !ev.startTime).forEach(ev => {
       const open = segs.find(sg => sg.ev.id === ev.id && sg.end === i - 1);
       if(open) open.end = i; else segs.push({ ev, start: i, end: i });
@@ -8075,8 +8113,9 @@ function renderCalendarWeek(body){
   alldayRow.innerHTML = `<div class="cal-week-gutter-cell" style="grid-row:1 / span ${lanes}"></div>` + days.map((dStr, i) => {
     const d = new Date(dStr+'T00:00:00');
     const isWeekend = d.getDay()===0 || d.getDay()===6;
-    return `<div class="cal-week-allday-cell${isWeekend?' weekend':''}" style="grid-row:1 / span ${lanes}; grid-column:${i + 2}"></div>`;
+    return `<div class="cal-week-allday-cell${isWeekend?' weekend':''}${holidayOn(dStr)?' holiday':''}" style="grid-row:1 / span ${lanes}; grid-column:${i + 2}"></div>`;
   }).join('') + segs.map(sg => {
+    if(sg.hol) return `<div class="cal-hol cal-allday-hol" title="${escapeHtml(sg.hol.name)}${sg.hol.optional ? ' (ponto facultativo)' : ''}" style="grid-row:${sg.lane + 1}; grid-column:${sg.start + 2} / ${sg.end + 3};">${HOL_FLAG}<span>${escapeHtml(sg.hol.name)}</span></div>`;
     const ev = sg.ev, c = eventColor(ev), evCat = eventPrimaryTagName(ev);
     return `<div class="cal-event-pill cal-allday-seg" data-event-id="${ev.id}" title="${escapeHtml(ev.title||'Sem título')}" style="grid-row:${sg.lane + 1}; grid-column:${sg.start + 2} / ${sg.end + 3}; background:${c}22; --evc:${c};"><span class="cal-event-title">${escapeHtml(ev.title||'Sem título')}</span><small class="cal-evb-meta"><span class="cal-evb-time">${calIcon('clock')} Dia todo</span>${evCat ? `<span class="cal-evb-cat">${escapeHtml(evCat)}</span>` : ''}</small></div>`;
   }).join('');
@@ -8102,7 +8141,7 @@ function renderCalendarWeek(body){
     const col = document.createElement('div');
     const dObj = new Date(dStr+'T00:00:00');
     const isWeekend = dObj.getDay()===0 || dObj.getDay()===6;
-    col.className = 'cal-week-daycol' + (dStr===todayS?' today':'') + (isWeekend?' weekend':'');
+    col.className = 'cal-week-daycol' + (dStr===todayS?' today':'') + (isWeekend?' weekend':'') + (holidayOn(dStr)?' holiday':'');
     col.style.height = (hourHeight*24) + 'px';
     for(let h=0; h<24; h+=hourStep){
       const line = document.createElement('div');
@@ -8290,7 +8329,7 @@ function renderCalendarDay(body){
     <div class="cal-day-panel-kicker">${WEEKDAY_FULL[d.getDay()]}${isToday ? ' · hoje' : ''}</div>
     <div class="cal-day-panel-title">${d.getDate()} de ${MONTH_LABELS[d.getMonth()].toLowerCase()}</div>
     <div class="cal-day-panel-sub">${summary}</div>
-    ${holidayOn(dateStr) ? `<div class="cal-hol-chip">${holidayOn(dateStr).name}${holidayOn(dateStr).optional ? ' · facultativo' : ''}</div>` : ''}
+    ${holidayOn(dateStr) ? `<div class="cal-hol-chip">${HOL_FLAG}${holidayOn(dateStr).name}${holidayOn(dateStr).optional ? ' · facultativo' : ''}</div>` : ''}
     ${allDayEvents.length ? `<div class="cal-dayA-allday" style="margin-top:14px;">${allDayEvents.map(ev => { const cat = catById(ev.categoryId); return `<button type="button" class="cal-dayA-chip" data-event-id="${ev.id}" style="--c:${eventColor(ev)}"><span>${escapeHtml(ev.title||'Sem título')}</span><small><i>${calIcon('clock')} Dia todo</i>${eventPrimaryTagName(ev) ? `<b>${escapeHtml(eventPrimaryTagName(ev))}</b>` : ''}</small></button>`; }).join('')}</div>` : ''}
     ${nTk ? `<div class="cal-day-panel-kicker" style="margin-top:14px;">Tarefas${isToday ? ' para hoje' : ' do dia'}</div>
       <div class="cal-day-tasks">${dayTasks.map(t => taskHtml(t, false)).join('')}${lateTasks.map(t => taskHtml(t, true)).join('')}</div>` : ''}
