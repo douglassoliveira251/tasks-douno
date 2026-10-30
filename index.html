@@ -1060,6 +1060,9 @@
     display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 10px; border-radius:20px; font-size:12px; font-weight:600;
     background:var(--primary-light); color:var(--primary-dark); white-space:nowrap; max-width:260px;
   }
+  .tp-proj-chip{min-width:0; max-width:100%;}
+  .tp-proj-chip-t{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tp-proj-chip button{flex:none;}
   .tp-proj-chip svg{width:12px; height:12px; flex-shrink:0;}
   .tp-proj-chip button{border:none; background:transparent; color:inherit; font-size:14px; line-height:1; cursor:pointer; padding:0 4px; opacity:.7;}
   .tp-proj-chip button:hover{opacity:1;}
@@ -1326,6 +1329,7 @@
   .tp-date-input, .tp-time-input{height:34px;}
   .tp-select:focus, .tp-input:focus, .tp-textarea:focus{outline:none; border-color:var(--primary);}
   .tp-textarea{resize:vertical; min-height:90px; line-height:1.5;}
+  .task-panel #tpDesc{min-height:110px; max-height:70vh;}
   .tp-row2{display:flex; gap:8px;}
   .tp-row2 > *{flex:1;}
   .tp-row2 .tp-time-input{flex:0 0 104px; min-width:0;}
@@ -2772,7 +2776,7 @@
     .tp-mobile-close{display:flex;}
     .task-panel .tp-dates{grid-template-columns:1fr;}
     .task-panel .tp-space-line .cat-tags-combined-row, .task-panel .group-move-row{flex-wrap:wrap; row-gap:6px;}
-    .task-panel .tp-proj-chip{white-space:normal; max-width:100%;}
+    .task-panel .tp-proj-chip{max-width:100%;}
     .task-panel .tp-tags-selected{flex-wrap:wrap;}
     .task-panel .tp-space-line{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
     .task-panel .tp-space-line .tp-label{margin-bottom:0;}
@@ -3423,6 +3427,7 @@ document.getElementById('aboutOverlay').addEventListener('click', e => {
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 const WHATS_NEW = [
+  { version:'1.10.199', date:'30/10/2026', title:'Tarefas mais práticas', text:'Ao escolher o prazo, o horário já vem às 08:00. A subtarefa concluída vai para o fim da lista e, se desmarcada, volta ao lugar de antes. A descrição cresce conforme você escreve e pode ser esticada à mão. O nome longo do projeto no chip agora é cortado com reticências.' },
   { version:'1.10.198', date:'28/10/2026', title:'Tag nas agendas lado a lado', text:'Na Semana, as agendas que dividem o dia voltam a mostrar a tag abaixo do horário.' },
   { version:'1.10.197', date:'28/10/2026', title:'Horário completo nas agendas lado a lado', text:'Na Semana, quando duas agendas dividem o dia, o horário desce de linha para caber inteiro em vez de ficar cortado.' },
   { version:'1.10.196', date:'28/10/2026', title:'Agendas no mesmo horário lado a lado', text:'Na visão Semana, agendas que se cruzam no horário agora dividem o dia em colunas, em vez de ficarem uma por cima da outra.' },
@@ -5629,7 +5634,7 @@ function renderTaskPanel(panel){
       <div class="cat-tags-combined-row">
         <div class="group-move-row">
           <button type="button" class="group-current-chip tp-space-chip" id="tpGroupChip" title="Clique para mudar de espaço"></button>
-          ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Clique para trocar o projeto ou a etapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg>${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}<button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
+          ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Clique para trocar o projeto ou a etapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg><span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span><button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
           ${(task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
@@ -6077,6 +6082,10 @@ function renderTaskPanel(panel){
     t.projectId = null; t.stageId = null;
     markDirty();
   };
+  const descEl = document.getElementById('tpDesc');
+  const growDesc = () => { if(descEl.scrollHeight > descEl.clientHeight) descEl.style.height = Math.min(descEl.scrollHeight + 2, Math.round(window.innerHeight * 0.6)) + 'px'; };
+  descEl.addEventListener('input', growDesc);
+  growDesc();
   document.getElementById('tpDesc').addEventListener('blur', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     t.description = e.target.value; markDirty();
@@ -6206,7 +6215,9 @@ function renderTaskPanel(panel){
       flashStageRangeWarning(t);
       return;
     }
-    t.dueDate = v; markDirty();
+    t.dueDate = v;
+    if(v && !t.dueTime){ t.dueTime = DEFAULT_DUE_TIME; document.getElementById('tpTime').value = DEFAULT_DUE_TIME; }
+    markDirty();
   });
   document.getElementById('tpTime').addEventListener('change', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
@@ -6305,7 +6316,14 @@ function renderTaskPanel(panel){
     row.querySelector('.task-check').onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
       const sub = t.subtasks.find(s => s.id === st.id);
-      if(sub){ sub.done = !sub.done; markDirty(); }
+      if(sub){
+        const i = t.subtasks.indexOf(sub);
+        sub.done = !sub.done;
+        t.subtasks.splice(i, 1);
+        if(sub.done){ sub.prevIdx = i; t.subtasks.push(sub); }
+        else { t.subtasks.splice(Math.min(sub.prevIdx != null ? sub.prevIdx : t.subtasks.length, t.subtasks.length), 0, sub); delete sub.prevIdx; }
+        markDirty();
+      }
     };
     const titleEl = row.querySelector('.tp-subtask-title');
     titleEl.addEventListener('blur', () => {
@@ -7220,7 +7238,7 @@ function hideNoteComposerOverlay(){
 }
 
 /* ===================== CALENDÁRIO ===================== */
-const APP_VERSION = '1.10.198';
+const APP_VERSION = '1.10.199';
 const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];

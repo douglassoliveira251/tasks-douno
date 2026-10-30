@@ -1,3 +1,15 @@
+## [1.10.199] - 2026-10-30 10:00
+
+### Changed
+
+#### Tarefas
+
+- Ao escolher o prazo, o horário é preenchido com 08:00 se estiver vazio.
+- Subtarefa concluída vai para a última posição; ao desmarcar, volta para onde estava.
+- A descrição da tarefa cresce conforme o texto e pode ser redimensionada manualmente.
+- Chip do projeto/etapa na tarefa corta o texto com reticências em vez de estourar a janela.
+
+
 ## [1.10.198] - 2026-10-28 14:30
 
 ### Fixed
