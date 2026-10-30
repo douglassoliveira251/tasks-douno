@@ -1,5 +1,15 @@
-function renderPersonalizationPanel(panel){
-  const isDark = state.theme === 'dark';
+import { G } from './globais.js';
+import { SUPABASE_URL, sbClient } from './02-nuvem.js';
+import { applyTheme, renderOutlookStatus, toggleTheme } from './03-outlook.js';
+import { normalizeState } from './07-normalizacao-do-estado.js';
+import { markDirty } from './08-persistencia.js';
+import { downloadFallback, openFile, saveFile, saveFileAs, updateFileStatus } from './09-atualizacao-do-sistema.js';
+import { escapeHtml } from './10-helpers.js';
+import { avatarInnerHtml } from './30-perfil-e-configuracoes.js';
+import { openCropModal } from './39-recorte-de-imagem.js';
+
+export function renderPersonalizationPanel(panel){
+  const isDark = G.state.theme === 'dark';
   const WEEKDAY_FULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
   panel.innerHTML = `
     <h3 class="settings-section-title">Personalização</h3>
@@ -23,7 +33,7 @@ function renderPersonalizationPanel(panel){
         <div class="theme-toggle-desc">Define a primeira coluna da semana e do mês no calendário.</div>
       </div>
       <select class="tp-select settings-row-select" id="weekStartDaySelect">
-        ${WEEKDAY_FULL.map((name, idx) => `<option value="${idx}" ${state.weekStartDay===idx?'selected':''}>${name}</option>`).join('')}
+        ${WEEKDAY_FULL.map((name, idx) => `<option value="${idx}" ${G.state.weekStartDay===idx?'selected':''}>${name}</option>`).join('')}
       </select>
     </div>
     <label class="theme-toggle-switch" style="margin-top:10px;">
@@ -32,24 +42,24 @@ function renderPersonalizationPanel(panel){
         <div class="theme-toggle-title">Feriados nacionais</div>
         <div class="theme-toggle-desc">Mostra os feriados do Brasil no mês, na semana e no dia.</div>
       </div>
-      <input type="checkbox" id="showHolidaysInput" ${state.showHolidays !== false ? 'checked' : ''}>
+      <input type="checkbox" id="showHolidaysInput" ${G.state.showHolidays !== false ? 'checked' : ''}>
       <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
     </label>
   `;
   panel.querySelector('#showHolidaysInput').addEventListener('change', e => {
-    state.showHolidays = e.target.checked;
+    G.state.showHolidays = e.target.checked;
     markDirty();
   });
   panel.querySelector('#personalizationThemeInput').addEventListener('change', () => {
     toggleTheme();
   });
   panel.querySelector('#weekStartDaySelect').addEventListener('change', e => {
-    state.weekStartDay = parseInt(e.target.value, 10);
+    G.state.weekStartDay = parseInt(e.target.value, 10);
     markDirty();
   });
 }
 
-function importBackupFile(){
+export function importBackupFile(){
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -64,7 +74,7 @@ function importBackupFile(){
       }
       const summary = `${parsed.tasks.length} tarefas, ${(parsed.notes||[]).length} notas e ${(parsed.events||[]).length} agendas`;
       if(!confirm(`Importar este backup (${summary})? Isso substitui tudo que está salvo na sua conta agora.`)) return;
-      state = parsed;
+      G.state = parsed;
       normalizeState();
       applyTheme();
       markDirty();
@@ -76,8 +86,8 @@ function importBackupFile(){
   input.click();
 }
 
-function renderFilePanel(panel){
-  if(cloudSession){
+export function renderFilePanel(panel){
+  if(G.cloudSession){
     panel.innerHTML = `
       <h3 class="settings-section-title">Backup</h3>
       <p class="settings-section-desc">Seus dados ficam salvos na nuvem. Baixe uma cópia em arquivo para guardar, ou importe uma cópia anterior (substitui o que está na conta).</p>
@@ -112,26 +122,26 @@ function renderFilePanel(panel){
   updateFileStatus();
 }
 
-const ICS_FEED_BASE_URL = SUPABASE_URL + '/functions/v1/ics-feed';
-function generateIcsToken(){
+export const ICS_FEED_BASE_URL = SUPABASE_URL + '/functions/v1/ics-feed';
+export function generateIcsToken(){
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 }
-async function fetchIcsToken(){
-  if(!sbClient || !cloudSession) return null;
-  const { data, error } = await sbClient.from('taskin_state').select('ics_token').eq('user_id', cloudSession.user.id).maybeSingle();
+export async function fetchIcsToken(){
+  if(!sbClient || !G.cloudSession) return null;
+  const { data, error } = await sbClient.from('taskin_state').select('ics_token').eq('user_id', G.cloudSession.user.id).maybeSingle();
   if(error){ console.error(error); return null; }
   return data ? data.ics_token : null;
 }
-async function regenerateIcsToken(){
-  if(!sbClient || !cloudSession) return null;
+export async function regenerateIcsToken(){
+  if(!sbClient || !G.cloudSession) return null;
   const token = generateIcsToken();
-  const { error } = await sbClient.from('taskin_state').update({ ics_token: token }).eq('user_id', cloudSession.user.id);
+  const { error } = await sbClient.from('taskin_state').update({ ics_token: token }).eq('user_id', G.cloudSession.user.id);
   if(error) throw error;
   return token;
 }
-function renderIntegrationsPanel(panel){
+export function renderIntegrationsPanel(panel){
   panel.innerHTML = `
     <h3 class="settings-section-title">Integrações</h3>
     <p class="settings-section-desc">Leve suas agendas do DOUNO Tasks para outros calendários.</p>
@@ -143,7 +153,7 @@ function renderIntegrationsPanel(panel){
 
     <h3 class="settings-section-title" style="margin-top:28px;">Link de assinatura (.ics)</h3>
     <p class="settings-section-desc">Alternativa sem login: um link que o Google Agenda (ou qualquer calendário) pode assinar. É somente leitura — no Outlook, itens vindos daqui não podem ser encaminhados nem categorizados.</p>
-    ${!cloudSession ? `
+    ${!G.cloudSession ? `
       <p class="settings-section-desc" style="margin-top:14px;"><strong>Disponível apenas com a conta na nuvem conectada.</strong> Entre com sua conta em Perfil para gerar o link de assinatura.</p>
     ` : `
       <div class="tp-field" style="max-width:520px;">
@@ -161,7 +171,7 @@ function renderIntegrationsPanel(panel){
     `}
   `;
   renderOutlookStatus();
-  if(!cloudSession) return;
+  if(!G.cloudSession) return;
   const urlInput = panel.querySelector('#icsFeedUrlInput');
   const applyToken = (token) => {
     urlInput.value = token ? `${ICS_FEED_BASE_URL}?token=${token}` : '';
@@ -195,8 +205,8 @@ function renderIntegrationsPanel(panel){
   };
 }
 
-function renderProfilePanel(panel){
-  tempAvatarData = state.profile.avatar || null;
+export function renderProfilePanel(panel){
+  G.tempAvatarData = G.state.profile.avatar || null;
   panel.innerHTML = `
     <h3 class="settings-section-title">Perfil</h3>
     <p class="settings-section-desc">Sua foto e nome exibidos na barra lateral.</p>
@@ -218,14 +228,14 @@ function renderProfilePanel(panel){
     </div>
 
     <h3 class="settings-section-title" style="margin-top:28px;">Conta</h3>
-    ${!cloudSession ? `
+    ${!G.cloudSession ? `
       <p class="settings-section-desc">Conecte-se com uma conta na nuvem para gerenciar o e-mail e a senha de login.</p>
     ` : `
       <p class="settings-section-desc">E-mail e senha usados para entrar no DOUNO Tasks.</p>
       <div class="tp-field" style="max-width:360px;">
         <label class="tp-label">E-mail de login</label>
         <div style="display:flex; gap:8px;">
-          <input type="email" class="tp-input" id="accountEmailDisplay" readonly value="${escapeHtml(cloudSession.user.email||'')}" style="flex:1;">
+          <input type="email" class="tp-input" id="accountEmailDisplay" readonly value="${escapeHtml(G.cloudSession.user.email||'')}" style="flex:1;">
           <button class="btn ghost small" id="changeEmailToggleBtn" style="white-space:nowrap;">Alterar</button>
         </div>
         <div id="changeEmailForm" style="display:none; margin-top:10px;">
@@ -253,8 +263,8 @@ function renderProfilePanel(panel){
       </div>
     `}
   `;
-  document.getElementById('profileNameInput').value = state.profile.name || '';
-  document.getElementById('avatarPreview').innerHTML = avatarInnerHtml({ name: state.profile.name, avatar: tempAvatarData });
+  document.getElementById('profileNameInput').value = G.state.profile.name || '';
+  document.getElementById('avatarPreview').innerHTML = avatarInnerHtml({ name: G.state.profile.name, avatar: G.tempAvatarData });
 
   document.getElementById('pickPhotoBtn').onclick = () => document.getElementById('photoInput').click();
   document.getElementById('photoInput').addEventListener('change', e => {
@@ -266,14 +276,14 @@ function renderProfilePanel(panel){
     e.target.value = '';
   });
   document.getElementById('saveProfileBtn').onclick = () => {
-    state.profile.name = document.getElementById('profileNameInput').value.trim();
-    state.profile.avatar = tempAvatarData;
+    G.state.profile.name = document.getElementById('profileNameInput').value.trim();
+    G.state.profile.avatar = G.tempAvatarData;
     markDirty();
     const hint = document.getElementById('profileSaveHint');
     if(hint){ hint.textContent = 'Salvo!'; setTimeout(() => { if(hint) hint.textContent = ''; }, 1500); }
   };
 
-  if(!cloudSession) return;
+  if(!G.cloudSession) return;
 
   const changeEmailForm = document.getElementById('changeEmailForm');
   document.getElementById('changeEmailToggleBtn').onclick = () => {

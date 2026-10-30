@@ -1,8 +1,15 @@
-function renderPageHeaderMeta(){
+import { G } from './globais.js';
+import { APP_VERSION } from './00-versao.js';
+import { triggerCloudWrite } from './08-persistencia.js';
+import { dateToStr, escapeHtml, isOverdue, todayStr } from './10-helpers.js';
+import { eventsInScope, getEventsForDate } from './25-calendario.js';
+import { projectStatus, projectsInScope } from './31-projetos.js';
+
+export function renderPageHeaderMeta(){
   const statsEl = document.getElementById('pageHeaderStats');
   let stats = null;
-  if(currentView === 'tasks'){
-    const scope = state.tasks.filter(t => !activeCategoryFilter || t.categoryId === activeCategoryFilter);
+  if(G.currentView === 'tasks'){
+    const scope = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
     const pending = scope.filter(t => !t.done).length;
     const overdue = scope.filter(t => isOverdue(t.dueDate, t.done)).length;
     const doneToday = scope.filter(t => t.completedAt && dateToStr(new Date(t.completedAt)) === todayStr()).length;
@@ -11,21 +18,21 @@ function renderPageHeaderMeta(){
       { n: overdue, label: overdue === 1 ? 'vencida' : 'vencidas' },
       { n: doneToday, label: doneToday === 1 ? 'concluída hoje' : 'concluídas hoje' },
     ];
-  } else if(currentView === 'notes'){
-    const scope = state.notes.filter(n => !n.archived && (!activeCategoryFilter || n.categoryId === activeCategoryFilter));
+  } else if(G.currentView === 'notes'){
+    const scope = G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter));
     const updatedToday = scope.filter(n => n.updatedAt && dateToStr(new Date(n.updatedAt)) === todayStr()).length;
     stats = [
       { n: scope.length, label: scope.length === 1 ? 'nota' : 'notas' },
       { n: updatedToday, label: updatedToday === 1 ? 'atualizada hoje' : 'atualizadas hoje' },
     ];
-  } else if(currentView === 'projects'){
+  } else if(G.currentView === 'projects'){
     const list = projectsInScope();
     const late = list.filter(p => projectStatus(p).late).length;
     stats = [
       { n: list.length, label: list.length === 1 ? 'projeto' : 'projetos' },
       { n: late, label: late === 1 ? 'com atraso' : 'com atraso' },
     ];
-  } else if(currentView === 'calendar'){
+  } else if(G.currentView === 'calendar'){
     const todayCount = getEventsForDate(todayStr()).length;
     const total = eventsInScope().length;
     stats = [
@@ -41,7 +48,7 @@ function renderPageHeaderMeta(){
   }
 }
 
-const HELP_CONTENT = {
+export const HELP_CONTENT = {
   dashboard: [
     { q: 'O que esse painel mostra?', a: 'Um resumo do que está em aberto: tarefas pendentes, notas recentes, eventos do dia e indicadores gerais de conclusão.' },
     { q: 'Os números somem quando eu concluo uma tarefa?', a: 'Sim — os cards contam só o que está em aberto. Tarefas concluídas continuam no histórico, só saem da contagem.' },
@@ -63,8 +70,8 @@ const HELP_CONTENT = {
     { q: 'Onde ficam meus dados?', a: 'Modo local: só no seu dispositivo, num arquivo que você escolhe. Modo nuvem: sincronizados com sua conta, acessíveis de qualquer aparelho logado.' },
   ],
 };
-function renderHelpPanelContent(){
-  const items = HELP_CONTENT[currentView] || HELP_CONTENT.dashboard;
+export function renderHelpPanelContent(){
+  const items = HELP_CONTENT[G.currentView] || HELP_CONTENT.dashboard;
   document.getElementById('helpPanelBody').innerHTML = items.map((item, i) => `
     <div class="help-item${i === 0 ? ' open' : ''}">
       <button type="button" class="help-item-q">
@@ -78,20 +85,20 @@ function renderHelpPanelContent(){
     btn.onclick = () => btn.closest('.help-item').classList.toggle('open');
   });
 }
-function openHelpPanel(){
+export function openHelpPanel(){
   document.getElementById('helpPanelVersion').textContent = APP_VERSION;
   renderHelpPanelContent();
   document.getElementById('helpPanel').classList.add('show');
   document.getElementById('helpPanelBackdrop').classList.add('show');
   document.getElementById('primaryAddBtn').classList.add('help-open');
 }
-function closeHelpPanel(){
+export function closeHelpPanel(){
   document.getElementById('helpPanel').classList.remove('show');
   document.getElementById('helpPanelBackdrop').classList.remove('show');
   document.getElementById('primaryAddBtn').classList.remove('help-open');
 }
 document.getElementById('helpBtn').onclick = openHelpPanel;
-document.getElementById('saveErrorBadge').onclick = () => { if(cloudSession) triggerCloudWrite(); };
+document.getElementById('saveErrorBadge').onclick = () => { if(G.cloudSession) triggerCloudWrite(); };
 document.getElementById('helpCloseBtn').onclick = closeHelpPanel;
 document.getElementById('helpPanelBackdrop').onclick = closeHelpPanel;
 

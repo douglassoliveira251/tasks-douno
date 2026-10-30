@@ -1,3 +1,7 @@
+import { closeNotebookMenu } from './29-notas-lista.js';
+import { disconnectFile } from './44-vinculo-de-arquivo-e-init.js';
+import { openSettingsView } from './45-nav-view-switch.js';
+
 /* ===================== MENU DO AVATAR ===================== */
 document.getElementById('topbarAvatarBtn').onclick = (e) => {
   e.stopPropagation();

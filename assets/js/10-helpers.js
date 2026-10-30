@@ -1,13 +1,16 @@
+import { G } from './globais.js';
+import { addDaysStr } from './25-calendario.js';
+
 /* ===================== HELPERS ===================== */
-function uid(prefix){ return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function catById(id){ return state.categories.find(c => c.id === id); }
-function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function fmtDate(d){
+export function uid(prefix){ return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+export function catById(id){ return G.state.categories.find(c => c.id === id); }
+export function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+export function fmtDate(d){
   if(!d) return '';
   const [y,m,day] = d.split('-');
   return `${day}/${m}/${y.slice(2)}`;
 }
-function fmtFriendlyDate(d){
+export function fmtFriendlyDate(d){
   if(!d) return '';
   const todayS = todayStr();
   if(d === todayS) return 'Hoje';
@@ -15,7 +18,7 @@ function fmtFriendlyDate(d){
   const [y,m,day] = d.split('-');
   return `${day}/${m}/${y}`;
 }
-function fmtEditedLabel(ts){
+export function fmtEditedLabel(ts){
   if(!ts) return '';
   const d = new Date(ts);
   const timeStr = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
@@ -27,16 +30,16 @@ function fmtEditedLabel(ts){
   const [y,m,day] = dStr.split('-');
   return `em ${day}/${m}/${y}`;
 }
-function isOverdue(d, done){
+export function isOverdue(d, done){
   if(!d || done) return false;
   return new Date(d + 'T23:59:59') < new Date();
 }
-function pad2(n){ return String(n).padStart(2,'0'); }
-function dateToStr(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
-function todayStr(){ return dateToStr(new Date()); }
-const DEFAULT_DUE_TIME = '08:00';
+export function pad2(n){ return String(n).padStart(2,'0'); }
+export function dateToStr(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+export function todayStr(){ return dateToStr(new Date()); }
+export const DEFAULT_DUE_TIME = '08:00';
 
-function advanceDateByRecurrence(dateStr, recurrence, interval){
+export function advanceDateByRecurrence(dateStr, recurrence, interval){
   const n = Math.max(1, parseInt(interval, 10) || 1);
   const base = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
   switch(recurrence){
@@ -49,7 +52,7 @@ function advanceDateByRecurrence(dateStr, recurrence, interval){
   return dateToStr(base);
 }
 
-function spawnNextRecurrence(task){
+export function spawnNextRecurrence(task){
   /* A proxima data parte sempre do "A partir de" (recurrenceBaseDate), nunca do
      dueDate atual: dueDate é só quando o usuário planeja fazer essa ocorrência e
      pode ser editado livremente (ex. adiar de dia 1 pra dia 4) sem afetar o
@@ -60,10 +63,10 @@ function spawnNextRecurrence(task){
   const baseDate = task.recurrenceBaseDate || task.dueDate;
   const nextDueDate = advanceDateByRecurrence(baseDate, task.recurrence, task.recurrenceInterval);
   if(task.recurrenceEndDate && nextDueDate > task.recurrenceEndDate) return null;
-  state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+  G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
   const next = {
     id: uid('task'),
-    shortId: String(state.taskIdCounter).padStart(4, '0'),
+    shortId: String(G.state.taskIdCounter).padStart(4, '0'),
     title: task.title,
     categoryId: task.categoryId,
     done: false,
@@ -88,7 +91,7 @@ function spawnNextRecurrence(task){
     attachments: [],
     createdAt: Date.now()
   };
-  state.tasks.push(next);
+  G.state.tasks.push(next);
   return next;
 }
 

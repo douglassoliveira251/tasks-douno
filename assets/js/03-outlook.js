@@ -1,17 +1,25 @@
+import { G } from './globais.js';
+import { APP_VERSION } from './00-versao.js';
+import { sbClient } from './02-nuvem.js';
+import { openWhatsNew } from './05-novidades-painel.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { catById, escapeHtml } from './10-helpers.js';
+import { DOUNO_WORDMARK_SRC } from './42-nuvem-persistencia.js';
+
 /* ===================== OUTLOOK (Microsoft Graph, via API server-side) =====================
    O token de acesso do Outlook não fica mais no navegador: fica guardado no
    Supabase, gerenciado pelas funções da Vercel em /api/outlook/*, que usam um
    client secret pra renovar sozinhas (refresh token) sem depender de popup
    nem do armazenamento local de cada domínio/navegador. */
-let outlookStatusCache = null;
-async function outlookApi(path, options){
-  if(!cloudSession || !sbClient) throw new Error('Sem sessão na nuvem.');
+G.outlookStatusCache = null;
+export async function outlookApi(path, options){
+  if(!G.cloudSession || !sbClient) throw new Error('Sem sessão na nuvem.');
   /* cloudSession.access_token é só uma foto do momento do login — o SDK do
      Supabase renova o token sozinho em segundo plano, mas essa variável
      nunca é atualizada. Busca a sessão atual (já renovada) a cada chamada,
      pra não mandar um token expirado pra nossa própria API. */
   const { data: sessionData } = await sbClient.auth.getSession();
-  const accessToken = sessionData && sessionData.session ? sessionData.session.access_token : cloudSession.access_token;
+  const accessToken = sessionData && sessionData.session ? sessionData.session.access_token : G.cloudSession.access_token;
   const resp = await fetch(path, {
     ...options,
     headers: {
@@ -23,21 +31,21 @@ async function outlookApi(path, options){
   if(!resp.ok) throw Object.assign(new Error(data.error || 'Erro na API do Outlook'), { data, status: resp.status });
   return data;
 }
-async function connectOutlook(){
+export async function connectOutlook(){
   const { url } = await outlookApi('/api/outlook/connect-url');
   window.location.href = url;
 }
-async function disconnectOutlook(){
+export async function disconnectOutlook(){
   await outlookApi('/api/outlook/disconnect', { method: 'POST' });
-  outlookStatusCache = { connected: false };
+  G.outlookStatusCache = { connected: false };
 }
-async function syncEventToOutlook(ev){
-  if(!cloudSession) return;
-  if(!outlookStatusCache) await refreshOutlookStatus();
-  if(!outlookStatusCache || !outlookStatusCache.connected) return;
+export async function syncEventToOutlook(ev){
+  if(!G.cloudSession) return;
+  if(!G.outlookStatusCache) await refreshOutlookStatus();
+  if(!G.outlookStatusCache || !G.outlookStatusCache.connected) return;
   const cat = catById(ev.categoryId);
   // categorias do Outlook = tags da agenda; sem tag, usa o nome do espaço
-  const tagNames = (ev.tagIds || []).map(id => state.tags.find(t => t.id === id)).filter(Boolean).map(t => t.name);
+  const tagNames = (ev.tagIds || []).map(id => G.state.tags.find(t => t.id === id)).filter(Boolean).map(t => t.name);
   const categoryNames = tagNames.length ? tagNames : (cat ? [cat.name] : []);
   try{
     const result = await outlookApi('/api/outlook/sync-event', {
@@ -55,10 +63,10 @@ async function syncEventToOutlook(ev){
     }
   }catch(e){ console.error('Erro ao sincronizar com Outlook', e); }
 }
-async function deleteEventFromOutlook(ev){
-  if(!cloudSession || !ev.outlookEventId) return;
-  if(!outlookStatusCache) await refreshOutlookStatus();
-  if(!outlookStatusCache || !outlookStatusCache.connected) return;
+export async function deleteEventFromOutlook(ev){
+  if(!G.cloudSession || !ev.outlookEventId) return;
+  if(!G.outlookStatusCache) await refreshOutlookStatus();
+  if(!G.outlookStatusCache || !G.outlookStatusCache.connected) return;
   try{
     await outlookApi('/api/outlook/sync-event', {
       method: 'POST',
@@ -67,22 +75,22 @@ async function deleteEventFromOutlook(ev){
     });
   }catch(e){ console.error('Erro ao excluir do Outlook', e); }
 }
-async function refreshOutlookStatus(){
-  if(!cloudSession){ outlookStatusCache = { connected: false }; return outlookStatusCache; }
+export async function refreshOutlookStatus(){
+  if(!G.cloudSession){ G.outlookStatusCache = { connected: false }; return G.outlookStatusCache; }
   try{
-    outlookStatusCache = await outlookApi('/api/outlook/status');
+    G.outlookStatusCache = await outlookApi('/api/outlook/status');
   }catch(e){
     console.error(e);
-    outlookStatusCache = { connected: false };
+    G.outlookStatusCache = { connected: false };
   }
-  return outlookStatusCache;
+  return G.outlookStatusCache;
 }
-async function renderOutlookStatus(){
+export async function renderOutlookStatus(){
   const row = document.getElementById('outlookStatusRow');
   if(!row) return;
   const hint = document.getElementById('outlookHint');
   if(hint){ hint.textContent = ''; }
-  if(!cloudSession){
+  if(!G.cloudSession){
     row.innerHTML = `<span style="font-size:13px; color:var(--ink-faint);">Disponível apenas com a conta na nuvem conectada.</span>`;
     return;
   }
@@ -113,7 +121,7 @@ async function renderOutlookStatus(){
     };
   }
 }
-function handleOutlookRedirectFeedback(){
+export function handleOutlookRedirectFeedback(){
   const params = new URLSearchParams(window.location.search);
   const outlookParam = params.get('outlook');
   if(!outlookParam) return;
@@ -122,19 +130,19 @@ function handleOutlookRedirectFeedback(){
   const newQuery = params.toString();
   window.history.replaceState({}, '', window.location.pathname + (newQuery ? '?' + newQuery : ''));
   if(outlookParam === 'connected'){
-    pendingOutlookToast = 'Outlook conectado!';
+    G.pendingOutlookToast = 'Outlook conectado!';
   } else if(outlookParam === 'error'){
-    pendingOutlookToast = 'Não foi possível conectar ao Outlook. Tente de novo.';
+    G.pendingOutlookToast = 'Não foi possível conectar ao Outlook. Tente de novo.';
   }
 }
-let pendingOutlookToast = null;
-let activeTaskId = null;
-let creatingNewTask = false;
-let tagsPopoverOpen = false;
-let tagFilterPopoverOpen = false;
+G.pendingOutlookToast = null;
+G.activeTaskId = null;
+G.creatingNewTask = false;
+G.tagsPopoverOpen = false;
+G.tagFilterPopoverOpen = false;
 
-function applyTheme(){
-  const isDark = state.theme === 'dark';
+export function applyTheme(){
+  const isDark = G.state.theme === 'dark';
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   const sunIcon = document.getElementById('themeIconSun');
   const moonIcon = document.getElementById('themeIconMoon');
@@ -144,12 +152,12 @@ function applyTheme(){
   if(label) label.textContent = isDark ? 'Modo claro' : 'Modo escuro';
   document.querySelectorAll('.theme-toggle-switch input').forEach(inp => { inp.checked = isDark; });
 }
-function toggleTheme(){
-  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+export function toggleTheme(){
+  G.state.theme = G.state.theme === 'dark' ? 'light' : 'dark';
   applyTheme();
   persistOnly();
 }
-function openAboutModal(){
+export function openAboutModal(){
   const body = document.getElementById('aboutModalBody');
   body.style.position = 'relative';
   body.innerHTML = `
@@ -174,15 +182,15 @@ function openAboutModal(){
   body.querySelector('#aboutCloseBtn').onclick = closeAboutModal;
   body.querySelector('#aboutWhatsNewBtn').onclick = () => { closeAboutModal(); openWhatsNew(); };
 }
-function closeAboutModal(){
+export function closeAboutModal(){
   document.getElementById('aboutOverlay').classList.remove('show');
 }
 document.getElementById('aboutBtn').onclick = openAboutModal;
-let aboutOverlayMouseDownOnBackdrop = false;
+G.aboutOverlayMouseDownOnBackdrop = false;
 document.getElementById('aboutOverlay').addEventListener('mousedown', e => {
-  aboutOverlayMouseDownOnBackdrop = (e.target.id === 'aboutOverlay');
+  G.aboutOverlayMouseDownOnBackdrop = (e.target.id === 'aboutOverlay');
 });
 document.getElementById('aboutOverlay').addEventListener('click', e => {
-  if(e.target.id === 'aboutOverlay' && aboutOverlayMouseDownOnBackdrop) closeAboutModal();
+  if(e.target.id === 'aboutOverlay' && G.aboutOverlayMouseDownOnBackdrop) closeAboutModal();
 });
 

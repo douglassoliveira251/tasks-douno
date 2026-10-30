@@ -1,7 +1,15 @@
-/* ---- menu-portal dos 3 pontinhos (fixo, nunca cortado pelos grupos) ---- */
-let openMenuWrapEl = null;
+import { G } from './globais.js';
+import { DEFAULT_COLORS } from './01-estado.js';
+import { markDirty } from './08-persistencia.js';
+import { escapeHtml, uid } from './10-helpers.js';
+import { openColorPortal, openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
+import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
+import { openTemplateEditor, templateFromTask } from './35-templates-de-tarefa.js';
 
-function ensureTaskMenuPortal(){
+/* ---- menu-portal dos 3 pontinhos (fixo, nunca cortado pelos grupos) ---- */
+G.openMenuWrapEl = null;
+
+export function ensureTaskMenuPortal(){
   let portal = document.getElementById('taskMenuPortal');
   if(!portal){
     portal = document.createElement('div');
@@ -12,13 +20,13 @@ function ensureTaskMenuPortal(){
   return portal;
 }
 
-function closeAllTaskMenus(){
-  if(openMenuWrapEl){ openMenuWrapEl.classList.remove('open'); openMenuWrapEl = null; }
+export function closeAllTaskMenus(){
+  if(G.openMenuWrapEl){ G.openMenuWrapEl.classList.remove('open'); G.openMenuWrapEl = null; }
   const portal = document.getElementById('taskMenuPortal');
   if(portal) portal.classList.remove('show');
 }
 
-function openTaskRowMenu(task, btnEl, wrapEl){
+export function openTaskRowMenu(task, btnEl, wrapEl){
   const portal = ensureTaskMenuPortal();
   portal.innerHTML = `
     <button type="button" class="task-menu-item" data-action="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar</button>
@@ -33,7 +41,7 @@ function openTaskRowMenu(task, btnEl, wrapEl){
   portal.style.left = 'auto';
   portal.classList.add('show');
   wrapEl.classList.add('open');
-  openMenuWrapEl = wrapEl;
+  G.openMenuWrapEl = wrapEl;
 
   portal.querySelector('[data-action="edit"]').onclick = (e) => {
     e.stopPropagation();
@@ -50,7 +58,7 @@ function openTaskRowMenu(task, btnEl, wrapEl){
     copy.createdAt = Date.now();
     (copy.subtasks||[]).forEach(s => s.id = uid('sub'));
     (copy.comments||[]).forEach(c => c.id = uid('cmt'));
-    state.tasks.push(copy);
+    G.state.tasks.push(copy);
     markDirty();
   };
   portal.querySelector('[data-action="template"]').onclick = (e) => {
@@ -63,7 +71,7 @@ function openTaskRowMenu(task, btnEl, wrapEl){
     openMoveGroupPortal(e.currentTarget, task.categoryId, (newCatId) => {
       task.categoryId = newCatId;
       task.tagIds = (task.tagIds||[]).filter(id => {
-        const tg = state.tags.find(x => x.id === id);
+        const tg = G.state.tags.find(x => x.id === id);
         return tg && (!tg.categoryId || tg.categoryId === newCatId);
       });
       markDirty();
@@ -73,13 +81,13 @@ function openTaskRowMenu(task, btnEl, wrapEl){
   portal.querySelector('[data-action="delete"]').onclick = (e) => {
     e.stopPropagation();
     closeAllTaskMenus();
-    state.tasks = state.tasks.filter(x => x.id !== task.id);
-    if(activeTaskId === task.id) activeTaskId = null;
+    G.state.tasks = G.state.tasks.filter(x => x.id !== task.id);
+    if(G.activeTaskId === task.id) G.activeTaskId = null;
     markDirty();
   };
 }
 
-function ensureConfirmPortal(){
+export function ensureConfirmPortal(){
   let portal = document.getElementById('confirmActionPortal');
   if(!portal){
     portal = document.createElement('div');
@@ -89,13 +97,13 @@ function ensureConfirmPortal(){
   }
   return portal;
 }
-function closeConfirmPortal(e){
+export function closeConfirmPortal(e){
   const portal = document.getElementById('confirmActionPortal');
   if(!portal) return;
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
-function openConfirmPortal(anchorBtn, message, onConfirm, confirmLabel){
+export function openConfirmPortal(anchorBtn, message, onConfirm, confirmLabel){
   const portal = ensureConfirmPortal();
   portal.innerHTML = `
     <div class="confirm-action-msg">${escapeHtml(message)}</div>
@@ -121,7 +129,7 @@ function openConfirmPortal(anchorBtn, message, onConfirm, confirmLabel){
 document.addEventListener('click', closeConfirmPortal);
 window.addEventListener('scroll', closeConfirmPortal, true);
 
-function ensureColorPortal(){
+export function ensureColorPortal(){
   let portal = document.getElementById('colorPickerPortal');
   if(!portal){
     portal = document.createElement('div');
@@ -132,14 +140,14 @@ function ensureColorPortal(){
   return portal;
 }
 
-function closeColorPortal(e){
+export function closeColorPortal(e){
   const portal = document.getElementById('colorPickerPortal');
   if(!portal) return;
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
 
-function renderTaskLinkPicker(portal, opts){
+export function renderTaskLinkPicker(portal, opts){
   const { currentTaskId, onSelect } = opts;
   portal.innerHTML = `
     <div class="search-input-wrap">
@@ -155,7 +163,7 @@ function renderTaskLinkPicker(portal, opts){
 
   function renderList(){
     const term = searchInput.value.trim().toLowerCase();
-    let tasks = state.tasks.filter(t => !t.done);
+    let tasks = G.state.tasks.filter(t => !t.done);
     if(term){
       tasks = tasks.filter(t => (t.title||'').toLowerCase().includes(term) || (t.shortId||'').toLowerCase().includes(term));
     }
@@ -189,7 +197,7 @@ function renderTaskLinkPicker(portal, opts){
   setTimeout(() => searchInput.focus(), 0);
 }
 
-function renderUnifiedTagPicker(portal, opts){
+export function renderUnifiedTagPicker(portal, opts){
   const { categoryId, isSelected, onToggle, onChanged } = opts;
   portal.innerHTML = `
     <div class="search-input-wrap">
@@ -205,7 +213,7 @@ function renderUnifiedTagPicker(portal, opts){
 
   function renderList(){
     const term = searchInput.value.trim().toLowerCase();
-    const visibleTags = state.tags.filter(tg => !tg.categoryId || tg.categoryId === categoryId);
+    const visibleTags = G.state.tags.filter(tg => !tg.categoryId || tg.categoryId === categoryId);
     const matchFilter = tg => !term || tg.name.toLowerCase().includes(term);
     const ofGroup = visibleTags.filter(tg => tg.categoryId === categoryId && matchFilter(tg));
     const general = visibleTags.filter(tg => !tg.categoryId && matchFilter(tg));
@@ -237,7 +245,7 @@ function renderUnifiedTagPicker(portal, opts){
       const colorDot = row.querySelector('.tag-row-color-dot');
       colorDot.onclick = (e) => {
         e.stopPropagation();
-        const tag = state.tags.find(t => t.id === row.dataset.tag);
+        const tag = G.state.tags.find(t => t.id === row.dataset.tag);
         if(!tag) return;
         openColorPortal(tag.color, colorDot, (color) => {
           tag.color = color;
@@ -252,9 +260,9 @@ function renderUnifiedTagPicker(portal, opts){
       createRow.onclick = () => {
         const name = searchInput.value.trim();
         if(!name) return;
-        const color = DEFAULT_COLORS[state.tags.length % DEFAULT_COLORS.length];
+        const color = DEFAULT_COLORS[G.state.tags.length % DEFAULT_COLORS.length];
         const newTag = { id: uid('tag'), name, color, categoryId };
-        state.tags.push(newTag);
+        G.state.tags.push(newTag);
         onToggle(newTag.id);
         searchInput.value = '';
         renderList();

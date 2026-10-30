@@ -1,10 +1,17 @@
+import { G } from './globais.js';
+import { applyTheme } from './03-outlook.js';
+import { normalizeState } from './07-normalizacao-do-estado.js';
+import { updateFileStatus } from './09-atualizacao-do-sistema.js';
+import { linkCreateNew, linkOpenExisting, skipLinking } from './44-vinculo-de-arquivo-e-init.js';
+import { render } from './48-render-principal.js';
+
 /* ===================== VÍNCULO DE ARQUIVO BASE ===================== */
-const FS_SUPPORTED = !!window.showOpenFilePicker && !!window.showSaveFilePicker;
+export const FS_SUPPORTED = !!window.showOpenFilePicker && !!window.showSaveFilePicker;
 
-function openLinkOverlay(){ document.getElementById('linkOverlay').classList.add('show'); }
-function closeLinkOverlay(){ appUnlocked = true; document.getElementById('linkOverlay').classList.remove('show'); }
+export function openLinkOverlay(){ document.getElementById('linkOverlay').classList.add('show'); }
+export function closeLinkOverlay(){ G.appUnlocked = true; document.getElementById('linkOverlay').classList.remove('show'); }
 
-function renderLinkModal(mode, storedHandle, forced){
+export function renderLinkModal(mode, storedHandle, forced){
   const body = document.getElementById('linkModalBody');
   if(mode === 'reconnect'){
     body.innerHTML = `
@@ -31,13 +38,13 @@ function renderLinkModal(mode, storedHandle, forced){
   }
 }
 
-async function reconnectHandle(handle){
+export async function reconnectHandle(handle){
   try{
     const perm = await handle.requestPermission({ mode:'readwrite' });
     if(perm === 'granted'){
-      fileHandle = handle;
+      G.fileHandle = handle;
       await syncStateFromFile();
-      dirty = false;
+      G.dirty = false;
       closeLinkOverlay();
       updateFileStatus();
       render();
@@ -48,14 +55,14 @@ async function reconnectHandle(handle){
   }catch(e){ console.error(e); closeLinkOverlay(); }
 }
 
-async function syncStateFromFile(){
+export async function syncStateFromFile(){
   try{
-    const file = await fileHandle.getFile();
+    const file = await G.fileHandle.getFile();
     const text = await file.text();
     if(text && text.trim()){
       const parsed = JSON.parse(text);
       if(parsed && parsed.categories){
-        state = parsed;
+        G.state = parsed;
         normalizeState();
         applyTheme();
       }
@@ -65,9 +72,9 @@ async function syncStateFromFile(){
   }catch(e){ console.error(e); }
 }
 
-async function writeStateToFile(){
-  const writable = await fileHandle.createWritable();
-  await writable.write(JSON.stringify(state, null, 2));
+export async function writeStateToFile(){
+  const writable = await G.fileHandle.createWritable();
+  await writable.write(JSON.stringify(G.state, null, 2));
   await writable.close();
 }
 

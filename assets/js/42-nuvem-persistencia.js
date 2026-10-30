@@ -1,9 +1,19 @@
+import { G } from './globais.js';
+import { claimLocalCache, sbClient } from './02-nuvem.js';
+import { applyTheme, handleOutlookRedirectFeedback } from './03-outlook.js';
+import { normalizeState } from './07-normalizacao-do-estado.js';
+import { isEditingSomething, markDirty, saveToLocalStorage } from './08-persistencia.js';
+import { updateFileStatus } from './09-atualizacao-do-sistema.js';
+import { closeLoginGate } from './43-tela-de-login.js';
+import { loadUiSession, render } from './48-render-principal.js';
+G.fetchCloudStateRow = fetchCloudStateRow; G.writeStateToCloud = writeStateToCloud; G.startCloudSession = startCloudSession;
+
 /* ===================== NUVEM: persistência ===================== */
 async function fetchCloudStateRow(){
   const { data, error } = await sbClient
     .from('taskin_state')
     .select('data, updated_at')
-    .eq('user_id', cloudSession.user.id)
+    .eq('user_id', G.cloudSession.user.id)
     .maybeSingle();
   if(error) throw error;
   return data;
@@ -21,17 +31,17 @@ async function fetchCloudStateRow(){
       são preservados);
    2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
       gravou no meio, repete. */
-const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects'];
-let cloudBaseUpdatedAt = null;
-let cloudBaseSnapshot = null;
+export const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects'];
+G.cloudBaseUpdatedAt = null;
+G.cloudBaseSnapshot = null;
 
-function syncHash(value){
+export function syncHash(value){
   const str = JSON.stringify(value === undefined ? null : value);
   let h = 0x811c9dc5;
   for(let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return (h >>> 0).toString(36) + ':' + str.length;
 }
-function makeSyncSnapshot(st){
+export function makeSyncSnapshot(st){
   const snap = { cols: {}, keys: {} };
   SYNC_COLLECTIONS.forEach(c => {
     const m = {};
@@ -41,7 +51,7 @@ function makeSyncSnapshot(st){
   Object.keys(st).forEach(k => { if(!SYNC_COLLECTIONS.includes(k)) snap.keys[k] = syncHash(st[k]); });
   return snap;
 }
-function mergeStates(base, local, remote){
+export function mergeStates(base, local, remote){
   const out = {};
   const isStrArr = v => Array.isArray(v) && v.every(x => typeof x === 'string');
   const keys = new Set(Object.keys(local).concat(Object.keys(remote)).filter(k => !SYNC_COLLECTIONS.includes(k)));
@@ -97,60 +107,60 @@ function mergeStates(base, local, remote){
   });
   return out;
 }
-function normalizeRemoteData(data){
-  const saved = state;
-  state = data;
-  try{ normalizeState(); } finally { state = saved; }
+export function normalizeRemoteData(data){
+  const saved = G.state;
+  G.state = data;
+  try{ normalizeState(); } finally { G.state = saved; }
   return data;
 }
-function adoptCloudRow(row){
-  cloudBaseUpdatedAt = row ? row.updated_at : null;
-  cloudBaseSnapshot = makeSyncSnapshot(state);
+export function adoptCloudRow(row){
+  G.cloudBaseUpdatedAt = row ? row.updated_at : null;
+  G.cloudBaseSnapshot = makeSyncSnapshot(G.state);
 }
 
-async function loadStateFromCloud(){
-  const row = await fetchCloudStateRow();
+export async function loadStateFromCloud(){
+  const row = await G.fetchCloudStateRow();
   if(row && row.data && typeof row.data === 'object'){
-    state = row.data;
+    G.state = row.data;
   }
   normalizeState();
   if(!row){
-    await writeStateToCloud();
+    await G.writeStateToCloud();
   } else {
     adoptCloudRow(row);
   }
 }
 
 async function writeStateToCloud(){
-  if(!cloudSession) return;
-  const uid = cloudSession.user.id;
+  if(!G.cloudSession) return;
+  const uid = G.cloudSession.user.id;
   let mergedFromRemote = false;
   for(let attempt = 0; attempt < 4; attempt++){
-    const row = await fetchCloudStateRow();
+    const row = await G.fetchCloudStateRow();
     if(row && row.data && typeof row.data === 'object'){
-      const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
+      const changedRemotely = !G.cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(G.cloudBaseUpdatedAt);
       if(changedRemotely){
         const remote = normalizeRemoteData(row.data);
-        const base = cloudBaseSnapshot || makeSyncSnapshot(remote);
-        state = mergeStates(base, state, remote);
+        const base = G.cloudBaseSnapshot || makeSyncSnapshot(remote);
+        G.state = mergeStates(base, G.state, remote);
         normalizeState();
         mergedFromRemote = true;
         // a partir daqui a base passa a ser a versão da nuvem que acabou de ser mesclada
-        cloudBaseSnapshot = makeSyncSnapshot(remote);
-        cloudBaseUpdatedAt = row.updated_at;
+        G.cloudBaseSnapshot = makeSyncSnapshot(remote);
+        G.cloudBaseUpdatedAt = row.updated_at;
       }
     }
     const stamp = new Date().toISOString();
     let result;
     if(row){
       result = await sbClient.from('taskin_state')
-        .update({ data: state, updated_at: stamp })
+        .update({ data: G.state, updated_at: stamp })
         .eq('user_id', uid)
         .eq('updated_at', row.updated_at)
         .select('updated_at');
     } else {
       result = await sbClient.from('taskin_state')
-        .insert({ user_id: uid, data: state, updated_at: stamp })
+        .insert({ user_id: uid, data: G.state, updated_at: stamp })
         .select('updated_at');
     }
     if(result.error) throw result.error;
@@ -166,30 +176,30 @@ async function writeStateToCloud(){
 }
 
 async function startCloudSession(){
-  claimLocalCache(cloudSession.user);
+  claimLocalCache(G.cloudSession.user);
   try{
     await loadStateFromCloud();
   }catch(e){ console.error('Erro ao carregar dados da nuvem', e); }
-  if(cloudSession.user.email && state.profile.email !== cloudSession.user.email){
-    state.profile.email = cloudSession.user.email;
+  if(G.cloudSession.user.email && G.state.profile.email !== G.cloudSession.user.email){
+    G.state.profile.email = G.cloudSession.user.email;
   }
-  const metaName = cloudSession.user.user_metadata && cloudSession.user.user_metadata.name;
-  if(metaName && !state.profile.name){
-    state.profile.name = String(metaName).trim().slice(0, 80);
+  const metaName = G.cloudSession.user.user_metadata && G.cloudSession.user.user_metadata.name;
+  if(metaName && !G.state.profile.name){
+    G.state.profile.name = String(metaName).trim().slice(0, 80);
     markDirty();
   }
   applyTheme();
-  if(state.defaultCategoryFilter) activeCategoryFilter = state.defaultCategoryFilter;
-  if(state.calendarViewDefault) calendarView = state.calendarViewDefault;
+  if(G.state.defaultCategoryFilter) G.activeCategoryFilter = G.state.defaultCategoryFilter;
+  if(G.state.calendarViewDefault) G.calendarView = G.state.calendarViewDefault;
   loadUiSession();
   closeLoginGate();
   handleOutlookRedirectFeedback();
   render();
   updateFileStatus();
-  if(pendingOutlookToast){ showToast(pendingOutlookToast); pendingOutlookToast = null; }
+  if(G.pendingOutlookToast){ showToast(G.pendingOutlookToast); G.pendingOutlookToast = null; }
 }
 
-function showToast(message){
+export function showToast(message){
   const el = document.createElement('div');
   el.textContent = message;
   el.style.cssText = 'position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--surface); padding:10px 18px; border-radius:10px; font-size:13px; font-weight:500; box-shadow:var(--shadow-md); z-index:9999; opacity:0; transition:opacity .2s;';
@@ -201,18 +211,18 @@ function showToast(message){
   }, 3000);
 }
 
-function dounoIconSvg(color){
+export function dounoIconSvg(color){
   return `<svg viewBox="0 0 512 512" fill="none"><path d="M112 152H292 C364 152 408 192 408 256 C408 320 364 360 292 360 H112 V300" stroke="${color}" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
-const DOUNO_WORDMARK_SRC = document.querySelector('.sidebar-wordmark-img').getAttribute('src');
+export const DOUNO_WORDMARK_SRC = document.querySelector('.sidebar-wordmark-img').getAttribute('src');
 
-let loginMode = 'login'; // 'login' | 'signup' | 'verify'
-let signupDraft = { name: '', email: '', terms: false };
-let resendUntil = 0;
-let resendTimer = null;
+G.loginMode = 'login'; // 'login' | 'signup' | 'verify'
+G.signupDraft = { name: '', email: '', terms: false };
+G.resendUntil = 0;
+G.resendTimer = null;
 
-const LOGIN_EYE_OPEN = '<svg id="loginPwEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
-const LOGIN_EYE_CLOSED = '<svg id="loginPwEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.4 21.4 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.4 21.4 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
-const LOGIN_ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
-const LOGIN_MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px; height:22px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+export const LOGIN_EYE_OPEN = '<svg id="loginPwEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+export const LOGIN_EYE_CLOSED = '<svg id="loginPwEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.4 21.4 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.4 21.4 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+export const LOGIN_ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+export const LOGIN_MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px; height:22px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
 

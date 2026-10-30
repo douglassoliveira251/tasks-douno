@@ -1,9 +1,20 @@
+import { G } from './globais.js';
+import { closeAboutModal } from './03-outlook.js';
+import { closeWhatsNew } from './05-novidades-painel.js';
+import { closeHelpPanel } from './06-cabecalho-e-ajuda.js';
+import { catById, todayStr, uid } from './10-helpers.js';
+import { closeNoteComposer } from './24-render-notes.js';
+import { closeEventComposer } from './28-calendario-eventos.js';
+import { closeMobileSidebar } from './45-nav-view-switch.js';
+import { closeSearchResultsDropdown } from './46-busca-e-notificacoes.js';
+import { render } from './48-render-principal.js';
+
 /* Concluir leva a subtarefa para o fim da lista e guarda onde ela estava (as pendentes que vinham
    depois dela, na ordem). Desmarcar devolve ao mesmo lugar: antes da primeira dessas ainda pendente
    ou, se não sobrou nenhuma, no fim das pendentes. Sem posição guardada (concluída de antes ou
    criada já concluída), desmarcar não muda a ordem. A posição fica no próprio estado, então
    sobrevive a recarregar a página e a sincronizar. */
-function toggleSubtaskDone(task, sub){
+export function toggleSubtaskDone(task, sub){
   const list = task.subtasks;
   const i = list.indexOf(sub);
   if(!sub.done){
@@ -33,39 +44,39 @@ function toggleSubtaskDone(task, sub){
 }
 
 /* ===================== PAINEL LATERAL DE TAREFA ===================== */
-function openTaskPanel(taskId){
+export function openTaskPanel(taskId){
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
-  activeTaskId = taskId;
-  creatingNewTask = false;
-  tagsPopoverOpen = false;
+  G.activeTaskId = taskId;
+  G.creatingNewTask = false;
+  G.tagsPopoverOpen = false;
   render();
 }
 
-function openNewTaskPanel(){
+export function openNewTaskPanel(){
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
-  activeTaskId = null;
-  creatingNewTask = true;
-  tagsPopoverOpen = false;
+  G.activeTaskId = null;
+  G.creatingNewTask = true;
+  G.tagsPopoverOpen = false;
   render();
 }
 
 /* Comentário em digitação é guardado por tarefa ('__new__' = tarefa ainda não
    criada). Antes, qualquer alteração de campo redesenhava o painel e o texto do
    comentário sumia; agora ele é restaurado a cada redesenho. */
-const COMMENT_DRAFTS_KEY = 'dounoCommentDrafts';
-let tpCommentDrafts = {};
-try{ tpCommentDrafts = JSON.parse(sessionStorage.getItem(COMMENT_DRAFTS_KEY) || '{}') || {}; }catch(e){ tpCommentDrafts = {}; }
-function saveCommentDrafts(){
-  try{ sessionStorage.setItem(COMMENT_DRAFTS_KEY, JSON.stringify(tpCommentDrafts)); }catch(e){}
+export const COMMENT_DRAFTS_KEY = 'dounoCommentDrafts';
+G.tpCommentDrafts = {};
+try{ G.tpCommentDrafts = JSON.parse(sessionStorage.getItem(COMMENT_DRAFTS_KEY) || '{}') || {}; }catch(e){ G.tpCommentDrafts = {}; }
+export function saveCommentDrafts(){
+  try{ sessionStorage.setItem(COMMENT_DRAFTS_KEY, JSON.stringify(G.tpCommentDrafts)); }catch(e){}
 }
-function currentCommentKey(){ return creatingNewTask ? '__new__' : activeTaskId; }
-function showUnsentCommentDialog(){
+export function currentCommentKey(){ return G.creatingNewTask ? '__new__' : G.activeTaskId; }
+export function showUnsentCommentDialog(){
   let ov = document.getElementById('unsentCommentOverlay');
   if(!ov){
     ov = document.createElement('div');
@@ -85,9 +96,9 @@ function showUnsentCommentDialog(){
   const key = currentCommentKey();
   const hide = () => ov.classList.remove('show');
   ov.querySelector('#unsentBack').onclick = hide;
-  ov.querySelector('#unsentDiscard').onclick = () => { delete tpCommentDrafts[key]; saveCommentDrafts(); hide(); closeTaskPanel(true); };
+  ov.querySelector('#unsentDiscard').onclick = () => { delete G.tpCommentDrafts[key]; saveCommentDrafts(); hide(); closeTaskPanel(true); };
   ov.querySelector('#unsentSend').onclick = () => {
-    const text = (tpCommentDrafts[key] || '').trim();
+    const text = (G.tpCommentDrafts[key] || '').trim();
     hide();
     if(text){
       const t = getOrCreateActiveTask();
@@ -96,40 +107,40 @@ function showUnsentCommentDialog(){
         t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
       }
     }
-    delete tpCommentDrafts[key];
+    delete G.tpCommentDrafts[key];
     saveCommentDrafts();
     closeTaskPanel(true);
   };
   ov.classList.add('show');
   setTimeout(() => ov.querySelector('#unsentBack').focus(), 0);
 }
-function closeTaskPanel(force){
+export function closeTaskPanel(force){
   if(force !== true){
-    const draft = (tpCommentDrafts[currentCommentKey()] || '').trim();
+    const draft = (G.tpCommentDrafts[currentCommentKey()] || '').trim();
     if(draft){ showUnsentCommentDialog(); return; }
   }
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
-  activeTaskId = null;
-  creatingNewTask = false;
-  tagsPopoverOpen = false;
+  G.activeTaskId = null;
+  G.creatingNewTask = false;
+  G.tagsPopoverOpen = false;
   render();
 }
 
-let taskPanelMouseDownOutside = false;
+G.taskPanelMouseDownOutside = false;
 document.addEventListener('mousedown', (e) => {
-  if(currentView !== 'tasks' && currentView !== 'projects') return;
-  if(!(activeTaskId || creatingNewTask)) return;
+  if(G.currentView !== 'tasks' && G.currentView !== 'projects') return;
+  if(!(G.activeTaskId || G.creatingNewTask)) return;
   const panel = document.querySelector('.task-panel');
-  taskPanelMouseDownOutside = !panel || !panel.contains(e.target);
+  G.taskPanelMouseDownOutside = !panel || !panel.contains(e.target);
 }, true);
 
 document.addEventListener('click', (e) => {
-  if(currentView !== 'tasks' && currentView !== 'projects') return;
-  if(!(activeTaskId || creatingNewTask)) return;
-  if(!taskPanelMouseDownOutside) return;
+  if(G.currentView !== 'tasks' && G.currentView !== 'projects') return;
+  if(!(G.activeTaskId || G.creatingNewTask)) return;
+  if(!G.taskPanelMouseDownOutside) return;
   const panel = document.querySelector('.task-panel');
   if(!panel || panel.contains(e.target)) return;
   if(e.target.closest && (
@@ -146,11 +157,11 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if(e.key !== 'Escape') return;
-  if((currentView === 'tasks' || currentView === 'projects') && (activeTaskId || creatingNewTask)){
+  if((G.currentView === 'tasks' || G.currentView === 'projects') && (G.activeTaskId || G.creatingNewTask)){
     closeTaskPanel();
     return;
   }
-  if(currentView === 'notes' && (activeNoteId || creatingNewNote)){
+  if(G.currentView === 'notes' && (G.activeNoteId || G.creatingNewNote)){
     closeNoteComposer();
     return;
   }
@@ -180,40 +191,40 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-  if(!tagsPopoverOpen) return;
+  if(!G.tagsPopoverOpen) return;
   const popover = document.getElementById('tpTagsPopover');
   const toggleBtn = document.getElementById('tpTagsToggleBtn');
   if(popover && toggleBtn && !popover.contains(e.target) && !toggleBtn.contains(e.target)){
-    tagsPopoverOpen = false;
+    G.tagsPopoverOpen = false;
     render();
   }
 });
 
 
-function getOrCreateActiveTask(){
-  if(creatingNewTask){
-    const defaultCat = (activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id;
-    state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+export function getOrCreateActiveTask(){
+  if(G.creatingNewTask){
+    const defaultCat = (G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : G.state.categories[0].id;
+    G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
     const t = {
-      id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'),
+      id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'),
       title:'', categoryId: defaultCat, done:false, status:'nao_iniciado',
       dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
-    state.tasks.push(t);
-    if(tpCommentDrafts['__new__'] !== undefined){ tpCommentDrafts[t.id] = tpCommentDrafts['__new__']; delete tpCommentDrafts['__new__']; saveCommentDrafts(); }
-    activeTaskId = t.id;
-    creatingNewTask = false;
+    G.state.tasks.push(t);
+    if(G.tpCommentDrafts['__new__'] !== undefined){ G.tpCommentDrafts[t.id] = G.tpCommentDrafts['__new__']; delete G.tpCommentDrafts['__new__']; saveCommentDrafts(); }
+    G.activeTaskId = t.id;
+    G.creatingNewTask = false;
     return t;
   }
-  return state.tasks.find(x => x.id === activeTaskId);
+  return G.state.tasks.find(x => x.id === G.activeTaskId);
 }
 
-const RECURRENCE_LABELS = { none:'Não repete', daily:'Diariamente', weekly:'Semanalmente', monthly:'Mensalmente', yearly:'Anualmente' };
-const RECURRENCE_UNIT_SINGULAR = { daily:'dia', weekly:'semana', monthly:'mês', yearly:'ano' };
-const RECURRENCE_UNIT_PLURAL = { daily:'dias', weekly:'semanas', monthly:'meses', yearly:'anos' };
+export const RECURRENCE_LABELS = { none:'Não repete', daily:'Diariamente', weekly:'Semanalmente', monthly:'Mensalmente', yearly:'Anualmente' };
+export const RECURRENCE_UNIT_SINGULAR = { daily:'dia', weekly:'semana', monthly:'mês', yearly:'ano' };
+export const RECURRENCE_UNIT_PLURAL = { daily:'dias', weekly:'semanas', monthly:'meses', yearly:'anos' };
 
-function recurrenceSummaryLabel(task){
+export function recurrenceSummaryLabel(task){
   if(!task.recurrence || task.recurrence === 'none') return 'Não repete';
   const n = task.recurrenceInterval || 1;
   if(n === 1) return RECURRENCE_LABELS[task.recurrence];

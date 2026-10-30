@@ -1,14 +1,21 @@
-function renderCalendar(){
+import { G } from './globais.js';
+import { markDirty } from './08-persistencia.js';
+import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, getEventsForDate, startOfWeekStr } from './25-calendario.js';
+import { openEventComposer } from './28-calendario-eventos.js';
+import { render } from './48-render-principal.js';
+
+export function renderCalendar(){
   const view = document.getElementById('calendarView');
   view.innerHTML = '';
 
   const header = document.createElement('div');
   header.className = 'cal-header';
-  const focusD = new Date(calendarFocusDate + 'T00:00:00');
+  const focusD = new Date(G.calendarFocusDate + 'T00:00:00');
   let periodLabel = '';
-  if(calendarView === 'month') periodLabel = `${MONTH_LABELS[focusD.getMonth()]} ${focusD.getFullYear()}`;
-  else if(calendarView === 'week'){
-    const start = startOfWeekStr(calendarFocusDate);
+  if(G.calendarView === 'month') periodLabel = `${MONTH_LABELS[focusD.getMonth()]} ${focusD.getFullYear()}`;
+  else if(G.calendarView === 'week'){
+    const start = startOfWeekStr(G.calendarFocusDate);
     const end = addDaysStr(start, 6);
     const sD = new Date(start+'T00:00:00'), eD = new Date(end+'T00:00:00');
     periodLabel = `${sD.getDate()} de ${MONTH_LABELS[sD.getMonth()]} – ${eD.getDate()} de ${MONTH_LABELS[eD.getMonth()]}`;
@@ -18,9 +25,9 @@ function renderCalendar(){
 
   header.innerHTML = `
     <div class="cal-view-toggle">
-      <button type="button" data-cv="day" class="${calendarView==='day'?'active':''}">Dia</button>
-      <button type="button" data-cv="week" class="${calendarView==='week'?'active':''}">Semana</button>
-      <button type="button" data-cv="month" class="${calendarView==='month'?'active':''}">Mês</button>
+      <button type="button" data-cv="day" class="${G.calendarView==='day'?'active':''}">Dia</button>
+      <button type="button" data-cv="week" class="${G.calendarView==='week'?'active':''}">Semana</button>
+      <button type="button" data-cv="month" class="${G.calendarView==='month'?'active':''}">Mês</button>
     </div>
     <div class="cal-nav">
       <button type="button" id="calPrevBtn" title="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -29,31 +36,31 @@ function renderCalendar(){
     </div>
     <div class="cal-period-label">${periodLabel}</div>
     <div class="cal-layers">
-      <button type="button" class="cal-layers-btn${calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${calLayersOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Camadas</button>
-      ${calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Camadas do calendário</h4>
-        <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
-        <label class="cal-lay-row sub ${state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
+      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${G.calLayersOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Camadas</button>
+      ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Camadas do calendário</h4>
+        <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
+        <label class="cal-lay-row sub ${G.state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${G.state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
       </div>` : ''}
     </div>
   `;
   view.appendChild(header);
-  header.querySelector('#calLayersBtn').onclick = (e) => { e.stopPropagation(); calLayersOpen = !calLayersOpen; render(); };
-  if(calLayersOpen){
-    header.querySelector('#layHol').onchange = e => { state.showHolidays = e.target.checked; markDirty(); };
-    header.querySelector('#layOpt').onchange = e => { state.showOptionalHolidays = e.target.checked; markDirty(); };
+  header.querySelector('#calLayersBtn').onclick = (e) => { e.stopPropagation(); G.calLayersOpen = !G.calLayersOpen; render(); };
+  if(G.calLayersOpen){
+    header.querySelector('#layHol').onchange = e => { G.state.showHolidays = e.target.checked; markDirty(); };
+    header.querySelector('#layOpt').onchange = e => { G.state.showOptionalHolidays = e.target.checked; markDirty(); };
   }
 
   header.querySelectorAll('[data-cv]').forEach(btn => {
     btn.onclick = () => {
-      calendarView = btn.dataset.cv;
-      state.calendarViewDefault = calendarView;
-      if(activeCategoryFilter){
-        state.categoryCalendarViews[activeCategoryFilter] = calendarView;
+      G.calendarView = btn.dataset.cv;
+      G.state.calendarViewDefault = G.calendarView;
+      if(G.activeCategoryFilter){
+        G.state.categoryCalendarViews[G.activeCategoryFilter] = G.calendarView;
       }
       markDirty();
     };
   });
-  header.querySelector('#calTodayBtn').onclick = () => { calendarFocusDate = todayStr(); render(); };
+  header.querySelector('#calTodayBtn').onclick = () => { G.calendarFocusDate = todayStr(); render(); };
   header.querySelector('#calPrevBtn').onclick = () => { navigateCalendar(-1); };
   header.querySelector('#calNextBtn').onclick = () => { navigateCalendar(1); };
 
@@ -61,46 +68,46 @@ function renderCalendar(){
   body.className = 'cal-body';
   view.appendChild(body);
 
-  if(calendarView === 'month') renderCalendarMonth(body);
-  else if(calendarView === 'week') renderCalendarWeek(body);
+  if(G.calendarView === 'month') renderCalendarMonth(body);
+  else if(G.calendarView === 'week') renderCalendarWeek(body);
   else renderCalendarDay(body);
 }
 
-function navigateCalendar(dir){
-  if(calendarView === 'month'){
-    const d = new Date(calendarFocusDate + 'T00:00:00');
+export function navigateCalendar(dir){
+  if(G.calendarView === 'month'){
+    const d = new Date(G.calendarFocusDate + 'T00:00:00');
     d.setMonth(d.getMonth() + dir);
-    calendarFocusDate = dateToStr(d);
-  } else if(calendarView === 'week'){
-    calendarFocusDate = addDaysStr(calendarFocusDate, dir*7);
+    G.calendarFocusDate = dateToStr(d);
+  } else if(G.calendarView === 'week'){
+    G.calendarFocusDate = addDaysStr(G.calendarFocusDate, dir*7);
   } else {
-    calendarFocusDate = addDaysStr(calendarFocusDate, dir);
+    G.calendarFocusDate = addDaysStr(G.calendarFocusDate, dir);
   }
   render();
 }
 
-let calSelectedDate = null;
-const CAL_ICONS = {
+G.calSelectedDate = null;
+export const CAL_ICONS = {
   clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
   users:'<circle cx="9" cy="9" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 010 6M18 14c2 .6 3 2.2 3 4"/>',
   repeat:'<path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 012-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 01-2 2H3"/>',
   task:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
   plus:'<path d="M12 5v14M5 12h14"/>'
 };
-function calIcon(n, size){
+export function calIcon(n, size){
   return '<svg width="'+(size||13)+'" height="'+(size||13)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+CAL_ICONS[n]+'</svg>';
 }
-function renderCalendarMonth(body){
-  const focusD = new Date(calendarFocusDate + 'T00:00:00');
+export function renderCalendarMonth(body){
+  const focusD = new Date(G.calendarFocusDate + 'T00:00:00');
   const year = focusD.getFullYear(), month = focusD.getMonth();
-  const startDay = state.weekStartDay || 0;
+  const startDay = G.state.weekStartDay || 0;
   const firstOfMonth = new Date(year, month, 1);
   const gridStart = new Date(firstOfMonth);
   gridStart.setDate(gridStart.getDate() - ((firstOfMonth.getDay() - startDay + 7) % 7));
   const todayS = todayStr();
-  const monthPrefix = calendarFocusDate.slice(0, 7);
-  if(!calSelectedDate || calSelectedDate.slice(0, 7) !== monthPrefix){
-    calSelectedDate = todayS.slice(0, 7) === monthPrefix ? todayS : monthPrefix + '-01';
+  const monthPrefix = G.calendarFocusDate.slice(0, 7);
+  if(!G.calSelectedDate || G.calSelectedDate.slice(0, 7) !== monthPrefix){
+    G.calSelectedDate = todayS.slice(0, 7) === monthPrefix ? todayS : monthPrefix + '-01';
   }
   const rotatedWeekdayLabels = WEEKDAY_LABELS.slice(startDay).concat(WEEKDAY_LABELS.slice(0, startDay));
 
@@ -121,7 +128,7 @@ function renderCalendarMonth(body){
     const cellStr = dateToStr(cellDate);
     const cell = document.createElement('div');
     const hol = holidayOn(cellStr);
-    cell.className = 'cal-month-cell' + (cellDate.getMonth()!==month?' other-month':'') + (cellStr===todayS?' today':'') + (cellStr===calSelectedDate?' selected':'') + (hol?' holiday':'') + ((cellDate.getDay()===0 || cellDate.getDay()===6)?' weekend':'');
+    cell.className = 'cal-month-cell' + (cellDate.getMonth()!==month?' other-month':'') + (cellStr===todayS?' today':'') + (cellStr===G.calSelectedDate?' selected':'') + (hol?' holiday':'') + ((cellDate.getDay()===0 || cellDate.getDay()===6)?' weekend':'');
     cell.dataset.date = cellStr;
     const dayEvents = getEventsForDate(cellStr);
     let evHtml = '';
@@ -132,7 +139,7 @@ function renderCalendarMonth(body){
       evHtml = `<div class="cal-month-dots">${dayEvents.slice(0,5).map(ev => `<i style="background:${eventColor(ev)}"></i>`).join('')}${dayEvents.length>5?`<span class="cal-event-more">+${dayEvents.length-5}</span>`:''}</div><div class="cal-month-count">${dayEvents.length} agendas</div>`;
     }
     cell.innerHTML = `<div class="cal-month-daynum"><span>${cellDate.getDate()}</span></div>${hol ? `<div class="cal-hol" title="${escapeHtml(hol.name)}${hol.optional ? ' (ponto facultativo)' : ''}">${HOL_FLAG}<span>${escapeHtml(hol.name)}</span></div>` : ''}${evHtml}`;
-    cell.addEventListener('click', () => { calSelectedDate = cellStr; render(); });
+    cell.addEventListener('click', () => { G.calSelectedDate = cellStr; render(); });
     cell.addEventListener('dblclick', () => openEventComposer(null, cellStr));
     grid.appendChild(cell);
   }
@@ -140,19 +147,19 @@ function renderCalendarMonth(body){
   layout.appendChild(card);
 
   /* painel do dia selecionado */
-  const sd = new Date(calSelectedDate + 'T00:00:00');
-  const dayEvents = getEventsForDate(calSelectedDate).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
-  const dayTasks = state.tasks.filter(t => !t.done && t.dueDate === calSelectedDate && (!activeCategoryFilter || t.categoryId === activeCategoryFilter));
+  const sd = new Date(G.calSelectedDate + 'T00:00:00');
+  const dayEvents = getEventsForDate(G.calSelectedDate).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
+  const dayTasks = G.state.tasks.filter(t => !t.done && t.dueDate === G.calSelectedDate && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
   const nEv = dayEvents.length, nTk = dayTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
   const panel = document.createElement('div');
   panel.className = 'cal-day-panel';
   panel.innerHTML = `
-    <div class="cal-day-panel-kicker">${WEEKDAY_LABELS[sd.getDay()]}${calSelectedDate===todayS?' · hoje':''}</div>
+    <div class="cal-day-panel-kicker">${WEEKDAY_LABELS[sd.getDay()]}${G.calSelectedDate===todayS?' · hoje':''}</div>
     <div class="cal-day-panel-title">${sd.getDate()} de ${MONTH_LABELS[sd.getMonth()].toLowerCase()}</div>
     <div class="cal-day-panel-sub">${summary}</div>
-    ${holidayOn(calSelectedDate) ? `<div class="cal-hol-chip">${HOL_FLAG}${holidayOn(calSelectedDate).name}${holidayOn(calSelectedDate).optional ? ' · facultativo' : ''}</div>` : ''}
+    ${holidayOn(G.calSelectedDate) ? `<div class="cal-hol-chip">${HOL_FLAG}${holidayOn(G.calSelectedDate).name}${holidayOn(G.calSelectedDate).optional ? ' · facultativo' : ''}</div>` : ''}
     <div class="cal-day-timeline">
       ${dayEvents.map(ev => `
         <div class="cal-day-item" data-event-id="${ev.id}" style="--c:${eventColor(ev)}">
@@ -171,20 +178,20 @@ function renderCalendarMonth(body){
     </div>
     <button type="button" class="cal-day-add" id="calDayAdd">${calIcon('plus', 15)} Adicionar neste dia</button>`;
   panel.querySelectorAll('[data-event-id]').forEach(el => {
-    el.onclick = () => { const ev = state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+    el.onclick = () => { const ev = G.state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
   });
   panel.querySelectorAll('[data-task-id]').forEach(el => {
-    el.onclick = () => { currentView = 'tasks'; activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+    el.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
   });
-  panel.querySelector('#calDayAdd').onclick = () => openEventComposer(null, calSelectedDate);
+  panel.querySelector('#calDayAdd').onclick = () => openEventComposer(null, G.calSelectedDate);
   layout.appendChild(panel);
   body.appendChild(layout);
 }
 
 /* feriados nacionais do Brasil: fixos + os que dependem da Páscoa (calculados, sem serviço externo) */
-const HOL_FLAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
-const _holCache = {};
-function brHolidays(year){
+export const HOL_FLAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+export const _holCache = {};
+export function brHolidays(year){
   if(_holCache[year]) return _holCache[year];
   const a = year % 19, b = Math.floor(year / 100), c = year % 100, d = Math.floor(b / 4), e = b % 4;
   const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
@@ -200,39 +207,39 @@ function brHolidays(year){
   map[addDaysStr(easter, 60)] = { name: 'Corpus Christi', optional: true };
   return (_holCache[year] = map);
 }
-function holidayOn(dateStr){
-  if(state.showHolidays === false) return null;
+export function holidayOn(dateStr){
+  if(G.state.showHolidays === false) return null;
   const h = brHolidays(+dateStr.slice(0, 4))[dateStr] || null;
-  if(h && h.optional && state.showOptionalHolidays === false) return null;
+  if(h && h.optional && G.state.showOptionalHolidays === false) return null;
   return h;
 }
 
-const CAL_HOUR_HEIGHT = 48;
-function timeToMinutes(t){
+export const CAL_HOUR_HEIGHT = 48;
+export function timeToMinutes(t){
   if(!t) return null;
   const [h,m] = t.split(':').map(Number);
   return h*60 + (m||0);
 }
 
-function getCalHourHeight(){
-  return state.calendarHourDensity === 'normal' ? 48 : 26;
+export function getCalHourHeight(){
+  return G.state.calendarHourDensity === 'normal' ? 48 : 26;
 }
-function getCalHourStep(){
-  return state.calendarHourDensity === 'normal' ? 1 : 2;
+export function getCalHourStep(){
+  return G.state.calendarHourDensity === 'normal' ? 1 : 2;
 }
 
-const CAL_START_HOUR = 7;
-function buildCalSidebar(){
+export const CAL_START_HOUR = 7;
+export function buildCalSidebar(){
   const side = document.createElement('div');
   side.className = 'cal-side';
-  const focusD = new Date(calendarFocusDate + 'T00:00:00');
+  const focusD = new Date(G.calendarFocusDate + 'T00:00:00');
   const year = focusD.getFullYear(), month = focusD.getMonth();
-  const startDay = state.weekStartDay || 0;
+  const startDay = G.state.weekStartDay || 0;
   const first = new Date(year, month, 1);
   const gridStart = new Date(first);
   gridStart.setDate(gridStart.getDate() - ((first.getDay() - startDay + 7) % 7));
   const todayS = todayStr();
-  const weekStart = startOfWeekStr(calendarFocusDate), weekEnd = addDaysStr(weekStart, 6);
+  const weekStart = startOfWeekStr(G.calendarFocusDate), weekEnd = addDaysStr(weekStart, 6);
   const initials = WEEKDAY_LABELS.slice(startDay).concat(WEEKDAY_LABELS.slice(0, startDay)).map(l => l.charAt(0));
   let cells = '';
   for(let i=0;i<42;i++){
@@ -248,9 +255,9 @@ function buildCalSidebar(){
     <div class="cal-mini-head"><b>${MONTH_LABELS[month]} ${year}</b>
       <span><button type="button" id="calMiniPrev" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><button type="button" id="calMiniNext" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button></span></div>
     <div class="cal-mini-grid">${initials.map(l => `<span class="cal-mini-wd">${l}</span>`).join('')}${cells}</div>`;
-  mini.querySelector('#calMiniPrev').onclick = () => { const d = new Date(calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); calendarFocusDate = dateToStr(d); render(); };
-  mini.querySelector('#calMiniNext').onclick = () => { const d = new Date(calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()+1); calendarFocusDate = dateToStr(d); render(); };
-  mini.querySelectorAll('.cal-mini-day').forEach(b => { b.onclick = () => { calendarFocusDate = b.dataset.date; render(); }; });
+  mini.querySelector('#calMiniPrev').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); G.calendarFocusDate = dateToStr(d); render(); };
+  mini.querySelector('#calMiniNext').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()+1); G.calendarFocusDate = dateToStr(d); render(); };
+  mini.querySelectorAll('.cal-mini-day').forEach(b => { b.onclick = () => { G.calendarFocusDate = b.dataset.date; render(); }; });
   side.appendChild(mini);
 
   const agenda = document.createElement('div');
@@ -265,14 +272,14 @@ function buildCalSidebar(){
         : '<div class="cal-side-empty">Nada marcado</div>');
   }).join('');
   agenda.querySelectorAll('[data-event-id]').forEach(el => {
-    el.onclick = () => { const ev = state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+    el.onclick = () => { const ev = G.state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
   });
   side.appendChild(agenda);
   return side;
 }
 
-function renderCalendarWeek(body){
-  const start = startOfWeekStr(calendarFocusDate);
+export function renderCalendarWeek(body){
+  const start = startOfWeekStr(G.calendarFocusDate);
   const todayS = todayStr();
   const days = [];
   for(let i=0;i<7;i++) days.push(addDaysStr(start, i));
@@ -286,13 +293,13 @@ function renderCalendarWeek(body){
   densityRow.className = 'cal-density-row';
   densityRow.innerHTML = `
     <div class="cal-view-toggle">
-      <button type="button" data-density="normal" class="${state.calendarHourDensity!=='compact'?'active':''}">Normal</button>
-      <button type="button" data-density="compact" class="${state.calendarHourDensity==='compact'?'active':''}">Compacto</button>
+      <button type="button" data-density="normal" class="${G.state.calendarHourDensity!=='compact'?'active':''}">Normal</button>
+      <button type="button" data-density="compact" class="${G.state.calendarHourDensity==='compact'?'active':''}">Compacto</button>
     </div>
   `;
   densityRow.querySelectorAll('[data-density]').forEach(btn => {
     btn.onclick = () => {
-      state.calendarHourDensity = btn.dataset.density;
+      G.state.calendarHourDensity = btn.dataset.density;
       markDirty();
     };
   });
@@ -437,7 +444,7 @@ function renderCalendarWeek(body){
   body.appendChild(layout);
 
   alldayRow.querySelectorAll('.cal-event-pill').forEach(pill => {
-    pill.onclick = (e) => { e.stopPropagation(); const ev = state.events.find(x=>x.id===pill.dataset.eventId); if(ev) openEventComposer(ev); };
+    pill.onclick = (e) => { e.stopPropagation(); const ev = G.state.events.find(x=>x.id===pill.dataset.eventId); if(ev) openEventComposer(ev); };
   });
 
   // a visão semanal sempre abre a partir das 7h (antes disso quase não há agendas).
@@ -455,15 +462,15 @@ function renderCalendarWeek(body){
   syncWeekScrollbar();
 }
 /* a grade de horas tem barra de rolagem e o cabeçalho/dia todo não: compensa a largura para as colunas ficarem alinhadas */
-function syncWeekScrollbar(){
+export function syncWeekScrollbar(){
   const sc = document.querySelector('.cal-week-scroll'), wr = document.querySelector('.cal-week-wrap');
   if(sc && wr) wr.style.setProperty('--sbw', (sc.offsetWidth - sc.clientWidth) + 'px');
 }
 window.addEventListener('resize', syncWeekScrollbar);
 
-const WEEKDAY_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-function renderCalendarDay(body){
-  const dateStr = calendarFocusDate;
+export const WEEKDAY_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+export function renderCalendarDay(body){
+  const dateStr = G.calendarFocusDate;
   const todayS = todayStr();
   const isToday = dateStr === todayS;
   const d = new Date(dateStr + 'T00:00:00');
@@ -543,8 +550,8 @@ function renderCalendarDay(body){
   layout.appendChild(card);
 
   /* lateral: resumo do dia, dia inteiro, tarefas */
-  const dayTasks = state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!activeCategoryFilter || t.categoryId === activeCategoryFilter));
-  const lateTasks = isToday ? state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!activeCategoryFilter || t.categoryId === activeCategoryFilter)) : [];
+  const dayTasks = G.state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+  const lateTasks = isToday ? G.state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
   const nEv = all.length, nTk = dayTasks.length + lateTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
@@ -561,10 +568,10 @@ function renderCalendarDay(body){
       <div class="cal-day-tasks">${dayTasks.map(t => taskHtml(t, false)).join('')}${lateTasks.map(t => taskHtml(t, true)).join('')}</div>` : ''}
     <button type="button" class="cal-day-add" id="calDayAdd" style="margin-top:auto;">${calIcon('plus', 15)} Adicionar neste dia</button>`;
   side.querySelectorAll('[data-event-id]').forEach(el => {
-    el.onclick = () => { const ev = state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+    el.onclick = () => { const ev = G.state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
   });
   side.querySelectorAll('[data-task-id]').forEach(el => {
-    el.onclick = () => { currentView = 'tasks'; activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+    el.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
   });
   side.querySelector('#calDayAdd').onclick = () => openEventComposer(null, dateStr);
   layout.appendChild(side);

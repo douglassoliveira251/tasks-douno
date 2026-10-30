@@ -1,5 +1,5 @@
 /* ===================== INDEXEDDB (handle do arquivo entre sessões) ===================== */
-function openHandleDB(){
+export function openHandleDB(){
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('tyvraTasksDB', 1);
     req.onupgradeneeded = () => { req.result.createObjectStore('handles'); };
@@ -7,7 +7,7 @@ function openHandleDB(){
     req.onerror = () => reject(req.error);
   });
 }
-async function idbGetHandle(key){
+export async function idbGetHandle(key){
   try{
     const db = await openHandleDB();
     return await new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ async function idbGetHandle(key){
     });
   }catch(e){ return null; }
 }
-async function idbSetHandle(key, handle){
+export async function idbSetHandle(key, handle){
   try{
     const db = await openHandleDB();
     await new Promise((resolve, reject) => {
@@ -29,7 +29,7 @@ async function idbSetHandle(key, handle){
     });
   }catch(e){ console.error(e); }
 }
-async function idbDeleteHandle(key){
+export async function idbDeleteHandle(key){
   try{
     const db = await openHandleDB();
     await new Promise((resolve, reject) => {

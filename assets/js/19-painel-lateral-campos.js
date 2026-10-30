@@ -1,5 +1,17 @@
+import { G } from './globais.js';
+import { markDirty } from './08-persistencia.js';
+import { catById, escapeHtml, fmtDate, spawnNextRecurrence, todayStr, uid } from './10-helpers.js';
+import { downloadAttachment } from './12-render-tasks.js';
+import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
+import { getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
+import { fmtUpdatedAt } from './23-texto-rico-utilitarios.js';
+import { openNoteComposer } from './24-render-notes.js';
+import { eventColor } from './25-calendario.js';
+import { openEventComposer } from './28-calendario-eventos.js';
+import { render } from './48-render-principal.js';
+
 /* Nome, concluir e status. */
-function bindTpHeader(panel, task){
+export function bindTpHeader(panel, task){
   const tpNameEl = document.getElementById('tpName');
   tpNameEl.addEventListener('click', () => {
     if(tpNameEl.hasAttribute('readonly')){
@@ -9,11 +21,11 @@ function bindTpHeader(panel, task){
   });
   tpNameEl.addEventListener('blur', e => {
     const v = e.target.value.trim();
-    if(!v && creatingNewTask) return; // nada digitado ainda, não cria
+    if(!v && G.creatingNewTask) return; // nada digitado ainda, não cria
     const t = getOrCreateActiveTask();
     if(!t) return;
     t.title = v;
-    if(!creatingNewTask) tpNameEl.setAttribute('readonly', '');
+    if(!G.creatingNewTask) tpNameEl.setAttribute('readonly', '');
     markDirty();
   });
   tpNameEl.addEventListener('keydown', e => { if(e.key==='Enter') e.target.blur(); });
@@ -27,7 +39,7 @@ function bindTpHeader(panel, task){
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
       const next = spawnNextRecurrence(t);
       if(next){
-        state.tasks = state.tasks.filter(x => x.id !== t.id);
+        G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
         markDirty();
         openTaskPanel(next.id);
         return;
@@ -55,7 +67,7 @@ function bindTpHeader(panel, task){
       if(t.done && t.recurrence && t.recurrence !== 'none'){
         const next = spawnNextRecurrence(t);
         if(next){
-          state.tasks = state.tasks.filter(x => x.id !== t.id);
+          G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
           markDirty();
           openTaskPanel(next.id);
           return;
@@ -67,7 +79,7 @@ function bindTpHeader(panel, task){
 }
 
 /* Espaço, agendas e notas ligadas, desvincular do projeto. */
-function bindTpSpaceAndLinks(panel, task){
+export function bindTpSpaceAndLinks(panel, task){
   function renderTpGroupChip(){
     const cat = catById(task.categoryId);
     const chip = document.getElementById('tpGroupChip');
@@ -83,7 +95,7 @@ function bindTpSpaceAndLinks(panel, task){
       t.categoryId = newCatId;
       task.categoryId = newCatId;
       t.tagIds = (t.tagIds||[]).filter(id => {
-        const tg = state.tags.find(x => x.id === id);
+        const tg = G.state.tags.find(x => x.id === id);
         return tg && (!tg.categoryId || tg.categoryId === t.categoryId);
       });
       renderTpGroupChip();
@@ -100,7 +112,7 @@ function bindTpSpaceAndLinks(panel, task){
   function renderTpAgendaList(){
     const box = document.getElementById('tpAgendaList');
     if(!box) return;
-    const all = state.events.filter(ev => ev.linkedTaskId === task.id)
+    const all = G.state.events.filter(ev => ev.linkedTaskId === task.id)
       .sort((a,b) => (a.date||'').localeCompare(b.date||''));
     const past = all.filter(agendaIsPast);
     const linked = tpShowPastAgendas ? all : all.filter(ev => !agendaIsPast(ev));
@@ -125,7 +137,7 @@ function bindTpSpaceAndLinks(panel, task){
     box.querySelectorAll('.tp-task-agenda-row').forEach(row => {
       row.style.cursor = 'pointer';
       row.onclick = () => {
-        const ev = state.events.find(x => x.id === row.dataset.eventId);
+        const ev = G.state.events.find(x => x.id === row.dataset.eventId);
         if(ev) openEventComposer(ev);
       };
     });
@@ -140,7 +152,7 @@ function bindTpSpaceAndLinks(panel, task){
   function renderTpNotesList(){
     const box = document.getElementById('tpNotesList');
     if(!box) return;
-    const linked = state.notes.filter(n => n.linkedTaskId === task.id)
+    const linked = G.state.notes.filter(n => n.linkedTaskId === task.id)
       .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
     if(linked.length === 0){
       box.innerHTML = '';
@@ -156,8 +168,8 @@ function bindTpSpaceAndLinks(panel, task){
     box.querySelectorAll('.tp-task-agenda-row').forEach(row => {
       row.style.cursor = 'pointer';
       row.onclick = () => {
-        const n = state.notes.find(x => x.id === row.dataset.noteId);
-        if(n){ currentView = 'notes'; render(); openNoteComposer(n); }
+        const n = G.state.notes.find(x => x.id === row.dataset.noteId);
+        if(n){ G.currentView = 'notes'; render(); openNoteComposer(n); }
       };
     });
   }
@@ -165,7 +177,7 @@ function bindTpSpaceAndLinks(panel, task){
   document.getElementById('tpAddNoteBtn').onclick = (e) => {
     e.stopPropagation();
     const t = getOrCreateActiveTask(); if(!t) return;
-    currentView = 'notes';
+    G.currentView = 'notes';
     render();
     openNoteComposer(null, t.id);
   };
@@ -180,7 +192,7 @@ function bindTpSpaceAndLinks(panel, task){
 }
 
 /* Descrição e anexos. */
-function bindTpDescriptionAndAttachments(panel, task){
+export function bindTpDescriptionAndAttachments(panel, task){
   const descEl = document.getElementById('tpDesc');
   const growDesc = () => { if(descEl.scrollHeight > descEl.clientHeight) descEl.style.height = Math.min(descEl.scrollHeight + 2, Math.round(window.innerHeight * 0.6)) + 'px'; };
   descEl.addEventListener('input', growDesc);

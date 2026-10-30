@@ -1,5 +1,13 @@
+import { G } from './globais.js';
+import { dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { PRIORITY_CONFIG } from './12-render-tasks.js';
+import { MONTH_LABELS } from './25-calendario.js';
+import { openProjectEditor, projectColor, projectIconSvg, taskProgress } from './31-projetos.js';
+import { buildProjectReportData, projectCsv, projectReportHtml, taskStatusLabel } from './33-relatorio-do-projeto.js';
+import { effectiveStart } from './35-templates-de-tarefa.js';
+
 /* ===== PDF gerado direto pelo app (jsPDF + autoTable, carregados só quando necessário) ===== */
-function loadScriptOnce(url){
+export function loadScriptOnce(url){
   return new Promise((resolve, reject) => {
     if(document.querySelector('script[data-lib="' + url + '"]')) return resolve();
     const sc = document.createElement('script');
@@ -9,31 +17,31 @@ function loadScriptOnce(url){
     document.head.appendChild(sc);
   });
 }
-async function ensurePdfLibs(){
+export async function ensurePdfLibs(){
   if(window.jspdf && window.jspdf.jsPDF && window.__autoTableReady) return;
   await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
   await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
   window.__autoTableReady = true;
 }
-function hexToRgb(hex){
+export function hexToRgb(hex){
   const h = String(hex || '#3B82F6').replace('#', '');
   const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
-function mixWhite(rgb, a){ return rgb.map(v => Math.round(v * a + 255 * (1 - a))); }
-function downloadBlob(blob, filename){
+export function mixWhite(rgb, a){ return rgb.map(v => Math.round(v * a + 255 * (1 - a))); }
+export function downloadBlob(blob, filename){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-function reportFileName(p, ext){ return 'relatorio-' + (p.name || 'projeto').trim().replace(/[^\w\-]+/g, '_').slice(0, 60) + '.' + ext; }
-function downloadProjectCsv(p){
+export function reportFileName(p, ext){ return 'relatorio-' + (p.name || 'projeto').trim().replace(/[^\w\-]+/g, '_').slice(0, 60) + '.' + ext; }
+export function downloadProjectCsv(p){
   downloadBlob(new Blob([projectCsv(buildProjectReportData(p))], { type: 'text/csv;charset=utf-8' }), reportFileName(p, 'csv'));
 }
 /* ícone do projeto como imagem (o jsPDF não desenha SVG): SVG colorido -> canvas -> PNG */
-function projectIconPng(name, colorHex){
+export function projectIconPng(name, colorHex){
   return new Promise(resolve => {
     try{
       const svg = projectIconSvg(name).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" ').replace(/currentColor/g, colorHex);
@@ -50,7 +58,7 @@ function projectIconPng(name, colorHex){
     }catch(e){ resolve(null); }
   });
 }
-async function downloadProjectPdf(p){
+export async function downloadProjectPdf(p){
   await ensurePdfLibs();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -182,7 +190,7 @@ async function downloadProjectPdf(p){
   doc.save(reportFileName(p, 'pdf'));
 }
 /* Menu do botão "⋮" do projeto: editar e relatório (PDF direto, planilha ou versão para imprimir) */
-function openProjectMenu(anchor, p){
+export function openProjectMenu(anchor, p){
   closeReportMenu();
   const menu = document.createElement('div');
   menu.className = 'report-menu';
@@ -212,8 +220,8 @@ function openProjectMenu(anchor, p){
   };
   setTimeout(() => document.addEventListener('click', closeReportMenu, { once: true }), 0);
 }
-function closeReportMenu(){ const m = document.getElementById('reportMenu'); if(m) m.remove(); }
-function exportProjectReport(p){
+export function closeReportMenu(){ const m = document.getElementById('reportMenu'); if(m) m.remove(); }
+export function exportProjectReport(p){
   const win = window.open('', '_blank');
   if(!win) return;
   win.document.write(projectReportHtml(buildProjectReportData(p)));
@@ -221,7 +229,7 @@ function exportProjectReport(p){
   win.focus();
 }
 /* linha de tarefa dentro da etapa: a barrinha marca o prazo da tarefa */
-function ganttTaskRow(t, stageStateKey, pos){
+export function ganttTaskRow(t, stageStateKey, pos){
   const today = todayStr();
   /* estado visual da barra: concluída = chapada, em andamento = listrada, não iniciada = tom claro */
   const vis = t.done ? 'done' : ((t.status === 'em_andamento' || taskProgress(t) > 0) ? 'prog' : 'todo');
@@ -245,7 +253,7 @@ function ganttTaskRow(t, stageStateKey, pos){
   }
   /* alerta de prazo (só tarefa aberta): atrasada em vermelho, hoje ou até 3 dias em laranja */
   let pill = '';
-  const pillAt = ganttFit ? ` style="left:${Math.min(endPx + 6, pos('9999-12-31') - 64)}px"` : '';
+  const pillAt = G.ganttFit ? ` style="left:${Math.min(endPx + 6, pos('9999-12-31') - 64)}px"` : '';
   if(!t.done && t.dueDate){
     const diff = Math.round((new Date(t.dueDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
     const clock = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';

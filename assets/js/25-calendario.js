@@ -1,17 +1,20 @@
-/* ===================== CALENDÁRIO ===================== */
-const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+import { G } from './globais.js';
+import { catById, dateToStr } from './10-helpers.js';
 
-function eventsInScope(){
-  return state.events.filter(ev => !activeCategoryFilter || ev.categoryId === activeCategoryFilter);
+/* ===================== CALENDÁRIO ===================== */
+export const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+export const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+export const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+export function eventsInScope(){
+  return G.state.events.filter(ev => !G.activeCategoryFilter || ev.categoryId === G.activeCategoryFilter);
 }
 /* Uma agenda recorrente é salva uma vez só (na data de início). As ocorrências são
    calculadas na hora: a partir de ev.date, a cada N dias/semanas/meses/anos, até
    recurrenceEndDate (se houver). Mês/ano mais curto cai no último dia possível.
    Agenda de vários dias (ev.endDate depois de ev.date) aparece em todos os dias
    do período, e em cada repetição também. */
-function eventStartsOn(ev, dateStr){
+export function eventStartsOn(ev, dateStr){
   if(!ev.date || !dateStr) return false;
   if(ev.date === dateStr) return true;
   const rec = ev.recurrence;
@@ -30,7 +33,7 @@ function eventStartsOn(ev, dateStr){
     default: return false;
   }
 }
-function eventOccursOn(ev, dateStr){
+export function eventOccursOn(ev, dateStr){
   if(!ev.date || !dateStr || dateStr < ev.date) return false;
   const utc = d => { const [y, m, dd] = d.split('-').map(Number); return Date.UTC(y, m - 1, dd); };
   const span = ev.endDate && ev.endDate > ev.date ? Math.min(400, Math.round((utc(ev.endDate) - utc(ev.date)) / 86400000)) : 0;
@@ -39,11 +42,11 @@ function eventOccursOn(ev, dateStr){
   }
   return false;
 }
-function eventsOnDate(list, dateStr){
+export function eventsOnDate(list, dateStr){
   return list.filter(ev => eventOccursOn(ev, dateStr)).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
 }
 // próximas ocorrências a partir de fromStr, nos próximos "days" dias; cada item é a agenda com .date da ocorrência
-function upcomingEventOccurrences(list, fromStr, days){
+export function upcomingEventOccurrences(list, fromStr, days){
   const out = [];
   for(let i = 0; i <= days; i++){
     const d = addDaysStr(fromStr, i);
@@ -51,32 +54,32 @@ function upcomingEventOccurrences(list, fromStr, days){
   }
   return out;
 }
-function getEventsForDate(dateStr){
+export function getEventsForDate(dateStr){
   return eventsOnDate(eventsInScope(), dateStr);
 }
-function eventColor(ev){
+export function eventColor(ev){
   if(ev.tagIds && ev.tagIds.length){
-    const tg = state.tags.find(t => t.id === ev.tagIds[0]);
+    const tg = G.state.tags.find(t => t.id === ev.tagIds[0]);
     if(tg) return tg.color;
   }
   const cat = catById(ev.categoryId);
   return cat ? cat.color : 'var(--primary)';
 }
-function eventPrimaryTagName(ev){
+export function eventPrimaryTagName(ev){
   if(ev.tagIds && ev.tagIds.length){
-    const tg = state.tags.find(t => t.id === ev.tagIds[0]);
+    const tg = G.state.tags.find(t => t.id === ev.tagIds[0]);
     if(tg) return tg.name;
   }
   return null;
 }
-function addDaysStr(dateStr, n){
+export function addDaysStr(dateStr, n){
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + n);
   return dateToStr(d);
 }
-function startOfWeekStr(dateStr){
+export function startOfWeekStr(dateStr){
   const d = new Date(dateStr + 'T00:00:00');
-  const startDay = state.weekStartDay || 0;
+  const startDay = G.state.weekStartDay || 0;
   const diff = (d.getDay() - startDay + 7) % 7;
   d.setDate(d.getDate() - diff);
   return dateToStr(d);

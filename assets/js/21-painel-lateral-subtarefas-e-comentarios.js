@@ -1,5 +1,11 @@
+import { G } from './globais.js';
+import { markDirty } from './08-persistencia.js';
+import { escapeHtml, uid } from './10-helpers.js';
+import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
+import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
+
 /* Recorrência e subtarefas. */
-function bindTpRecurrenceAndSubtasks(panel, task){
+export function bindTpRecurrenceAndSubtasks(panel, task){
   const tpRecurrenceTrigger = document.getElementById('tpRecurrenceTrigger');
   tpRecurrenceTrigger.onclick = (e) => {
     e.stopPropagation();
@@ -66,7 +72,7 @@ function bindTpRecurrenceAndSubtasks(panel, task){
 }
 
 /* Comentários (com rascunho). */
-function bindTpComments(panel, task){
+export function bindTpComments(panel, task){
   const commentList = document.getElementById('tpCommentList');
   (task.comments||[]).slice().reverse().forEach(c => {
     const row = document.createElement('div');
@@ -120,10 +126,10 @@ function bindTpComments(panel, task){
   {
     const ta = document.getElementById('tpNewComment');
     const key = currentCommentKey();
-    if(tpCommentDrafts[key]) ta.value = tpCommentDrafts[key];
+    if(G.tpCommentDrafts[key]) ta.value = G.tpCommentDrafts[key];
     ta.addEventListener('input', () => {
       const k = currentCommentKey();
-      if(ta.value) tpCommentDrafts[k] = ta.value; else delete tpCommentDrafts[k];
+      if(ta.value) G.tpCommentDrafts[k] = ta.value; else delete G.tpCommentDrafts[k];
       saveCommentDrafts();
     });
   }
@@ -135,8 +141,8 @@ function bindTpComments(panel, task){
     const t = getOrCreateActiveTask(); if(!t) return;
     t.comments = t.comments || [];
     t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
-    delete tpCommentDrafts[keyBefore];
-    delete tpCommentDrafts[t.id];
+    delete G.tpCommentDrafts[keyBefore];
+    delete G.tpCommentDrafts[t.id];
     saveCommentDrafts();
     markDirty();
   };

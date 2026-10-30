@@ -1,10 +1,13 @@
-function fmtUpdatedAt(ts){
+import { dateToStr, escapeHtml, todayStr } from './10-helpers.js';
+import { addDaysStr } from './25-calendario.js';
+
+export function fmtUpdatedAt(ts){
   if(!ts) return '';
   const d = new Date(ts);
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 }
 
-function fmtActivityTime(ts){
+export function fmtActivityTime(ts){
   if(!ts) return '';
   const d = new Date(ts);
   const timeStr = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
@@ -16,7 +19,7 @@ function fmtActivityTime(ts){
   return `${d.toLocaleDateString('pt-BR')}, ${timeStr}`;
 }
 
-function tintSolid(hex, amount){
+export function tintSolid(hex, amount){
   const h = hex.replace('#','');
   const r = parseInt(h.substring(0,2),16);
   const g = parseInt(h.substring(2,4),16);
@@ -25,8 +28,8 @@ function tintSolid(hex, amount){
   return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
 }
 
-const PASTE_ALLOWED_TAGS = ['B','STRONG','I','EM','U','H1','H2','H3','UL','OL','LI','BR','P','DIV'];
-function sanitizePastedHtml(html){
+export const PASTE_ALLOWED_TAGS = ['B','STRONG','I','EM','U','H1','H2','H3','UL','OL','LI','BR','P','DIV'];
+export function sanitizePastedHtml(html){
   const temp = document.createElement('div');
   temp.innerHTML = html;
   function clean(node){
@@ -49,7 +52,7 @@ function sanitizePastedHtml(html){
   return temp.innerHTML;
 }
 
-function attachFormattedPaste(targetEl){
+export function attachFormattedPaste(targetEl){
   targetEl.addEventListener('paste', (e) => {
     const cd = e.clipboardData || window.clipboardData;
     const items = cd && cd.items ? Array.from(cd.items) : [];
@@ -72,7 +75,7 @@ function attachFormattedPaste(targetEl){
   });
 }
 
-function attachTabIndent(targetEl){
+export function attachTabIndent(targetEl){
   targetEl.addEventListener('keydown', (e) => {
     if(e.key !== 'Tab') return;
     e.preventDefault();
@@ -80,7 +83,7 @@ function attachTabIndent(targetEl){
   });
 }
 
-function stripHtml(html){
+export function stripHtml(html){
   const tmp = document.createElement('div');
   tmp.innerHTML = html || '';
   return tmp.textContent || '';
@@ -89,7 +92,7 @@ function stripHtml(html){
 /* Converte o HTML do editor de notas (b/strong, i/em, u, h1-h3, ul/ol, br, img) pra markdown.
    O corpo da nota não usa <div>/<p> por linha - as linhas são separadas por <br> no nível raiz -
    então o percorrimento acumula texto/inline num buffer e só "quebra linha" em <br> ou blocos. */
-function htmlToMarkdown(html){
+export function htmlToMarkdown(html){
   const container = document.createElement('div');
   container.innerHTML = html || '';
   function inline(node){
@@ -139,7 +142,7 @@ function htmlToMarkdown(html){
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-function downloadTextFile(filename, content, mime){
+export function downloadTextFile(filename, content, mime){
   const blob = new Blob([content], { type: mime || 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -150,16 +153,16 @@ function downloadTextFile(filename, content, mime){
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function slugifyFilename(title){
+export function slugifyFilename(title){
   return (title || 'nota').trim().replace(/[\\/:*?"<>|]/g, '-').slice(0, 80) || 'nota';
 }
 
-function exportNoteAsMarkdown(note){
+export function exportNoteAsMarkdown(note){
   const md = `# ${note.title || 'Sem título'}\n\n` + htmlToMarkdown(note.body);
   downloadTextFile(slugifyFilename(note.title) + '.md', md, 'text/markdown');
 }
 
-function exportNoteAsPdf(note){
+export function exportNoteAsPdf(note){
   const win = window.open('', '_blank');
   if(!win) return;
   win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(note.title || 'Nota')}</title>
@@ -182,11 +185,11 @@ function exportNoteAsPdf(note){
   setTimeout(() => { win.print(); }, 300);
 }
 
-function closeNoteExportMenu(){
+export function closeNoteExportMenu(){
   const m = document.getElementById('noteExportMenuPopover');
   if(m) m.remove();
 }
-function openNoteExportMenu(anchorBtn, note){
+export function openNoteExportMenu(anchorBtn, note){
   const existing = document.getElementById('noteExportMenuPopover');
   closeNoteExportMenu();
   if(existing) return;

@@ -27,9 +27,15 @@ Nenhum dado é enviado para fora do seu navegador.
 
 ## 🚀 Como usar
 
-### Opção 1 — Abrir localmente
+### Opção 1 — Rodar localmente
 
-Basta baixar o `index.html` e abrir no navegador (Chrome ou Edge recomendados, para suporte completo à File System Access API).
+O código é feito de módulos ES, que o navegador não carrega a partir de um arquivo aberto direto (`file://`). Sirva a pasta com qualquer servidor estático e abra `http://localhost:8000/app`, por exemplo:
+
+```bash
+python -m http.server 8000
+```
+
+Chrome ou Edge são recomendados, para suporte completo à File System Access API.
 
 ### Opção 2 — GitHub Pages
 
@@ -52,7 +58,7 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 ├── index.html       # estrutura da página (HTML) e carregamento dos arquivos abaixo
 ├── vercel.json      # /app e /app/* devolvem o index.html (um endereço por tela)
 ├── assets/css/       # app.css (estilos)
-├── assets/js/        # JavaScript dividido por seção, carregado em ordem (NN-secao.js)
+├── assets/js/        # módulos ES por área (NN-area.js); main.js é a entrada; globais.js guarda o estado compartilhado (G)
 ├── api/              # funções serverless da Vercel (integração com o Outlook)
 ├── tests/            # testes automatizados (Playwright) — não afeta o deploy
 ├── CHANGELOG.md      # histórico de versões
@@ -61,7 +67,7 @@ Na primeira execução, o sistema vai pedir para você criar ou selecionar um ar
 
 ## ✅ Testes
 
-Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json` — não interferem no deploy, que continua sem build step (arquivos estáticos).
+Testes de ponta a ponta com [Playwright](https://playwright.dev), cobrindo os fluxos mais sensíveis a regressão (recorrência de tarefas, editor de notas, sincronização com a nuvem). Rodam num `tests/` isolado, com seu próprio `package.json` — não interferem no deploy, que continua sem build step (arquivos estáticos; os módulos são carregados direto pelo navegador).
 
 ```bash
 cd tests

@@ -1,4 +1,9 @@
-function loginErrorText(err){
+import { G } from './globais.js';
+import { sbClient } from './02-nuvem.js';
+import { escapeHtml } from './10-helpers.js';
+import { DOUNO_WORDMARK_SRC, LOGIN_ERR_ICON, LOGIN_EYE_CLOSED, LOGIN_EYE_OPEN, LOGIN_MAIL_ICON, dounoIconSvg, showToast } from './42-nuvem-persistencia.js';
+
+export function loginErrorText(err){
   const code = err && err.code ? String(err.code) : '';
   const msg = err && err.message ? String(err.message) : '';
   if(code === 'user_already_exists' || /already registered/i.test(msg)) return 'Este e-mail já tem conta. Entre ou use "Esqueci minha senha".';
@@ -8,11 +13,11 @@ function loginErrorText(err){
   if(code === 'otp_expired' || /expired or is invalid/i.test(msg)) return 'Código inválido ou expirado. Peça um novo.';
   return 'Não foi possível concluir agora. Tente de novo.';
 }
-function passwordIssue(pw){
+export function passwordIssue(pw){
   if(pw.length < 8 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) return 'Use 8 ou mais caracteres, com letras e números.';
   return '';
 }
-function passwordStrength(pw){
+export function passwordStrength(pw){
   let s = 0;
   if(pw.length >= 8) s++;
   if(/[A-Za-z]/.test(pw) && /\d/.test(pw)) s++;
@@ -21,7 +26,7 @@ function passwordStrength(pw){
   return s;
 }
 
-function loginPasswordFieldHtml(autocomplete){
+export function loginPasswordFieldHtml(autocomplete){
   return `<div class="login-field">
     <label for="loginPassword">Senha</label>
     <div class="login-password-wrap">
@@ -30,23 +35,23 @@ function loginPasswordFieldHtml(autocomplete){
     </div>
   </div>`;
 }
-function loginTabsHtml(){
+export function loginTabsHtml(){
   return `<div class="login-tabs" role="tablist">
-    <button type="button" class="login-tab${loginMode === 'login' ? ' active' : ''}" data-mode="login" role="tab">Entrar</button>
-    <button type="button" class="login-tab${loginMode === 'signup' ? ' active' : ''}" data-mode="signup" role="tab">Criar conta</button>
+    <button type="button" class="login-tab${G.loginMode === 'login' ? ' active' : ''}" data-mode="login" role="tab">Entrar</button>
+    <button type="button" class="login-tab${G.loginMode === 'signup' ? ' active' : ''}" data-mode="signup" role="tab">Criar conta</button>
   </div>`;
 }
 
-function renderLoginGate(errorMsg){
+export function renderLoginGate(errorMsg){
   const body = document.getElementById('loginModalBody');
-  clearInterval(resendTimer);
+  clearInterval(G.resendTimer);
   const err = errorMsg ? `<div class="login-error">${LOGIN_ERR_ICON}<span>${escapeHtml(errorMsg)}</span></div>` : '';
   let inner;
-  if(loginMode === 'verify'){
+  if(G.loginMode === 'verify'){
     inner = `
       <div class="login-mail-ic">${LOGIN_MAIL_ICON}</div>
       <h1 class="login-title">Confirme seu e-mail</h1>
-      <p class="login-subtitle">Enviamos um código de 6 dígitos para <b>${escapeHtml(signupDraft.email)}</b>.</p>
+      <p class="login-subtitle">Enviamos um código de 6 dígitos para <b>${escapeHtml(G.signupDraft.email)}</b>.</p>
       <form id="verifyForm" class="login-form" novalidate>
         <div class="login-otp" id="loginOtp">${[0,1,2,3,4,5].map(i => `<input type="text" inputmode="numeric" autocomplete="${i === 0 ? 'one-time-code' : 'off'}" maxlength="1" aria-label="Dígito ${i + 1}">`).join('')}</div>
         ${err}
@@ -54,7 +59,7 @@ function renderLoginGate(errorMsg){
         <button type="button" id="loginResendBtn" class="login-forgot-btn"></button>
         <button type="button" id="loginBackBtn" class="login-forgot-btn" style="margin-top:4px;">E-mail errado? Voltar</button>
       </form>`;
-  } else if(loginMode === 'signup'){
+  } else if(G.loginMode === 'signup'){
     inner = `
       <h1 class="login-title">Criar conta</h1>
       <p class="login-subtitle">Leva menos de um minuto.</p>
@@ -62,16 +67,16 @@ function renderLoginGate(errorMsg){
       <form id="signupForm" class="login-form" novalidate>
         <div class="login-field">
           <label for="signupName">Nome</label>
-          <input type="text" id="signupName" required autocomplete="name" maxlength="80" value="${escapeHtml(signupDraft.name)}">
+          <input type="text" id="signupName" required autocomplete="name" maxlength="80" value="${escapeHtml(G.signupDraft.name)}">
         </div>
         <div class="login-field">
           <label for="signupEmail">E-mail</label>
-          <input type="email" id="signupEmail" required autocomplete="username" value="${escapeHtml(signupDraft.email)}">
+          <input type="email" id="signupEmail" required autocomplete="username" value="${escapeHtml(G.signupDraft.email)}">
         </div>
         ${loginPasswordFieldHtml('new-password')}
         <div class="login-strength" id="loginStrength"><i></i><i></i><i></i><i></i></div>
         <div class="login-hint">Use 8 ou mais caracteres, com letras e números.</div>
-        <label class="login-terms"><input type="checkbox" id="signupTerms"${signupDraft.terms ? ' checked' : ''}><span>Li e aceito os Termos de Uso e a Política de Privacidade.</span></label>
+        <label class="login-terms"><input type="checkbox" id="signupTerms"${G.signupDraft.terms ? ' checked' : ''}><span>Li e aceito os Termos de Uso e a Política de Privacidade.</span></label>
         ${err}
         <button type="submit" class="btn login-submit-btn" id="signupSubmitBtn">Criar conta</button>
       </form>`;
@@ -109,7 +114,7 @@ function renderLoginGate(errorMsg){
     </div>
   `;
   document.querySelectorAll('.login-tab').forEach(b => {
-    b.onclick = () => { loginMode = b.dataset.mode; renderLoginGate(); };
+    b.onclick = () => { G.loginMode = b.dataset.mode; renderLoginGate(); };
   });
   const toggle = document.getElementById('loginPasswordToggle');
   if(toggle) toggle.onclick = () => {
@@ -120,12 +125,12 @@ function renderLoginGate(errorMsg){
     document.getElementById('loginPwEyeClosed').style.display = isPw ? 'block' : 'none';
     toggle.setAttribute('aria-label', isPw ? 'Ocultar senha' : 'Mostrar senha');
   };
-  if(loginMode === 'verify') bindLoginVerify();
-  else if(loginMode === 'signup') bindLoginSignup();
+  if(G.loginMode === 'verify') bindLoginVerify();
+  else if(G.loginMode === 'signup') bindLoginSignup();
   else bindLoginSignin();
 }
 
-function bindLoginSignin(){
+export function bindLoginSignin(){
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -136,14 +141,14 @@ function bindLoginSignin(){
     try{
       const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
       if(error) throw error;
-      cloudSession = data.session;
-      await startCloudSession();
+      G.cloudSession = data.session;
+      await G.startCloudSession();
     }catch(err){
       console.error(err);
       if(err && err.code === 'email_not_confirmed'){
-        signupDraft.email = email;
-        loginMode = 'verify';
-        try{ await sbClient.auth.resend({ type: 'signup', email }); resendUntil = Date.now() + 60000; }catch(e2){ console.error(e2); }
+        G.signupDraft.email = email;
+        G.loginMode = 'verify';
+        try{ await sbClient.auth.resend({ type: 'signup', email }); G.resendUntil = Date.now() + 60000; }catch(e2){ console.error(e2); }
         renderLoginGate();
         return;
       }
@@ -164,7 +169,7 @@ function bindLoginSignin(){
   };
 }
 
-function bindLoginSignup(){
+export function bindLoginSignup(){
   const pw = document.getElementById('loginPassword');
   const bars = document.querySelectorAll('#loginStrength i');
   pw.addEventListener('input', () => {
@@ -177,7 +182,7 @@ function bindLoginSignup(){
     const email = document.getElementById('signupEmail').value.trim();
     const password = pw.value;
     const terms = document.getElementById('signupTerms').checked;
-    signupDraft = { name, email, terms };
+    G.signupDraft = { name, email, terms };
     if(!name){ renderLoginGate('Informe seu nome.'); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ renderLoginGate('Informe um e-mail válido.'); return; }
     const issue = passwordIssue(password);
@@ -190,12 +195,12 @@ function bindLoginSignup(){
       const { data, error } = await sbClient.auth.signUp({ email, password, options: { data: { name } } });
       if(error) throw error;
       if(data.session){
-        cloudSession = data.session;
-        await startCloudSession();
+        G.cloudSession = data.session;
+        await G.startCloudSession();
         return;
       }
-      loginMode = 'verify';
-      resendUntil = Date.now() + 60000;
+      G.loginMode = 'verify';
+      G.resendUntil = Date.now() + 60000;
       renderLoginGate();
     }catch(err){
       console.error(err);
@@ -204,7 +209,7 @@ function bindLoginSignup(){
   });
 }
 
-function bindLoginVerify(){
+export function bindLoginVerify(){
   const inputs = Array.from(document.querySelectorAll('#loginOtp input'));
   const submit = async () => {
     const token = inputs.map(i => i.value).join('');
@@ -214,10 +219,10 @@ function bindLoginVerify(){
     btn.disabled = true;
     btn.textContent = 'Confirmando...';
     try{
-      const { data, error } = await sbClient.auth.verifyOtp({ email: signupDraft.email, token, type: 'signup' });
+      const { data, error } = await sbClient.auth.verifyOtp({ email: G.signupDraft.email, token, type: 'signup' });
       if(error) throw error;
-      cloudSession = data.session;
-      await startCloudSession();
+      G.cloudSession = data.session;
+      await G.startCloudSession();
     }catch(err){
       console.error(err);
       renderLoginGate(loginErrorText(err));
@@ -243,24 +248,24 @@ function bindLoginVerify(){
   });
   inputs[0].focus();
   document.getElementById('verifyForm').addEventListener('submit', (e) => { e.preventDefault(); submit(); });
-  document.getElementById('loginBackBtn').onclick = () => { loginMode = 'signup'; renderLoginGate(); };
+  document.getElementById('loginBackBtn').onclick = () => { G.loginMode = 'signup'; renderLoginGate(); };
   const rb = document.getElementById('loginResendBtn');
   const tick = () => {
-    const s = Math.ceil((resendUntil - Date.now()) / 1000);
+    const s = Math.ceil((G.resendUntil - Date.now()) / 1000);
     if(s > 0){ rb.disabled = true; rb.textContent = 'Reenviar código (' + s + 's)'; }
-    else { rb.disabled = false; rb.textContent = 'Reenviar código'; clearInterval(resendTimer); }
+    else { rb.disabled = false; rb.textContent = 'Reenviar código'; clearInterval(G.resendTimer); }
   };
   tick();
-  resendTimer = setInterval(tick, 500);
+  G.resendTimer = setInterval(tick, 500);
   rb.onclick = async () => {
     rb.disabled = true;
     try{
-      const { error } = await sbClient.auth.resend({ type: 'signup', email: signupDraft.email });
+      const { error } = await sbClient.auth.resend({ type: 'signup', email: G.signupDraft.email });
       if(error) throw error;
-      resendUntil = Date.now() + 60000;
+      G.resendUntil = Date.now() + 60000;
       showToast('Novo código enviado.');
-      clearInterval(resendTimer);
-      resendTimer = setInterval(tick, 500);
+      clearInterval(G.resendTimer);
+      G.resendTimer = setInterval(tick, 500);
       tick();
     }catch(err){
       console.error(err);
@@ -269,8 +274,8 @@ function bindLoginVerify(){
   };
 }
 
-function closeLoginGate(){
-  appUnlocked = true;
+export function closeLoginGate(){
+  G.appUnlocked = true;
   document.getElementById('loginOverlay').classList.remove('show');
 }
 

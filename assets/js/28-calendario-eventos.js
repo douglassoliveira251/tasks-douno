@@ -1,11 +1,21 @@
-function addOneHourToTime(timeStr){
+import { G } from './globais.js';
+import { deleteEventFromOutlook, refreshOutlookStatus, syncEventToOutlook } from './03-outlook.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { catById, escapeHtml, todayStr, uid } from './10-helpers.js';
+import { openConfirmPortal, renderTaskLinkPicker, renderUnifiedTagPicker } from './13-portais-de-tarefa.js';
+import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
+import { closeTagsPortal, ensureTagsPortal, openMoveGroupPortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
+import { recurrenceSummaryLabel } from './16-painel-lateral-de-tarefa.js';
+import { timeToMinutes } from './27-calendario-vistas.js';
+
+export function addOneHourToTime(timeStr){
   if(!timeStr) return '';
   const [h,m] = timeStr.split(':').map(Number);
   const newH = Math.min((h||0)+1, 23);
   return String(newH).padStart(2,'0') + ':' + String(m||0).padStart(2,'0');
 }
 
-function applyTaskDataToEvent(ev, task){
+export function applyTaskDataToEvent(ev, task){
   ev.title = task.title || ev.title;
   ev.tagIds = (task.tagIds||[]).slice();
   ev.date = task.dueDate || ev.date;
@@ -16,7 +26,7 @@ function applyTaskDataToEvent(ev, task){
   ev.description = task.description || ev.description;
 }
 
-function nextRoundedHourTimes(){
+export function nextRoundedHourTimes(){
   const now = new Date();
   let hour = now.getHours();
   if(now.getMinutes() > 0) hour = Math.min(hour + 1, 23);
@@ -25,16 +35,16 @@ function nextRoundedHourTimes(){
   return { start, end };
 }
 
-function icsDateStamp(dateStr, timeStr){
+export function icsDateStamp(dateStr, timeStr){
   const datePart = (dateStr || todayStr()).replace(/-/g, '');
   if(!timeStr) return datePart;
   const timePart = timeStr.replace(':', '') + '00';
   return `${datePart}T${timePart}`;
 }
-function icsEscape(text){
+export function icsEscape(text){
   return String(text||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
 }
-function downloadEventAsICS(ev){
+export function downloadEventAsICS(ev){
   const isAllDay = !!ev.allDay || !ev.startTime;
   const dtStart = isAllDay ? icsDateStamp(ev.date) : icsDateStamp(ev.date, ev.startTime);
   const dtEnd = isAllDay ? icsDateStamp(ev.endDate || ev.date) : icsDateStamp(ev.endDate || ev.date, ev.endTime || ev.startTime);
@@ -64,13 +74,13 @@ function downloadEventAsICS(ev){
   setTimeout(() => { try{ URL.revokeObjectURL(url); }catch(e){} }, 1000);
 }
 
-function openEventComposer(existingEvent, defaultDate, prefillTaskId){
+export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   const isEditing = !!existingEvent;
   const defaultTimes = nextRoundedHourTimes();
   /* Edita uma cópia (rascunho): mudar tags/campos e fechar sem salvar não altera a
      agenda real. Ao salvar, o rascunho é aplicado de volta na agenda original. */
   const ev = existingEvent ? JSON.parse(JSON.stringify(existingEvent)) : {
-    id: uid('event'), title:'', categoryId: activeCategoryFilter || state.categories[0].id,
+    id: uid('event'), title:'', categoryId: G.activeCategoryFilter || G.state.categories[0].id,
     tagIds: [], date: defaultDate || todayStr(), endDate: defaultDate || todayStr(),
     startTime: defaultTimes.start, endTime: defaultTimes.end, allDay:false,
     recurrence:'none', recurrenceInterval:1, recurrenceBaseDate: defaultDate || todayStr(),
@@ -78,7 +88,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   };
   if(ev.endDate === undefined) ev.endDate = ev.date;
   if(!isEditing && prefillTaskId){
-    const t = state.tasks.find(x => x.id === prefillTaskId);
+    const t = G.state.tasks.find(x => x.id === prefillTaskId);
     if(t){
       ev.linkedTaskId = t.id;
       ev.categoryId = t.categoryId;
@@ -101,7 +111,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
             <span class="group-current-chip" id="evGroupChip"></span>
           </div>
           <div class="tp-tags-selected" id="evTagsSelected">
-            ${(ev.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
+            ${(ev.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
             <button type="button" class="tp-tags-add-btn" id="evTagsToggleBtn">+ Tag</button>
           </div>
           <span class="ev-space-hint">As tags definem a cor da agenda.</span>
@@ -169,7 +179,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
               <span class="ev-invite-desc" id="evInviteDesc"></span>
             </span>
             <span class="completed-toggle" style="margin-left:0;">
-              <input type="checkbox" id="evSendInvite" ${(ev.sendInvite || (!isEditing && outlookStatusCache && outlookStatusCache.connected)) ? 'checked' : ''}>
+              <input type="checkbox" id="evSendInvite" ${(ev.sendInvite || (!isEditing && G.outlookStatusCache && G.outlookStatusCache.connected)) ? 'checked' : ''}>
               <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
             </span>
           </label>
@@ -201,7 +211,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     openMoveGroupPortal(e.currentTarget, ev.categoryId, (newCatId) => {
       ev.categoryId = newCatId;
       ev.tagIds = (ev.tagIds||[]).filter(id => {
-        const tg = state.tags.find(x => x.id === id);
+        const tg = G.state.tags.find(x => x.id === id);
         return tg && (!tg.categoryId || tg.categoryId === newCatId);
       });
       renderEvGroupChip();
@@ -213,7 +223,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     const box = modal.querySelector('#evTagsSelected');
     const addBtn = box.querySelector('#evTagsToggleBtn');
     box.querySelectorAll('.tp-tag-chip').forEach(el => el.remove());
-    (ev.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
+    (ev.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
       const chip = document.createElement('span');
       chip.className = 'tp-tag-chip active';
       chip.style.background = tg.color;
@@ -264,7 +274,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     function renderSuggestions(){
       const t = tokenInfo().token.toLowerCase();
       const taken = new Set(chosenEmails());
-      const items = (state.emailHistory || []).filter(e => !taken.has(e) && (!t || e.includes(t))).slice(0, 8);
+      const items = (G.state.emailHistory || []).filter(e => !taken.has(e) && (!t || e.includes(t))).slice(0, 8);
       if(!items.length){ box.classList.remove('show'); box.innerHTML = ''; return; }
       box.innerHTML = '<div class="ev-suggest-label">E-mails usados antes</div>' + items.map(e =>
         `<div class="ev-suggest-item" data-email="${escapeHtml(e)}" role="option"><span>${escapeHtml(e)}</span><button type="button" class="ev-suggest-del" data-del="${escapeHtml(e)}" title="Excluir do histórico" aria-label="Excluir ${escapeHtml(e)} do histórico">×</button></div>`).join('');
@@ -275,7 +285,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       e.preventDefault();
       const del = e.target.closest('.ev-suggest-del');
       if(del){
-        state.emailHistory = state.emailHistory.filter(x => x !== del.dataset.del);
+        G.state.emailHistory = G.state.emailHistory.filter(x => x !== del.dataset.del);
         persistOnly();
         renderSuggestions();
         return;
@@ -297,7 +307,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   function refreshInviteDesc(){
     const d = modal.querySelector('#evInviteDesc');
     if(!d) return;
-    const connected = !!(outlookStatusCache && outlookStatusCache.connected);
+    const connected = !!(G.outlookStatusCache && G.outlookStatusCache.connected);
     d.textContent = connected
       ? 'Ao salvar, o Outlook envia o convite aos convidados e avisa quando a agenda mudar ou for excluída.'
       : 'Conecte o Outlook em Configurações → Integrações para o convite ser enviado.';
@@ -308,11 +318,11 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   let inviteTouched = false;
   modal.querySelector('#evSendInvite').addEventListener('change', () => { inviteTouched = true; });
   const applyInviteDefault = () => {
-    if(!isEditing && !inviteTouched && outlookStatusCache && outlookStatusCache.connected){
+    if(!isEditing && !inviteTouched && G.outlookStatusCache && G.outlookStatusCache.connected){
       const cb = modal.querySelector('#evSendInvite'); if(cb) cb.checked = true;
     }
   };
-  if(!outlookStatusCache && cloudSession) refreshOutlookStatus().then(() => { refreshInviteDesc(); applyInviteDefault(); }).catch(() => {});
+  if(!G.outlookStatusCache && G.cloudSession) refreshOutlookStatus().then(() => { refreshInviteDesc(); applyInviteDefault(); }).catch(() => {});
 
   // atalhos de duração: o fim passa a ser início + duração (no mesmo dia)
   function minutesBetweenInputs(){
@@ -371,7 +381,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   function renderEvLinkedTaskLabel(){
     const label = modal.querySelector('#evLinkedTaskLabel');
     if(!label) return;
-    const t = ev.linkedTaskId ? state.tasks.find(x => x.id === ev.linkedTaskId) : null;
+    const t = ev.linkedTaskId ? G.state.tasks.find(x => x.id === ev.linkedTaskId) : null;
     label.textContent = t ? (t.title||'Sem título') : 'Nenhuma tarefa vinculada';
   }
   renderEvLinkedTaskLabel();
@@ -415,7 +425,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       e.stopPropagation();
       openConfirmPortal(e.currentTarget, 'Excluir esta agenda?', () => {
         deleteEventFromOutlook(ev);
-        state.events = state.events.filter(x => x.id !== ev.id);
+        G.state.events = G.state.events.filter(x => x.id !== ev.id);
         closeEventComposer();
         markDirty();
       });
@@ -430,7 +440,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
         outlookEventId: null,
         createdAt: Date.now(),
       };
-      state.events.push(dup);
+      G.state.events.push(dup);
       markDirty();
       closeEventComposer();
       // Reabre já editando a copia, com a mesma data de origem - o usuario troca a
@@ -456,7 +466,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     errEl.style.display = 'none';
     ev.attendees = Array.from(new Set(rawAttendees.map(x => x.toLowerCase())));
     // histórico de e-mails: os mais recentes primeiro, sem repetir (até 100)
-    state.emailHistory = ev.attendees.concat((state.emailHistory || []).filter(x => !ev.attendees.includes(x))).slice(0, 100);
+    G.state.emailHistory = ev.attendees.concat((G.state.emailHistory || []).filter(x => !ev.attendees.includes(x))).slice(0, 100);
     ev.sendInvite = modal.querySelector('#evSendInvite').checked && ev.attendees.length > 0;
     ev.title = modal.querySelector('#evTitle').value.trim();
     ev.date = modal.querySelector('#evDate').value || todayStr();
@@ -473,7 +483,7 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       Object.keys(target).forEach(k => { if(!(k in ev)) delete target[k]; });
       Object.assign(target, ev);
     } else {
-      state.events.push(ev);
+      G.state.events.push(ev);
     }
     closeEventComposer();
     markDirty();
@@ -484,15 +494,15 @@ function openEventComposer(existingEvent, defaultDate, prefillTaskId){
   setTimeout(() => modal.querySelector('#evTitle').focus(), 0);
 }
 
-function closeEventComposer(){
+export function closeEventComposer(){
   document.getElementById('eventComposerOverlay').classList.remove('show');
 }
 
-let eventOverlayMouseDownOnBackdrop = false;
+G.eventOverlayMouseDownOnBackdrop = false;
 document.getElementById('eventComposerOverlay').addEventListener('mousedown', e => {
-  eventOverlayMouseDownOnBackdrop = (e.target.id === 'eventComposerOverlay');
+  G.eventOverlayMouseDownOnBackdrop = (e.target.id === 'eventComposerOverlay');
 });
 document.getElementById('eventComposerOverlay').addEventListener('click', e => {
-  if(e.target.id === 'eventComposerOverlay' && eventOverlayMouseDownOnBackdrop) closeEventComposer();
+  if(e.target.id === 'eventComposerOverlay' && G.eventOverlayMouseDownOnBackdrop) closeEventComposer();
 });
 

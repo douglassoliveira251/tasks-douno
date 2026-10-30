@@ -1,3 +1,16 @@
+import { G } from './globais.js';
+import { DEFAULT_COLORS, currentSpaceFilter } from './01-estado.js';
+import { markDirty } from './08-persistencia.js';
+import { catById, escapeHtml, uid } from './10-helpers.js';
+import { selectSpace } from './11-render-sidebar.js';
+import { openNewTaskPanel } from './16-painel-lateral-de-tarefa.js';
+import { openNoteComposer } from './24-render-notes.js';
+import { openEventComposer } from './28-calendario-eventos.js';
+import { openProjectEditor, openStageEditor, projectById } from './31-projetos.js';
+import { getOrderedCategories, renderCatRows } from './38-configuracoes-espacos-e-etiquetas.js';
+import { clearSearchTerm } from './46-busca-e-notificacoes.js';
+import { render } from './48-render-principal.js';
+
 /* ===================== NAV / VIEW SWITCH ===================== */
 document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
   btn.onclick = () => {
@@ -5,59 +18,59 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
     if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
       document.activeElement.blur();
     }
-    currentView = btn.dataset.view;
-    activeTaskId = null;
-    creatingNewTask = false;
-    creatingNewNote = false;
-    pendingNoteNotebookId = null;
+    G.currentView = btn.dataset.view;
+    G.activeTaskId = null;
+    G.creatingNewTask = false;
+    G.creatingNewNote = false;
+    G.pendingNoteNotebookId = null;
     clearSearchTerm();
     closeMobileSidebar();
     render();
   };
 });
 
-function openMobileSidebar(){
+export function openMobileSidebar(){
   document.querySelector('.sidebar').classList.add('mobile-open');
   document.getElementById('sidebarBackdrop').classList.add('show');
 }
-function closeMobileSidebar(){
+export function closeMobileSidebar(){
   document.querySelector('.sidebar').classList.remove('mobile-open');
   document.getElementById('sidebarBackdrop').classList.remove('show');
 }
 document.getElementById('mobileMenuBtn').onclick = openMobileSidebar;
 document.getElementById('sidebarBackdrop').onclick = closeMobileSidebar;
 
-function openSettingsView(tab){
+export function openSettingsView(tab){
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
-  currentView = 'settings';
-  if(tab) settingsTab = tab;
-  activeTaskId = null;
-  creatingNewTask = false;
-  creatingNewNote = false;
-  pendingNoteNotebookId = null;
+  G.currentView = 'settings';
+  if(tab) G.settingsTab = tab;
+  G.activeTaskId = null;
+  G.creatingNewTask = false;
+  G.creatingNewNote = false;
+  G.pendingNoteNotebookId = null;
   clearSearchTerm();
   render();
 }
 
-function createNewSpace(){
-  const color = DEFAULT_COLORS[state.categories.length % DEFAULT_COLORS.length];
+export function createNewSpace(){
+  const color = DEFAULT_COLORS[G.state.categories.length % DEFAULT_COLORS.length];
   const newCat = { id: uid('cat'), name: 'Novo espaço', color };
-  state.categories.push(newCat);
+  G.state.categories.push(newCat);
   openSettingsView('categorias');
   markDirty();
   setTimeout(() => renderCatRows(newCat.id), 0);
 }
 
-function closeSpaceSelectorDropdown(){
+export function closeSpaceSelectorDropdown(){
   const dd = document.getElementById('spaceSelectorDropdown');
   if(dd) dd.style.display = 'none';
 }
 
-const spaceSelectorMobileMQ = window.matchMedia('(max-width:768px)');
-function placeSpaceSelector(){
+export const spaceSelectorMobileMQ = window.matchMedia('(max-width:768px)');
+export function placeSpaceSelector(){
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
   const mobile = spaceSelectorMobileMQ.matches;
@@ -74,11 +87,11 @@ function placeSpaceSelector(){
 }
 if(spaceSelectorMobileMQ.addEventListener) spaceSelectorMobileMQ.addEventListener('change', placeSpaceSelector);
 
-function renderSpaceSelector(){
+export function renderSpaceSelector(){
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
   placeSpaceSelector();
-  const showOn = (currentView === 'dashboard' || currentView === 'tasks' || currentView === 'notes' || currentView === 'calendar' || currentView === 'projects');
+  const showOn = (G.currentView === 'dashboard' || G.currentView === 'tasks' || G.currentView === 'notes' || G.currentView === 'calendar' || G.currentView === 'projects');
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }
 
@@ -127,7 +140,7 @@ document.getElementById('spaceSelectorBtn').onclick = (e) => {
   dd.style.display = 'block';
   dd.querySelectorAll('.space-selector-item[data-cat-id]').forEach(item => {
     item.onclick = () => {
-      if(currentView === 'dashboard'){ dashboardSpace = item.dataset.catId || null; render(); }
+      if(G.currentView === 'dashboard'){ G.dashboardSpace = item.dataset.catId || null; render(); }
       else selectSpace(item.dataset.catId);
       closeSpaceSelectorDropdown();
     };
@@ -144,14 +157,14 @@ document.addEventListener('click', (e) => {
 });
 
 document.getElementById('primaryAddBtn').onclick = () => {
-  if(currentView === 'tasks'){
+  if(G.currentView === 'tasks'){
     openNewTaskPanel();
-  } else if(currentView === 'notes'){
+  } else if(G.currentView === 'notes'){
     openNoteComposer();
-  } else if(currentView === 'calendar'){
-    openEventComposer(null, calendarFocusDate);
-  } else if(currentView === 'projects'){
-    const openProject = activeProjectId ? projectById(activeProjectId) : null;
+  } else if(G.currentView === 'calendar'){
+    openEventComposer(null, G.calendarFocusDate);
+  } else if(G.currentView === 'projects'){
+    const openProject = G.activeProjectId ? projectById(G.activeProjectId) : null;
     if(openProject) openStageEditor(openProject, null);
     else openProjectEditor(null);
   }

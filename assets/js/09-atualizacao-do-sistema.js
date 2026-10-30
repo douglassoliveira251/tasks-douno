@@ -1,11 +1,21 @@
+import { G } from './globais.js';
+import { APP_VERSION } from './00-versao.js';
+import { applyTheme } from './03-outlook.js';
+import { normalizeState } from './07-normalizacao-do-estado.js';
+import { commitOpenEditors, flushAutoSave, saveToLocalStorage } from './08-persistencia.js';
+import { idbSetHandle } from './40-indexeddb.js';
+import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
+import { render } from './48-render-principal.js';
+G.fetchPublishedVersion = fetchPublishedVersion; G.reloadForUpdate = reloadForUpdate;
+
 /* ===== Atualização do sistema =====
    O sistema é um único arquivo publicado na web. Quem deixa a aba aberta fica rodando a versão
    antiga depois de um deploy. Aqui o app relê o próprio index.html de tempos em tempos (e ao voltar
    para a aba), compara o APP_VERSION publicado com o carregado e, se houver versão mais nova,
    mostra um aviso obrigatório: salva o que estiver pendente e recarrega. */
-let updatePromptShown = false;
-let lastUpdateCheck = 0;
-function versionIsNewer(remote, local){
+G.updatePromptShown = false;
+G.lastUpdateCheck = 0;
+export function versionIsNewer(remote, local){
   const a = String(remote).split('.').map(n => parseInt(n, 10) || 0), b = String(local).split('.').map(n => parseInt(n, 10) || 0);
   for(let i = 0; i < Math.max(a.length, b.length); i++){
     if((a[i] || 0) > (b[i] || 0)) return true;
@@ -20,12 +30,12 @@ async function fetchPublishedVersion(){
   const m = (await res.text()).match(/const APP_VERSION = '(\d+(?:\.\d+)+)'/);
   return m ? m[1] : null;
 }
-async function checkForAppUpdate(force){
-  if(updatePromptShown || location.protocol === 'file:') return;
-  if(!force && Date.now() - lastUpdateCheck < 60000) return;
-  lastUpdateCheck = Date.now();
+export async function checkForAppUpdate(force){
+  if(G.updatePromptShown || location.protocol === 'file:') return;
+  if(!force && Date.now() - G.lastUpdateCheck < 60000) return;
+  G.lastUpdateCheck = Date.now();
   try{
-    const remote = await fetchPublishedVersion();
+    const remote = await G.fetchPublishedVersion();
     if(remote && versionIsNewer(remote, APP_VERSION)) showUpdatePrompt(remote);
   }catch(e){ /* sem rede: tenta de novo mais tarde */ }
 }
@@ -34,9 +44,9 @@ function reloadForUpdate(){
   const urls = [location.pathname].concat(Array.from(document.querySelectorAll('script[src^="assets/"], link[rel="stylesheet"][href^="assets/"]')).map(el => el.getAttribute('src') || el.getAttribute('href')));
   Promise.all(urls.map(u => fetch(u, { cache: 'reload' }).catch(() => {}))).then(() => location.reload());
 }
-function showUpdatePrompt(remoteVersion){
-  if(updatePromptShown) return;
-  updatePromptShown = true;
+export function showUpdatePrompt(remoteVersion){
+  if(G.updatePromptShown) return;
+  G.updatePromptShown = true;
   const ov = document.createElement('div');
   ov.className = 'overlay show update-overlay';
   ov.id = 'updateOverlay';
@@ -59,7 +69,7 @@ function showUpdatePrompt(remoteVersion){
     btn.disabled = true; btn.textContent = 'Atualizando…';
     try{ commitOpenEditors(); }catch(e){}
     try{ await Promise.race([flushAutoSave(), new Promise(r => setTimeout(r, 5000))]); }catch(e){}
-    reloadForUpdate();
+    G.reloadForUpdate();
   };
 }
 setInterval(() => { if(!document.hidden) checkForAppUpdate(); }, 5 * 60 * 1000);
@@ -67,18 +77,18 @@ document.addEventListener('visibilitychange', () => { if(!document.hidden) check
 window.addEventListener('focus', () => checkForAppUpdate());
 setTimeout(() => checkForAppUpdate(true), 20000);
 
-function updateFileStatus(){
+export function updateFileStatus(){
   const dotSettings = document.getElementById('statusDotSettings');
   const textSettings = document.getElementById('statusTextSettings');
-  const cls = 'status-dot ' + (dirty ? 'dirty' : 'saved');
-  const title = dirty ? 'Alterações não salvas' : 'Sincronizado';
+  const cls = 'status-dot ' + (G.dirty ? 'dirty' : 'saved');
+  const title = G.dirty ? 'Alterações não salvas' : 'Sincronizado';
   const badge = document.getElementById('saveErrorBadge');
-  if(badge) badge.style.display = cloudWriteFailed ? 'flex' : 'none';
-  if(cloudSession){
-    if(dotSettings){ dotSettings.className = cloudWriteFailed ? 'status-dot dirty' : cls; dotSettings.title = cloudWriteFailed ? 'Falha ao salvar na nuvem — tentando de novo' : title; }
-    if(textSettings) textSettings.textContent = `${cloudSession.user.email} (nuvem)`;
-  } else if(fileHandle){
-    const name = fileHandle.name || 'douno-tasks.json';
+  if(badge) badge.style.display = G.cloudWriteFailed ? 'flex' : 'none';
+  if(G.cloudSession){
+    if(dotSettings){ dotSettings.className = G.cloudWriteFailed ? 'status-dot dirty' : cls; dotSettings.title = G.cloudWriteFailed ? 'Falha ao salvar na nuvem — tentando de novo' : title; }
+    if(textSettings) textSettings.textContent = `${G.cloudSession.user.email} (nuvem)`;
+  } else if(G.fileHandle){
+    const name = G.fileHandle.name || 'douno-tasks.json';
     if(dotSettings){ dotSettings.className = cls; dotSettings.title = title; }
     if(textSettings) textSettings.textContent = name;
   } else {
@@ -87,23 +97,23 @@ function updateFileStatus(){
   }
 }
 
-async function saveFileAs(){
+export async function saveFileAs(){
   if(!window.showSaveFilePicker){ downloadFallback(); return; }
   try{
     const handle = await window.showSaveFilePicker({
       suggestedName: 'douno-tasks.json',
       types: [{ description: 'DOUNO Tasks JSON', accept: {'application/json': ['.json']} }]
     });
-    fileHandle = handle;
+    G.fileHandle = handle;
     await writeStateToFile();
     await idbSetHandle('main', handle);
     localStorage.removeItem('tyvraSkipFileLink');
-    dirty = false;
+    G.dirty = false;
     updateFileStatus();
   }catch(e){ if(e.name !== 'AbortError') console.error(e); }
 }
 
-async function openFile(){
+export async function openFile(){
   if(!window.showOpenFilePicker){
     alert('Seu navegador não suporta a File System Access API. Use Chrome ou Edge para abrir/salvar o douno-tasks.json diretamente. Enquanto isso, os dados continuam salvos no navegador.');
     return;
@@ -116,13 +126,13 @@ async function openFile(){
     const text = await file.text();
     const parsed = JSON.parse(text);
     if(parsed && parsed.categories){
-      state = parsed;
+      G.state = parsed;
       normalizeState();
       applyTheme();
-      fileHandle = handle;
+      G.fileHandle = handle;
       await idbSetHandle('main', handle);
       localStorage.removeItem('tyvraSkipFileLink');
-      dirty = false;
+      G.dirty = false;
       saveToLocalStorage();
       updateFileStatus();
       render();
@@ -134,32 +144,32 @@ async function openFile(){
   }
 }
 
-async function saveFile(){
+export async function saveFile(){
   if(!window.showSaveFilePicker){
     downloadFallback();
     return;
   }
   try{
-    if(!fileHandle){
-      fileHandle = await window.showSaveFilePicker({
+    if(!G.fileHandle){
+      G.fileHandle = await window.showSaveFilePicker({
         suggestedName: 'douno-tasks.json',
         types: [{ description: 'DOUNO Tasks JSON', accept: {'application/json': ['.json']} }]
       });
-      await idbSetHandle('main', fileHandle);
+      await idbSetHandle('main', G.fileHandle);
       localStorage.removeItem('tyvraSkipFileLink');
     }
-    const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(state, null, 2));
+    const writable = await G.fileHandle.createWritable();
+    await writable.write(JSON.stringify(G.state, null, 2));
     await writable.close();
-    dirty = false;
+    G.dirty = false;
     updateFileStatus();
   }catch(e){
     if(e.name !== 'AbortError') console.error(e);
   }
 }
 
-function downloadFallback(){
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+export function downloadFallback(){
+  const blob = new Blob([JSON.stringify(G.state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'douno-tasks.json'; a.click();

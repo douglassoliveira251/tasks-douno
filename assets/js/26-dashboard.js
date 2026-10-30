@@ -1,5 +1,16 @@
+import { G } from './globais.js';
+import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { PRIORITY_CONFIG } from './12-render-tasks.js';
+import { fmtActivityTime } from './23-texto-rico-utilitarios.js';
+import { openNoteComposer } from './24-render-notes.js';
+import { MONTH_LABELS, WEEKDAY_FULL_LABELS, WEEKDAY_LABELS, addDaysStr, eventStartsOn, eventsOnDate, upcomingEventOccurrences } from './25-calendario.js';
+import { openEventComposer } from './28-calendario-eventos.js';
+import { defaultProjectTab, projectById, projectColor, projectIconSvg, projectStatus } from './31-projetos.js';
+import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
+import { render } from './48-render-principal.js';
+
 /* ===================== DASHBOARD ===================== */
-function svgSparkline(values, width, height, color){
+export function svgSparkline(values, width, height, color){
   const max = Math.max(1, ...values);
   const stepX = width / Math.max(1, values.length - 1);
   const points = values.map((v,i) => {
@@ -11,7 +22,7 @@ function svgSparkline(values, width, height, color){
     <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
   </svg>`;
 }
-function svgBarChart(values, labels, width, height){
+export function svgBarChart(values, labels, width, height){
   const max = Math.max(1, ...values);
   const barW = width/values.length;
   let bars = '';
@@ -25,13 +36,13 @@ function svgBarChart(values, labels, width, height){
   return `<svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">${bars}</svg>`;
 }
 
-function renderDashboard(){
+export function renderDashboard(){
   const view = document.getElementById('dashboardView');
   const todayS = todayStr();
-  const inSpace = x => !dashboardSpace || x.categoryId === dashboardSpace;
-  const scopeTasks = state.tasks.filter(inSpace);
-  const scopeNotes = state.notes.filter(inSpace);
-  const scopeEvents = state.events.filter(inSpace);
+  const inSpace = x => !G.dashboardSpace || x.categoryId === G.dashboardSpace;
+  const scopeTasks = G.state.tasks.filter(inSpace);
+  const scopeNotes = G.state.notes.filter(inSpace);
+  const scopeEvents = G.state.events.filter(inSpace);
 
   const completed = scopeTasks.filter(t => t.done);
   const now = Date.now();
@@ -196,7 +207,7 @@ function renderDashboard(){
     .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
   const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
     .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99'))).slice(0, 5);
-  const prStatus = (state.projects || []).filter(p => !dashboardSpace || p.categoryId === dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
+  const prStatus = (G.state.projects || []).filter(p => !G.dashboardSpace || p.categoryId === G.dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
   const lateProjects = prStatus.filter(x => x.st.late).length;
   const spark14 = dayCounts;
   const sparkMax = Math.max(1, ...spark14);
@@ -322,39 +333,39 @@ function renderDashboard(){
       const kind = el.dataset.nodate;
       if(kind === 'none' && noDates.length){
         // abre a primeira tarefa sem nenhuma data para já definir a retomada
-        currentView = 'tasks'; activeTaskId = noDates[0].id; creatingNewTask = false; render();
+        G.currentView = 'tasks'; G.activeTaskId = noDates[0].id; G.creatingNewTask = false; render();
         return;
       }
-      currentView = 'tasks';
-      taskGroupMode = kind === 'due' ? 'periodo' : 'retomada';
+      G.currentView = 'tasks';
+      G.taskGroupMode = kind === 'due' ? 'periodo' : 'retomada';
       render();
     };
   });
   view.querySelectorAll('.rs-space[data-space]').forEach(el => {
-    el.onclick = () => { activeCategoryFilter = el.dataset.space; currentView = 'tasks'; render(); };
+    el.onclick = () => { G.activeCategoryFilter = el.dataset.space; G.currentView = 'tasks'; render(); };
   });
   const rsAdd = document.getElementById('rsAddSpace');
-  if(rsAdd) rsAdd.onclick = () => { settingsTab = 'categorias'; currentView = 'settings'; render(); };
+  if(rsAdd) rsAdd.onclick = () => { G.settingsTab = 'categorias'; G.currentView = 'settings'; render(); };
   view.querySelectorAll('.rs-proj[data-project]').forEach(el => {
-    el.onclick = () => { activeProjectId = el.dataset.project; projectTab = defaultProjectTab(); currentView = 'projects'; render(); };
+    el.onclick = () => { G.activeProjectId = el.dataset.project; G.projectTab = defaultProjectTab(); G.currentView = 'projects'; render(); };
   });
   const rsSeeProjects = document.getElementById('rsSeeProjects');
-  if(rsSeeProjects) rsSeeProjects.onclick = () => { activeProjectId = null; currentView = 'projects'; render(); };
+  if(rsSeeProjects) rsSeeProjects.onclick = () => { G.activeProjectId = null; G.currentView = 'projects'; render(); };
 
   view.querySelectorAll('.dash-list-row[data-task-id]').forEach(row => {
-    row.onclick = () => { currentView = 'tasks'; activeTaskId = row.dataset.taskId; creatingNewTask = false; render(); };
+    row.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = row.dataset.taskId; G.creatingNewTask = false; render(); };
   });
   view.querySelectorAll('.dash-list-row[data-note-id], .dash-note-card[data-note-id]').forEach(row => {
     row.onclick = () => {
-      currentView = 'notes';
+      G.currentView = 'notes';
       render();
-      const n = state.notes.find(x => x.id === row.dataset.noteId);
+      const n = G.state.notes.find(x => x.id === row.dataset.noteId);
       if(n) openNoteComposer(n);
     };
   });
   view.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => {
     row.onclick = () => {
-      const ev = state.events.find(x => x.id === row.dataset.eventId);
+      const ev = G.state.events.find(x => x.id === row.dataset.eventId);
       if(ev) openEventComposer(ev);
     };
   });
@@ -372,29 +383,29 @@ function renderDashboard(){
     const close = () => ov.remove();
     ov.querySelector('#agendaMoreClose').onclick = close;
     ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
-    ov.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => { row.onclick = () => { close(); const ev = state.events.find(x => x.id === row.dataset.eventId); if(ev) openEventComposer(ev); }; });
+    ov.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => { row.onclick = () => { close(); const ev = G.state.events.find(x => x.id === row.dataset.eventId); if(ev) openEventComposer(ev); }; });
   };
   const seeAllImportantLink = document.getElementById('dashSeeAllImportantLink');
-  if(seeAllImportantLink) seeAllImportantLink.onclick = (e) => { e.preventDefault(); currentView = 'tasks'; render(); };
+  if(seeAllImportantLink) seeAllImportantLink.onclick = (e) => { e.preventDefault(); G.currentView = 'tasks'; render(); };
   const seeAllImportantBottomLink = document.getElementById('dashSeeAllImportantBottomLink');
-  if(seeAllImportantBottomLink) seeAllImportantBottomLink.onclick = () => { currentView = 'tasks'; render(); };
+  if(seeAllImportantBottomLink) seeAllImportantBottomLink.onclick = () => { G.currentView = 'tasks'; render(); };
   view.querySelectorAll('.dash-tasklist-row[data-task-id]').forEach(row => {
-    row.onclick = () => { currentView = 'tasks'; activeTaskId = row.dataset.taskId; creatingNewTask = false; render(); };
+    row.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = row.dataset.taskId; G.creatingNewTask = false; render(); };
   });
 
   const kpiEventsCard = document.getElementById('dashKpiEventsCard');
-  if(kpiEventsCard) kpiEventsCard.onclick = () => { currentView = 'calendar'; render(); };
+  if(kpiEventsCard) kpiEventsCard.onclick = () => { G.currentView = 'calendar'; render(); };
   const kpiImportantCard = document.getElementById('dashKpiImportantCard');
-  if(kpiImportantCard) kpiImportantCard.onclick = () => { currentView = 'tasks'; render(); };
+  if(kpiImportantCard) kpiImportantCard.onclick = () => { G.currentView = 'tasks'; render(); };
 
   const seeAllTasksLink = document.getElementById('dashSeeAllTasksLink');
-  if(seeAllTasksLink) seeAllTasksLink.onclick = () => { currentView = 'tasks'; render(); };
+  if(seeAllTasksLink) seeAllTasksLink.onclick = () => { G.currentView = 'tasks'; render(); };
   const seeCalendarLink = document.getElementById('dashSeeCalendarLink');
-  if(seeCalendarLink) seeCalendarLink.onclick = (e) => { e.preventDefault(); currentView = 'calendar'; render(); };
+  if(seeCalendarLink) seeCalendarLink.onclick = (e) => { e.preventDefault(); G.currentView = 'calendar'; render(); };
   const seeAllEventsLink = document.getElementById('dashSeeAllEventsLink');
-  if(seeAllEventsLink) seeAllEventsLink.onclick = () => { currentView = 'calendar'; render(); };
+  if(seeAllEventsLink) seeAllEventsLink.onclick = () => { G.currentView = 'calendar'; render(); };
 }
 
 
-let calLayersOpen = false;
-document.addEventListener('click', e => { if(calLayersOpen && !e.target.closest('.cal-layers')){ calLayersOpen = false; render(); } });
+G.calLayersOpen = false;
+document.addEventListener('click', e => { if(G.calLayersOpen && !e.target.closest('.cal-layers')){ G.calLayersOpen = false; render(); } });

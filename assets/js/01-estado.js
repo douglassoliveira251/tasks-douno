@@ -1,8 +1,11 @@
-/* ===================== ESTADO ===================== */
-const LS_KEY = 'tyvraTasksState';
-const DEFAULT_COLORS = ['#E2A83D','#2F6F5E','#4A6FA5','#9B5DE5','#C0453A','#3D8B8B','#B5838D'];
+import { G } from './globais.js';
+import { todayStr } from './10-helpers.js';
 
-function freshState(){
+/* ===================== ESTADO ===================== */
+export const LS_KEY = 'tyvraTasksState';
+export const DEFAULT_COLORS = ['#E2A83D','#2F6F5E','#4A6FA5','#9B5DE5','#C0453A','#3D8B8B','#B5838D'];
+
+export function freshState(){
   return {
     profile: { name: '', email: '', avatar: null },
     categories: [{ id: 'cat_geral', name: 'Geral', color: '#2F6F5E' }],
@@ -16,31 +19,31 @@ function freshState(){
     theme: 'light'
   };
 }
-let state = freshState();
+G.state = freshState();
 
-let currentView = 'dashboard';
-let calendarView = 'month'; // 'month' | 'week' | 'day'
-let calendarFocusDate = todayStr();
-let activeEventId = null;
-let creatingNewEvent = false;
-let activeCategoryFilter = null;
+G.currentView = 'dashboard';
+G.calendarView = 'month'; // 'month' | 'week' | 'day'
+G.calendarFocusDate = todayStr();
+export let activeEventId = null;
+export let creatingNewEvent = false;
+G.activeCategoryFilter = null;
 /* Filtro de espaço só do Resumo: sempre começa em "Todos" e não mexe no espaço das demais telas */
-let dashboardSpace = null;
-function currentSpaceFilter(){ return currentView === 'dashboard' ? dashboardSpace : activeCategoryFilter; }
-let activeTagFilters = [];
-let taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
-let activeCriticalityFilters = [];
-let criticalityFilterPopoverOpen = false;
-let activeNoteId = null;
-let creatingNewNote = false;
-let pendingNotePrefillTaskId = null;
-let pendingNoteNotebookId = null;
-const expandedNotebookIds = new Set();
-let notesDrawerOpen = false;
-let notesFocusMode = false;
-let draggedNoteId = null;
-let draggedNotebookId = null;
-let searchTerm = '';
-let fileHandle = null;
-let dirty = false;
+G.dashboardSpace = null;
+export function currentSpaceFilter(){ return G.currentView === 'dashboard' ? G.dashboardSpace : G.activeCategoryFilter; }
+G.activeTagFilters = [];
+G.taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
+G.activeCriticalityFilters = [];
+G.criticalityFilterPopoverOpen = false;
+G.activeNoteId = null;
+G.creatingNewNote = false;
+G.pendingNotePrefillTaskId = null;
+G.pendingNoteNotebookId = null;
+export const expandedNotebookIds = new Set();
+G.notesDrawerOpen = false;
+G.notesFocusMode = false;
+G.draggedNoteId = null;
+G.draggedNotebookId = null;
+G.searchTerm = '';
+G.fileHandle = null;
+G.dirty = false;
 

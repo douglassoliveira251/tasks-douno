@@ -1,4 +1,11 @@
-function ensureMoveGroupPortal(){
+import { G } from './globais.js';
+import { DEFAULT_COLORS } from './01-estado.js';
+import { escapeHtml, uid } from './10-helpers.js';
+import { closeAllTaskMenus, closeColorPortal, ensureColorPortal } from './13-portais-de-tarefa.js';
+import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
+import { render } from './48-render-principal.js';
+
+export function ensureMoveGroupPortal(){
   let portal = document.getElementById('moveGroupPortal');
   if(!portal){
     portal = document.createElement('div');
@@ -8,13 +15,13 @@ function ensureMoveGroupPortal(){
   }
   return portal;
 }
-function closeMoveGroupPortal(e){
+export function closeMoveGroupPortal(e){
   const portal = document.getElementById('moveGroupPortal');
   if(!portal) return;
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
-function openMoveGroupPortal(anchorBtn, currentCatId, onSelect){
+export function openMoveGroupPortal(anchorBtn, currentCatId, onSelect){
   const portal = ensureMoveGroupPortal();
   const wasOpen = portal.classList.contains('show') && portal.dataset.forBtn === anchorBtn.dataset.moveGroupId;
   closeMoveGroupPortal();
@@ -45,14 +52,14 @@ function openMoveGroupPortal(anchorBtn, currentCatId, onSelect){
 document.addEventListener('click', closeMoveGroupPortal);
 window.addEventListener('scroll', closeMoveGroupPortal, true);
 
-function openNotebookMovePortal(anchorBtn, categoryId, currentNotebookId, onSelect){
+export function openNotebookMovePortal(anchorBtn, categoryId, currentNotebookId, onSelect){
   const portal = ensureMoveGroupPortal();
   const wasOpen = portal.classList.contains('show') && portal.dataset.forBtn === anchorBtn.dataset.moveGroupId;
   closeMoveGroupPortal();
   if(wasOpen) return;
   if(!anchorBtn.dataset.moveGroupId) anchorBtn.dataset.moveGroupId = uid('mvnb');
   portal.dataset.forBtn = anchorBtn.dataset.moveGroupId;
-  const spaceNbs = state.notebooks
+  const spaceNbs = G.state.notebooks
     .filter(nb => nb.categoryId === categoryId)
     .sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
   portal.innerHTML = `
@@ -77,7 +84,7 @@ function openNotebookMovePortal(anchorBtn, categoryId, currentNotebookId, onSele
   });
 }
 
-function ensureTagsPortal(){
+export function ensureTagsPortal(){
   let portal = document.getElementById('tagsPickerPortal');
   if(!portal){
     portal = document.createElement('div');
@@ -88,14 +95,14 @@ function ensureTagsPortal(){
   return portal;
 }
 
-function closeTagsPortal(e){
+export function closeTagsPortal(e){
   const portal = document.getElementById('tagsPickerPortal');
   if(!portal) return;
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
 
-function positionTagsPortalNear(portal, anchorBtn){
+export function positionTagsPortalNear(portal, anchorBtn){
   const rect = anchorBtn.getBoundingClientRect();
   const estHeight = portal.offsetHeight || 240;
   let top = rect.bottom + 6;
@@ -106,7 +113,7 @@ function positionTagsPortalNear(portal, anchorBtn){
   portal.style.left = Math.round(Math.max(8,left)) + 'px';
 }
 
-function openColorPortal(currentColor, btnEl, onSelect){
+export function openColorPortal(currentColor, btnEl, onSelect){
   const portal = ensureColorPortal();
   const wasOpenForThisBtn = portal.classList.contains('show') && portal.dataset.forBtn === btnEl.dataset.portalId;
   closeColorPortal();
@@ -143,10 +150,10 @@ document.addEventListener('click', () => {
   if(gd) gd.style.display = 'none';
 });
 document.addEventListener('click', () => {
-  if(tagFilterPopoverOpen){ tagFilterPopoverOpen = false; render(); }
+  if(G.tagFilterPopoverOpen){ G.tagFilterPopoverOpen = false; render(); }
 });
 document.addEventListener('click', () => {
-  if(criticalityFilterPopoverOpen){ criticalityFilterPopoverOpen = false; render(); }
+  if(G.criticalityFilterPopoverOpen){ G.criticalityFilterPopoverOpen = false; render(); }
 });
 window.addEventListener('scroll', closeColorPortal, true);
 document.addEventListener('click', closeAllTaskMenus);

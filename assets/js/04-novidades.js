@@ -3,7 +3,8 @@
    versão com algo que o usuário percebe, acrescente uma no topo (versão =
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
-const WHATS_NEW = [
+export const WHATS_NEW = [
+  { version:'1.13.0', date:'30/10/2026', title:'Sistema modularizado', text:'O código do sistema agora é feito de módulos de verdade, o que deixa as próximas melhorias mais seguras e rápidas de fazer. Nada muda no que você vê.' },
   { version:'1.12.2', date:'30/10/2026', title:'Resumo é a página inicial', text:'O Resumo agora abre em /app, e o sistema sempre começa por ele. Tarefas, notas, calendário, projetos e configurações continuam com endereço próprio.' },
   { version:'1.12.1', date:'30/10/2026', title:'Painel de tarefa reorganizado', text:'Por dentro, o painel lateral da tarefa foi dividido em partes menores (menu, campos, datas, etiquetas, subtarefas e comentários), para facilitar melhorias futuras. Nada muda no que você vê.' },
   { version:'1.12.0', date:'30/10/2026', title:'Um endereço para cada tela', text:'O sistema agora mora em /app, com o Resumo como página inicial. As outras telas têm endereço próprio: /app/tarefas, /app/notas, /app/calendario, /app/projetos e /app/configuracoes. Dá para guardar nos favoritos, e o botão voltar do navegador acompanha as telas.' },
@@ -124,4 +125,4 @@ const WHATS_NEW = [
   { version:'1.10.086', date:'30/09/2026', title:'Link de calendário', text:'Assine sua agenda em outros calendários, como o Google Agenda, por um link em Configurações → Integrações.' },
   { version:'1.10.085', date:'30/09/2026', title:'Recorrência corrigida', text:'A próxima tarefa repetida sempre segue o "A partir de", mesmo que você conclua atrasado ou mude o prazo.' },
 ];
-const WHATS_NEW_SEEN_KEY = 'dounoSeenVersion';
+export const WHATS_NEW_SEEN_KEY = 'dounoSeenVersion';

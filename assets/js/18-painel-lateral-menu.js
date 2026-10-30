@@ -1,17 +1,26 @@
+import { G } from './globais.js';
+import { markDirty } from './08-persistencia.js';
+import { catById, escapeHtml, uid } from './10-helpers.js';
+import { closeAllTaskMenus, ensureTaskMenuPortal, openConfirmPortal } from './13-portais-de-tarefa.js';
+import { closeTaskPanel, getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
+import { clampToStage, projectById } from './31-projetos.js';
+import { createTaskFromTemplate, openTemplateEditor, templateFromTask, templatesForSpace } from './35-templates-de-tarefa.js';
+import { render } from './48-render-principal.js';
+
 /* Menu ⋮ do painel (templates, projeto/etapa, duplicar, mover, excluir) e chip do projeto. */
-function bindTpMenu(panel, task){
+export function bindTpMenu(panel, task){
   function duplicateThisTask(){
     const copy = JSON.parse(JSON.stringify(task));
     copy.id = uid('task');
-    state.taskIdCounter = (state.taskIdCounter || 0) + 1;
-    copy.shortId = String(state.taskIdCounter).padStart(4, '0');
+    G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
+    copy.shortId = String(G.state.taskIdCounter).padStart(4, '0');
     copy.title = task.title + ' (cópia)';
     copy.done = false;
     copy.status = 'nao_iniciado';
     copy.createdAt = Date.now();
     (copy.subtasks||[]).forEach(s => s.id = uid('sub'));
     (copy.comments||[]).forEach(c => c.id = uid('cmt'));
-    state.tasks.push(copy);
+    G.state.tasks.push(copy);
     markDirty();
     openTaskPanel(copy.id);
   }
@@ -31,7 +40,7 @@ function bindTpMenu(panel, task){
   }
   function showMainMenu(){
     const portal = ensureTaskMenuPortal();
-    const editing = !creatingNewTask;
+    const editing = !G.creatingNewTask;
     portal.innerHTML = `
       <div class="tpl-menu-head">Template</div>
       <button type="button" class="task-menu-item" data-m="use">${ICO_TPL}Usar template…</button>
@@ -55,7 +64,7 @@ function bindTpMenu(panel, task){
     on('proj', showProjectList);
     on('unproj', () => { closeAllTaskMenus(); const t = getOrCreateActiveTask(); if(t){ t.projectId = null; t.stageId = null; markDirty(); } });
     on('save', () => { closeAllTaskMenus(); openTemplateEditor(null, templateFromTask(task)); });
-    on('manage', () => { closeAllTaskMenus(); settingsTab = 'templates'; currentView = 'settings'; render(); });
+    on('manage', () => { closeAllTaskMenus(); G.settingsTab = 'templates'; G.currentView = 'settings'; render(); });
     on('dup', () => { closeAllTaskMenus(); duplicateThisTask(); });
     on('move', () => {
       closeAllTaskMenus();
@@ -64,8 +73,8 @@ function bindTpMenu(panel, task){
     on('del', () => {
       closeAllTaskMenus();
       openConfirmPortal(tpMenuBtn, 'Excluir esta tarefa?', () => {
-        state.tasks = state.tasks.filter(x => x.id !== task.id);
-        activeTaskId = null;
+        G.state.tasks = G.state.tasks.filter(x => x.id !== task.id);
+        G.activeTaskId = null;
         markDirty();
       });
     });
@@ -81,7 +90,7 @@ function bindTpMenu(panel, task){
   }
   function showProjectList(){
     const portal = ensureTaskMenuPortal();
-    const list = (state.projects || []).slice().sort((x, y) => (x.categoryId === task.categoryId ? 0 : 1) - (y.categoryId === task.categoryId ? 0 : 1));
+    const list = (G.state.projects || []).slice().sort((x, y) => (x.categoryId === task.categoryId ? 0 : 1) - (y.categoryId === task.categoryId ? 0 : 1));
     portal.innerHTML = `
       <button type="button" class="task-menu-item" data-m="back">‹ Voltar</button>
       <div class="tpl-menu-head">Escolha o projeto</div>
@@ -105,7 +114,7 @@ function bindTpMenu(panel, task){
   }
   function showTemplateList(){
     const portal = ensureTaskMenuPortal();
-    const spaceId = creatingNewTask ? activeCategoryFilter : (task.categoryId || activeCategoryFilter);
+    const spaceId = G.creatingNewTask ? G.activeCategoryFilter : (task.categoryId || G.activeCategoryFilter);
     const list = templatesForSpace(spaceId);
     const sp = catById(spaceId);
     portal.innerHTML = `
@@ -119,7 +128,7 @@ function bindTpMenu(panel, task){
       b.onclick = (ev) => {
         ev.stopPropagation();
         closeAllTaskMenus();
-        const tpl = state.taskTemplates.find(x => x.id === b.dataset.tpl);
+        const tpl = G.state.taskTemplates.find(x => x.id === b.dataset.tpl);
         if(!tpl) return;
         // numa tarefa nova, cria a tarefa do template; numa existente, abre uma nova a partir dele
         createTaskFromTemplate(tpl);

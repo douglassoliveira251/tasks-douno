@@ -1,31 +1,41 @@
+import { G } from './globais.js';
+import { LS_KEY } from './01-estado.js';
+import { sbClient } from './02-nuvem.js';
+import { normalizeState } from './07-normalizacao-do-estado.js';
+import { updateFileStatus } from './09-atualizacao-do-sistema.js';
+import { currentCommentKey, saveCommentDrafts } from './16-painel-lateral-de-tarefa.js';
+import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
+import { adoptCloudRow } from './42-nuvem-persistencia.js';
+import { render } from './48-render-principal.js';
+
 /* ===================== PERSISTÊNCIA ===================== */
-function loadFromLocalStorage(){
+export function loadFromLocalStorage(){
   try{
     const raw = localStorage.getItem(LS_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
       if(parsed && parsed.categories){
-        state = parsed;
+        G.state = parsed;
       }
     }
   }catch(e){ console.error('Erro ao carregar localStorage', e); }
   normalizeState();
 }
 
-function saveToLocalStorage(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+export function saveToLocalStorage(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(G.state)); }
   catch(e){ console.error('Erro ao salvar localStorage', e); }
 }
 
-let autoSaveTimer = null;
-const AUTOSAVE_DEBOUNCE_MS = 250;
+G.autoSaveTimer = null;
+export const AUTOSAVE_DEBOUNCE_MS = 250;
 
 /* Único ponto que agenda a escrita atrasada, seja pra arquivo local ou pra nuvem -
    markDirty/persistOnly só chamam isto, sem saber qual backend está ativo. */
-let cloudWriteInFlight = null;
-let cloudWritePending = false;
-let cloudWriteFailed = false;
-let cloudWriteRetryTimer = null;
+G.cloudWriteInFlight = null;
+G.cloudWritePending = false;
+G.cloudWriteFailed = false;
+G.cloudWriteRetryTimer = null;
 /* Sem debounce pra nuvem: um refresh (beforeunload/pagehide) nao espera uma
    escrita assincrona terminar, entao um commit adiado alguns ms podia nunca
    chegar ao Supabase e um refresh logo em seguida lia dados desatualizados.
@@ -43,52 +53,52 @@ let cloudWriteRetryTimer = null;
    estado antigo do servidor e sobrescrevia a edicao que nunca chegou a ser
    salva, apagando-a silenciosamente. Agora, em caso de erro, `dirty` continua
    true (bloqueando o refresh) e a escrita e tentada de novo automaticamente. */
-function triggerCloudWrite(){
-  if(cloudWriteInFlight){ cloudWritePending = true; return; }
-  clearTimeout(cloudWriteRetryTimer);
-  cloudWriteInFlight = writeStateToCloud()
+export function triggerCloudWrite(){
+  if(G.cloudWriteInFlight){ G.cloudWritePending = true; return; }
+  clearTimeout(G.cloudWriteRetryTimer);
+  G.cloudWriteInFlight = G.writeStateToCloud()
     .then(() => {
-      cloudWriteInFlight = null;
-      cloudWriteFailed = false;
-      dirty = false;
+      G.cloudWriteInFlight = null;
+      G.cloudWriteFailed = false;
+      G.dirty = false;
       updateFileStatus();
-      if(cloudWritePending){ cloudWritePending = false; triggerCloudWrite(); }
+      if(G.cloudWritePending){ G.cloudWritePending = false; triggerCloudWrite(); }
     })
     .catch(e => {
       console.error('Auto-save na nuvem falhou', e);
-      cloudWriteInFlight = null;
-      cloudWriteFailed = true;
+      G.cloudWriteInFlight = null;
+      G.cloudWriteFailed = true;
       updateFileStatus();
-      cloudWriteRetryTimer = setTimeout(triggerCloudWrite, 8000);
+      G.cloudWriteRetryTimer = setTimeout(triggerCloudWrite, 8000);
     });
 }
 
-function scheduleAutoSave(){
-  if(fileHandle){
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(async () => {
-      try{ await writeStateToFile(); dirty = false; updateFileStatus(); }
+export function scheduleAutoSave(){
+  if(G.fileHandle){
+    clearTimeout(G.autoSaveTimer);
+    G.autoSaveTimer = setTimeout(async () => {
+      try{ await writeStateToFile(); G.dirty = false; updateFileStatus(); }
       catch(e){ console.error('Auto-save falhou', e); }
     }, AUTOSAVE_DEBOUNCE_MS);
-  } else if(cloudSession){
+  } else if(G.cloudSession){
     triggerCloudWrite();
   }
 }
 
-async function flushAutoSave(){
-  if(!dirty) return;
-  if(fileHandle){
-    clearTimeout(autoSaveTimer);
-    try{ await writeStateToFile(); dirty = false; updateFileStatus(); }
+export async function flushAutoSave(){
+  if(!G.dirty) return;
+  if(G.fileHandle){
+    clearTimeout(G.autoSaveTimer);
+    try{ await writeStateToFile(); G.dirty = false; updateFileStatus(); }
     catch(e){ console.error('Auto-save falhou', e); }
-  } else if(cloudSession){
+  } else if(G.cloudSession){
     triggerCloudWrite();
-    if(cloudWriteInFlight){ try{ await cloudWriteInFlight; }catch(e){} }
+    if(G.cloudWriteInFlight){ try{ await G.cloudWriteInFlight; }catch(e){} }
   }
 }
 
-function markDirty(){
-  dirty = true;
+export function markDirty(){
+  G.dirty = true;
   saveToLocalStorage();
   updateFileStatus();
   render();
@@ -97,8 +107,8 @@ function markDirty(){
 
 /* Salva sem re-renderizar a tela inteira — usado em blur de campos de texto para não
    destruir o elemento que o usuário acabou de clicar (ex: seletor de fonte/cor) no meio da interação. */
-function persistOnly(){
-  dirty = true;
+export function persistOnly(){
+  G.dirty = true;
   saveToLocalStorage();
   updateFileStatus();
   scheduleAutoSave();
@@ -106,9 +116,9 @@ function persistOnly(){
 
 // Garante que alterações pendentes sejam gravadas antes de a aba ser minimizada,
 // trocada ou fechada — evita perder a última edição feita bem antes do debounce disparar.
-function commitOpenEditors(){
-  if(currentNoteComposerCommit){
-    try{ currentNoteComposerCommit(); }catch(e){ console.error(e); }
+export function commitOpenEditors(){
+  if(G.currentNoteComposerCommit){
+    try{ G.currentNoteComposerCommit(); }catch(e){ console.error(e); }
   }
   /* Título e descrição da tarefa já commitam no blur (protegidos pelo blur()
      genérico abaixo). O campo de novo comentário é a exceção: só grava quando
@@ -119,7 +129,7 @@ function commitOpenEditors(){
   // (também em sessionStorage, então sobrevive a recarregar a página).
   const newCommentBox = document.getElementById('tpNewComment');
   if(newCommentBox && newCommentBox.value){
-    tpCommentDrafts[currentCommentKey()] = newCommentBox.value;
+    G.tpCommentDrafts[currentCommentKey()] = newCommentBox.value;
     saveCommentDrafts();
   }
   if(document.activeElement && typeof document.activeElement.blur === 'function'){
@@ -130,7 +140,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ commi
 window.addEventListener('beforeunload', () => { commitOpenEditors(); flushAutoSave(); });
 window.addEventListener('pagehide', () => { commitOpenEditors(); flushAutoSave(); });
 
-function isEditingSomething(){
+export function isEditingSomething(){
   const el = document.activeElement;
   if(!el) return false;
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
@@ -141,28 +151,28 @@ function isEditingSomething(){
    na primeira janela. Ao voltar o foco pra uma aba/janela, se nao ha nada sendo digitado
    nem uma escrita pendente, busca o estado mais recente da nuvem antes que o usuario
    comece a editar ali - assim a escrita seguinte parte sempre do dado mais atual. */
-let cloudRefreshInFlight = false;
-async function refreshFromCloudIfSafe(){
-  if(!sbClient || !cloudSession) return;
-  if(dirty || cloudWriteInFlight || cloudWritePending) return;
+G.cloudRefreshInFlight = false;
+export async function refreshFromCloudIfSafe(){
+  if(!sbClient || !G.cloudSession) return;
+  if(G.dirty || G.cloudWriteInFlight || G.cloudWritePending) return;
   if(isEditingSomething()) return;
-  if(cloudRefreshInFlight) return;
-  cloudRefreshInFlight = true;
+  if(G.cloudRefreshInFlight) return;
+  G.cloudRefreshInFlight = true;
   try{
-    const data = await fetchCloudStateRow();
+    const data = await G.fetchCloudStateRow();
     /* A busca é assíncrona — o usuário pode ter começado a editar algo
        enquanto ela estava em andamento. Se isso aconteceu, descarta o
        resultado buscado em vez de sobrescrever a edição em curso (era
        exatamente isso que apagava o que a pessoa acabara de digitar). */
-    if(dirty || isEditingSomething()) return;
+    if(G.dirty || isEditingSomething()) return;
     if(data && data.data && typeof data.data === 'object'){
-      state = data.data;
+      G.state = data.data;
       normalizeState();
       adoptCloudRow(data);
       render();
     }
   }catch(e){ console.error('Erro ao atualizar dados da nuvem', e); }
-  finally{ cloudRefreshInFlight = false; }
+  finally{ G.cloudRefreshInFlight = false; }
 }
 window.addEventListener('focus', refreshFromCloudIfSafe);
 // janela aberta mas sem foco (ex.: lado a lado com outra): confere a nuvem de tempos em tempos

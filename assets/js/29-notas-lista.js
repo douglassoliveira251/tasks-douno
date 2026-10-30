@@ -1,54 +1,64 @@
-function noteSpaceKey(){ return activeCategoryFilter || '_all'; }
-let lastRenderedNoteSpaceKey = null;
+import { G } from './globais.js';
+import { expandedNotebookIds } from './01-estado.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { escapeHtml, uid } from './10-helpers.js';
+import { pinIconSvg } from './12-render-tasks.js';
+import { openConfirmPortal } from './13-portais-de-tarefa.js';
+import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
+import { stripHtml } from './23-texto-rico-utilitarios.js';
+import { buildNoteComposer } from './24-render-notes.js';
 
-function closeNotebookMenu(){
+export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
+G.lastRenderedNoteSpaceKey = null;
+
+export function closeNotebookMenu(){
   const m = document.getElementById('notebookMenuPopover');
   if(m) m.remove();
 }
 
-function renderNotes(){
+export function renderNotes(){
   const view = document.getElementById('notesView');
   const titleWasFocused = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('note-title');
   const titleCursor = titleWasFocused ? document.activeElement.selectionStart : null;
   view.innerHTML = '';
 
-  const term = searchTerm.trim().toLowerCase();
+  const term = G.searchTerm.trim().toLowerCase();
   function matches(n){
     if(term && !(n.title + stripHtml(n.body)).toLowerCase().includes(term)) return false;
     return true;
   }
 
-  const spaceNotebooks = state.notebooks
-    .filter(nb => !activeCategoryFilter || nb.categoryId === activeCategoryFilter)
+  const spaceNotebooks = G.state.notebooks
+    .filter(nb => !G.activeCategoryFilter || nb.categoryId === G.activeCategoryFilter)
     .sort((a,b) => (a.notebookOrder!=null?a.notebookOrder:(a.createdAt||0)) - (b.notebookOrder!=null?b.notebookOrder:(b.createdAt||0)));
 
   // se o espaço mudou desde o último render, soltar a nota ativa para restaurar a do novo espaço
-  if(lastRenderedNoteSpaceKey !== null && lastRenderedNoteSpaceKey !== noteSpaceKey()){
-    if(currentNoteComposerCommit) currentNoteComposerCommit();
-    activeNoteId = null;
-    creatingNewNote = false;
+  if(G.lastRenderedNoteSpaceKey !== null && G.lastRenderedNoteSpaceKey !== noteSpaceKey()){
+    if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+    G.activeNoteId = null;
+    G.creatingNewNote = false;
   }
-  lastRenderedNoteSpaceKey = noteSpaceKey();
+  G.lastRenderedNoteSpaceKey = noteSpaceKey();
 
   // restaurar última nota aberta deste espaço, se ainda não houver nota/edição ativa
-  if(!activeNoteId && !creatingNewNote){
-    const lastId = state.lastActiveNoteBySpace[noteSpaceKey()];
+  if(!G.activeNoteId && !G.creatingNewNote){
+    const lastId = G.state.lastActiveNoteBySpace[noteSpaceKey()];
     if(lastId){
-      const n = state.notes.find(x => x.id === lastId && !x.archived && (!activeCategoryFilter || x.categoryId === activeCategoryFilter));
-      if(n){ activeNoteId = n.id; if(n.notebookId) expandedNotebookIds.add(n.notebookId); }
+      const n = G.state.notes.find(x => x.id === lastId && !x.archived && (!G.activeCategoryFilter || x.categoryId === G.activeCategoryFilter));
+      if(n){ G.activeNoteId = n.id; if(n.notebookId) expandedNotebookIds.add(n.notebookId); }
     }
   }
-  if(activeNoteId) state.lastActiveNoteBySpace[noteSpaceKey()] = activeNoteId;
+  if(G.activeNoteId) G.state.lastActiveNoteBySpace[noteSpaceKey()] = G.activeNoteId;
 
   const layout = document.createElement('div');
   layout.className = 'notes-layout';
 
   const notebooksCol = document.createElement('div');
   notebooksCol.className = 'notebooks-col';
-  notebooksCol.style.width = (state.notebooksColWidth || 260) + 'px';
+  notebooksCol.style.width = (G.state.notebooksColWidth || 260) + 'px';
   function noteOrderOf(n){ return n.noteOrder!=null ? n.noteOrder : (n.createdAt||0); }
   function notebookGroupHtml(nb){
-    const nbNotes = state.notes.filter(n => n.notebookId === nb.id && !n.archived && matches(n))
+    const nbNotes = G.state.notes.filter(n => n.notebookId === nb.id && !n.archived && matches(n))
       .sort((a,b) => (b.pinned - a.pinned) || (noteOrderOf(a) - noteOrderOf(b)));
     const expanded = expandedNotebookIds.has(nb.id);
     return `
@@ -62,18 +72,18 @@ function renderNotes(){
         </div>
         ${expanded ? `
         <div class="notebook-notes" data-nb-id="${nb.id}">
-          ${nbNotes.map(n => `<div class="notebook-note-item ${n.id===activeNoteId?'active':''} ${n.pinned?'is-pinned':''}" data-note-id="${n.id}" draggable="true"><button type="button" class="nb-note-pin-btn ${n.pinned?'pinned':''}" data-pin-note-id="${n.id}" title="${n.pinned?'Desafixar':'Fixar'}">${pinIconSvg(n.pinned)}</button><span>${escapeHtml(n.title||'Sem título')}</span></div>`).join('')}
+          ${nbNotes.map(n => `<div class="notebook-note-item ${n.id===G.activeNoteId?'active':''} ${n.pinned?'is-pinned':''}" data-note-id="${n.id}" draggable="true"><button type="button" class="nb-note-pin-btn ${n.pinned?'pinned':''}" data-pin-note-id="${n.id}" title="${n.pinned?'Desafixar':'Fixar'}">${pinIconSvg(n.pinned)}</button><span>${escapeHtml(n.title||'Sem título')}</span></div>`).join('')}
           <button type="button" class="notebook-add-note-btn" data-nb-id="${nb.id}">+ Nova nota</button>
         </div>` : ''}
       </div>
     `;
   }
   let nbHtml = '';
-  if(activeCategoryFilter){
+  if(G.activeCategoryFilter){
     spaceNotebooks.forEach(nb => { nbHtml += notebookGroupHtml(nb); });
   } else {
     // sem filtro de espaço: agrupar os cadernos por espaço, mantendo a estrutura de cada um separada
-    state.categories.forEach(cat => {
+    G.state.categories.forEach(cat => {
       const catNotebooks = spaceNotebooks.filter(nb => nb.categoryId === cat.id);
       if(catNotebooks.length === 0) return;
       nbHtml += `<div class="notebooks-space-header"><span class="cat-swatch" style="background:${cat.color}"></span>${escapeHtml(cat.name)}</div>`;
@@ -93,7 +103,7 @@ function renderNotes(){
     <div class="notebooks-list">${nbHtml}</div>
     <div class="notebooks-col-resize-handle" id="notebooksColResizeHandle" title="Arrastar para redimensionar"></div>
   `;
-  notebooksCol.classList.toggle('open', notesDrawerOpen);
+  notebooksCol.classList.toggle('open', G.notesDrawerOpen);
   const resizeHandle = notebooksCol.querySelector('#notebooksColResizeHandle');
   resizeHandle.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -112,7 +122,7 @@ function renderNotes(){
       resizeHandle.classList.remove('dragging');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
-      state.notebooksColWidth = Math.round(notebooksCol.getBoundingClientRect().width);
+      G.state.notebooksColWidth = Math.round(notebooksCol.getBoundingClientRect().width);
       persistOnly();
     }
     document.addEventListener('mousemove', onMove);
@@ -120,18 +130,18 @@ function renderNotes(){
   });
   const detailCol = document.createElement('div');
   detailCol.className = 'note-detail-col';
-  const activeNote = activeNoteId ? state.notes.find(n => n.id === activeNoteId) : null;
+  const activeNote = G.activeNoteId ? G.state.notes.find(n => n.id === G.activeNoteId) : null;
   if(activeNote){
     const { element, commit } = buildNoteComposer(activeNote);
-    currentNoteComposerCommit = commit;
+    G.currentNoteComposerCommit = commit;
     detailCol.appendChild(element);
-  } else if(creatingNewNote){
-    const { element, commit } = buildNoteComposer(null, pendingNotePrefillTaskId, pendingNoteNotebookId);
-    currentNoteComposerCommit = commit;
+  } else if(G.creatingNewNote){
+    const { element, commit } = buildNoteComposer(null, G.pendingNotePrefillTaskId, G.pendingNoteNotebookId);
+    G.currentNoteComposerCommit = commit;
     detailCol.appendChild(element);
     setTimeout(() => { const t = element.querySelector('.note-title'); if(t) t.focus(); }, 0);
   } else {
-    currentNoteComposerCommit = null;
+    G.currentNoteComposerCommit = null;
     detailCol.innerHTML = `<div class="note-detail-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
       <p>Selecione uma nota na lista de cadernos, ou crie uma nova para começar.</p>
@@ -139,9 +149,9 @@ function renderNotes(){
   }
 
   // barra do celular: caderno/nota atuais abrem a gaveta de cadernos; botão de modo foco
-  const barNotebook = activeNote ? state.notebooks.find(x => x.id === activeNote.notebookId)
-    : (creatingNewNote && pendingNoteNotebookId ? state.notebooks.find(x => x.id === pendingNoteNotebookId) : null);
-  const barNoteTitle = activeNote ? (activeNote.title || 'Sem título') : (creatingNewNote ? 'Nova nota' : '');
+  const barNotebook = activeNote ? G.state.notebooks.find(x => x.id === activeNote.notebookId)
+    : (G.creatingNewNote && G.pendingNoteNotebookId ? G.state.notebooks.find(x => x.id === G.pendingNoteNotebookId) : null);
+  const barNoteTitle = activeNote ? (activeNote.title || 'Sem título') : (G.creatingNewNote ? 'Nova nota' : '');
   const mbar = document.createElement('div');
   mbar.className = 'notes-mbar';
   mbar.innerHTML = `
@@ -155,16 +165,16 @@ function renderNotes(){
       <svg class="ico-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
     </button>`;
   const drawerBackdrop = document.createElement('div');
-  drawerBackdrop.className = 'notes-drawer-backdrop' + (notesDrawerOpen ? ' open' : '');
+  drawerBackdrop.className = 'notes-drawer-backdrop' + (G.notesDrawerOpen ? ' open' : '');
   function setDrawer(open){
-    notesDrawerOpen = open;
+    G.notesDrawerOpen = open;
     notebooksCol.classList.toggle('open', open);
     drawerBackdrop.classList.toggle('open', open);
   }
-  mbar.querySelector('#notesDrawerBtn').onclick = () => setDrawer(!notesDrawerOpen);
+  mbar.querySelector('#notesDrawerBtn').onclick = () => setDrawer(!G.notesDrawerOpen);
   mbar.querySelector('#notesFocusBtn').onclick = () => {
-    notesFocusMode = !notesFocusMode;
-    document.body.classList.toggle('notes-focus', notesFocusMode);
+    G.notesFocusMode = !G.notesFocusMode;
+    document.body.classList.toggle('notes-focus', G.notesFocusMode);
   };
   drawerBackdrop.onclick = () => setDrawer(false);
   notebooksCol.querySelector('#notebooksColCloseBtn').onclick = () => setDrawer(false);
@@ -183,11 +193,11 @@ function renderNotes(){
   }
 
   function selectNote(noteId){
-    if(currentNoteComposerCommit) currentNoteComposerCommit();
-    activeNoteId = noteId;
-    creatingNewNote = false;
-    notesDrawerOpen = false;
-    state.lastActiveNoteBySpace[noteSpaceKey()] = noteId;
+    if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+    G.activeNoteId = noteId;
+    G.creatingNewNote = false;
+    G.notesDrawerOpen = false;
+    G.state.lastActiveNoteBySpace[noteSpaceKey()] = noteId;
     markDirty();
     renderNotes();
   }
@@ -202,20 +212,20 @@ function renderNotes(){
     });
     row.addEventListener('dragstart', (e) => {
       e.stopPropagation();
-      draggedNotebookId = row.dataset.nbId;
+      G.draggedNotebookId = row.dataset.nbId;
       row.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
     row.addEventListener('dragend', () => {
-      draggedNotebookId = null;
+      G.draggedNotebookId = null;
       row.classList.remove('dragging');
       notebooksCol.querySelectorAll('.drop-before,.drop-after').forEach(el => el.classList.remove('drop-before','drop-after'));
     });
     row.addEventListener('dragover', (e) => {
-      if(draggedNoteId){
+      if(G.draggedNoteId){
         e.preventDefault();
         row.classList.add('drag-over');
-      } else if(draggedNotebookId && draggedNotebookId !== row.dataset.nbId){
+      } else if(G.draggedNotebookId && G.draggedNotebookId !== row.dataset.nbId){
         e.preventDefault();
         const rect = row.getBoundingClientRect();
         const isBefore = (e.clientY - rect.top) < rect.height/2;
@@ -228,21 +238,21 @@ function renderNotes(){
       e.preventDefault();
       const isBefore = row.classList.contains('drop-before');
       row.classList.remove('drag-over','drop-before','drop-after');
-      if(draggedNoteId){
-        const n = state.notes.find(x => x.id === draggedNoteId);
-        const nb = state.notebooks.find(x => x.id === row.dataset.nbId);
+      if(G.draggedNoteId){
+        const n = G.state.notes.find(x => x.id === G.draggedNoteId);
+        const nb = G.state.notebooks.find(x => x.id === row.dataset.nbId);
         if(!n || !nb || n.notebookId === nb.id) return;
-        if(currentNoteComposerCommit) currentNoteComposerCommit();
+        if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
         n.notebookId = nb.id;
         n.categoryId = nb.categoryId;
         expandedNotebookIds.add(nb.id);
         markDirty();
         renderNotes();
-      } else if(draggedNotebookId && draggedNotebookId !== row.dataset.nbId){
-        const draggedNb = state.notebooks.find(x => x.id === draggedNotebookId);
-        const targetNb = state.notebooks.find(x => x.id === row.dataset.nbId);
+      } else if(G.draggedNotebookId && G.draggedNotebookId !== row.dataset.nbId){
+        const draggedNb = G.state.notebooks.find(x => x.id === G.draggedNotebookId);
+        const targetNb = G.state.notebooks.find(x => x.id === row.dataset.nbId);
         if(!draggedNb || !targetNb || draggedNb.categoryId !== targetNb.categoryId) return;
-        const siblingsSorted = state.notebooks.filter(x => x.categoryId === targetNb.categoryId)
+        const siblingsSorted = G.state.notebooks.filter(x => x.categoryId === targetNb.categoryId)
           .sort((a,b) => (a.notebookOrder!=null?a.notebookOrder:(a.createdAt||0)) - (b.notebookOrder!=null?b.notebookOrder:(b.createdAt||0)));
         const withoutDragged = siblingsSorted.filter(x => x.id !== draggedNb.id);
         let idx = withoutDragged.findIndex(x => x.id === targetNb.id);
@@ -259,17 +269,17 @@ function renderNotes(){
     item.addEventListener('click', () => selectNote(item.dataset.noteId));
     item.addEventListener('dragstart', (e) => {
       e.stopPropagation();
-      draggedNoteId = item.dataset.noteId;
+      G.draggedNoteId = item.dataset.noteId;
       item.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
     item.addEventListener('dragend', () => {
-      draggedNoteId = null;
+      G.draggedNoteId = null;
       item.classList.remove('dragging');
       notebooksCol.querySelectorAll('.drag-over,.drop-before,.drop-after').forEach(el => el.classList.remove('drag-over','drop-before','drop-after'));
     });
     item.addEventListener('dragover', (e) => {
-      if(!draggedNoteId || draggedNoteId === item.dataset.noteId) return;
+      if(!G.draggedNoteId || G.draggedNoteId === item.dataset.noteId) return;
       e.preventDefault();
       e.stopPropagation();
       const rect = item.getBoundingClientRect();
@@ -279,18 +289,18 @@ function renderNotes(){
     });
     item.addEventListener('dragleave', () => item.classList.remove('drop-before','drop-after'));
     item.addEventListener('drop', (e) => {
-      if(!draggedNoteId || draggedNoteId === item.dataset.noteId) return;
+      if(!G.draggedNoteId || G.draggedNoteId === item.dataset.noteId) return;
       e.preventDefault();
       e.stopPropagation();
       const isBefore = item.classList.contains('drop-before');
       item.classList.remove('drop-before','drop-after');
-      const targetNote = state.notes.find(n => n.id === item.dataset.noteId);
-      const draggedNote = state.notes.find(n => n.id === draggedNoteId);
+      const targetNote = G.state.notes.find(n => n.id === item.dataset.noteId);
+      const draggedNote = G.state.notes.find(n => n.id === G.draggedNoteId);
       if(!targetNote || !draggedNote) return;
-      if(currentNoteComposerCommit) currentNoteComposerCommit();
+      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
       draggedNote.notebookId = targetNote.notebookId;
       draggedNote.categoryId = targetNote.categoryId;
-      const nbNotesSorted = state.notes.filter(n => n.notebookId === targetNote.notebookId && !n.archived)
+      const nbNotesSorted = G.state.notes.filter(n => n.notebookId === targetNote.notebookId && !n.archived)
         .sort((a,b) => (b.pinned - a.pinned) || (noteOrderOf(a) - noteOrderOf(b)));
       const withoutDragged = nbNotesSorted.filter(n => n.id !== draggedNote.id);
       let idx = withoutDragged.findIndex(n => n.id === targetNote.id);
@@ -306,11 +316,11 @@ function renderNotes(){
   notebooksCol.querySelectorAll('.nb-note-pin-btn[data-pin-note-id]').forEach(pin => {
     pin.addEventListener('click', (e) => {
       e.stopPropagation();
-      const n = state.notes.find(x => x.id === pin.dataset.pinNoteId);
+      const n = G.state.notes.find(x => x.id === pin.dataset.pinNoteId);
       if(!n) return;
       n.pinned = !n.pinned;
       n.pinnedAt = n.pinned ? Date.now() : null;
-      if(currentNoteComposerCommit) currentNoteComposerCommit();
+      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
       markDirty();
       renderNotes();
     });
@@ -318,13 +328,13 @@ function renderNotes(){
   notebooksCol.querySelectorAll('.notebook-add-note-btn[data-nb-id]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if(currentNoteComposerCommit) currentNoteComposerCommit();
-      activeNoteId = null;
-      creatingNewNote = true;
-      pendingNotePrefillTaskId = null;
-      pendingNoteNotebookId = btn.dataset.nbId;
+      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+      G.activeNoteId = null;
+      G.creatingNewNote = true;
+      G.pendingNotePrefillTaskId = null;
+      G.pendingNoteNotebookId = btn.dataset.nbId;
       expandedNotebookIds.add(btn.dataset.nbId);
-      notesDrawerOpen = false;
+      G.notesDrawerOpen = false;
       renderNotes();
     });
   });
@@ -334,7 +344,7 @@ function renderNotes(){
       const existing = document.getElementById('notebookMenuPopover');
       closeNotebookMenu();
       if(existing && existing.dataset.nbId === btn.dataset.nbId) return;
-      const nb = state.notebooks.find(x => x.id === btn.dataset.nbId);
+      const nb = G.state.notebooks.find(x => x.id === btn.dataset.nbId);
       if(!nb) return;
       const pop = document.createElement('div');
       pop.id = 'notebookMenuPopover';
@@ -353,7 +363,7 @@ function renderNotes(){
       pop.querySelector('[data-act=move-space]').onclick = (e2) => {
         openMoveGroupPortal(e2.currentTarget, nb.categoryId, (newCatId) => {
           nb.categoryId = newCatId;
-          state.notes.forEach(n => { if(n.notebookId === nb.id) n.categoryId = newCatId; });
+          G.state.notes.forEach(n => { if(n.notebookId === nb.id) n.categoryId = newCatId; });
           closeNotebookMenu();
           markDirty();
           renderNotes();
@@ -380,9 +390,9 @@ function renderNotes(){
       pop.querySelector('[data-act=delete]').onclick = () => {
         closeNotebookMenu();
         openConfirmPortal(btn, `Excluir o caderno "${nb.name}"? As notas dele ficarão sem caderno.`, () => {
-          state.notes.forEach(n => { if(n.notebookId === nb.id) n.notebookId = null; });
-          state.notebooks = state.notebooks.filter(x => x.id !== nb.id);
-          if(activeNote && activeNote.notebookId === nb.id){ activeNoteId = null; }
+          G.state.notes.forEach(n => { if(n.notebookId === nb.id) n.notebookId = null; });
+          G.state.notebooks = G.state.notebooks.filter(x => x.id !== nb.id);
+          if(activeNote && activeNote.notebookId === nb.id){ G.activeNoteId = null; }
           markDirty();
           renderNotes();
         });
@@ -390,9 +400,9 @@ function renderNotes(){
     });
   });
   document.getElementById('newNotebookBtn').onclick = () => {
-    const catId = activeCategoryFilter || state.categories[0].id;
+    const catId = G.activeCategoryFilter || G.state.categories[0].id;
     const nb = { id: uid('nb'), name: 'Novo caderno', categoryId: catId, createdAt: Date.now() };
-    state.notebooks.push(nb);
+    G.state.notebooks.push(nb);
     expandedNotebookIds.add(nb.id);
     markDirty();
     renderNotes();

@@ -1,11 +1,17 @@
+import { G } from './globais.js';
+import { catById, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { PRIORITY_CONFIG } from './12-render-tasks.js';
+import { MONTH_LABELS } from './25-calendario.js';
+import { STAGE_STATE_LABELS, projectColor, projectIconSvg, projectStatus, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
+
 /* ===== Relatório do projeto (impressão/PDF e planilha CSV) ===== */
-function taskStatusLabel(t){
+export function taskStatusLabel(t){
   if(t.done) return 'Concluída';
   if(t.dueDate && t.dueDate < todayStr()) return 'Atrasada';
   if(t.status === 'em_andamento' || taskProgress(t) > 0) return 'Em andamento';
   return 'Não iniciada';
 }
-function buildProjectReportData(p){
+export function buildProjectReportData(p){
   const today = todayStr();
   const st = projectStatus(p);
   const stages = (p.stages || []).slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999'));
@@ -16,11 +22,11 @@ function buildProjectReportData(p){
     tasks.forEach(t => rows.push({ stage: sg.name, t }));
     return { sg, pct: stagePercent(p, sg), state: STAGE_STATE_LABELS[stageState(p, sg)], tasks };
   });
-  const loose = sortByStart(state.tasks.filter(t => t.projectId === p.id && !t.stageId));
+  const loose = sortByStart(G.state.tasks.filter(t => t.projectId === p.id && !t.stageId));
   loose.forEach(t => rows.push({ stage: '(sem etapa)', t }));
   return { p, st, stageBlocks, loose, rows, cat, today };
 }
-function projectCsv(data){
+export function projectCsv(data){
   const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const head = ['Projeto','Etapa','Tarefa','Status','Prioridade','Início','Prazo','Progresso','Subtarefas'];
   const lines = [head.map(q).join(';')];
@@ -30,7 +36,7 @@ function projectCsv(data){
   });
   return '\ufeff' + lines.join('\r\n');
 }
-function projectReportHtml(data){
+export function projectReportHtml(data){
   const { p, st, stageBlocks, loose, cat, today } = data;
   const color = projectColor(p);
   // escala da linha do tempo

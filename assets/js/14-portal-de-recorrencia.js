@@ -1,4 +1,8 @@
-function ensureRecurrencePortal(){
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { todayStr } from './10-helpers.js';
+import { positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
+
+export function ensureRecurrencePortal(){
   let portal = document.getElementById('recurrencePortal');
   if(!portal){
     portal = document.createElement('div');
@@ -8,13 +12,13 @@ function ensureRecurrencePortal(){
   }
   return portal;
 }
-function closeRecurrencePortal(e){
+export function closeRecurrencePortal(e){
   const portal = document.getElementById('recurrencePortal');
   if(!portal) return;
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
-function renderRecurrencePortalContent(portal, task, onChange){
+export function renderRecurrencePortalContent(portal, task, onChange){
   const enabled = !!(task.recurrence && task.recurrence !== 'none');
   const currentUnit = enabled ? task.recurrence : 'daily';
   const isTask = task.dueDate !== undefined;
@@ -155,7 +159,7 @@ function renderRecurrencePortalContent(portal, task, onChange){
     });
   }
 }
-function openRecurrencePortal(anchorBtn, task, onChange){
+export function openRecurrencePortal(anchorBtn, task, onChange){
   const portal = ensureRecurrencePortal();
   const wasOpen = portal.classList.contains('show');
   closeRecurrencePortal();

@@ -1,15 +1,26 @@
-/* ===================== RENDER: NOTES ===================== */
-let currentNoteComposerCommit = null;
+import { G } from './globais.js';
+import { expandedNotebookIds } from './01-estado.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { catById, escapeHtml, uid } from './10-helpers.js';
+import { pinIconSvg } from './12-render-tasks.js';
+import { openConfirmPortal, renderTaskLinkPicker } from './13-portais-de-tarefa.js';
+import { closeTagsPortal, ensureTagsPortal, openMoveGroupPortal, openNotebookMovePortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
+import { buildRichToolbar } from './22-texto-rico.js';
+import { attachFormattedPaste, attachTabIndent, openNoteExportMenu } from './23-texto-rico-utilitarios.js';
+import { noteSpaceKey, renderNotes } from './29-notas-lista.js';
 
-function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
+/* ===================== RENDER: NOTES ===================== */
+G.currentNoteComposerCommit = null;
+
+export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
   const composerSpaceKeyAtOpen = noteSpaceKey();
   const composer = document.createElement('div');
   composer.className = 'composer note-composer-inline';
   const isEditing = !!existingNote;
-  const prefillTask = (!isEditing && prefillTaskId) ? state.tasks.find(x => x.id === prefillTaskId) : null;
+  const prefillTask = (!isEditing && prefillTaskId) ? G.state.tasks.find(x => x.id === prefillTaskId) : null;
   const defaultCatId = isEditing
     ? existingNote.categoryId
-    : (prefillTask ? prefillTask.categoryId : ((activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id));
+    : (prefillTask ? prefillTask.categoryId : ((G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : G.state.categories[0].id));
   let noteCategoryId = isEditing ? existingNote.categoryId : defaultCatId;
   let noteNotebookId = isEditing ? existingNote.notebookId : forcedNotebookId;
 
@@ -63,7 +74,7 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
   function renderNoteLinkedTaskLabel(){
     const label = composer.querySelector('#noteLinkedTaskLabel');
     if(!label) return;
-    const t = noteLinkedTaskId ? state.tasks.find(x => x.id === noteLinkedTaskId) : null;
+    const t = noteLinkedTaskId ? G.state.tasks.find(x => x.id === noteLinkedTaskId) : null;
     label.textContent = t ? (t.title||'Sem título') : 'Vincular tarefa';
     const btn = composer.querySelector('#noteLinkedTaskBtn');
     if(btn) btn.classList.toggle('linked', !!t);
@@ -90,7 +101,7 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
 
   function renderNoteGroupChip(){
     const cat = catById(noteCategoryId);
-    const nb = noteNotebookId ? state.notebooks.find(x => x.id === noteNotebookId) : null;
+    const nb = noteNotebookId ? G.state.notebooks.find(x => x.id === noteNotebookId) : null;
     const spaceSeg = composer.querySelector('#noteBreadcrumbSpace');
     const notebookSeg = composer.querySelector('#noteBreadcrumbNotebook');
     if(spaceSeg) spaceSeg.textContent = cat ? cat.name : 'Sem espaço';
@@ -101,10 +112,10 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
     e.stopPropagation();
     openMoveGroupPortal(e.currentTarget, noteCategoryId, (newCatId) => {
       noteCategoryId = newCatId;
-      let nb = state.notebooks.find(x => x.categoryId === newCatId);
+      let nb = G.state.notebooks.find(x => x.categoryId === newCatId);
       if(!nb){
         nb = { id: uid('nb'), name: 'Notas', categoryId: newCatId, createdAt: Date.now() };
-        state.notebooks.push(nb);
+        G.state.notebooks.push(nb);
       }
       noteNotebookId = nb.id;
       expandedNotebookIds.add(nb.id);
@@ -167,12 +178,12 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
         updatedAt: Date.now(),
       };
       delete dup.noteOrder;
-      state.notes.unshift(dup);
-      activeNoteId = dup.id;
-      creatingNewNote = false;
-      state.lastActiveNoteBySpace[noteSpaceKey()] = dup.id;
+      G.state.notes.unshift(dup);
+      G.activeNoteId = dup.id;
+      G.creatingNewNote = false;
+      G.state.lastActiveNoteBySpace[noteSpaceKey()] = dup.id;
       markDirty();
-      if(currentView === 'notes') renderNotes();
+      if(G.currentView === 'notes') renderNotes();
     };
     const pinBtn = composer.querySelector('#composerPinBtn');
     pinBtn.onclick = (e) => {
@@ -192,12 +203,12 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
     composer.querySelector('#composerDeleteBtn').onclick = (e) => {
       e.stopPropagation();
       openConfirmPortal(e.currentTarget, 'Excluir esta nota?', () => {
-        state.notes = state.notes.filter(x => x.id !== existingNote.id);
+        G.state.notes = G.state.notes.filter(x => x.id !== existingNote.id);
         deleted = true;
-        currentNoteComposerCommit = null;
-        if(activeNoteId === existingNote.id){ activeNoteId = null; creatingNewNote = false; }
+        G.currentNoteComposerCommit = null;
+        if(G.activeNoteId === existingNote.id){ G.activeNoteId = null; G.creatingNewNote = false; }
         markDirty();
-        if(currentView === 'notes') renderNotes();
+        if(G.currentView === 'notes') renderNotes();
       });
     };
   }
@@ -230,12 +241,12 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
         linkedTaskId: noteLinkedTaskId,
         createdAt: Date.now(), updatedAt: Date.now()
       };
-      state.notes.unshift(newNote);
+      G.state.notes.unshift(newNote);
       createdNoteRef = newNote;
-      activeNoteId = newNote.id;
-      creatingNewNote = false;
+      G.activeNoteId = newNote.id;
+      G.creatingNewNote = false;
     }
-    state.lastActiveNoteBySpace[composerSpaceKeyAtOpen] = targetNote ? targetNote.id : createdNoteRef.id;
+    G.state.lastActiveNoteBySpace[composerSpaceKeyAtOpen] = targetNote ? targetNote.id : createdNoteRef.id;
     persistOnly();
   }
   const titleInputEl = composer.querySelector('.note-title');
@@ -245,7 +256,7 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
     clearTimeout(titleLiveTimer);
     titleLiveTimer = setTimeout(() => {
       commit();
-      if(currentView === 'notes') renderNotes();
+      if(G.currentView === 'notes') renderNotes();
     }, 500);
   });
   /* O corpo (contenteditable) so salvava no blur - se o usuario digitasse e saisse
@@ -261,47 +272,47 @@ function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
   return { element: composer, commit };
 }
 
-function openNoteComposer(existingNote, prefillTaskId){
-  if(currentNoteComposerCommit) currentNoteComposerCommit();
+export function openNoteComposer(existingNote, prefillTaskId){
+  if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
   if(existingNote){
-    activeNoteId = existingNote.id;
-    creatingNewNote = false;
-    pendingNotePrefillTaskId = null;
-    pendingNoteNotebookId = null;
+    G.activeNoteId = existingNote.id;
+    G.creatingNewNote = false;
+    G.pendingNotePrefillTaskId = null;
+    G.pendingNoteNotebookId = null;
     if(existingNote.notebookId) expandedNotebookIds.add(existingNote.notebookId);
   } else {
     // caderno de destino, em ordem de preferência: nota atualmente aberta > caderno
     // selecionado (expandido mais recentemente) no espaço > primeiro caderno do espaço
-    const previousActiveNote = activeNoteId ? state.notes.find(x => x.id === activeNoteId) : null;
-    activeNoteId = null;
-    creatingNewNote = true;
-    pendingNotePrefillTaskId = prefillTaskId || null;
-    const prefillTask = prefillTaskId ? state.tasks.find(x => x.id === prefillTaskId) : null;
-    const catId = prefillTask ? prefillTask.categoryId : (previousActiveNote ? previousActiveNote.categoryId : (activeCategoryFilter || state.categories[0].id));
+    const previousActiveNote = G.activeNoteId ? G.state.notes.find(x => x.id === G.activeNoteId) : null;
+    G.activeNoteId = null;
+    G.creatingNewNote = true;
+    G.pendingNotePrefillTaskId = prefillTaskId || null;
+    const prefillTask = prefillTaskId ? G.state.tasks.find(x => x.id === prefillTaskId) : null;
+    const catId = prefillTask ? prefillTask.categoryId : (previousActiveNote ? previousActiveNote.categoryId : (G.activeCategoryFilter || G.state.categories[0].id));
     let nb = null;
     if(prefillTask){
-      nb = state.notebooks.find(x => x.categoryId === catId);
+      nb = G.state.notebooks.find(x => x.categoryId === catId);
     } else if(previousActiveNote && previousActiveNote.notebookId){
-      nb = state.notebooks.find(x => x.id === previousActiveNote.notebookId);
+      nb = G.state.notebooks.find(x => x.id === previousActiveNote.notebookId);
     }
     if(!nb){
-      const expandedInSpace = state.notebooks.filter(x => x.categoryId === catId && expandedNotebookIds.has(x.id));
-      nb = expandedInSpace[expandedInSpace.length-1] || state.notebooks.find(x => x.categoryId === catId);
+      const expandedInSpace = G.state.notebooks.filter(x => x.categoryId === catId && expandedNotebookIds.has(x.id));
+      nb = expandedInSpace[expandedInSpace.length-1] || G.state.notebooks.find(x => x.categoryId === catId);
     }
     if(!nb){
       nb = { id: uid('nb'), name: 'Notas', categoryId: catId, createdAt: Date.now() };
-      state.notebooks.push(nb);
+      G.state.notebooks.push(nb);
     }
-    pendingNoteNotebookId = nb.id;
+    G.pendingNoteNotebookId = nb.id;
     expandedNotebookIds.add(nb.id);
   }
-  if(currentView === 'notes') renderNotes();
+  if(G.currentView === 'notes') renderNotes();
 }
 
-function closeNoteComposer(){
-  if(currentNoteComposerCommit) currentNoteComposerCommit();
+export function closeNoteComposer(){
+  if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
 }
-function hideNoteComposerOverlay(){
+export function hideNoteComposerOverlay(){
   closeNoteComposer();
 }
 

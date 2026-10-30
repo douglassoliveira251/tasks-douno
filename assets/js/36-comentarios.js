@@ -1,5 +1,11 @@
+import { G } from './globais.js';
+import { APP_VERSION } from './00-versao.js';
+import { sbClient } from './02-nuvem.js';
+import { closeHelpPanel } from './06-cabecalho-e-ajuda.js';
+import { showToast } from './42-nuvem-persistencia.js';
+
 /* ===================== COMENTÁRIOS ===================== */
-function openFeedbackModal(){
+export function openFeedbackModal(){
   closeHelpPanel();
   let ov = document.getElementById('feedbackOverlay');
   if(!ov){
@@ -50,11 +56,11 @@ function openFeedbackModal(){
     const message = modal.querySelector('#fbMessage').value.trim();
     err.style.display = 'none';
     if(!message){ err.textContent = 'Escreva um comentário antes de enviar.'; err.style.display = 'block'; return; }
-    if(!sbClient || !cloudSession){ err.textContent = 'Entre na sua conta para enviar comentários.'; err.style.display = 'block'; return; }
+    if(!sbClient || !G.cloudSession){ err.textContent = 'Entre na sua conta para enviar comentários.'; err.style.display = 'block'; return; }
     btn.disabled = true; btn.textContent = 'Enviando...';
     try{
       const { data, error } = await sbClient.functions.invoke('send-feedback', {
-        body: { kind, message, version: APP_VERSION, view: currentView, userAgent: navigator.userAgent },
+        body: { kind, message, version: APP_VERSION, view: G.currentView, userAgent: navigator.userAgent },
       });
       if(error || (data && data.error)) throw (error || new Error(data.error));
       ov.classList.remove('show');

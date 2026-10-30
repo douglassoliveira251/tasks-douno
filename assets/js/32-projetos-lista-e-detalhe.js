@@ -1,18 +1,27 @@
-function renderProjects(){
+import { G } from './globais.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
+import { renderTaskPanel } from './17-painel-lateral-render.js';
+import { MONTH_LABELS, addDaysStr } from './25-calendario.js';
+import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor, openStageEditor, projectById, projectColor, projectIconSvg, projectStatus, projectsInScope, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
+import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.js';
+import { render } from './48-render-principal.js';
+
+export function renderProjects(){
   const view = document.getElementById('projectsView');
-  const project = activeProjectId ? projectById(activeProjectId) : null;
-  if(activeProjectId && !project) activeProjectId = null;
+  const project = G.activeProjectId ? projectById(G.activeProjectId) : null;
+  if(G.activeProjectId && !project) G.activeProjectId = null;
   if(!project) return renderProjectList(view);
   return renderProjectDetail(view, project);
 }
 
-function projectChipsHtml(status){
+export function projectChipsHtml(status){
   return (status.late ? `<span class="proj-chip late">${status.lateCount} etapa${status.lateCount > 1 ? 's' : ''} atrasada${status.lateCount > 1 ? 's' : ''}</span>` : '')
     + (status.total && status.done === status.total ? '<span class="proj-chip ok">Concluído</span>' : '');
 }
 
 /* mini linha do tempo da lista: uma barrinha por etapa, na escala do projeto, com a marca de hoje */
-function miniTimelineHtml(p){
+export function miniTimelineHtml(p){
   const stages = (p.stages || []).filter(sg => sg.start || sg.end);
   if(!stages.length) return '<span class="mini-tl-empty">—</span>';
   const today = todayStr();
@@ -30,20 +39,20 @@ function miniTimelineHtml(p){
   }).join('') + `<u style="left:${Math.min(Math.max(pos(today), 0), 100)}%"></u></div>`;
 }
 
-let projectCollapsedStages = new Set();
-let projectListFilter = 'all';
-function projectListKind(st){
+export let projectCollapsedStages = new Set();
+G.projectListFilter = 'all';
+export function projectListKind(st){
   if(st.total && st.done === st.total) return 'concluido';
   if(st.late) return 'atrasado';
   return 'andamento';
 }
-function renderProjectList(view){
+export function renderProjectList(view){
   const all = projectsInScope();
   const rows = all.map(p => ({ p, st: projectStatus(p) }));
   rows.forEach(r => { r.kind = projectListKind(r.st); });
   const counts = { all: rows.length, andamento: rows.filter(r => r.kind === 'andamento').length, atrasado: rows.filter(r => r.kind === 'atrasado').length, concluido: rows.filter(r => r.kind === 'concluido').length };
-  const filtered = rows.filter(r => projectListFilter === 'all' || r.kind === projectListFilter);
-  const chip = (key, label) => `<button type="button" class="plist-chip ${projectListFilter === key ? 'on' : ''}" data-f="${key}">${label} ${counts[key]}</button>`;
+  const filtered = rows.filter(r => G.projectListFilter === 'all' || r.kind === G.projectListFilter);
+  const chip = (key, label) => `<button type="button" class="plist-chip ${G.projectListFilter === key ? 'on' : ''}" data-f="${key}">${label} ${counts[key]}</button>`;
   function stageLabel(p, st){
     if(!st.total) return '—';
     return st.next ? st.next.name : '—';
@@ -77,11 +86,11 @@ function renderProjectList(view){
       <div class="plist-empty">Nenhum projeto ainda. Crie um para organizar etapas, prazos e tarefas num só lugar.</div>`}
     </div>`;
   view.querySelector('#prjNewBtn').onclick = () => openProjectEditor(null);
-  view.querySelectorAll('.plist-chip').forEach(b => { b.onclick = () => { projectListFilter = b.dataset.f; render(); }; });
-  view.querySelectorAll('.plist-row').forEach(r => { r.onclick = () => { activeProjectId = r.dataset.id; projectTab = defaultProjectTab(); selectedStageId = null; render(); }; });
+  view.querySelectorAll('.plist-chip').forEach(b => { b.onclick = () => { G.projectListFilter = b.dataset.f; render(); }; });
+  view.querySelectorAll('.plist-row').forEach(r => { r.onclick = () => { G.activeProjectId = r.dataset.id; G.projectTab = defaultProjectTab(); G.selectedStageId = null; render(); }; });
 }
 
-function renderProjectDetail(view, p){
+export function renderProjectDetail(view, p){
   const st = projectStatus(p);
   const today = todayStr();
   const stages = p.stages.slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999')); // etapas sem datas ficam por último
@@ -91,8 +100,8 @@ function renderProjectDetail(view, p){
     const d = Math.round((new Date(st.end + 'T00:00:00') - new Date(p.endDate + 'T00:00:00')) / 86400000);
     slip = `+${d} dia${d > 1 ? 's' : ''}`;
   }
-  const selStage = stages.find(x => x.id === selectedStageId) || null;
-  if(!selStage) selectedStageId = null;
+  const selStage = stages.find(x => x.id === G.selectedStageId) || null;
+  if(!selStage) G.selectedStageId = null;
   let stageSideHtml = '';
   if(selStage){
     const spct = stagePercent(p, selStage), sstate = stageState(p, selStage), stks = sortByStart(stageTasks(p, selStage));
@@ -113,7 +122,7 @@ function renderProjectDetail(view, p){
       <button type="button" class="proj-side-btn pri" id="stgSideNewTask">+ Nova tarefa nesta etapa</button>
       <button type="button" class="proj-side-btn" id="stgSideEdit">Editar etapa</button>`;
   }
-  const phTasks = state.tasks.filter(t => t.projectId === p.id);
+  const phTasks = G.state.tasks.filter(t => t.projectId === p.id);
   const soonLim = addDaysStr(today, 3);
   const nLateT = phTasks.filter(t => !t.done && t.dueDate && t.dueDate < today).length;
   const nSoonT = phTasks.filter(t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLim).length;
@@ -146,8 +155,8 @@ function renderProjectDetail(view, p){
         <div class="proj-desc-row" id="prjDescRow"></div>
       </div>
       <div class="proj-tabs">
-        <button type="button" class="proj-tab ${projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
-        <button type="button" class="proj-tab ${projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+        <button type="button" class="proj-tab ${G.projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+        <button type="button" class="proj-tab ${G.projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
       </div>
     </div>
     <div id="prjBody" style="min-width:0;"></div>
@@ -164,7 +173,7 @@ function renderProjectDetail(view, p){
         <div class="proj-side-more">
         <div class="proj-side-label" style="margin-top:14px;">Próximas tarefas</div>
         ${(() => {
-          const open = state.tasks.filter(t => t.projectId === p.id && !t.done).sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999')).slice(0, 5);
+          const open = G.state.tasks.filter(t => t.projectId === p.id && !t.done).sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999')).slice(0, 5);
           if(!open.length) return '<div class="proj-side-sub" style="padding:8px 0;">Nenhuma tarefa pendente.</div>';
           return open.map(t => {
             const sg = (p.stages || []).find(x => x.id === t.stageId);
@@ -175,7 +184,7 @@ function renderProjectDetail(view, p){
         </div>`}
       </aside>
     </div>`;
-  if(activeTaskId || creatingNewTask){
+  if(G.activeTaskId || G.creatingNewTask){
     const tpanel = document.createElement('div');
     tpanel.className = 'task-panel';
     view.appendChild(tpanel);
@@ -217,43 +226,43 @@ function renderProjectDetail(view, p){
   }
   renderProjectDesc(false);
   const sideBack = view.querySelector('#stgSideBack');
-  if(sideBack) sideBack.onclick = () => { selectedStageId = null; render(); };
+  if(sideBack) sideBack.onclick = () => { G.selectedStageId = null; render(); };
   const sideEdit = view.querySelector('#stgSideEdit');
   if(sideEdit) sideEdit.onclick = () => openStageEditor(p, selStage);
   const sideNew = view.querySelector('#stgSideNewTask');
   if(sideNew) sideNew.onclick = () => {
-    state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+    G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
     const t = {
-      id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
+      id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
       done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: selStage.id,
     };
-    state.tasks.push(t);
-    activeTaskId = t.id; creatingNewTask = false;
+    G.state.tasks.push(t);
+    G.activeTaskId = t.id; G.creatingNewTask = false;
     markDirty();
   };
   const prjSideEdit = view.querySelector('#prjSideEdit');
   if(prjSideEdit) prjSideEdit.onclick = () => openProjectEditor(p);
   view.querySelectorAll('.proj-side-task').forEach(el => {
-    el.onclick = () => { activeTaskId = el.dataset.taskId; creatingNewTask = false; render(); };
+    el.onclick = () => { G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
   });
-  view.querySelector('#prjBack').onclick = () => { activeProjectId = null; selectedStageId = null; render(); };
+  view.querySelector('#prjBack').onclick = () => { G.activeProjectId = null; G.selectedStageId = null; render(); };
   view.querySelector('#prjMore').onclick = (e) => { e.stopPropagation(); openProjectMenu(e.currentTarget, p); };
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
   view.querySelector('#prjAddTask').onclick = () => {
-    state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+    G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
     const t = {
-      id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
+      id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
       done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
       projectId: p.id, stageId: null,
     };
-    state.tasks.push(t);
-    activeTaskId = t.id; creatingNewTask = false;
+    G.state.tasks.push(t);
+    G.activeTaskId = t.id; G.creatingNewTask = false;
     markDirty();
   };
-  view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { projectTab = b.dataset.tab; render(); }; });
+  view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { G.projectTab = b.dataset.tab; render(); }; });
   const body = view.querySelector('#prjBody');
 
   if(!stages.length){
@@ -261,7 +270,7 @@ function renderProjectDetail(view, p){
     return;
   }
 
-  if(projectTab === 'lista'){
+  if(G.projectTab === 'lista'){
     body.innerHTML = '<div class="tpl-list">' + stages.map(sg => {
       const pct = stagePercent(p, sg), state_ = stageState(p, sg), n = stageTasks(p, sg);
       return `<div class="tpl-card" data-id="${sg.id}" style="cursor:pointer;">
@@ -273,21 +282,21 @@ function renderProjectDetail(view, p){
         <span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]} · ${pct}%</span>
       </div>`;
     }).join('') + '</div>';
-    body.querySelectorAll('.tpl-card').forEach(c => { c.onclick = () => { selectedStageId = selectedStageId === c.dataset.id ? null : c.dataset.id; render(); }; });
+    body.querySelectorAll('.tpl-card').forEach(c => { c.onclick = () => { G.selectedStageId = G.selectedStageId === c.dataset.id ? null : c.dataset.id; render(); }; });
     return;
   }
 
   // linha do tempo
   const ZOOMS = { fit: { dpx: 0, label: 'Ajustar' }, month: { dpx: 5, label: 'Mês' }, week: { dpx: 14, label: 'Semana' }, day: { dpx: 34, label: 'Dia' } };
-  if(!ZOOMS[ganttZoom]) ganttZoom = 'fit';
-  const fit = ganttZoom === 'fit';
-  ganttFit = fit;
+  if(!ZOOMS[G.ganttZoom]) G.ganttZoom = 'fit';
+  const fit = G.ganttZoom === 'fit';
+  G.ganttFit = fit;
   const DAYMS = 86400000;
   const dates = [];
   stages.forEach(sg => { if(sg.start) dates.push(sg.start); if(sg.end) dates.push(sg.end); });
   if(p.startDate) dates.push(p.startDate);
   if(p.endDate) dates.push(p.endDate);
-  state.tasks.forEach(t => { if(t.projectId === p.id){ if(t.startDate) dates.push(t.startDate); if(t.dueDate) dates.push(t.dueDate); } });
+  G.state.tasks.forEach(t => { if(t.projectId === p.id){ if(t.startDate) dates.push(t.startDate); if(t.dueDate) dates.push(t.dueDate); } });
   dates.push(today);
   dates.sort();
   const first = new Date(dates[0] + 'T00:00:00');
@@ -298,8 +307,8 @@ function renderProjectDetail(view, p){
   const total = Math.round((rangeEnd - rangeStart) / DAYMS);
   /* Ajustar: encolhe o período inteiro para a largura disponível (sem rolagem lateral) */
   const glFit = window.matchMedia('(max-width:768px)').matches ? 104 : 210;
-  const dpx = fit ? Math.max(((body.clientWidth || 900) - 2 - glFit) / total, 1.4) : ZOOMS[ganttZoom].dpx;
-  const fine = ganttZoom === 'day' || ganttZoom === 'week';
+  const dpx = fit ? Math.max(((body.clientWidth || 900) - 2 - glFit) / total, 1.4) : ZOOMS[G.ganttZoom].dpx;
+  const fine = G.ganttZoom === 'day' || G.ganttZoom === 'week';
   const W = fit ? total * dpx : Math.round(total * dpx);
   const dayIdx = dateStr => Math.round((new Date(dateStr + 'T00:00:00') - rangeStart) / DAYMS);
   const pos = dateStr => Math.max(0, Math.min(W, dayIdx(dateStr) * dpx));
@@ -315,9 +324,9 @@ function renderProjectDetail(view, p){
   }
   const todayIdx = dayIdx(today);
   const subRow = [];
-  if(ganttZoom === 'day'){
+  if(G.ganttZoom === 'day'){
     for(let i = 0; i < total; i++){ const dt = dayAt(i); subRow.push(`<span class="${i === todayIdx ? 'now' : ''}" style="width:${dpx}px">${dt.getDate()}</span>`); }
-  } else if(ganttZoom === 'week'){
+  } else if(G.ganttZoom === 'week'){
     for(let i = 0; i < total; i += 7){ const dt = dayAt(i); subRow.push(`<span class="${todayIdx >= i && todayIdx < i + 7 ? 'now' : ''}" style="width:${7 * dpx}px">${String(dt.getDate()).padStart(2, '0')}</span>`); }
   }
   // colunas: fins de semana, início das semanas e a coluna de hoje
@@ -337,19 +346,19 @@ function renderProjectDetail(view, p){
   const soonLimit = addDaysStr(today, 3);
   const isLate = t => !t.done && t.dueDate && t.dueDate < today;
   const isSoon = t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLimit;
-  const pass = t => ganttFilter === 'all' || (ganttFilter === 'late' ? isLate(t) : isSoon(t));
-  const projTasks = state.tasks.filter(t => t.projectId === p.id);
+  const pass = t => G.ganttFilter === 'all' || (G.ganttFilter === 'late' ? isLate(t) : isSoon(t));
+  const projTasks = G.state.tasks.filter(t => t.projectId === p.id);
   const nLate = projTasks.filter(isLate).length, nSoon = projTasks.filter(isSoon).length;
   const chev = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   body.innerHTML = `
     <div class="gantt-card">
     <div class="gantt-tools">
-      <span class="gantt-seg">${Object.keys(ZOOMS).map(k => `<button type="button" data-zoom="${k}" class="${ganttZoom === k ? 'on' : ''}">${ZOOMS[k].label}</button>`).join('')}</span>
+      <span class="gantt-seg">${Object.keys(ZOOMS).map(k => `<button type="button" data-zoom="${k}" class="${G.ganttZoom === k ? 'on' : ''}">${ZOOMS[k].label}</button>`).join('')}</span>
       ${fit ? '' : `<span class="gantt-nav"><button type="button" id="ganttPrev" aria-label="Voltar no tempo">${chev('M15 6l-6 6 6 6')}</button><button type="button" id="ganttToday" class="txt">Hoje</button><button type="button" id="ganttNext" aria-label="Avançar no tempo">${chev('M9 6l6 6-6 6')}</button></span>`}
       <span class="gantt-filters">
-        <button type="button" data-gfilter="all" class="${ganttFilter === 'all' ? 'on' : ''}">Todas</button>
-        <button type="button" data-gfilter="late" class="${ganttFilter === 'late' ? 'on' : ''}">Atrasadas <b class="late">${nLate}</b></button>
-        <button type="button" data-gfilter="soon" class="${ganttFilter === 'soon' ? 'on' : ''}">Vencem em breve <b class="soon">${nSoon}</b></button>
+        <button type="button" data-gfilter="all" class="${G.ganttFilter === 'all' ? 'on' : ''}">Todas</button>
+        <button type="button" data-gfilter="late" class="${G.ganttFilter === 'late' ? 'on' : ''}">Atrasadas <b class="late">${nLate}</b></button>
+        <button type="button" data-gfilter="soon" class="${G.ganttFilter === 'soon' ? 'on' : ''}">Vencem em breve <b class="soon">${nSoon}</b></button>
       </span>
     </div>
     <div class="gantt-wrap${fit ? ' fit' : ''}" style="--pc:${projectColor(p)}"><div class="gantt" style="width:calc(var(--gl) + ${W}px); min-width:${fit ? '0' : '100%'};">
@@ -362,13 +371,13 @@ function renderProjectDetail(view, p){
           const w = Math.max(b - a, 18);
           const tks = stageTasks(p, sg).filter(pass);
           const collapsed = projectCollapsedStages.has(sg.id);
-          return `<div class="gantt-row${sg.id === selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
+          return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
             <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
-          </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
+          </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (G.ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}
         ${(() => {
-          const loose = state.tasks.filter(t => t.projectId === p.id && !t.stageId).filter(pass);
+          const loose = G.state.tasks.filter(t => t.projectId === p.id && !t.stageId).filter(pass);
           if(!loose.length) return '';
           return `<div class="gantt-row gantt-loose"><div class="gl"><b>Sem etapa</b><small>${loose.length} tarefa${loose.length === 1 ? '' : 's'} sem etapa definida</small></div><div class="gantt-track"></div></div>` +
             loose.map(t => ganttTaskRow(t, 'nao_iniciada', pos)).join('');
@@ -379,17 +388,17 @@ function renderProjectDetail(view, p){
   const wrapEl = body.querySelector('.gantt-wrap');
   const glW = parseInt(getComputedStyle(wrapEl).getPropertyValue('--gl'), 10) || 260;
   const goToday = (smooth) => wrapEl.scrollTo({ left: Math.max(0, todayX - (wrapEl.clientWidth - glW) / 2), behavior: smooth ? 'smooth' : 'auto' });
-  if(ganttCenterToday || ganttLastProject !== p.id){ goToday(false); ganttCenterToday = false; ganttLastProject = p.id; }
-  else wrapEl.scrollLeft = ganttScroll || 0;
-  wrapEl.addEventListener('scroll', () => { ganttScroll = wrapEl.scrollLeft; });
-  body.querySelectorAll('[data-zoom]').forEach(btn => { btn.onclick = () => { ganttZoom = btn.dataset.zoom; ganttCenterToday = true; render(); }; });
-  body.querySelectorAll('[data-gfilter]').forEach(btn => { btn.onclick = () => { ganttFilter = btn.dataset.gfilter; render(); }; });
+  if(G.ganttCenterToday || G.ganttLastProject !== p.id){ goToday(false); G.ganttCenterToday = false; G.ganttLastProject = p.id; }
+  else wrapEl.scrollLeft = G.ganttScroll || 0;
+  wrapEl.addEventListener('scroll', () => { G.ganttScroll = wrapEl.scrollLeft; });
+  body.querySelectorAll('[data-zoom]').forEach(btn => { btn.onclick = () => { G.ganttZoom = btn.dataset.zoom; G.ganttCenterToday = true; render(); }; });
+  body.querySelectorAll('[data-gfilter]').forEach(btn => { btn.onclick = () => { G.ganttFilter = btn.dataset.gfilter; render(); }; });
   if(!fit){
     body.querySelector('#ganttToday').onclick = () => goToday(true);
     body.querySelector('#ganttPrev').onclick = () => wrapEl.scrollBy({ left: -(wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
     body.querySelector('#ganttNext').onclick = () => wrapEl.scrollBy({ left: (wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
   }
-  body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { selectedStageId = selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
+  body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { G.selectedStageId = G.selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
   body.querySelectorAll('.gantt-add-input').forEach(inp => {
     inp.addEventListener('click', (e) => e.stopPropagation());
     inp.addEventListener('keydown', (e) => {
@@ -416,7 +425,7 @@ function renderProjectDetail(view, p){
     };
   });
   body.querySelectorAll('.gantt-task').forEach(r => {
-    r.onclick = () => { activeTaskId = r.dataset.taskId; creatingNewTask = false; render(); };
+    r.onclick = () => { G.activeTaskId = r.dataset.taskId; G.creatingNewTask = false; render(); };
     r.ondragstart = (e) => { e.dataTransfer.setData('text/plain', r.dataset.taskId); e.dataTransfer.effectAllowed = 'move'; r.classList.add('dragging'); };
     r.ondragend = () => { r.classList.remove('dragging'); body.querySelectorAll('.drop-over').forEach(x => x.classList.remove('drop-over')); };
   });
@@ -429,7 +438,7 @@ function renderProjectDetail(view, p){
       e.preventDefault();
       row.classList.remove('drop-over');
       const id = e.dataTransfer.getData('text/plain');
-      const task = state.tasks.find(x => x.id === id);
+      const task = G.state.tasks.find(x => x.id === id);
       if(!task || task.projectId !== p.id) return;
       const to = target() || null;
       if((task.stageId || null) === to) return;
@@ -441,18 +450,18 @@ function renderProjectDetail(view, p){
 }
 
 /* Cria uma tarefa do projeto (na etapa, ou sem etapa), sem prazo e sem nada além do título. */
-function createProjectTask(project, stageId, title){
-  state.taskIdCounter = (state.taskIdCounter || 0) + 1;
+export function createProjectTask(project, stageId, title){
+  G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
   const t = {
-    id: uid('task'), shortId: String(state.taskIdCounter).padStart(4, '0'), title: title || '', categoryId: project.categoryId,
+    id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'), title: title || '', categoryId: project.categoryId,
     done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
     description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
     projectId: project.id, stageId: stageId || null,
   };
-  state.tasks.push(t);
+  G.state.tasks.push(t);
   return t;
 }
 /* Linha "+ Nova tarefa" no fim de cada etapa: digita o nome e Enter cria a tarefa na etapa, sem prazo. */
-function ganttAddRow(stageId){
+export function ganttAddRow(stageId){
   return `<div class="gantt-add" data-stage="${stageId}"><div class="gl"><input type="text" class="gantt-add-input" placeholder="+ Nova tarefa (Enter)" maxlength="200" aria-label="Nova tarefa nesta etapa"></div><div class="gantt-track"></div></div>`;
 }

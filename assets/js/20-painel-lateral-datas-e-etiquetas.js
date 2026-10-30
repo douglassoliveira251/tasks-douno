@@ -1,11 +1,20 @@
+import { G } from './globais.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
+import { DEFAULT_DUE_TIME, todayStr } from './10-helpers.js';
+import { renderUnifiedTagPicker } from './13-portais-de-tarefa.js';
+import { closeTagsPortal, ensureTagsPortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
+import { getOrCreateActiveTask } from './16-painel-lateral-de-tarefa.js';
+import { addDaysStr } from './25-calendario.js';
+import { dateInStageRange, flashStageRangeWarning } from './31-projetos.js';
+
 /* Acompanhamento, início, prazo e hora. */
-function bindTpDates(panel, task){
+export function bindTpDates(panel, task){
   const tpFollowTrigger = document.getElementById('tpFollowTrigger');
   if(tpFollowTrigger){
     tpFollowTrigger.onclick = (e) => {
       e.stopPropagation();
-      tpFollowOpen = !tpFollowOpen;
-      document.getElementById('tpFollowMenu').hidden = !tpFollowOpen;
+      G.tpFollowOpen = !G.tpFollowOpen;
+      document.getElementById('tpFollowMenu').hidden = !G.tpFollowOpen;
     };
     const fMenu = document.getElementById('tpFollowMenu');
     fMenu.onclick = (e) => e.stopPropagation();
@@ -14,12 +23,12 @@ function bindTpDates(panel, task){
         const t = getOrCreateActiveTask(); if(!t) return;
         const days = b.dataset.clear ? null : parseInt(b.dataset.days, 10);
         t.followUpDate = days === null ? null : addDaysStr(todayStr(), days);
-        tpFollowOpen = false;
+        G.tpFollowOpen = false;
         markDirty();
       };
     });
     document.getElementById('tpFollowCustom').onclick = () => {
-      tpFollowOpen = false;
+      G.tpFollowOpen = false;
       fMenu.hidden = true;
       const inp = document.getElementById('tpFollowDate');
       try { inp.showPicker(); } catch(err) { inp.focus(); inp.click(); }
@@ -34,15 +43,15 @@ function bindTpDates(panel, task){
   if(!window._tpFollowOutside){
     window._tpFollowOutside = true;
     document.addEventListener('click', () => {
-      if(!tpFollowOpen) return;
-      tpFollowOpen = false;
+      if(!G.tpFollowOpen) return;
+      G.tpFollowOpen = false;
       const m = document.getElementById('tpFollowMenu'); if(m) m.hidden = true;
     });
   }
   const tpStartLink = document.getElementById('tpStartLink');
   if(tpStartLink){
     const pop = document.getElementById('tpStartPop');
-    tpStartLink.onclick = (e) => { e.stopPropagation(); tpStartOpen = !tpStartOpen; pop.hidden = !tpStartOpen; };
+    tpStartLink.onclick = (e) => { e.stopPropagation(); G.tpStartOpen = !G.tpStartOpen; pop.hidden = !G.tpStartOpen; };
     pop.onclick = (e) => e.stopPropagation();
     const setStart = (v) => {
       const t = getOrCreateActiveTask(); if(!t) return;
@@ -51,7 +60,7 @@ function bindTpDates(panel, task){
         return;
       }
       t.startDate = v || null;
-      tpStartOpen = false;
+      G.tpStartOpen = false;
       markDirty();
     };
     pop.querySelectorAll('[data-start]').forEach(b => { b.onclick = () => setStart(b.dataset.start); });
@@ -62,8 +71,8 @@ function bindTpDates(panel, task){
   if(!window._tpStartOutside){
     window._tpStartOutside = true;
     document.addEventListener('click', () => {
-      if(!tpStartOpen) return;
-      tpStartOpen = false;
+      if(!G.tpStartOpen) return;
+      G.tpStartOpen = false;
       const m = document.getElementById('tpStartPop'); if(m) m.hidden = true;
     });
   }
@@ -87,7 +96,7 @@ function bindTpDates(panel, task){
 }
 
 /* Prioridade e etiquetas. */
-function bindTpPriorityAndTags(panel, task){
+export function bindTpPriorityAndTags(panel, task){
   panel.querySelectorAll('.tp-priority-btn').forEach(btn => {
     btn.onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
@@ -126,7 +135,7 @@ function bindTpPriorityAndTags(panel, task){
     if(!box) return;
     const addBtn = box.querySelector('#tpTagsToggleBtn');
     box.querySelectorAll('.tp-tag-chip').forEach(el => el.remove());
-    (task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
+    (task.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
       const chip = document.createElement('span');
       chip.className = 'tp-tag-chip active';
       chip.style.background = tg.color;

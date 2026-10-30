@@ -1,6 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { pathToFileURL } from 'url';
-import { resolve } from 'path';
 
 const open = async (page, path) => {
   await page.goto(path);
@@ -69,18 +67,6 @@ test.describe('Rotas: um endereço por tela', () => {
     expect(new URL(page.url()).search).toBe('?outlook=connected');
     expect(pathOf(page)).toBe('/app');
     expect(await page.evaluate(() => history.length)).toBeLessThanOrEqual(2);
-  });
-
-  test('aberto como arquivo (sem servidor), usa # no lugar do caminho', async ({ page }) => {
-    const url = pathToFileURL(resolve('..', 'index.html')).href;
-    await page.goto(url + '#/notas');
-    await page.waitForFunction(() => typeof render === 'function');
-    expect(await view(page)).toBe('notes');
-    await page.evaluate(() => { closeLoginGate(); });
-    await page.locator('.nav-item[data-view="calendar"]').click();
-    expect(await page.evaluate(() => location.hash)).toBe('#/calendario');
-    await page.goBack();
-    await expect.poll(() => view(page)).toBe('notes');
   });
 
   test('endereços desconhecidos (/app/xyz, /app/resumo) viram /app; os arquivos carregam de qualquer profundidade', async ({ page }) => {

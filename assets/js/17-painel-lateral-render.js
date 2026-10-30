@@ -1,11 +1,25 @@
+import { G } from './globais.js';
+import { catById, escapeHtml, fmtDate, isOverdue, todayStr } from './10-helpers.js';
+import { PRIORITY_CONFIG, STATUS_CONFIG, statusCircleSvg } from './12-render-tasks.js';
+import { closeAllTaskMenus } from './13-portais-de-tarefa.js';
+import { closeTaskPanel, recurrenceSummaryLabel } from './16-painel-lateral-de-tarefa.js';
+import { bindTpMenu } from './18-painel-lateral-menu.js';
+import { bindTpDescriptionAndAttachments, bindTpHeader, bindTpSpaceAndLinks } from './19-painel-lateral-campos.js';
+import { bindTpDates, bindTpPriorityAndTags } from './20-painel-lateral-datas-e-etiquetas.js';
+import { bindTpComments, bindTpRecurrenceAndSubtasks } from './21-painel-lateral-subtarefas-e-comentarios.js';
+import { fmtUpdatedAt } from './23-texto-rico-utilitarios.js';
+import { addDaysStr } from './25-calendario.js';
+import { projectById, stageRange } from './31-projetos.js';
+import { FOLLOW_PRESETS, effectiveStart, followRelative, followWeekday, nextMondayStr } from './35-templates-de-tarefa.js';
+
 /* Painel lateral de tarefa. renderTaskPanel monta o HTML (taskPanelHtml) e liga cada área, na ordem:
    menu ⋮ (18), cabeçalho, espaço/agendas/notas, descrição/anexos (19), datas, prioridade/etiquetas (20),
    recorrência/subtarefas e comentários (21). Cada bindTp* recebe o painel e a tarefa. */
-function renderTaskPanel(panel){
+export function renderTaskPanel(panel){
   closeAllTaskMenus();
-  const task = creatingNewTask
-    ? { title:'', categoryId:(activeCategoryFilter && catById(activeCategoryFilter)) ? activeCategoryFilter : state.categories[0].id, dueDate:null, dueTime:'', priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
-    : state.tasks.find(x => x.id === activeTaskId);
+  const task = G.creatingNewTask
+    ? { title:'', categoryId:(G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : G.state.categories[0].id, dueDate:null, dueTime:'', priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
+    : G.state.tasks.find(x => x.id === G.activeTaskId);
 
   if(!task){ closeTaskPanel(true); return; }
 
@@ -22,8 +36,8 @@ function renderTaskPanel(panel){
   bindTpComments(panel, task);
 }
 
-function taskPanelHtml(task){
-  const catOptions = state.categories.map(c => `<option value="${c.id}" ${c.id===task.categoryId?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
+export function taskPanelHtml(task){
+  const catOptions = G.state.categories.map(c => `<option value="${c.id}" ${c.id===task.categoryId?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
 
   const overdue = isOverdue(task.dueDate, task.done);
   const isToday = task.dueDate === todayStr();
@@ -37,11 +51,11 @@ function taskPanelHtml(task){
     <div class="tp-field">
       <div class="tp-name-row">
         <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
-        <input type="text" class="tp-name-input ${task.done?'done':''}" id="tpName" placeholder="Nome da tarefa" value="${escapeHtml(task.title||'')}" ${creatingNewTask ? '' : 'readonly'}>
+        <input type="text" class="tp-name-input ${task.done?'done':''}" id="tpName" placeholder="Nome da tarefa" value="${escapeHtml(task.title||'')}" ${G.creatingNewTask ? '' : 'readonly'}>
         <button type="button" class="tp-header-icon-btn tp-mobile-close" id="tpMobileClose" title="Fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <button type="button" class="tp-header-icon-btn" id="tpMenuBtn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
       </div>
-      ${!creatingNewTask ? `<div class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</div>` : ''}
+      ${!G.creatingNewTask ? `<div class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</div>` : ''}
       ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Tarefa concluída</div>` : ''}
     </div>
 
@@ -53,7 +67,7 @@ function taskPanelHtml(task){
           ${task.projectId && projectById(task.projectId) ? `<span class="tp-proj-chip" id="tpProjChip" title="Clique para trocar o projeto ou a etapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg><span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span><button type="button" id="tpProjChipX" title="Desvincular do projeto" aria-label="Desvincular do projeto">×</button></span>` : ''}
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
-          ${(task.tagIds||[]).map(id => state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
+          ${(task.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
           <button type="button" class="tp-tags-add-btn" id="tpTagsToggleBtn">+ Tag</button>
         </div>
       </div>
@@ -67,7 +81,7 @@ function taskPanelHtml(task){
           <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <input type="date" class="tp-follow-date-hidden" id="tpFollowDate" value="${task.followUpDate||''}" tabindex="-1" aria-hidden="true">
-        <div class="tp-follow-menu" id="tpFollowMenu" ${tpFollowOpen ? '' : 'hidden'}>
+        <div class="tp-follow-menu" id="tpFollowMenu" ${G.tpFollowOpen ? '' : 'hidden'}>
           ${FOLLOW_PRESETS.map(([n, lb]) => { const d = addDaysStr(todayStr(), n); return `<button type="button" class="tp-follow-opt" data-days="${n}"><span>${lb}</span><small>${followWeekday(d)}</small></button>`; }).join('')}
           <div class="tp-follow-sep"></div>
           <button type="button" class="tp-follow-opt" id="tpFollowCustom"><span>Personalizada…</span></button>
@@ -77,7 +91,7 @@ function taskPanelHtml(task){
       <div class="tp-box tp-due-box">
         <label class="tp-label tp-label-row"><span>Prazo (entrega)</span>
           <button type="button" class="tp-start-link" id="tpStartLink" title="Início da tarefa (opcional)">${task.startDate ? 'início ' + fmtDate(task.startDate) : '+ início'}</button></label>
-        ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${tpStartOpen ? '' : 'hidden'}>
+        ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${G.tpStartOpen ? '' : 'hidden'}>
           <div class="tp-start-k">Início da tarefa</div>
           <div class="tp-start-box"><input type="date" id="tpStartDate" value="${es.date}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'data de criação')}</span></div>
           <div class="tp-start-chips"><button type="button" data-start="${todayStr()}">Hoje</button><button type="button" data-start="${addDaysStr(todayStr(), 1)}">Amanhã</button><button type="button" data-start="${nextMondayStr()}">Segunda</button></div>

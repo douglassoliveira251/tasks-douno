@@ -1,5 +1,7 @@
+import { escapeHtml } from './10-helpers.js';
+
 /* ===================== TEXTO RICO (negrito, itálico, listas etc.) ===================== */
-const RT_ICONS = {
+export const RT_ICONS = {
   alignLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h14"/></svg>',
   alignCenter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M5 18h14"/></svg>',
   alignRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M10 12h10M6 18h14"/></svg>',
@@ -9,7 +11,7 @@ const RT_ICONS = {
   indent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 6h8M13 12h8M13 18h8M3 6h4"/><path d="M3 12l4 3-4 3z" fill="currentColor" stroke="none"/></svg>'
 };
 
-function clearFormattingInSelection(targetEl){
+export function clearFormattingInSelection(targetEl){
   ensureSelectionInTarget(targetEl);
   const sel = window.getSelection();
   if(!sel || !sel.rangeCount) return;
@@ -138,7 +140,7 @@ function clearFormattingInSelection(targetEl){
   }
 }
 
-function ensureSelectionInTarget(targetEl){
+export function ensureSelectionInTarget(targetEl){
   if(!targetEl) return;
   const sel = window.getSelection();
   let inTarget = false;
@@ -156,7 +158,7 @@ function ensureSelectionInTarget(targetEl){
   }
 }
 
-function makeRtButton({ label, style, icon, cmd, title }, targetEl, onAfter){
+export function makeRtButton({ label, style, icon, cmd, title }, targetEl, onAfter){
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'rt-btn';
@@ -172,7 +174,7 @@ function makeRtButton({ label, style, icon, cmd, title }, targetEl, onAfter){
   return btn;
 }
 
-function makeRtFormatSelect(targetEl){
+export function makeRtFormatSelect(targetEl){
   const select = document.createElement('select');
   select.className = 'rt-format-select';
   select.title = 'Tamanho do texto';
@@ -222,7 +224,7 @@ function makeRtFormatSelect(targetEl){
   return { element: select, sync };
 }
 
-function buildRichToolbar(targetEl){
+export function buildRichToolbar(targetEl){
   const bar = document.createElement('div');
   bar.className = 'rt-toolbar';
   const formatSelect = makeRtFormatSelect(targetEl);

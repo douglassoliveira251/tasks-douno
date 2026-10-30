@@ -1,3 +1,18 @@
+## [1.13.0] - 2026-10-30 22:30
+
+### Changed
+
+#### Código
+
+- Os 50 arquivos de `assets/js/` passam de scripts globais a **módulos ES**: cada arquivo importa explicitamente o que usa (711 importações) e exporta o que oferece; `assets/js/main.js` é a única entrada (`<script type="module">`). A conversão foi feita por script com análise de escopo (parser), não por busca e troca de texto.
+- O que antes era variável global reatribuída em vários arquivos (`state`, `currentView`, filtros, sessão, rascunhos; 82 nomes) agora mora no objeto compartilhado `G` (`assets/js/globais.js`) e é lido/escrito como `G.nome`. Para os testes e o console, `main.js` publica os mesmos nomes no `window` (como getter/setter nos mutáveis), então nada mudou na forma de usá-los por fora.
+- Verificação estática: nenhuma referência sem origem em nenhum módulo; teste de carregamento sem erros; suíte completa verde.
+
+### Removed
+
+- Abrir o `index.html` direto do disco (`file://`) deixa de funcionar, porque o navegador bloqueia módulos nesse modo. Para rodar localmente, sirva a pasta (ex.: `python -m http.server`) e abra `/app`. A hospedagem na Vercel não muda.
+
+
 ## [1.12.2] - 2026-10-30 21:00
 
 ### Changed
