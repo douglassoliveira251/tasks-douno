@@ -29,6 +29,21 @@ test.describe('Pesquisa', () => {
     await expect(page.locator('.sr-ic.n')).toHaveCount(1);
   });
 
+  test('acento não importa: "relatorio" acha "relatório" e vice-versa, e destaca o trecho', async ({ page }) => {
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(seed);
+    await page.locator('#searchInput').fill('RELATORIO');
+    await expect(page.locator('.sr-row')).toHaveCount(3);
+    await expect(page.locator('.sr-mark').first()).toHaveText('relatório');
+    await page.locator('#searchInput').fill('reuniao');
+    await expect(page.locator('.sr-row')).toHaveCount(1);
+    await page.locator('#searchInput').fill('reunião');
+    await expect(page.locator('.sr-row')).toHaveCount(1);
+    // busca da tela de tarefas
+    await page.locator('#searchInput').fill('');
+    expect(await page.evaluate(() => [fold('Ação'), fold('ÇÃO'), fold('naïve').length])).toEqual(['acao', 'cao', 5]);
+  });
+
   test('teclado: setas e Enter abrem o item', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(seed);

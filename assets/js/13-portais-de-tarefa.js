@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { DEFAULT_COLORS } from './01-estado.js';
 import { markDirty } from './08-persistencia.js';
-import { escapeHtml, uid } from './10-helpers.js';
+import { escapeHtml, fold, uid } from './10-helpers.js';
 import { openColorPortal, openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { openTemplateEditor, templateFromTask } from './35-templates-de-tarefa.js';
@@ -162,10 +162,10 @@ export function renderTaskLinkPicker(portal, opts){
   clearBtn.onclick = (e) => { e.stopPropagation(); searchInput.value=''; searchInput.dispatchEvent(new Event('input')); searchInput.focus(); };
 
   function renderList(){
-    const term = searchInput.value.trim().toLowerCase();
+    const term = fold(searchInput.value.trim());
     let tasks = G.state.tasks.filter(t => !t.done);
     if(term){
-      tasks = tasks.filter(t => (t.title||'').toLowerCase().includes(term) || (t.shortId||'').toLowerCase().includes(term));
+      tasks = tasks.filter(t => fold(t.title).includes(term) || fold(t.shortId).includes(term));
     }
     tasks = tasks.slice(0, 30);
     let html = '';
@@ -212,9 +212,9 @@ export function renderUnifiedTagPicker(portal, opts){
   clearBtn.onclick = (e) => { e.stopPropagation(); searchInput.value=''; searchInput.dispatchEvent(new Event('input')); searchInput.focus(); };
 
   function renderList(){
-    const term = searchInput.value.trim().toLowerCase();
+    const term = fold(searchInput.value.trim());
     const visibleTags = G.state.tags.filter(tg => !tg.categoryId || tg.categoryId === categoryId);
-    const matchFilter = tg => !term || tg.name.toLowerCase().includes(term);
+    const matchFilter = tg => !term || fold(tg.name).includes(term);
     const ofGroup = visibleTags.filter(tg => tg.categoryId === categoryId && matchFilter(tg));
     const general = visibleTags.filter(tg => !tg.categoryId && matchFilter(tg));
     const renderRow = tg => `
@@ -223,7 +223,7 @@ export function renderUnifiedTagPicker(portal, opts){
         <span class="tp-tags-popover-name">${escapeHtml(tg.name)}</span>
         ${isSelected(tg.id) ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg>` : ''}
       </div>`;
-    const exactMatch = visibleTags.some(tg => tg.name.toLowerCase() === term);
+    const exactMatch = visibleTags.some(tg => fold(tg.name) === term);
     let html = '';
     if(ofGroup.length) html += `<div class="tp-tags-popover-section">Deste espaço</div>` + ofGroup.map(renderRow).join('');
     if(general.length) html += `<div class="tp-tags-popover-section">Gerais</div>` + general.map(renderRow).join('');

@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { PAGE_HEADER_ICONS } from './05-novidades-painel.js';
-import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { catById, dateToStr, escapeHtml, fmtDate, fold, todayStr } from './10-helpers.js';
 import { STATUS_CONFIG } from './12-render-tasks.js';
 import { stripHtml } from './23-texto-rico-utilitarios.js';
 import { openNoteComposer } from './24-render-notes.js';
@@ -25,13 +25,13 @@ G.searchActiveIdx = 0;
 G.searchShowDone = false; // busca: concluídas ficam ocultas até o usuário pedir
 export const SEARCH_LIMIT = 8;
 export function computeGlobalSearchResults(term){
-  const t = term.trim().toLowerCase();
+  const t = fold(term.trim());
   if(!t) return { tasks:[], doneTasks:[], notes:[], events:[], counts:{ tasks:0, done:0, notes:0, events:0 } };
-  const tasksFound = G.state.tasks.filter(x => (x.title||'').toLowerCase().includes(t));
+  const tasksFound = G.state.tasks.filter(x => fold(x.title).includes(t));
   const tasksAll = tasksFound.filter(x => !x.done);
   const doneAll = tasksFound.filter(x => x.done);
-  const notesAll = G.state.notes.filter(x => !x.archived && ((x.title||'')+' '+stripHtml(x.body||'')).toLowerCase().includes(t));
-  const eventsAll = G.state.events.filter(x => (x.title||'').toLowerCase().includes(t));
+  const notesAll = G.state.notes.filter(x => !x.archived && fold((x.title||'')+' '+stripHtml(x.body||'')).includes(t));
+  const eventsAll = G.state.events.filter(x => fold(x.title).includes(t));
   return {
     tasks: tasksAll.slice(0, SEARCH_LIMIT), doneTasks: doneAll.slice(0, SEARCH_LIMIT), notes: notesAll.slice(0, SEARCH_LIMIT), events: eventsAll.slice(0, SEARCH_LIMIT),
     counts: { tasks: tasksAll.length, done: doneAll.length, notes: notesAll.length, events: eventsAll.length },
@@ -44,13 +44,13 @@ export function highlightTerm(text, term){
   const raw = String(text || '');
   const t = term.trim();
   if(!t) return escapeHtml(raw);
-  const i = raw.toLowerCase().indexOf(t.toLowerCase());
+  const i = fold(raw).indexOf(fold(t));
   if(i < 0) return escapeHtml(raw);
   return escapeHtml(raw.slice(0, i)) + '<mark class="sr-mark">' + escapeHtml(raw.slice(i, i + t.length)) + '</mark>' + escapeHtml(raw.slice(i + t.length));
 }
 export function searchSnippet(note, term){
   const body = stripHtml(note.body || '');
-  const i = body.toLowerCase().indexOf(term.trim().toLowerCase());
+  const i = fold(body).indexOf(fold(term.trim()));
   if(i < 0) return '';
   const from = Math.max(0, i - 24);
   return (from > 0 ? '…' : '') + body.slice(from, i + term.trim().length + 40).replace(/\s+/g, ' ');
@@ -116,7 +116,7 @@ export function renderSearchResultsDropdown(){
     <div class="sr-list">
       ${items.length ? items.map((x, i) => {
         const k = KIND[x.kind];
-        const snip = x.kind === 'notes' && !(x.it.title || '').toLowerCase().includes(term.trim().toLowerCase()) ? searchSnippet(x.it, term) : '';
+        const snip = x.kind === 'notes' && !fold(x.it.title).includes(fold(term.trim())) ? searchSnippet(x.it, term) : '';
         let head = '';
         if(x.done && !doneHeadShown){ doneHeadShown = true; head = '<div class="sr-sec">Concluídas</div>'; }
         return head + `<div class="sr-row ${x.done ? 'done' : ''} ${i === G.searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">

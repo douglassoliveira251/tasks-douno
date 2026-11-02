@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
-import { dateToStr, escapeHtml, fmtDate, isOverdue, spawnNextRecurrence, todayStr } from './10-helpers.js';
+import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, spawnNextRecurrence, todayStr } from './10-helpers.js';
 import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
@@ -75,9 +75,9 @@ export const PERIOD_CONFIG = [
 ];
 
 export function computeTaskGroups(){
-  const term = G.searchTerm.trim().toLowerCase();
+  const term = fold(G.searchTerm.trim());
   let pool = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
-  if(term) pool = pool.filter(t => t.title.toLowerCase().includes(term));
+  if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(G.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => G.activeTagFilters.includes(id)));
   if(G.activeCriticalityFilters.length) pool = pool.filter(t => G.activeCriticalityFilters.includes(t.priority||'media'));
   if(G.taskProjectFilter === 'personal') pool = pool.filter(t => !t.projectId);
@@ -148,10 +148,10 @@ export function computeTaskGroups(){
 }
 
 export function computeCompletedGroup(){
-  const term = G.searchTerm.trim().toLowerCase();
+  const term = fold(G.searchTerm.trim());
   let pool = G.state.tasks.filter(t => t.done);
   pool = pool.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
-  if(term) pool = pool.filter(t => t.title.toLowerCase().includes(term));
+  if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(G.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => G.activeTagFilters.includes(id)));
   if(G.activeCriticalityFilters.length) pool = pool.filter(t => G.activeCriticalityFilters.includes(t.priority||'media'));
   pool.sort((a,b) => (b.updatedAt||b.createdAt||0) - (a.updatedAt||a.createdAt||0));

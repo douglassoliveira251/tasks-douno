@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { expandedNotebookIds } from './01-estado.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
-import { escapeHtml, uid } from './10-helpers.js';
+import { escapeHtml, fold, uid } from './10-helpers.js';
 import { pinIconSvg } from './12-render-tasks.js';
 import { openConfirmPortal } from './13-portais-de-tarefa.js';
 import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
@@ -22,9 +22,9 @@ export function renderNotes(){
   const titleCursor = titleWasFocused ? document.activeElement.selectionStart : null;
   view.innerHTML = '';
 
-  const term = G.searchTerm.trim().toLowerCase();
+  const term = fold(G.searchTerm.trim());
   function matches(n){
-    if(term && !(n.title + stripHtml(n.body)).toLowerCase().includes(term)) return false;
+    if(term && !fold(n.title + stripHtml(n.body)).includes(term)) return false;
     return true;
   }
 

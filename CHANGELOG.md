@@ -1,3 +1,12 @@
+## [1.14.2] - 2026-11-02 09:00
+
+### Changed
+
+#### Pesquisa
+
+- As buscas ignoram acentos e maiúsculas (pesquisa geral, lista de tarefas, notas, seleção de tarefas e de tags): "relatorio" acha "relatório" e vice-versa. O trecho encontrado continua destacado no texto original. Helper `fold()` em `10-helpers.js`.
+
+
 ## [1.14.1] - 2026-10-30 23:50
 
 ### Changed

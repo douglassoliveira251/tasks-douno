@@ -4,6 +4,9 @@ import { addDaysStr } from './25-calendario.js';
 /* ===================== HELPERS ===================== */
 export function uid(prefix){ return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 export function catById(id){ return G.state.categories.find(c => c.id === id); }
+/* Texto para comparar em buscas: minúsculo e sem acento (á→a, ç→c), mantendo o mesmo tamanho do original
+   (os índices de um texto "dobrado" valem no texto de origem, para destacar o trecho achado). */
+export function fold(s){ return String(s == null ? '' : s).replace(/[À-ɏ]/g, c => c.normalize('NFD').charAt(0)).toLowerCase(); }
 export function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 export function fmtDate(d){
   if(!d) return '';
