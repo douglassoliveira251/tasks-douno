@@ -1,3 +1,12 @@
+## [1.15.5] - 2026-11-03 17:00
+
+### Fixed
+
+#### Tarefas
+
+- Subtarefa nova entra antes das concluídas (que ficam no fim), em vez de ir para depois delas.
+
+
 ## [1.15.4] - 2026-11-03 16:00
 
 ### Changed

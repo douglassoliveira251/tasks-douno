@@ -65,7 +65,9 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
     if(e.key === 'Enter' && e.target.value.trim()){
       const t = getOrCreateActiveTask(); if(!t) return;
       t.subtasks = t.subtasks || [];
-      t.subtasks.push({ id: uid('sub'), title: e.target.value.trim(), done:false });
+      /* A nova entra depois das pendentes e antes das concluídas (que ficam sempre no fim). */
+      const firstDone = t.subtasks.findIndex(x => x.done);
+      t.subtasks.splice(firstDone < 0 ? t.subtasks.length : firstDone, 0, { id: uid('sub'), title: e.target.value.trim(), done:false });
       markDirty();
     }
   });
