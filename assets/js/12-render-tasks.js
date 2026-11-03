@@ -23,10 +23,7 @@ export const STATUS_CONFIG = [
   { key:'concluida', label:'Concluída' }
 ];
 export function pinIconSvg(isPinned){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 17v5"/>
-    <path fill="${isPinned ? 'currentColor' : 'none'}" d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24Z"/>
-  </svg>`;
+  return icon('push-pin', isPinned ? 'duotone' : 'regular');
 }
 
 export function statusCircleSvg(statusKey){
@@ -200,12 +197,12 @@ export function renderTasks(){
   view.innerHTML = '';
 
   const GROUP_MODE_OPTIONS = [
-    { key:'periodo', label:'Prazo', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' },
-    { key:'retomada', label:'Retomada', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg>' },
+    { key:'periodo', label:'Prazo', icon:icon('calendar-blank') },
+    { key:'retomada', label:'Retomada', icon:icon('repeat') },
     { key:'status', label:'Status', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor" stroke="none"/></svg>' },
-    { key:'prioridade', label:'Prioridade', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4M4 4h13l-2.5 4L17 12H4"/></svg>' },
-    { key:'tags', label:'Tags', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l5.6-5.59a2 2 0 000-2.82z"/><circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/></svg>' },
-    { key:'grupos', label:'Espaço', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>' }
+    { key:'prioridade', label:'Prioridade', icon:icon('flag') },
+    { key:'tags', label:'Tags', icon:icon('tag') },
+    { key:'grupos', label:'Espaço', icon:icon('folder') }
   ];
   const currentGroupOpt = GROUP_MODE_OPTIONS.find(o => o.key === G.taskGroupMode) || GROUP_MODE_OPTIONS[0];
 
@@ -217,7 +214,7 @@ export function renderTasks(){
       <button type="button" class="tp-status-trigger group-mode-trigger" id="groupModeTrigger">
         <span class="tp-status-icon">${currentGroupOpt.icon}</span>
         <span class="tp-status-trigger-label">${currentGroupOpt.label}</span>
-        <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
       </button>
       <div class="tp-status-dropdown" id="groupModeDropdown" style="display:none;">
         ${GROUP_MODE_OPTIONS.map(o => `
@@ -231,7 +228,7 @@ export function renderTasks(){
     <span class="group-mode-label">Filtros:</span>
     <div class="tag-filter-control">
       <button type="button" class="tag-filter-btn" id="critFilterBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4M4 4h13l-2.5 4L17 12H4"/></svg>
+        ${icon('flag')}
         <span id="critFilterLabel">Prioridade</span>
       </button>
       <div class="tag-filter-popover" id="critFilterPopover" style="display:${G.criticalityFilterPopoverOpen?'block':'none'};">
@@ -247,7 +244,7 @@ export function renderTasks(){
     </div>
     <div class="tag-filter-control">
       <button type="button" class="tag-filter-btn" id="tagFilterBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l5.6-5.59a2 2 0 000-2.82z"/><circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/></svg>
+        ${icon('tag')}
         <span id="tagFilterLabel">Tags</span>
       </button>
       <div class="tag-filter-popover" id="tagFilterPopover" style="display:${G.tagFilterPopoverOpen?'block':'none'};">
@@ -271,7 +268,7 @@ export function renderTasks(){
     </div>
     ${(G.activeTagFilters.length || G.activeCriticalityFilters.length) ? `
     <button type="button" class="filter-clear-all-btn" id="clearAllFiltersBtn" title="Limpar todos os filtros">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      ${icon('x')}
       Limpar filtros
     </button>
     ` : ''}
@@ -283,7 +280,7 @@ export function renderTasks(){
       ${G.state.projects.map(p => `<option value="${p.id}" ${G.taskProjectFilter===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
     </select>` : ''}
     <button type="button" class="tag-filter-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      ${icon('layout')}
       <span>Template</span>
     </button>
     <label class="completed-toggle">
@@ -412,7 +409,7 @@ export function renderTasks(){
     bucket.className = 'bucket' + (collapsed ? ' collapsed' : '') + (group.key === 'fixadas' ? ' pinned-bucket' : '');
     bucket.innerHTML = `
       <div class="bucket-header">
-        <span class="bucket-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <span class="bucket-chevron">${icon('caret-down')}</span>
         ${(!isCompletedGroup && (G.taskGroupMode === 'grupos' || G.taskGroupMode === 'prioridade')) ? `<span class="cat-swatch" style="background:${group.color}"></span>` : ''}
         <span class="bucket-title">${escapeHtml(group.label)}</span>
         <span class="bucket-count">${group.tasks.length}</span>
@@ -439,7 +436,7 @@ export function renderTasks(){
 
   if(!anyTask && G.state.tasks.length === 0){
     listCol.insertAdjacentHTML('beforeend', `<div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      ${icon('check-square')}
       <p>Nenhuma tarefa ainda. Clique em "+ Nova tarefa" ou use o campo "+ Adicionar tarefa" em qualquer espaço.</p>
     </div>`);
   }
@@ -471,22 +468,22 @@ export function renderTaskRow(t){
 
   row.innerHTML = `
     <div class="task-check task-check-circle ${t.done?'done':''}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+      ${icon('check')}
     </div>
     ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('push-pin', t.pinned ? 'duotone' : 'regular')}</button>`}
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
       <span class="task-status-label">${(STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
-      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
-      ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/></svg>${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
+      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
+      ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
     </div>
     <div class="task-row-right">
-      ${commentCount ? `<span class="task-comment-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>${commentCount}</span>` : ''}
-      ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg></span>` : ''}
+      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : ''}
+      ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
       ${statusPill}
       <div class="task-menu-wrap">
         <button class="task-menu-btn">${icon('dots-three-vertical')}</button>

@@ -2,6 +2,7 @@ import { G } from './globais.js';
 import { renderTemplatesPanel } from './35-templates-de-tarefa.js';
 import { renderFilePanel, renderIntegrationsPanel, renderPersonalizationPanel, renderProfilePanel } from './37-configuracoes-paineis.js';
 import { renderCategoriesPanel, renderTagsPanel } from './38-configuracoes-espacos-e-etiquetas.js';
+import { icon } from './icones.js';
 
 export function initials(name){
   const parts = (name||'').trim().split(/\s+/).filter(Boolean);
@@ -10,7 +11,7 @@ export function initials(name){
 }
 
 export function genericAvatarSvg(){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+  return `${icon('user')}`;
 }
 export function avatarInnerHtml(profile){
   if(profile.avatar) return `<img src="${profile.avatar}" alt="">`;
@@ -35,13 +36,13 @@ G.tempAvatarData = null;
 G.settingsTab = 'perfil';
 
 export const SETTINGS_NAV_ICONS = {
-  perfil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-  personalizacao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-  categorias: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>',
-  tags: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.82 0l5.6-5.59a2 2 0 000-2.82z"/><circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/></svg>',
-  arquivo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>',
-  integracoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 2v4M16 2v4"/></svg>',
-  templates: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+  perfil: icon('user'),
+  personalizacao: icon('sun'),
+  categorias: icon('folder'),
+  tags: icon('tag'),
+  arquivo: icon('file'),
+  integracoes: icon('calendar-blank'),
+  templates: icon('layout'),
 };
 export const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', templates:'Templates', arquivo:'Arquivo', integracoes:'Integrações' };
 /* Agrupa o conteúdo do painel em cartões, um por assunto (cada título/cabeçalho abre um cartão novo).

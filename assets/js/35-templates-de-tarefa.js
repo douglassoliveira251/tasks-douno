@@ -9,6 +9,7 @@ import { addDaysStr } from './25-calendario.js';
 import { addOneHourToTime } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 /* ===================== TEMPLATES DE TAREFA ===================== */
 export function templateFromTask(task){
@@ -202,14 +203,14 @@ export function openTemplateEditor(existing, prefill){
 
   modal.innerHTML = `
     <div class="nm-flag"></div>
-    <button type="button" class="nm-x" id="tplClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="nm-x" id="tplClose" aria-label="Fechar">${icon('x')}</button>
     <div class="nm-head">
       <div class="nm-kicker">${existing ? 'Editar template' : 'Novo template'}</div>
       <input type="text" class="nm-title-input" id="tplName" placeholder="Nome do template (ex.: Fechamento mensal)" value="${escapeHtml(tpl.name || '')}">
     </div>
     <div class="nm-cols">
       <div class="nm-col">
-        <div class="nm-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>A tarefa</div>
+        <div class="nm-col-title">${icon('check-square')}A tarefa</div>
         <div class="tp-field"><label class="tp-label">Título da tarefa</label>
           <input type="text" class="tp-input" id="tplTitle" placeholder="Título que a tarefa nasce com" value="${escapeHtml(tpl.title || '')}"></div>
         <div class="tp-field"><label class="tp-label">Disponível nos espaços <span>(só aparece neles)</span></label>
@@ -229,7 +230,7 @@ export function openTemplateEditor(existing, prefill){
           <div class="tpl-tags" id="tplTags"></div></div>
       </div>
       <div class="nm-col">
-        <div class="nm-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>O que vem junto</div>
+        <div class="nm-col-title">${icon('stack')}O que vem junto</div>
         <div class="tp-field"><label class="tp-label">Subtarefas <span>(uma por linha)</span></label>
           <textarea class="tp-textarea" id="tplSubtasks" rows="4" placeholder="Etapa 1&#10;Etapa 2">${escapeHtml((tpl.subtasks || []).map(x => x.title).join('\n'))}</textarea></div>
         <div class="tp-field"><label class="tp-label">Agendas <span>(criadas junto, em relação ao prazo)</span></label>

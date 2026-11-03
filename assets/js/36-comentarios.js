@@ -3,6 +3,7 @@ import { APP_VERSION } from './00-versao.js';
 import { sbClient } from './02-nuvem.js';
 import { closeHelpPanel } from './06-cabecalho-e-ajuda.js';
 import { showToast } from './42-nuvem-persistencia.js';
+import { icon } from './icones.js';
 
 /* ===================== COMENTÁRIOS ===================== */
 export function openFeedbackModal(){
@@ -19,11 +20,11 @@ export function openFeedbackModal(){
   }
   const modal = ov.querySelector('#feedbackModal');
   let kind = 'good';
-  const up = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>';
-  const down = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>';
+  const up = icon('thumbs-up');
+  const down = icon('thumbs-down');
   modal.innerHTML = `
     <div class="nm-flag"></div>
-    <button type="button" class="nm-x" id="fbClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="nm-x" id="fbClose" aria-label="Fechar">${icon('x')}</button>
     <div class="nm-head">
       <div class="nm-kicker">Enviar comentários</div>
       <div class="nm-title-static">O que você achou?</div>

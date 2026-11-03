@@ -5,6 +5,7 @@ import { escapeHtml, fold, uid } from './10-helpers.js';
 import { openColorPortal, openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { openTemplateEditor, templateFromTask } from './35-templates-de-tarefa.js';
+import { icon } from './icones.js';
 
 /* ---- menu-portal dos 3 pontinhos (fixo, nunca cortado pelos grupos) ---- */
 G.openMenuWrapEl = null;
@@ -29,11 +30,11 @@ export function closeAllTaskMenus(){
 export function openTaskRowMenu(task, btnEl, wrapEl){
   const portal = ensureTaskMenuPortal();
   portal.innerHTML = `
-    <button type="button" class="task-menu-item" data-action="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar</button>
-    <button type="button" class="task-menu-item" data-action="duplicate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>
-    <button type="button" class="task-menu-item" data-action="move"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg>Mover de espaço</button>
-    <button type="button" class="task-menu-item" data-action="template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Salvar como template</button>
-    <button type="button" class="task-menu-item danger" data-action="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg>Excluir</button>
+    <button type="button" class="task-menu-item" data-action="edit">${icon('pencil-simple')}Editar</button>
+    <button type="button" class="task-menu-item" data-action="duplicate">${icon('copy')}Duplicar</button>
+    <button type="button" class="task-menu-item" data-action="move">${icon('folder-plus')}Mover de espaço</button>
+    <button type="button" class="task-menu-item" data-action="template">${icon('layout')}Salvar como template</button>
+    <button type="button" class="task-menu-item danger" data-action="delete">${icon('trash')}Excluir</button>
   `;
   const rect = btnEl.getBoundingClientRect();
   portal.style.top = Math.round(rect.bottom + 6) + 'px';
@@ -152,7 +153,7 @@ export function renderTaskLinkPicker(portal, opts){
   portal.innerHTML = `
     <div class="search-input-wrap">
       <input type="text" class="tag-picker-search" id="taskPickerSearch_${portal.id}" placeholder="Buscar tarefa por nome ou ID..." autocomplete="off">
-      <button type="button" class="search-clear-btn" style="display:none;" title="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <button type="button" class="search-clear-btn" style="display:none;" title="Limpar">${icon('x')}</button>
     </div>
     <div class="tp-tags-popover-list" id="taskPickerList_${portal.id}"></div>
   `;
@@ -178,7 +179,7 @@ export function renderTaskLinkPicker(portal, opts){
       html += tasks.map(t => `
         <div class="tp-tags-popover-row" data-task-id="${t.id}">
           <span class="tp-tags-popover-name">${escapeHtml(t.title||'Sem título')}</span>
-          ${currentTaskId===t.id ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg>` : ''}
+          ${currentTaskId===t.id ? `${icon('check', 'regular', ' width="13" height="13"')}` : ''}
         </div>
       `).join('');
     }
@@ -202,7 +203,7 @@ export function renderUnifiedTagPicker(portal, opts){
   portal.innerHTML = `
     <div class="search-input-wrap">
       <input type="text" class="tag-picker-search" id="tagPickerSearch_${portal.id}" placeholder="Buscar ou criar tag..." autocomplete="off">
-      <button type="button" class="search-clear-btn" style="display:none;" title="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <button type="button" class="search-clear-btn" style="display:none;" title="Limpar">${icon('x')}</button>
     </div>
     <div class="tp-tags-popover-list" id="tagPickerList_${portal.id}"></div>
   `;
@@ -221,7 +222,7 @@ export function renderUnifiedTagPicker(portal, opts){
       <div class="tp-tags-popover-row" data-tag="${tg.id}">
         <button type="button" class="tag-row-color-dot" data-tag-color="${tg.id}" style="background:${tg.color}" title="Alterar cor"></button>
         <span class="tp-tags-popover-name">${escapeHtml(tg.name)}</span>
-        ${isSelected(tg.id) ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg>` : ''}
+        ${isSelected(tg.id) ? `${icon('check', 'regular', ' width="13" height="13"')}` : ''}
       </div>`;
     const exactMatch = visibleTags.some(tg => fold(tg.name) === term);
     let html = '';

@@ -1,6 +1,7 @@
 import { markDirty, persistOnly } from './08-persistencia.js';
 import { todayStr } from './10-helpers.js';
 import { positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
+import { icon } from './icones.js';
 
 export function ensureRecurrencePortal(){
   let portal = document.getElementById('recurrencePortal');
@@ -28,7 +29,7 @@ export function renderRecurrencePortalContent(portal, task, onChange){
     const chip = (v, l) => `<button type="button" class="rec-chip ${rb === v ? 'on' : ''}" data-rb="${v}">${l}</button>`;
     const custom = ![0, 7, 15, 30].includes(rb);
     remindBlock = `<div class="rec-remind">
-      <div class="rec-remind-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 12a8 8 0 11-2.6-5.9"/><path d="M20 4v5h-5"/></svg><b>Retornar antes</b></div>
+      <div class="rec-remind-h">${icon('arrow-clockwise', 'regular', ' width="16" height="16"')}<b>Retornar antes</b></div>
       <div class="rec-chips">${chip(0, 'No dia')}${chip(7, '1 semana')}${chip(15, '15 dias')}${chip(30, '1 mês')}<button type="button" class="rec-chip ${custom ? 'on' : ''}" data-rb="custom">Outro…</button></div>
       ${custom ? `<div class="tp-row2" style="margin-top:8px;"><input type="number" class="tp-input" id="recPopRemindDays" min="1" max="365" value="${rb}"><span class="rec-unit">dia(s) antes</span></div>` : ''}
     </div>`;

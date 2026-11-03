@@ -4,6 +4,7 @@ import { triggerCloudWrite } from './08-persistencia.js';
 import { dateToStr, escapeHtml, isOverdue, todayStr } from './10-helpers.js';
 import { eventsInScope, getEventsForDate } from './25-calendario.js';
 import { projectStatus, projectsInScope } from './31-projetos.js';
+import { icon } from './icones.js';
 
 export function renderPageHeaderMeta(){
   const statsEl = document.getElementById('pageHeaderStats');
@@ -77,7 +78,7 @@ export function renderHelpPanelContent(){
     <div class="help-item${i === 0 ? ' open' : ''}">
       <button type="button" class="help-item-q">
         ${escapeHtml(item.q)}
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        ${icon('caret-down')}
       </button>
       <div class="help-item-a">${escapeHtml(item.a)}</div>
     </div>

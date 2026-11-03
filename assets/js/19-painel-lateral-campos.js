@@ -9,6 +9,7 @@ import { openNoteComposer } from './24-render-notes.js';
 import { eventColor } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 /* Nome, concluir e status. */
 export function bindTpHeader(panel, task){
@@ -216,9 +217,9 @@ export function bindTpDescriptionAndAttachments(panel, task){
       const row = document.createElement('div');
       row.className = 'tp-attach-row';
       row.innerHTML = `
-        ${isImage ? `<img src="${att.dataUrl}" alt="" class="tp-attach-thumb-img">` : `<span class="tp-attach-file-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></span>`}
+        ${isImage ? `<img src="${att.dataUrl}" alt="" class="tp-attach-thumb-img">` : `<span class="tp-attach-file-icon">${icon('file')}</span>`}
         <span class="tp-attach-name" title="${escapeHtml(att.name||'')}">${escapeHtml(att.name||'Arquivo')}</span>
-        <button type="button" class="tp-attach-dl" title="Baixar anexo" aria-label="Baixar anexo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>
+        <button type="button" class="tp-attach-dl" title="Baixar anexo" aria-label="Baixar anexo">${icon('download-simple')}</button>
         <button type="button" class="tp-attach-del" title="Remover">×</button>
       `;
       row.querySelector('.tp-attach-dl').onclick = () => downloadAttachment(att);

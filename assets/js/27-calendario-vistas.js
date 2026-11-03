@@ -4,6 +4,7 @@ import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.
 import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, getEventsForDate, startOfWeekStr } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 export function renderCalendar(){
   const view = document.getElementById('calendarView');
@@ -30,13 +31,13 @@ export function renderCalendar(){
       <button type="button" data-cv="month" class="${G.calendarView==='month'?'active':''}">Mês</button>
     </div>
     <div class="cal-nav">
-      <button type="button" id="calPrevBtn" title="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" id="calPrevBtn" title="Anterior">${icon('caret-left')}</button>
       <button type="button" id="calTodayBtn">Hoje</button>
-      <button type="button" id="calNextBtn" title="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button type="button" id="calNextBtn" title="Próximo">${icon('caret-right')}</button>
     </div>
     <div class="cal-period-label">${periodLabel}</div>
     <div class="cal-layers">
-      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${G.calLayersOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Camadas</button>
+      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${G.calLayersOpen}">${icon('stack')}Camadas</button>
       ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Camadas do calendário</h4>
         <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
         <label class="cal-lay-row sub ${G.state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${G.state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
@@ -87,15 +88,11 @@ export function navigateCalendar(dir){
 }
 
 G.calSelectedDate = null;
-export const CAL_ICONS = {
-  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
-  users:'<circle cx="9" cy="9" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 010 6M18 14c2 .6 3 2.2 3 4"/>',
-  repeat:'<path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 012-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 01-2 2H3"/>',
-  task:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>'
-};
+const CAL_ICON_NAMES = { clock:'clock', users:'users', repeat:'repeat', task:'check-square', plus:'plus' };
+export const CAL_ICONS = CAL_ICON_NAMES;
 export function calIcon(n, size){
-  return '<svg width="'+(size||13)+'" height="'+(size||13)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+CAL_ICONS[n]+'</svg>';
+  const px = size || 13;
+  return icon(CAL_ICON_NAMES[n], 'regular', ' width="' + px + '" height="' + px + '"');
 }
 export function renderCalendarMonth(body){
   const focusD = new Date(G.calendarFocusDate + 'T00:00:00');
@@ -189,7 +186,7 @@ export function renderCalendarMonth(body){
 }
 
 /* feriados nacionais do Brasil: fixos + os que dependem da Páscoa (calculados, sem serviço externo) */
-export const HOL_FLAG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+export const HOL_FLAG = icon('flag');
 export const _holCache = {};
 export function brHolidays(year){
   if(_holCache[year]) return _holCache[year];
@@ -253,7 +250,7 @@ export function buildCalSidebar(){
   mini.className = 'cal-mini';
   mini.innerHTML = `
     <div class="cal-mini-head"><b>${MONTH_LABELS[month]} ${year}</b>
-      <span><button type="button" id="calMiniPrev" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><button type="button" id="calMiniNext" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button></span></div>
+      <span><button type="button" id="calMiniPrev" aria-label="Mês anterior">${icon('caret-left')}</button><button type="button" id="calMiniNext" aria-label="Próximo mês">${icon('caret-right')}</button></span></div>
     <div class="cal-mini-grid">${initials.map(l => `<span class="cal-mini-wd">${l}</span>`).join('')}${cells}</div>`;
   mini.querySelector('#calMiniPrev').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); G.calendarFocusDate = dateToStr(d); render(); };
   mini.querySelector('#calMiniNext').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()+1); G.calendarFocusDate = dateToStr(d); render(); };

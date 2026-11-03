@@ -7,6 +7,7 @@ import { downloadFallback, openFile, saveFile, saveFileAs, updateFileStatus } fr
 import { escapeHtml } from './10-helpers.js';
 import { avatarInnerHtml } from './30-perfil-e-configuracoes.js';
 import { openCropModal } from './39-recorte-de-imagem.js';
+import { icon } from './icones.js';
 
 export function renderPersonalizationPanel(panel){
   const isDark = G.state.theme === 'dark';
@@ -15,7 +16,7 @@ export function renderPersonalizationPanel(panel){
     <h3 class="settings-section-title">Personalização</h3>
     <p class="settings-section-desc">Ajuste a aparência do sistema.</p>
     <label class="theme-toggle-switch">
-      <span class="settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14A8 8 0 1110 4a6.5 6.5 0 0010 10z"/></svg></span>
+      <span class="settings-ico">${icon('moon')}</span>
       <div style="flex:1; min-width:0;">
         <div class="theme-toggle-title">Modo escuro</div>
         <div class="theme-toggle-desc">Interface com fundo escuro, mais confortável em ambientes com pouca luz.</div>
@@ -27,7 +28,7 @@ export function renderPersonalizationPanel(panel){
     <h3 class="settings-section-title" style="margin-top:28px;">Calendário</h3>
     <p class="settings-section-desc">Preferências de exibição do calendário.</p>
     <div class="settings-row">
-      <span class="settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
+      <span class="settings-ico">${icon('calendar-blank')}</span>
       <div style="flex:1; min-width:0;">
         <div class="theme-toggle-title">Dia de início da semana</div>
         <div class="theme-toggle-desc">Define a primeira coluna da semana e do mês no calendário.</div>
@@ -37,7 +38,7 @@ export function renderPersonalizationPanel(panel){
       </select>
     </div>
     <label class="theme-toggle-switch" style="margin-top:10px;">
-      <span class="settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></span>
+      <span class="settings-ico">${icon('flag')}</span>
       <div style="flex:1; min-width:0;">
         <div class="theme-toggle-title">Feriados nacionais</div>
         <div class="theme-toggle-desc">Mostra os feriados do Brasil no mês, na semana e no dia.</div>

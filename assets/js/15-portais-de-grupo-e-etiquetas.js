@@ -4,6 +4,7 @@ import { escapeHtml, uid } from './10-helpers.js';
 import { closeAllTaskMenus, closeColorPortal, ensureColorPortal } from './13-portais-de-tarefa.js';
 import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 export function ensureMoveGroupPortal(){
   let portal = document.getElementById('moveGroupPortal');
@@ -34,7 +35,7 @@ export function openMoveGroupPortal(anchorBtn, currentCatId, onSelect){
         <div class="tp-tags-popover-row" data-cat="${c.id}">
           <span class="cat-swatch" style="background:${c.color}"></span>
           <span class="tp-tags-popover-name">${escapeHtml(c.name)}</span>
-          ${c.id===currentCatId ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg>` : ''}
+          ${c.id===currentCatId ? `${icon('check', 'regular', ' width="13" height="13"')}` : ''}
         </div>
       `).join('')}
     </div>
@@ -66,9 +67,9 @@ export function openNotebookMovePortal(anchorBtn, categoryId, currentNotebookId,
     <div class="tp-tags-popover-list">
       ${spaceNbs.length ? spaceNbs.map(nb => `
         <div class="tp-tags-popover-row" data-nb="${nb.id}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color:var(--ink-faint); flex-shrink:0;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          ${icon('book', 'regular', ' width="14" height="14" style="color:var(--ink-faint); flex-shrink:0;"')}
           <span class="tp-tags-popover-name">${escapeHtml(nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome')}</span>
-          ${nb.id===currentNotebookId ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg>` : ''}
+          ${nb.id===currentNotebookId ? `${icon('check', 'regular', ' width="13" height="13"')}` : ''}
         </div>
       `).join('') : `<div style="font-size:12px;color:var(--ink-faint); padding:4px 2px;">Nenhum outro caderno neste espaço</div>`}
     </div>

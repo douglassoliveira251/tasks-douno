@@ -6,6 +6,7 @@ import { closeTaskPanel, getOrCreateActiveTask, openTaskPanel } from './16-paine
 import { clampToStage, defaultProjectTab, projectById } from './31-projetos.js';
 import { createTaskFromTemplate, openTemplateEditor, templateFromTask, templatesForSpace } from './35-templates-de-tarefa.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 /* Menu ⋮ do painel (templates, projeto/etapa, duplicar, mover, excluir) e chip do projeto. */
 export function bindTpMenu(panel, task){
@@ -26,8 +27,8 @@ export function bindTpMenu(panel, task){
   }
 
   /* Menu "⋮" do painel: Template (usar, salvar, gerenciar) + ações da tarefa. */
-  const ICO_PROJ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/><circle cx="17" cy="5" r="2"/><circle cx="15" cy="19" r="2"/></svg>';
-  const ICO_TPL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>';
+  const ICO_PROJ = icon('kanban');
+  const ICO_TPL = icon('layout');
   const tpMenuBtn = document.getElementById('tpMenuBtn');
   const tpMobileCloseBtn = document.getElementById('tpMobileClose');
   if(tpMobileCloseBtn) tpMobileCloseBtn.onclick = () => closeTaskPanel();
@@ -44,8 +45,8 @@ export function bindTpMenu(panel, task){
     portal.innerHTML = `
       <div class="tpl-menu-head">Template</div>
       <button type="button" class="task-menu-item" data-m="use">${ICO_TPL}Usar template…</button>
-      ${editing ? '<button type="button" class="task-menu-item" data-m="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Salvar como template</button>' : ''}
-      <button type="button" class="task-menu-item" data-m="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Gerenciar templates…</button>
+      ${editing ? '<button type="button" class="task-menu-item" data-m="save">' + icon('floppy-disk') + 'Salvar como template</button>' : ''}
+      <button type="button" class="task-menu-item" data-m="manage">${icon('gear')}Gerenciar templates…</button>
       <div class="tpl-menu-sep"></div>
       <div class="tpl-menu-head">Projeto</div>
       <button type="button" class="task-menu-item" data-m="proj">${ICO_PROJ}${task.projectId ? 'Mudar de projeto/etapa…' : 'Vincular a um projeto…'}</button>
@@ -53,10 +54,10 @@ export function bindTpMenu(panel, task){
 
       ${editing ? `
       <div class="tpl-menu-sep"></div>
-      <button type="button" class="task-menu-item" data-m="dup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>
-      <button type="button" class="task-menu-item" data-m="move"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg>Mover de espaço</button>
+      <button type="button" class="task-menu-item" data-m="dup">${icon('copy')}Duplicar</button>
+      <button type="button" class="task-menu-item" data-m="move">${icon('folder-plus')}Mover de espaço</button>
       <div class="tpl-menu-sep"></div>
-      <button type="button" class="task-menu-item danger" data-m="del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg>Excluir tarefa</button>` : ''}`;
+      <button type="button" class="task-menu-item danger" data-m="del">${icon('trash')}Excluir tarefa</button>` : ''}`;
     placeMenu(portal, tpMenuBtn);
     portal.classList.add('show');
     const on = (k, fn) => { const el = portal.querySelector('[data-m="' + k + '"]'); if(el) el.onclick = (ev) => { ev.stopPropagation(); fn(ev); }; };

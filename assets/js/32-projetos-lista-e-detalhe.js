@@ -6,6 +6,7 @@ import { MONTH_LABELS, addDaysStr } from './25-calendario.js';
 import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor, openStageEditor, projectById, projectColor, projectIconSvg, projectStatus, projectsInScope, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
 import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 export function renderProjects(){
   const view = document.getElementById('projectsView');
@@ -136,14 +137,14 @@ export function renderProjectDetail(view, p){
       <div class="ph">
         <div class="ig2" style="--pp:${st.pct}"><i><b>${projectIconSvg(p.icon || 'briefcase')}</b></i><em>${st.pct}%</em></div>
         <div class="ph-name">
-          <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos">${icon('caret-left')}</button>
           <b class="prj-title">${escapeHtml(p.name)}</b>
           ${chips}
         </div>
         <span class="prj-actions">
-        <button type="button" class="prj-act" id="prjAddStage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/></svg>Nova etapa</button>
-        <button type="button" class="prj-act pri" id="prjAddTask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova tarefa</button>
-        <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+        <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
+        <button type="button" class="prj-act pri" id="prjAddTask">${icon('plus')}Nova tarefa</button>
+        <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
       </span>
         <div class="ph-st">
           ${stat(st.done, st.total, 'etapas')}
@@ -349,7 +350,7 @@ export function renderProjectDetail(view, p){
   const pass = t => G.ganttFilter === 'all' || (G.ganttFilter === 'late' ? isLate(t) : isSoon(t));
   const projTasks = G.state.tasks.filter(t => t.projectId === p.id);
   const nLate = projTasks.filter(isLate).length, nSoon = projTasks.filter(isSoon).length;
-  const chev = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  const chev = d => icon(d.startsWith('M15') ? 'caret-left' : 'caret-right');
   body.innerHTML = `
     <div class="gantt-card">
     <div class="gantt-tools">
@@ -372,7 +373,7 @@ export function renderProjectDetail(view, p){
           const tks = stageTasks(p, sg).filter(pass);
           const collapsed = projectCollapsedStages.has(sg.id);
           return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
-            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
+            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
           </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (G.ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}

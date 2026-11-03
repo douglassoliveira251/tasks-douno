@@ -8,6 +8,7 @@ import { openEventComposer } from './28-calendario-eventos.js';
 import { defaultProjectTab, projectById, projectColor, projectIconSvg, projectStatus } from './31-projetos.js';
 import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 /* ===================== DASHBOARD ===================== */
 export function svgSparkline(values, width, height, color){
@@ -120,10 +121,10 @@ export function renderDashboard(){
 
   // --- Atividades recentes ---
   const activityIcons = {
-    task_done: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
-    note_created: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>',
-    event_updated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-    event_created: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    task_done: icon('check-square'),
+    note_created: icon('file-text'),
+    event_updated: icon('calendar-blank'),
+    event_created: icon('calendar-blank'),
   };
   const activityColors = { task_done:'priority-media', note_created:'purple', event_updated:'info', event_created:'info' };
   const activityItems = [];
@@ -302,19 +303,19 @@ export function renderDashboard(){
         <div class="rs-card rs-datas">
           <h3>Tarefas sem data</h3>
           <div class="rs-drow" data-nodate="due">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
+            <span class="ic">${icon('calendar-blank')}</span>
             <span class="n">${noDue.length}</span>
             <span class="tx"><b>Sem prazo</b><small>${noDue.length ? miniTitles(noDue) : 'Tudo com prazo'}</small></span>
             <span class="go">Ver →</span>
           </div>
           <div class="rs-drow" data-nodate="follow">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 012-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 01-2 2H3"/></svg></span>
+            <span class="ic">${icon('repeat')}</span>
             <span class="n">${noFollow.length}</span>
             <span class="tx"><b>Sem data de retomada</b><small>${noFollow.length ? miniTitles(noFollow) : 'Tudo com retomada'}</small></span>
             <span class="go">Ver →</span>
           </div>
           <div class="rs-drow ${noDates.length ? 'warn' : ''}" data-nodate="none">
-            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8 8l8 8"/></svg></span>
+            <span class="ic">${icon('prohibit')}</span>
             <span class="n">${noDates.length}</span>
             <span class="tx"><b>Sem nenhuma data</b><small>${noDates.length ? miniTitles(noDates) : 'Nenhuma tarefa solta'}</small></span>
             <span class="go">${noDates.length ? 'Organizar →' : ''}</span>

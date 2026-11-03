@@ -3,6 +3,7 @@ import { markDirty } from './08-persistencia.js';
 import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
+import { icon } from './icones.js';
 
 /* Recorrência e subtarefas. */
 export function bindTpRecurrenceAndSubtasks(panel, task){
@@ -21,11 +22,11 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
     const row = document.createElement('div');
     row.className = 'tp-subtask-row' + (st.done ? ' done' : '');
     row.innerHTML = `
-      <div class="task-check ${st.done?'done':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="task-check ${st.done?'done':''}">${icon('check')}</div>
       <span class="tp-subtask-title" contenteditable="true" spellcheck="false">${escapeHtml(st.title)}</span>
-      <button type="button" class="tp-subtask-move" data-dir="up" ${idx===0?'disabled':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
-      <button type="button" class="tp-subtask-move" data-dir="down" ${idx===(task.subtasks.length-1)?'disabled':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
-      <button type="button" class="tp-subtask-del"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg></button>
+      <button type="button" class="tp-subtask-move" data-dir="up" ${idx===0?'disabled':''}>${icon('caret-up')}</button>
+      <button type="button" class="tp-subtask-move" data-dir="down" ${idx===(task.subtasks.length-1)?'disabled':''}>${icon('caret-down')}</button>
+      <button type="button" class="tp-subtask-del">${icon('trash')}</button>
     `;
     row.querySelector('.task-check').onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
@@ -85,8 +86,8 @@ export function bindTpComments(panel, task){
       <div class="tp-comment-footer">
         <span class="tp-comment-meta">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
         <div class="tp-comment-actions">
-          <button type="button" class="tp-comment-edit" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-          <button type="button" class="tp-comment-del" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg></button>
+          <button type="button" class="tp-comment-edit" title="Editar">${icon('pencil-simple')}</button>
+          <button type="button" class="tp-comment-del" title="Excluir">${icon('trash')}</button>
         </div>
       </div>
     `;

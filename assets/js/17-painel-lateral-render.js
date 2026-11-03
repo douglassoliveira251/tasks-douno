@@ -51,14 +51,14 @@ export function taskPanelHtml(task){
 
     <div class="tp-field">
       <div class="tp-name-row">
-        <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck">${icon('check')}</div>
         <input type="text" class="tp-name-input ${task.done?'done':''}" id="tpName" placeholder="Nome da tarefa" value="${escapeHtml(task.title||'')}" ${G.creatingNewTask ? '' : 'readonly'}>
-        <button type="button" class="tp-header-icon-btn tp-mobile-close" id="tpMobileClose" title="Fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button type="button" class="tp-header-icon-btn tp-mobile-close" id="tpMobileClose" title="Fechar" aria-label="Fechar">${icon('x')}</button>
         ${task.done ? '' : `<button type="button" class="tp-header-icon-btn tp-pin-btn${task.pinned ? ' on' : ''}" id="tpPinBtn" aria-pressed="${task.pinned ? 'true' : 'false'}" title="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}" aria-label="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}">${icon('push-pin', task.pinned ? 'duotone' : 'regular')}</button>`}
         <button type="button" class="tp-header-icon-btn" id="tpMenuBtn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
       </div>
-      ${(!G.creatingNewTask || (task.projectId && projectById(task.projectId))) ? `<div class="tp-created-line">${!G.creatingNewTask ? `<span class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</span>` : ''}${task.projectId && projectById(task.projectId) ? `<button type="button" class="tp-proj-chip" id="tpProjChip" aria-haspopup="menu" title="${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg><span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span></button>` : ''}</div>` : ''}
-      ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Tarefa concluída</div>` : ''}
+      ${(!G.creatingNewTask || (task.projectId && projectById(task.projectId))) ? `<div class="tp-created-line">${!G.creatingNewTask ? `<span class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</span>` : ''}${task.projectId && projectById(task.projectId) ? `<button type="button" class="tp-proj-chip" id="tpProjChip" aria-haspopup="menu" title="${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}">${icon('list')}<span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span></button>` : ''}</div>` : ''}
+      ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner">${icon('check')}Tarefa concluída</div>` : ''}
     </div>
 
     <div class="tp-field tp-space-line" style="position:relative;">
@@ -79,7 +79,7 @@ export function taskPanelHtml(task){
         <label class="tp-label">Retomar em</label>
         <button type="button" class="tp-follow-trigger" id="tpFollowTrigger" title="Data para voltar a olhar esta tarefa (não é o prazo)">
           <span class="tp-follow-trigger-label">${task.followUpDate ? '↻ ' + fmtDate(task.followUpDate) + ' <em>' + followRelative(task.followUpDate) + '</em>' : '↻ Definir data'}</span>
-          <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
         </button>
         <input type="date" class="tp-follow-date-hidden" id="tpFollowDate" value="${task.followUpDate||''}" tabindex="-1" aria-hidden="true">
         <div class="tp-follow-menu" id="tpFollowMenu" ${G.tpFollowOpen ? '' : 'hidden'}>
@@ -112,7 +112,7 @@ export function taskPanelHtml(task){
             <button type="button" class="tp-status-trigger" id="tpStatusTrigger">
               <span class="tp-status-icon status-${task.status||'nao_iniciado'}">${statusCircleSvg(task.status||'nao_iniciado')}</span>
               <span class="tp-status-trigger-label">${(STATUS_CONFIG.find(s=>s.key===(task.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
-              <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
             </button>
             <div class="tp-status-dropdown" id="tpStatusDropdown" style="display:none;">
               ${STATUS_CONFIG.map(s => `
@@ -127,9 +127,9 @@ export function taskPanelHtml(task){
       <div>
         <label class="tp-label">Recorrência</label>
         <button type="button" class="tp-status-trigger" id="tpRecurrenceTrigger">
-          <svg class="tp-recurrence-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg>
+          ${icon('repeat', 'regular', ' class="tp-recurrence-field-icon"')}
           <span class="tp-status-trigger-label" id="tpRecurrenceTriggerLabel">${recurrenceSummaryLabel(task)}</span>
-          <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
         </button>
       </div>
     </div>
@@ -178,7 +178,7 @@ export function taskPanelHtml(task){
     <div class="tp-field">
       <div style="display:flex; align-items:center; gap:6px;">
         <label class="tp-label" style="margin-bottom:0;">Anexos</label>
-        <button type="button" class="note-attach-btn" id="tpAttachBtn" title="Anexar arquivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.19 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+        <button type="button" class="note-attach-btn" id="tpAttachBtn" title="Anexar arquivo">${icon('paperclip')}</button>
         <input type="file" id="tpAttachInput" multiple style="display:none;">
       </div>
       <div class="tp-attach-list" id="tpAttachList"></div>

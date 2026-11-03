@@ -1,14 +1,15 @@
 import { escapeHtml } from './10-helpers.js';
+import { icon } from './icones.js';
 
 /* ===================== TEXTO RICO (negrito, itálico, listas etc.) ===================== */
 export const RT_ICONS = {
-  alignLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h14"/></svg>',
-  alignCenter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M5 18h14"/></svg>',
-  alignRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M10 12h10M6 18h14"/></svg>',
-  bulletList: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="4.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.4" fill="currentColor" stroke="none"/><path d="M9.5 6h10M9.5 12h10M9.5 18h10"/></svg>',
-  numberList: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.6" font-family="sans-serif"><text x="1.5" y="8.5" font-size="7">1</text><text x="1.5" y="14.5" font-size="7">2</text><text x="1.5" y="20.5" font-size="7">3</text><path d="M9.5 6h10M9.5 12h10M9.5 18h10" stroke-width="2" fill="none"/></svg>',
-  clearFormat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H8l-6-6a2 2 0 010-3l9-9a2 2 0 013 0l7 7a2 2 0 010 3l-8 8"/><path d="M12.5 6.5l7 7"/><line x1="4" y1="21" x2="20" y2="21"/></svg>',
-  indent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 6h8M13 12h8M13 18h8M3 6h4"/><path d="M3 12l4 3-4 3z" fill="currentColor" stroke="none"/></svg>'
+  alignLeft: icon('text-align-left'),
+  alignCenter: icon('text-align-center'),
+  alignRight: icon('text-align-right'),
+  bulletList: icon('list-bullets'),
+  numberList: icon('list-numbers'),
+  clearFormat: icon('eraser'),
+  indent: icon('text-indent')
 };
 
 export function clearFormattingInSelection(targetEl){

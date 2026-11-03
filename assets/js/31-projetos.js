@@ -3,6 +3,7 @@ import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { effectiveStart } from './35-templates-de-tarefa.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 /* ===================== PROJETOS ===================== */
 G.activeProjectId = null;
@@ -141,7 +142,7 @@ export function openProjectEditor(project){
   const p = project || { id: uid('proj'), name: '', categoryId: G.activeCategoryFilter || G.state.categories[0].id, description: '', startDate: todayStr(), endDate: '', stages: [], createdAt: Date.now() };
   modal.innerHTML = `
     <div class="nm-flag"></div>
-    <button type="button" class="nm-x" id="prjClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="nm-x" id="prjClose" aria-label="Fechar">${icon('x')}</button>
     <div class="nm-head">
       <div class="nm-kicker">${project ? 'Editar projeto' : 'Novo projeto'}</div>
       <div class="prj-headrow big">
@@ -235,7 +236,7 @@ export function openStageEditor(project, stage){
   const tasks = stage ? stageTasks(project, stage) : [];
   modal.innerHTML = `
     <div class="nm-flag"></div>
-    <button type="button" class="nm-x" id="stgClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="nm-x" id="stgClose" aria-label="Fechar">${icon('x')}</button>
     <div class="nm-head">
       <div class="nm-kicker">${stage ? 'Editar etapa' : 'Nova etapa'} · ${escapeHtml(project.name)}</div>
       <input type="text" class="nm-title-input" id="stgName" placeholder="Nome da etapa" value="${escapeHtml(st.name || '')}">

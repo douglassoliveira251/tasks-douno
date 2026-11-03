@@ -3,6 +3,7 @@ import { DEFAULT_COLORS } from './01-estado.js';
 import { markDirty } from './08-persistencia.js';
 import { escapeHtml, uid } from './10-helpers.js';
 import { openConfirmPortal } from './13-portais-de-tarefa.js';
+import { icon } from './icones.js';
 
 export function getOrderedCategories(){
   const list = G.state.categories.slice();
@@ -54,14 +55,14 @@ export function renderCatRows(focusId){
     const row = document.createElement('div');
     row.className = 'cat-row';
     row.innerHTML = `
-      <button type="button" class="fav-star-btn ${G.state.defaultCategoryFilter===cat.id?'active':''}" title="Definir como espaço padrão"><svg viewBox="0 0 24 24" fill="${G.state.defaultCategoryFilter===cat.id?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></button>
+      <button type="button" class="fav-star-btn ${G.state.defaultCategoryFilter===cat.id?'active':''}" title="Definir como espaço padrão">${icon('star')}</button>
       <input type="color" value="${cat.color}">
       <input type="text" value="${escapeHtml(cat.name)}">
       ${isCustom ? `
-        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
-        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima">${icon('caret-up')}</button>
+        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo">${icon('caret-down')}</button>
       ` : ''}
-      <button title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg></button>
+      <button title="Remover">${icon('trash')}</button>
     `;
     if(isCustom){
       row.querySelectorAll('.reorder-btn').forEach(btn => {
@@ -163,10 +164,10 @@ export function renderTagRows(focusId){
       <input type="text" value="${escapeHtml(tag.name)}">
       <select class="tag-cat-select">${catOptions}</select>
       ${isCustom ? `
-        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
-        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima">${icon('caret-up')}</button>
+        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo">${icon('caret-down')}</button>
       ` : ''}
-      <button title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg></button>
+      <button title="Remover">${icon('trash')}</button>
     `;
     if(isCustom){
       row.querySelectorAll('.reorder-btn').forEach(btn => {

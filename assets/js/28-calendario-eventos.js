@@ -7,6 +7,7 @@ import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { closeTagsPortal, ensureTagsPortal, openMoveGroupPortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
 import { recurrenceSummaryLabel } from './16-painel-lateral-de-tarefa.js';
 import { timeToMinutes } from './27-calendario-vistas.js';
+import { icon } from './icones.js';
 
 export function addOneHourToTime(timeStr){
   if(!timeStr) return '';
@@ -99,7 +100,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
 
   modal.innerHTML = `
     <div class="ev-flag"></div>
-    <button type="button" class="ev-x" id="evCloseX" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="ev-x" id="evCloseX" aria-label="Fechar">${icon('x')}</button>
     <div class="ev-head">
       <div class="ev-kicker">${isEditing?'Editar agenda':'Nova agenda'}</div>
       <input type="text" class="ev-title-input" id="evTitle" placeholder="Nome da agenda" value="${escapeHtml(ev.title||'')}">
@@ -107,7 +108,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
         <label class="tp-label">Espaço</label>
         <div class="cat-tags-combined-row">
           <div class="group-move-row">
-            <button type="button" class="move-group-btn" id="evMoveGroupBtn" title="Mover de espaço"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/><path d="M12 11v4M10 13h4"/></svg></button>
+            <button type="button" class="move-group-btn" id="evMoveGroupBtn" title="Mover de espaço">${icon('folder-plus')}</button>
             <span class="group-current-chip" id="evGroupChip"></span>
           </div>
           <div class="tp-tags-selected" id="evTagsSelected">
@@ -120,7 +121,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     </div>
     <div class="ev-cols">
       <div class="ev-col">
-        <div class="ev-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Quando</div>
+        <div class="ev-col-title">${icon('clock')}Quando</div>
         <div class="tp-field">
           <div class="ev-daterange-row">
             <div class="ev-daterange-col">
@@ -151,21 +152,21 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
         <div class="tp-field">
           <label class="tp-label">Recorrência</label>
           <button type="button" class="tp-status-trigger" id="evRecurrenceTrigger">
-            <svg class="tp-recurrence-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg>
+            ${icon('repeat', 'regular', ' class="tp-recurrence-field-icon"')}
             <span class="tp-status-trigger-label" id="evRecurrenceTriggerLabel">${recurrenceSummaryLabel(ev)}</span>
-            <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
           </button>
         </div>
         <div class="tp-field" style="position:relative;">
           <label class="tp-label">Tarefa vinculada <span>(opcional: traz título, tags e horário)</span></label>
           <button type="button" class="tp-status-trigger" id="evLinkedTaskTrigger">
             <span class="tp-status-trigger-label" id="evLinkedTaskLabel"></span>
-            <svg class="tp-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
           </button>
         </div>
       </div>
       <div class="ev-col">
-        <div class="ev-col-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 010 6M18 14c2 .6 3 2.2 3 4"/></svg>Quem</div>
+        <div class="ev-col-title">${icon('users')}Quem</div>
         <div class="tp-field">
           <label class="tp-label">Convidados <span>(separados por vírgula)</span></label>
           <div class="ev-suggest-wrap">
@@ -192,8 +193,8 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     </div>
     <div class="modal-footer">
       ${isEditing ? `<button type="button" class="btn ghost small" id="evDeleteBtn" style="margin-right:auto; color:var(--danger); border-color:var(--danger-light);">Excluir</button>` : ''}
-      ${isEditing ? `<button type="button" class="btn ghost small" id="evDuplicateBtn" title="Duplicar agenda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicar</button>` : ''}
-      ${isEditing ? `<button type="button" class="btn ghost small" id="evExportIcsBtn" title="Exportar convite .ics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Exportar .ics</button>` : ''}
+      ${isEditing ? `<button type="button" class="btn ghost small" id="evDuplicateBtn" title="Duplicar agenda">${icon('copy', 'regular', ' style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"')}Duplicar</button>` : ''}
+      ${isEditing ? `<button type="button" class="btn ghost small" id="evExportIcsBtn" title="Exportar convite .ics">${icon('download-simple', 'regular', ' style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"')}Exportar .ics</button>` : ''}
       <button type="button" class="btn small" id="evSaveBtn">${isEditing?'Salvar':'Criar agenda'}</button>
     </div>
   `;

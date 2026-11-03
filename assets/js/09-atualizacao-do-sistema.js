@@ -6,6 +6,7 @@ import { commitOpenEditors, flushAutoSave, saveToLocalStorage } from './08-persi
 import { idbSetHandle } from './40-indexeddb.js';
 import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 G.fetchPublishedVersion = fetchPublishedVersion; G.reloadForUpdate = reloadForUpdate;
 
 /* ===== Atualização do sistema =====
@@ -61,7 +62,7 @@ export function showUpdatePrompt(remoteVersion){
   ov.setAttribute('aria-labelledby', 'updateTitle');
   ov.innerHTML = `
     <div class="modal update-modal">
-      <div class="update-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg></div>
+      <div class="update-icon">${icon('arrow-clockwise')}</div>
       <h3 id="updateTitle">Nova versão disponível</h3>
       <p>O sistema foi atualizado e traz novos recursos. Para continuar, atualize agora. O que você estava fazendo fica salvo.</p>
       <button type="button" class="btn" id="updateNowBtn">Atualizar agora</button>

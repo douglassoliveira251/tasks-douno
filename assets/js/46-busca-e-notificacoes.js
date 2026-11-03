@@ -8,6 +8,7 @@ import { getEventsForDate } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
+import { icon } from './icones.js';
 
 export function updateSearchClearBtnVisibility(){
   const input = document.getElementById('searchInput');
@@ -79,11 +80,10 @@ export function searchItemDate(kind, it){
   if(kind === 'notes') return it.updatedAt ? fmtDate(dateToStr(new Date(it.updatedAt))) : '';
   return it.date ? fmtDate(it.date) + (it.allDay || !it.startTime ? '' : ' ' + it.startTime) : '';
 }
-export const SR_SVG = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
-export const SR_ICON_TASK = SR_SVG('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12l2.5 2.5 4.5-5"/>');
-export const SR_ICON_NOTE = SR_SVG('<path d="M7 3h8l4 4v14H7z"/><path d="M10 12h6M10 16h6"/>');
-export const SR_ICON_EVENT = SR_SVG('<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>');
-export const SR_ICON_EYE = SR_SVG('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>');
+export const SR_ICON_TASK = icon('check-square');
+export const SR_ICON_NOTE = icon('file-text');
+export const SR_ICON_EVENT = icon('calendar-blank');
+export const SR_ICON_EYE = icon('eye');
 export function renderSearchResultsDropdown(){
   const dd = document.getElementById('searchResultsDropdown');
   const term = G.searchTerm;

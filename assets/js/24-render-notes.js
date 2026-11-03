@@ -8,6 +8,7 @@ import { closeTagsPortal, ensureTagsPortal, openMoveGroupPortal, openNotebookMov
 import { buildRichToolbar } from './22-texto-rico.js';
 import { attachFormattedPaste, attachTabIndent, openNoteExportMenu } from './23-texto-rico-utilitarios.js';
 import { noteSpaceKey, renderNotes } from './29-notas-lista.js';
+import { icon } from './icones.js';
 
 /* ===================== RENDER: NOTES ===================== */
 G.currentNoteComposerCommit = null;
@@ -34,20 +35,20 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
     <div class="note-detail-header">
       <input type="text" class="note-title" placeholder="${isEditing?'':'Título da nota'}" value="${isEditing ? escapeHtml(existingNote.title||'') : (prefillTask ? escapeHtml(prefillTask.title||'') : '')}">
       <div class="note-header-actions">
-        ${isEditing ? `<button type="button" class="note-header-icon-btn" id="composerDuplicateBtn" title="Duplicar nota"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M5 16H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>` : ''}
+        ${isEditing ? `<button type="button" class="note-header-icon-btn" id="composerDuplicateBtn" title="Duplicar nota">${icon('copy')}</button>` : ''}
         ${isEditing ? `<button type="button" class="note-header-icon-btn" id="composerPinBtn" title="${existingNote.pinned?'Desafixar':'Fixar'}">${pinIconSvg(existingNote.pinned)}</button>` : ''}
-        ${isEditing ? `<button type="button" class="note-header-icon-btn" id="composerExportBtn" title="Exportar nota"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></button>` : ''}
-        ${isEditing ? `<button type="button" class="note-header-icon-btn danger" id="composerDeleteBtn" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg></button>` : ''}
+        ${isEditing ? `<button type="button" class="note-header-icon-btn" id="composerExportBtn" title="Exportar nota">${icon('download-simple')}</button>` : ''}
+        ${isEditing ? `<button type="button" class="note-header-icon-btn danger" id="composerDeleteBtn" title="Excluir">${icon('trash')}</button>` : ''}
       </div>
     </div>
     <div class="note-toolbar-row" id="noteToolbarRow">
       <div class="rt-toolbar-slot"></div>
       <span class="note-toolbar-sep"></span>
       <div class="note-meta-row">
-        <button type="button" class="note-attach-btn" id="composerAttachBtn" title="Anexar imagem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.19 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+        <button type="button" class="note-attach-btn" id="composerAttachBtn" title="Anexar imagem">${icon('paperclip')}</button>
         <input type="file" id="composerAttachInput" accept="image/*" multiple style="display:none;">
         <button type="button" class="note-linked-task-btn" id="noteLinkedTaskBtn" title="Vincular tarefa">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          ${icon('check-square')}
           <span id="noteLinkedTaskLabel">Vincular tarefa</span>
         </button>
       </div>

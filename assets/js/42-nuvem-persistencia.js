@@ -6,6 +6,7 @@ import { isEditingSomething, markDirty, saveToLocalStorage } from './08-persiste
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { closeLoginGate } from './43-tela-de-login.js';
 import { loadUiSession, render } from './48-render-principal.js';
+import { icon } from './icones.js';
 G.fetchCloudStateRow = fetchCloudStateRow; G.writeStateToCloud = writeStateToCloud; G.startCloudSession = startCloudSession;
 
 /* ===================== NUVEM: persistência ===================== */
@@ -221,8 +222,8 @@ G.signupDraft = { name: '', email: '', terms: false };
 G.resendUntil = 0;
 G.resendTimer = null;
 
-export const LOGIN_EYE_OPEN = '<svg id="loginPwEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
-export const LOGIN_EYE_CLOSED = '<svg id="loginPwEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.4 21.4 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.4 21.4 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
-export const LOGIN_ERR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
-export const LOGIN_MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px; height:22px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+export const LOGIN_EYE_OPEN = icon('eye', 'regular', ' id="loginPwEyeOpen"');
+export const LOGIN_EYE_CLOSED = icon('eye-slash', 'regular', ' id="loginPwEyeClosed" style="display:none;"');
+export const LOGIN_ERR_ICON = icon('warning-circle', 'regular', ' style="width:16px; height:16px; flex-shrink:0; margin-top:1px;"');
+export const LOGIN_MAIL_ICON = icon('envelope-simple', 'regular', ' style="width:22px; height:22px;"');
 

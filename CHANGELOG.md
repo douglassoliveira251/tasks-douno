@@ -1,3 +1,13 @@
+## [1.17.0] - 2026-11-03 21:00
+
+### Changed
+
+#### Ícones
+
+- Todos os ícones do sistema (menu, tarefas, painel, notas, calendário, projetos, configurações, busca, editor de texto, topo) migrados do desenho à mão para o **Phosphor Icons** (MIT) via `icon('nome')`. Ficam como estavam: gráficos do Resumo, logos, bolinhas de status, ícones do PDF e o seletor de ícones de projeto (Lucide).
+- Menu "Projetos" passou a usar o ícone `kanban`.
+
+
 ## [1.16.2] - 2026-11-03 20:00
 
 ### Fixed

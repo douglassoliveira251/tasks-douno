@@ -5,6 +5,7 @@ import { openWhatsNew } from './05-novidades-painel.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
 import { catById, escapeHtml } from './10-helpers.js';
 import { DOUNO_WORDMARK_SRC } from './42-nuvem-persistencia.js';
+import { icon } from './icones.js';
 
 /* ===================== OUTLOOK (Microsoft Graph, via API server-side) =====================
    O token de acesso do Outlook não fica mais no navegador: fica guardado no
@@ -162,7 +163,7 @@ export function openAboutModal(){
   body.style.position = 'relative';
   body.innerHTML = `
     <button type="button" id="aboutCloseBtn" class="about-close-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      ${icon('x', 'regular', ' style="width:16px; height:16px;"')}
     </button>
     <div style="display:flex; flex-direction:column; align-items:center; gap:4px; margin-bottom:18px;">
       <img src="${DOUNO_WORDMARK_SRC}" alt="Douno" class="about-logo-img" style="height:32px; display:block;">

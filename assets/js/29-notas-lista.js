@@ -7,6 +7,7 @@ import { openConfirmPortal } from './13-portais-de-tarefa.js';
 import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { stripHtml } from './23-texto-rico-utilitarios.js';
 import { buildNoteComposer } from './24-render-notes.js';
+import { icon } from './icones.js';
 
 export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
 G.lastRenderedNoteSpaceKey = null;
@@ -64,11 +65,11 @@ export function renderNotes(){
     return `
       <div class="notebook-group">
         <div class="notebook-row" data-nb-id="${nb.id}" draggable="true">
-          <svg class="notebook-chevron ${expanded?'expanded':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          <svg class="notebook-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          ${icon('caret-right', 'regular', ' class="notebook-chevron ${expanded?\'expanded\':\'\'}"')}
+          ${icon('book', 'regular', ' class="notebook-icon"')}
           <span class="notebook-name">${escapeHtml(nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome')}</span>
           <span class="notebook-count">${nbNotes.length}</span>
-          <button type="button" class="notebook-menu-btn" data-nb-id="${nb.id}" title="Opções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg></button>
+          <button type="button" class="notebook-menu-btn" data-nb-id="${nb.id}" title="Opções">${icon('dots-three-vertical')}</button>
         </div>
         ${expanded ? `
         <div class="notebook-notes" data-nb-id="${nb.id}">
@@ -94,10 +95,10 @@ export function renderNotes(){
     <div class="notebooks-col-header-row">
       <div class="notebooks-col-header">Cadernos</div>
       <button type="button" class="notebook-new-btn-top" id="newNotebookBtn" title="Novo caderno">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        ${icon('plus')}
       </button>
       <button type="button" class="notebooks-col-close" id="notebooksColCloseBtn" title="Fechar" aria-label="Fechar cadernos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        ${icon('x')}
       </button>
     </div>
     <div class="notebooks-list">${nbHtml}</div>
@@ -143,7 +144,7 @@ export function renderNotes(){
   } else {
     G.currentNoteComposerCommit = null;
     detailCol.innerHTML = `<div class="note-detail-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      ${icon('file-text')}
       <p>Selecione uma nota na lista de cadernos, ou crie uma nova para começar.</p>
     </div>`;
   }
@@ -156,13 +157,13 @@ export function renderNotes(){
   mbar.className = 'notes-mbar';
   mbar.innerHTML = `
     <button type="button" class="notes-mbar-pill" id="notesDrawerBtn" aria-haspopup="dialog">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      ${icon('book')}
       <span class="mb-text">${escapeHtml(barNotebook ? (barNotebook.name && barNotebook.name.trim() ? barNotebook.name : 'Caderno sem nome') : 'Cadernos')}${barNoteTitle ? ` <span class="mb-note">› ${escapeHtml(barNoteTitle)}</span>` : ''}</span>
-      <svg class="mb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      ${icon('caret-down', 'regular', ' class="mb-chev"')}
     </button>
     <button type="button" class="notes-mbar-focus" id="notesFocusBtn" title="Modo foco" aria-label="Modo foco">
-      <svg class="ico-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-      <svg class="ico-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+      ${icon('arrows-out-simple', 'regular', ' class="ico-expand"')}
+      ${icon('arrows-in-simple', 'regular', ' class="ico-collapse"')}
     </button>`;
   const drawerBackdrop = document.createElement('div');
   drawerBackdrop.className = 'notes-drawer-backdrop' + (G.notesDrawerOpen ? ' open' : '');
@@ -351,9 +352,9 @@ export function renderNotes(){
       pop.className = 'task-menu-portal show';
       pop.dataset.nbId = nb.id;
       pop.innerHTML = `
-        <button type="button" class="task-menu-item" data-act="rename"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Renomear</button>
-        <button type="button" class="task-menu-item" data-act="move-space"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>Mover de Espaço</button>
-        <button type="button" class="task-menu-item danger" data-act="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z"/></svg>Excluir caderno</button>
+        <button type="button" class="task-menu-item" data-act="rename">${icon('pencil-simple')}Renomear</button>
+        <button type="button" class="task-menu-item" data-act="move-space">${icon('folder')}Mover de Espaço</button>
+        <button type="button" class="task-menu-item danger" data-act="delete">${icon('trash')}Excluir caderno</button>
       `;
       document.body.appendChild(pop);
       const r = btn.getBoundingClientRect();

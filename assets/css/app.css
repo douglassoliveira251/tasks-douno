@@ -2916,12 +2916,12 @@
   .gantt-task-mark.todo{background:color-mix(in srgb, var(--pc) 17%, transparent);}
   .gantt-task-mark.prog{background:repeating-linear-gradient(135deg, var(--pc) 0 8px, color-mix(in srgb, var(--pc) 50%, transparent) 8px 16px);}
   .gantt-task-mark.done{background:var(--pc); display:flex; align-items:center; padding-left:5px;}
-  .gantt-task-mark svg{width:10px; height:10px; fill:none; stroke:#fff; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round;}
+  .gantt-task-mark svg{width:10px; height:10px; fill:#fff;}
   .gantt-task{position:relative;}
   .gantt-task .gl::before{content:""; position:absolute; left:0; top:7px; bottom:7px; width:4px; border-radius:0 3px 3px 0; background:var(--pr, transparent);}
   .gantt-pill{position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:#fff; border-radius:99px; padding:2px 8px 2px 6px; white-space:nowrap; background:#F59E0B; z-index:2;}
   .gantt-pill.late{background:var(--danger);}
-  .gantt-pill svg{width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;}
+  .gantt-pill svg{width:11px; height:11px; fill:currentColor;}
   /* linha do tempo: controles, cabeçalho em semanas e colunas */
   .gantt-wrap{--gl:260px;}
   .gantt-card{background:var(--surface); border:1px solid var(--border); border-radius:22px; overflow:hidden;}

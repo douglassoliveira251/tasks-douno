@@ -5,6 +5,7 @@ import { MONTH_LABELS } from './25-calendario.js';
 import { openProjectEditor, projectColor, projectIconSvg, taskProgress } from './31-projetos.js';
 import { buildProjectReportData, projectCsv, projectReportHtml, taskStatusLabel } from './33-relatorio-do-projeto.js';
 import { effectiveStart } from './35-templates-de-tarefa.js';
+import { icon } from './icones.js';
 
 /* ===== PDF gerado direto pelo app (jsPDF + autoTable, carregados só quando necessário) ===== */
 export function loadScriptOnce(url){
@@ -236,7 +237,7 @@ export function ganttTaskRow(t, stageStateKey, pos){
   let mark = '', endPx = 0;
   const es = effectiveStart(t);
   const startLbl = (es.source === 'own' ? 'Início ' : 'Criada em ') + fmtDate(es.date);
-  const check = t.done ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '';
+  const check = t.done ? icon('check') : '';
   if(t.dueDate){
     const end = pos(t.dueDate);
     const from = es.date <= t.dueDate ? pos(es.date) : Math.max(end - 12, 0);
@@ -256,7 +257,7 @@ export function ganttTaskRow(t, stageStateKey, pos){
   const pillAt = G.ganttFit ? ` style="left:${Math.min(endPx + 6, pos('9999-12-31') - 64)}px"` : '';
   if(!t.done && t.dueDate){
     const diff = Math.round((new Date(t.dueDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
-    const clock = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    const clock = icon('clock');
     if(diff < 0) pill = `<span class="gantt-pill late"${pillAt} title="Atrasada há ${-diff} dia${diff === -1 ? '' : 's'}">${clock}+${-diff}d</span>`;
     else if(diff <= 3) pill = `<span class="gantt-pill"${pillAt} title="${diff === 0 ? 'Vence hoje' : 'Vence em ' + diff + ' dia' + (diff === 1 ? '' : 's')}">${clock}${diff === 0 ? 'hoje' : diff + 'd'}</span>`;
   }

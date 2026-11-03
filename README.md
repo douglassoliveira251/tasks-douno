@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-e abra o endereço mostrado (por exemplo `http://localhost:5173/app`). O navegador não carrega módulos a partir de um arquivo aberto direto (`file://`). Para gerar a versão publicada: `npm run build` (saída em `dist/`) e `npm run preview` para vê-la.
+e abra o endereço mostrado (por exemplo `http://localhost:5173/app`). O navegador não carrega módulos a partir de um arquivo aberto direto (`file://`). Ícones: Phosphor (`icon('nome')` em `assets/js/icones.js`, gerado por `npm run icones`; acrescente o nome em `scripts/gerar-icones.mjs` para usar outro). Para gerar a versão publicada: `npm run build` (saída em `dist/`) e `npm run preview` para vê-la.
 
 Chrome ou Edge são recomendados, para suporte completo à File System Access API.
 
