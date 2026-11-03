@@ -1,3 +1,12 @@
+## [1.16.2] - 2026-11-03 20:00
+
+### Fixed
+
+#### Tarefas
+
+- Concluir uma tarefa recorrente passa a contar como concluída: é registrada em `state.completedLog` (sincronizado, guarda 400 dias) e entra no "concluídas hoje" do cabeçalho e nas métricas do Resumo, sem criar cópia em Concluídas.
+
+
 ## [1.16.1] - 2026-11-03 19:00
 
 ### Changed

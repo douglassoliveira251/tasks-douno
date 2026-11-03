@@ -44,7 +44,8 @@ export function renderDashboard(){
   const scopeNotes = G.state.notes.filter(inSpace);
   const scopeEvents = G.state.events.filter(inSpace);
 
-  const completed = scopeTasks.filter(t => t.done);
+  const scopeLog = (G.state.completedLog || []).filter(inSpace);
+  const completed = scopeTasks.filter(t => t.done).concat(scopeLog);
   const now = Date.now();
   const DAY = 86400000;
   const completedRecent45 = completed.filter(t => t.completedAt && t.completedAt >= now - 45*DAY);
@@ -109,7 +110,7 @@ export function renderDashboard(){
   const statusOverdueCount = overdue.length;
   const statusInProgressCount = open.filter(t => t.status === 'em_andamento' && !(t.dueDate && t.dueDate < todayS)).length;
   const statusPendingCount = Math.max(0, open.length - statusOverdueCount - statusInProgressCount);
-  const statusTotalCount = scopeTasks.length;
+  const statusTotalCount = scopeTasks.length + scopeLog.length;
   const statusBuckets = [
     { label:'Concluídas', count: statusDoneCount, color:'var(--priority-media)' },
     { label:'Em andamento', count: statusInProgressCount, color:'var(--priority-alta)' },

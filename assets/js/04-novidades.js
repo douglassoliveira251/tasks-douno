@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.16.2', date:'03/11/2026', title:'Recorrentes concluídas contam', text:'Ao concluir uma tarefa recorrente, a conclusão agora é contabilizada ("concluídas hoje" e o painel de resumo), mesmo sem deixar uma cópia na lista de Concluídas. A próxima ocorrência continua sendo criada normalmente.' },
   { version:'1.16.1', date:'03/11/2026', title:'Alfinete mais leve e novos ícones no topo', text:'O alfinete ficou menor, sem fundo e um pouco mais afastado da tarefa; nas soltas aparece mais claro ao passar o mouse. Os ícones de ajuda (?) e notificações (sino) também passaram para a nova biblioteca de ícones.' },
   { version:'1.16.0', date:'03/11/2026', title:'Novos ícones e alfinete na margem', text:'O alfinete de fixar agora fica na margem esquerda da lista (aparece ao passar o mouse; nas fixadas fica sempre visível), sem deixar espaço vazio ao lado do título. Começamos a trocar os ícones por uma biblioteca profissional (Phosphor): já valem o alfinete e o menu ⋮ das tarefas.' },
   { version:'1.15.5', date:'03/11/2026', title:'Subtarefa nova antes das concluídas', text:'Ao adicionar uma subtarefa, ela agora entra depois das pendentes e antes das concluídas, que continuam sempre no final da lista.' },

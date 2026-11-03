@@ -56,6 +56,24 @@ export function advanceDateByRecurrence(dateStr, recurrence, interval){
   return dateToStr(base);
 }
 
+/* Concluir uma tarefa recorrente remove a ocorrência e cria a próxima. Para a conclusão continuar
+   contando (cabeçalho, painel de resumo) sem aparecer como uma tarefa a mais em "Concluídas", ela é
+   registrada em state.completedLog: um registro enxuto, com o formato mínimo de tarefa concluída. */
+export function completeRecurring(task){
+  const next = spawnNextRecurrence(task);
+  if(!next) return null;
+  if(!Array.isArray(G.state.completedLog)) G.state.completedLog = [];
+  const completedAt = task.completedAt || Date.now();
+  G.state.completedLog.push({
+    id: uid('rc'), title: task.title, categoryId: task.categoryId, priority: task.priority, tagIds: (task.tagIds||[]).slice(),
+    projectId: task.projectId || null, dueDate: task.dueDate || null, createdAt: task.createdAt || completedAt, completedAt,
+    done: true, status: 'concluida', recurring: true,
+  });
+  const limit = Date.now() - 400 * 86400000;
+  G.state.completedLog = G.state.completedLog.filter(e => e.completedAt >= limit);
+  return next;
+}
+
 export function spawnNextRecurrence(task){
   /* A proxima data parte sempre do "A partir de" (recurrenceBaseDate), nunca do
      dueDate atual: dueDate é só quando o usuário planeja fazer essa ocorrência e

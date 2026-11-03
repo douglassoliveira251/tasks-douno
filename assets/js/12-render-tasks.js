@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { icon } from './icones.js';
-import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, togglePinned, spawnNextRecurrence, todayStr } from './10-helpers.js';
+import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, togglePinned, completeRecurring, todayStr } from './10-helpers.js';
 import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
@@ -501,7 +501,7 @@ export function renderTaskRow(t){
     t.completedAt = t.done ? Date.now() : null;
     if(t.done) t.pinned = false;
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
-      const next = spawnNextRecurrence(t);
+      const next = completeRecurring(t);
       if(next){
         G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
         markDirty();

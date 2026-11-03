@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
-import { catById, escapeHtml, fmtDate, spawnNextRecurrence, todayStr, togglePinned, uid } from './10-helpers.js';
+import { catById, escapeHtml, fmtDate, completeRecurring, todayStr, togglePinned, uid } from './10-helpers.js';
 import { downloadAttachment } from './12-render-tasks.js';
 import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
@@ -45,7 +45,7 @@ export function bindTpHeader(panel, task){
     t.completedAt = t.done ? Date.now() : null;
     if(t.done) t.pinned = false;
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
-      const next = spawnNextRecurrence(t);
+      const next = completeRecurring(t);
       if(next){
         G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
         markDirty();
@@ -73,7 +73,7 @@ export function bindTpHeader(panel, task){
       t.completedAt = t.done ? Date.now() : null;
       tpStatusDropdown.style.display = 'none';
       if(t.done && t.recurrence && t.recurrence !== 'none'){
-        const next = spawnNextRecurrence(t);
+        const next = completeRecurring(t);
         if(next){
           G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
           markDirty();

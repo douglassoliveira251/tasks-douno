@@ -12,7 +12,8 @@ export function renderPageHeaderMeta(){
     const scope = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
     const pending = scope.filter(t => !t.done).length;
     const overdue = scope.filter(t => isOverdue(t.dueDate, t.done)).length;
-    const doneToday = scope.filter(t => t.completedAt && dateToStr(new Date(t.completedAt)) === todayStr()).length;
+    const logScope = (G.state.completedLog || []).filter(e => !G.activeCategoryFilter || e.categoryId === G.activeCategoryFilter);
+    const doneToday = scope.concat(logScope).filter(t => t.completedAt && dateToStr(new Date(t.completedAt)) === todayStr()).length;
     stats = [
       { n: pending, label: pending === 1 ? 'pendente' : 'pendentes' },
       { n: overdue, label: overdue === 1 ? 'vencida' : 'vencidas' },

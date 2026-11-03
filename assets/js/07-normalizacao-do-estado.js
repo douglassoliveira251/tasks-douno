@@ -9,6 +9,7 @@ export function normalizeState(){
   if(!Array.isArray(G.state.projects)) G.state.projects = [];
   G.state.projects.forEach(p => { if(!Array.isArray(p.stages)) p.stages = []; });
   if(!G.state.tasks) G.state.tasks = [];
+  if(!Array.isArray(G.state.completedLog)) G.state.completedLog = [];
   if(!G.state.notes) G.state.notes = [];
   if(!G.state.events) G.state.events = [];
   G.state.events.forEach(ev => {

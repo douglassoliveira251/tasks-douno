@@ -31,7 +31,7 @@ async function fetchCloudStateRow(){
       são preservados);
    2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
       gravou no meio, repete. */
-export const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects'];
+export const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects', 'completedLog'];
 G.cloudBaseUpdatedAt = null;
 G.cloudBaseSnapshot = null;
 
