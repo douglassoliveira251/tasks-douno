@@ -3030,7 +3030,7 @@
     border:none; background:transparent; color:var(--ink-faint); cursor:pointer;
     display:flex; align-items:center; justify-content:flex-start;
   }
-  .task-pin-btn svg{width:15px; height:15px;}
+  .task-pin-btn svg{width:13px; height:13px;}
   .tp-pin-btn svg{width:16px; height:16px;}
   .task-pin-btn:not(.on){opacity:0; color:var(--ink-faint);}
   .task-row:hover .task-pin-btn:not(.on), .task-pin-btn:not(.on):focus-visible, .task-pin-btn:hover{opacity:.6;}

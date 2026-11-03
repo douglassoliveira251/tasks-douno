@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.17.1', date:'03/11/2026', title:'Alfinete um pouco menor', text:'O alfinete de fixar na lista de tarefas ficou um pouco menor.' },
   { version:'1.17.0', date:'03/11/2026', title:'Novos ícones em todo o sistema', text:'Todos os ícones foram trocados por uma biblioteca profissional (Phosphor), mais limpa e consistente, em todas as telas: menu, tarefas, painel, notas, calendário, projetos, configurações e busca.' },
   { version:'1.16.2', date:'03/11/2026', title:'Recorrentes concluídas contam', text:'Ao concluir uma tarefa recorrente, a conclusão agora é contabilizada ("concluídas hoje" e o painel de resumo), mesmo sem deixar uma cópia na lista de Concluídas. A próxima ocorrência continua sendo criada normalmente.' },
   { version:'1.16.1', date:'03/11/2026', title:'Alfinete mais leve e novos ícones no topo', text:'O alfinete ficou menor, sem fundo e um pouco mais afastado da tarefa; nas soltas aparece mais claro ao passar o mouse. Os ícones de ajuda (?) e notificações (sino) também passaram para a nova biblioteca de ícones.' },
