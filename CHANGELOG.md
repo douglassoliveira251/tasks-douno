@@ -1,3 +1,12 @@
+## [1.15.2] - 2026-11-03 14:00
+
+### Changed
+
+#### Tarefas
+
+- **Alfinete de fixar**: passa para a esquerda do círculo de concluir (coluna alinhada, sempre visível). Solto = só contorno; fixado = contorno tracejado com fundo cinza, sem preenchimento. No painel, o botão "Fixar" virou só o ícone, sem borda, ao lado do ⋮. Título do grupo "Fixadas" sem ícone.
+
+
 ## [1.15.1] - 2026-11-03 11:00
 
 ### Changed

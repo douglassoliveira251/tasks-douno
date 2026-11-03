@@ -3023,22 +3023,12 @@
   }
 
   /* Fixar tarefa no topo: grupo "Fixadas" + alfinete na linha e no painel */
+  .task-pin-btn, .task-pin-spacer{width:24px; height:24px; flex-shrink:0;}
   .task-pin-btn{
-    width:26px; height:26px; border:none; background:transparent; color:var(--ink-soft); border-radius:6px;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:.55; cursor:pointer;
+    border:none; background:transparent; color:var(--ink-faint); border-radius:7px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
   }
-  .task-pin-btn svg{width:15px; height:15px;}
-  .task-row:hover .task-pin-btn, .task-pin-btn:focus-visible{opacity:.8;}
-  .task-pin-btn:hover{opacity:1; background:var(--surface-2); color:var(--ink);}
-  .task-pin-btn.on{opacity:1; color:var(--ink);}
-  .task-pin-btn.on svg{fill:currentColor;}
-  .bucket-pin{display:inline-flex; color:#DC2626;}
-  .bucket-pin svg{width:14px; height:14px; fill:currentColor;}
-  .tp-pin-btn{
-    display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:8px; font:inherit; font-size:12px; font-weight:600;
-    border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer; flex-shrink:0;
-  }
-  .tp-pin-btn svg{width:14px; height:14px;}
-  .tp-pin-btn:hover{background:var(--surface-2); color:var(--ink);}
-  .tp-pin-btn.on{background:var(--surface-2); border-color:var(--ink-soft); color:var(--ink);}
-  .tp-pin-btn.on svg{fill:currentColor;}
+  .task-pin-btn svg, .tp-pin-btn svg{width:15px; height:15px;}
+  .task-pin-btn:hover, .tp-pin-btn:hover{background:var(--surface-2); color:var(--ink);}
+  .task-pin-btn.on, .tp-pin-btn.on{background:var(--surface-2); color:var(--ink-soft);}
+  .task-pin-btn.on svg path, .tp-pin-btn.on svg path{stroke-dasharray:2.6 2.6;}

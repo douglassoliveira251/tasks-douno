@@ -35,12 +35,12 @@ test.describe('Fixar tarefas', () => {
     await page.evaluate(seed);
     await page.locator('.task-row[data-id="b"]').click();
     const btn = page.locator('#tpPinBtn');
-    await expect(btn).toContainText('Fixar');
+    await expect(btn).not.toHaveClass(/on/);
     await btn.click();
-    await expect(page.locator('#tpPinBtn')).toContainText('Fixada');
+    await expect(page.locator('#tpPinBtn')).toHaveClass(/on/);
     await expect(page.locator('.bucket.pinned-bucket .task-row[data-id="b"]')).toHaveCount(1);
     await page.locator('#tpPinBtn').click();
-    await expect(page.locator('#tpPinBtn')).toContainText('Fixar');
+    await expect(page.locator('#tpPinBtn')).not.toHaveClass(/on/);
     await expect(page.locator('.bucket.pinned-bucket')).toHaveCount(0);
   });
 

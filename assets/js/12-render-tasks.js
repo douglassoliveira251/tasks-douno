@@ -413,7 +413,7 @@ export function renderTasks(){
       <div class="bucket-header">
         <span class="bucket-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
         ${(!isCompletedGroup && (G.taskGroupMode === 'grupos' || G.taskGroupMode === 'prioridade')) ? `<span class="cat-swatch" style="background:${group.color}"></span>` : ''}
-        ${group.key === 'fixadas' ? `<span class="bucket-pin">${PIN_SVG}</span>` : ''}<span class="bucket-title">${escapeHtml(group.label)}</span>
+        <span class="bucket-title">${escapeHtml(group.label)}</span>
         <span class="bucket-count">${group.tasks.length}</span>
       </div>
       <div class="bucket-body">
@@ -469,6 +469,7 @@ export function renderTaskRow(t){
   else if(isToday && !t.done) statusPill = `<span class="task-status-pill today">Hoje</span>`;
 
   row.innerHTML = `
+    ${t.done ? '<span class="task-pin-spacer"></span>' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${PIN_SVG}</button>`}
     <div class="task-check task-check-circle ${t.done?'done':''}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
     </div>
@@ -486,7 +487,6 @@ export function renderTaskRow(t){
       ${commentCount ? `<span class="task-comment-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg></span>` : ''}
       ${statusPill}
-      ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${PIN_SVG}</button>`}
       <div class="task-menu-wrap">
         <button class="task-menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="12" cy="19" r="2.1"/></svg></button>
       </div>
