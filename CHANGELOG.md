@@ -1,3 +1,12 @@
+## [1.15.3] - 2026-11-03 15:00
+
+### Changed
+
+#### Tarefas
+
+- Alfinete de fixar passa a ficar depois do círculo de concluir na linha da tarefa.
+
+
 ## [1.15.2] - 2026-11-03 14:00
 
 ### Changed

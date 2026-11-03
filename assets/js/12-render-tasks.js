@@ -469,10 +469,10 @@ export function renderTaskRow(t){
   else if(isToday && !t.done) statusPill = `<span class="task-status-pill today">Hoje</span>`;
 
   row.innerHTML = `
-    ${t.done ? '<span class="task-pin-spacer"></span>' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${PIN_SVG}</button>`}
     <div class="task-check task-check-circle ${t.done?'done':''}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
     </div>
+    ${t.done ? '<span class="task-pin-spacer"></span>' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${PIN_SVG}</button>`}
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
