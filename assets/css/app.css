@@ -253,7 +253,7 @@
     flex-shrink:0; box-shadow:var(--shadow-sm);
   }
   .notification-btn:hover{background:var(--surface-2); color:var(--ink);}
-  .notification-btn svg{width:17px; height:17px;}
+  .notification-btn svg{width:19px; height:19px;}
   .topbar-avatar-wrap{position:relative;}
   .topbar-avatar-btn{
     border:none; background:transparent; padding:0; border-radius:50%; cursor:pointer;
@@ -3026,15 +3026,15 @@
   /* Alfinete na margem esquerda, fora do cartão: não ocupa espaço na linha. */
   .bucket{padding-left:30px;}
   .task-pin-btn{
-    position:absolute; left:-30px; top:50%; transform:translateY(-50%); width:30px; height:26px; padding:0 0 0 2px;
+    position:absolute; left:-30px; top:50%; transform:translateY(-50%); width:30px; height:26px; padding:0 0 0 1px;
     border:none; background:transparent; color:var(--ink-faint); cursor:pointer;
     display:flex; align-items:center; justify-content:flex-start;
   }
-  .task-pin-btn svg{width:18px; height:18px; padding:2px; box-sizing:content-box; border-radius:6px;}
+  .task-pin-btn svg{width:15px; height:15px;}
   .tp-pin-btn svg{width:16px; height:16px;}
-  .task-pin-btn:not(.on){opacity:0;}
-  .task-row:hover .task-pin-btn:not(.on), .task-pin-btn:not(.on):focus-visible, .task-pin-btn:hover{opacity:1;}
+  .task-pin-btn:not(.on){opacity:0; color:var(--ink-faint);}
+  .task-row:hover .task-pin-btn:not(.on), .task-pin-btn:not(.on):focus-visible, .task-pin-btn:hover{opacity:.6;}
+  .task-pin-btn:not(.on):hover{opacity:1; color:var(--ink-soft);}
   @media (hover:none){ .task-pin-btn:not(.on){opacity:.5;} }
-  .task-pin-btn:hover svg, .tp-pin-btn:hover{background:var(--surface-2); color:var(--ink);}
-  .task-pin-btn.on{color:var(--ink-soft);}
-  .task-pin-btn.on svg, .tp-pin-btn.on{background:var(--surface-2); color:var(--ink-soft);}
+  .task-pin-btn.on{opacity:1; color:var(--ink-soft);}
+  .tp-pin-btn.on{color:var(--ink-soft);}

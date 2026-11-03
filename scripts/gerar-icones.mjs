@@ -6,6 +6,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const ICONES = {
   'push-pin': ['regular', 'duotone'],
   'dots-three-vertical': ['regular'],
+  'question': ['regular'],
+  'bell': ['regular'],
 };
 
 const base = new URL('../node_modules/@phosphor-icons/core/assets/', import.meta.url);

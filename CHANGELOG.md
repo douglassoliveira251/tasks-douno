@@ -1,3 +1,11 @@
+## [1.16.1] - 2026-11-03 19:00
+
+### Changed
+
+- Alfinete de fixar menor, sem fundo (fixadas em cinza-escuro, soltas em cinza claro ao passar o mouse) e com mais distância do início da tarefa.
+- Ícones de ajuda e notificações no topo migrados para o Phosphor Icons.
+
+
 ## [1.16.0] - 2026-11-03 18:00
 
 ### Changed
