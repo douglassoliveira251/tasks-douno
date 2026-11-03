@@ -1,3 +1,10 @@
+## [1.18.1] - 2026-11-03 22:30
+
+### Changed
+
+- Alfinete de fixar na lista de tarefas aumentado de 13px para 15px.
+
+
 ## [1.18.0] - 2026-11-03 22:00
 
 ### Changed
