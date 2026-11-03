@@ -24,7 +24,7 @@ export function ensureTaskMenuPortal(){
 export function closeAllTaskMenus(){
   if(G.openMenuWrapEl){ G.openMenuWrapEl.classList.remove('open'); G.openMenuWrapEl = null; }
   const portal = document.getElementById('taskMenuPortal');
-  if(portal) portal.classList.remove('show');
+  if(portal){ portal.classList.remove('show'); portal.style.minWidth = ''; }
 }
 
 export function openTaskRowMenu(task, btnEl, wrapEl){

@@ -279,10 +279,13 @@ export function renderTasks(){
       <option value="project" ${G.taskProjectFilter==='project'?'selected':''}>Só de projetos</option>
       ${G.state.projects.map(p => `<option value="${p.id}" ${G.taskProjectFilter===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
     </select>` : ''}
-    <button type="button" class="tag-filter-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
-      ${icon('layout')}
-      <span>Template</span>
+    <span class="group-bar-div first"></span>
+    <button type="button" class="tpl-create-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
+      ${icon('copy')}
+      <span>Criar de template</span>
+      ${icon('caret-down')}
     </button>
+    <span class="group-bar-div"></span>
     <label class="completed-toggle">
       <span>Mostrar concluídas</span>
       <input type="checkbox" id="showCompletedToggle" ${G.state.showCompletedTasks?'checked':''}>

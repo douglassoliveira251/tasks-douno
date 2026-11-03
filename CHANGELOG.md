@@ -1,3 +1,12 @@
+## [1.18.0] - 2026-11-03 22:00
+
+### Changed
+
+#### Tarefas
+
+- Botão "Template" virou **"Criar de template"**: saiu do grupo de filtros, ganhou destaque (azul claro, divisores) e fica à direita da barra. O menu abre com o título "Criar a partir de um template" e resume cada template (subtarefas, agendas, recorrência).
+
+
 ## [1.17.1] - 2026-11-03 21:30
 
 ### Changed

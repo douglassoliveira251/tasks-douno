@@ -4,7 +4,7 @@ import { markDirty } from './08-persistencia.js';
 import { DEFAULT_DUE_TIME, catById, dateToStr, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { PRIORITY_CONFIG } from './12-render-tasks.js';
 import { closeAllTaskMenus, ensureTaskMenuPortal } from './13-portais-de-tarefa.js';
-import { RECURRENCE_LABELS } from './16-painel-lateral-de-tarefa.js';
+import { RECURRENCE_LABELS, RECURRENCE_UNIT_PLURAL } from './16-painel-lateral-de-tarefa.js';
 import { addDaysStr } from './25-calendario.js';
 import { addOneHourToTime } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
@@ -135,16 +135,30 @@ export function createTaskFromTemplate(tpl){
   return t;
 }
 
+/* Resumo do que o template traz, para escolher sem abrir: "3 subtarefas · repete toda semana". */
+function templateSummary(tp){
+  const parts = [];
+  const nSub = (tp.subtasks || []).length, nEv = (tp.events || []).length;
+  if(nSub) parts.push(nSub + (nSub === 1 ? ' subtarefa' : ' subtarefas'));
+  if(nEv) parts.push(nEv + (nEv === 1 ? ' agenda' : ' agendas'));
+  if(tp.recurrence && tp.recurrence !== 'none'){
+    const n = parseInt(tp.recurrenceInterval, 10) || 1;
+    const each = { daily:'todo dia', weekly:'toda semana', monthly:'todo mês', yearly:'todo ano' }[tp.recurrence];
+    parts.push(n > 1 ? 'repete a cada ' + n + ' ' + RECURRENCE_UNIT_PLURAL[tp.recurrence] : 'repete ' + each);
+  }
+  return parts.join(' · ');
+}
 export function openTemplatePickMenu(anchorBtn){
   const portal = ensureTaskMenuPortal();
   const list = templatesForSpace(G.activeCategoryFilter);
-  portal.innerHTML = (list.length
-    ? list.map(tp => `<button type="button" class="task-menu-item" data-tpl="${tp.id}">${escapeHtml(tp.name || 'Sem nome')}</button>`).join('')
+  portal.style.minWidth = '290px';
+  portal.innerHTML = '<div class="tpl-menu-head">Criar a partir de um template</div>' + (list.length
+    ? list.map(tp => { const sum = templateSummary(tp); return `<button type="button" class="task-menu-item tpl-item" data-tpl="${tp.id}"><b>${escapeHtml(tp.name || 'Sem nome')}</b>${sum ? `<small>${sum}</small>` : ''}</button>`; }).join('')
     : '<div class="tpl-menu-empty">Nenhum template para este espaço. Crie em Configurações → Templates ou use "Salvar como template" no menu de uma tarefa.</div>')
-    + '<div class="tpl-menu-sep"></div><button type="button" class="task-menu-item" data-tpl-manage="1">Gerenciar templates…</button>';
+    + '<div class="tpl-menu-sep"></div><button type="button" class="task-menu-item tpl-manage" data-tpl-manage="1">Gerenciar templates…</button>';
   const rect = anchorBtn.getBoundingClientRect();
   portal.style.top = Math.round(rect.bottom + 6) + 'px';
-  portal.style.left = Math.round(Math.min(rect.left, window.innerWidth - 250)) + 'px';
+  portal.style.left = Math.round(Math.max(8, Math.min(rect.right - 290, window.innerWidth - 306))) + 'px';
   portal.style.right = 'auto';
   portal.classList.add('show');
   portal.querySelectorAll('[data-tpl]').forEach(btn => {

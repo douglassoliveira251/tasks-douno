@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.18.0', date:'03/11/2026', title:'Criar tarefa de um template ficou mais claro', text:'O botão "Template" saiu do meio dos filtros e virou "Criar de template", em destaque, à direita da barra. O menu mostra o que cada template traz (subtarefas, agendas e recorrência) para você escolher sem precisar abrir.' },
   { version:'1.17.1', date:'03/11/2026', title:'Alfinete um pouco menor', text:'O alfinete de fixar na lista de tarefas ficou um pouco menor.' },
   { version:'1.17.0', date:'03/11/2026', title:'Novos ícones em todo o sistema', text:'Todos os ícones foram trocados por uma biblioteca profissional (Phosphor), mais limpa e consistente, em todas as telas: menu, tarefas, painel, notas, calendário, projetos, configurações e busca.' },
   { version:'1.16.2', date:'03/11/2026', title:'Recorrentes concluídas contam', text:'Ao concluir uma tarefa recorrente, a conclusão agora é contabilizada ("concluídas hoje" e o painel de resumo), mesmo sem deixar uma cópia na lista de Concluídas. A próxima ocorrência continua sendo criada normalmente.' },
