@@ -1,3 +1,12 @@
+## [1.15.1] - 2026-11-03 11:00
+
+### Changed
+
+#### Tarefas
+
+- **Fixar mais discreto**: o alfinete fica sempre visível na linha (contorno quando solta, preenchido em cinza-escuro quando fixada, sem amarelo); título do grupo "Fixadas" em preto com alfinete vermelho; linhas fixadas com o fundo branco padrão.
+
+
 ## [1.15.0] - 2026-11-03 09:00
 
 ### Added
