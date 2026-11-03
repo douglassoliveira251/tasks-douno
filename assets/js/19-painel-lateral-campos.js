@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
-import { catById, escapeHtml, fmtDate, spawnNextRecurrence, todayStr, uid } from './10-helpers.js';
+import { catById, escapeHtml, fmtDate, spawnNextRecurrence, todayStr, togglePinned, uid } from './10-helpers.js';
 import { downloadAttachment } from './12-render-tasks.js';
 import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
@@ -30,12 +30,20 @@ export function bindTpHeader(panel, task){
   });
   tpNameEl.addEventListener('keydown', e => { if(e.key==='Enter') e.target.blur(); });
 
+  const tpPinBtn = document.getElementById('tpPinBtn');
+  if(tpPinBtn) tpPinBtn.onclick = () => {
+    const t = getOrCreateActiveTask(); if(!t) return;
+    togglePinned(t);
+    markDirty();
+  };
+
   document.getElementById('tpDoneCheck').onclick = () => {
     const t = getOrCreateActiveTask(); if(!t) return;
     const wasDone = t.done;
     t.done = !t.done;
     t.status = t.done ? 'concluida' : 'nao_iniciado';
     t.completedAt = t.done ? Date.now() : null;
+    if(t.done) t.pinned = false;
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
       const next = spawnNextRecurrence(t);
       if(next){

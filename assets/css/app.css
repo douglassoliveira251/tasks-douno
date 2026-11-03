@@ -3021,3 +3021,28 @@
     .gantt-wrap.fit .gantt-head .gl{padding:8px;}
     .gantt-wrap.fit .gantt-toggle{width:14px; height:14px; margin-right:2px;}
   }
+
+  /* Fixar tarefa no topo: grupo "Fixadas" + alfinete na linha e no painel */
+  .task-pin-btn{
+    width:26px; height:26px; border:none; background:transparent; color:var(--ink-soft); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; opacity:0; cursor:pointer;
+  }
+  .task-pin-btn svg{width:15px; height:15px;}
+  .task-row:hover .task-pin-btn, .task-pin-btn:focus-visible{opacity:.7;}
+  .task-pin-btn:hover{opacity:1; background:var(--surface-2); color:var(--ink);}
+  .task-pin-btn.on{opacity:1; color:var(--accent);}
+  .task-pin-btn.on svg{fill:currentColor;}
+  @media (hover:none){ .task-pin-btn{opacity:.5;} .task-pin-btn.on{opacity:1;} }
+  .bucket-pin{display:inline-flex; color:var(--accent);}
+  .bucket-pin svg{width:14px; height:14px; fill:currentColor;}
+  .bucket.pinned-bucket .bucket-title{color:var(--accent);}
+  .bucket.pinned-bucket .task-row{background:color-mix(in srgb, var(--accent) 9%, transparent);}
+  .bucket.pinned-bucket .task-row:hover{background:color-mix(in srgb, var(--accent) 16%, transparent);}
+  .tp-pin-btn{
+    display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:8px; font:inherit; font-size:12px; font-weight:600;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); cursor:pointer; flex-shrink:0;
+  }
+  .tp-pin-btn svg{width:14px; height:14px;}
+  .tp-pin-btn:hover{background:var(--surface-2); color:var(--ink);}
+  .tp-pin-btn.on{background:color-mix(in srgb, var(--accent) 18%, transparent); border-color:color-mix(in srgb, var(--accent) 55%, transparent); color:var(--accent);}
+  .tp-pin-btn.on svg{fill:currentColor;}

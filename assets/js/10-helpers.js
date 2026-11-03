@@ -7,6 +7,9 @@ export function catById(id){ return G.state.categories.find(c => c.id === id); }
 /* Texto para comparar em buscas: minúsculo e sem acento (á→a, ç→c), mantendo o mesmo tamanho do original
    (os índices de um texto "dobrado" valem no texto de origem, para destacar o trecho achado). */
 export function fold(s){ return String(s == null ? '' : s).replace(/[À-ɏ]/g, c => c.normalize('NFD').charAt(0)).toLowerCase(); }
+/* Alfinete (fixar tarefa no topo): contorno quando solta, preenchido quando fixada. */
+export const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 3l7 7-3 1-3.5 3.5.5 4-1.5 1.5-4-4L5 21l-1-1 5.5-4.5-4-4L7 10l4 .5L14.5 7 14 3z"/></svg>';
+export function togglePinned(t){ t.pinned = !t.pinned; }
 export function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 export function fmtDate(d){
   if(!d) return '';

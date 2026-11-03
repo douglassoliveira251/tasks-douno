@@ -1,3 +1,12 @@
+## [1.15.0] - 2026-11-03 09:00
+
+### Added
+
+#### Tarefas
+
+- **Fixar tarefa no topo** (`task.pinned`): a tarefa fixada sai do seu grupo e vai para o grupo "Fixadas", sempre primeiro, em qualquer agrupamento (prazo, retomada, status, prioridade, tags, espaço). Fixar/soltar pelo alfinete na linha (aparece ao passar o mouse; sempre visível nas fixadas e em telas sem mouse) ou pelo botão "Fixar/Fixada" no painel. Os filtros continuam valendo. Concluir a tarefa solta o alfinete.
+
+
 ## [1.14.2] - 2026-11-02 09:00
 
 ### Changed
