@@ -1,3 +1,12 @@
+## [1.15.4] - 2026-11-03 16:00
+
+### Changed
+
+#### Tarefas
+
+- Alfinete de fixar oculto na lista até passar o mouse na linha (fixadas sempre visíveis; em telas sem mouse fica esmaecido) e com menos espaço entre o círculo de concluir e o título.
+
+
 ## [1.15.3] - 2026-11-03 15:00
 
 ### Changed

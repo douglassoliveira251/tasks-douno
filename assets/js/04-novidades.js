@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.15.4', date:'03/11/2026', title:'Alfinete aparece ao passar o mouse', text:'Na lista, o alfinete de fixar fica oculto e aparece ao passar o mouse na linha; nas tarefas já fixadas ele continua visível. Também ficou mais perto do círculo de concluir e do título.' },
   { version:'1.15.3', date:'03/11/2026', title:'Alfinete depois do círculo', text:'Na lista de tarefas, o alfinete de fixar agora fica logo depois do círculo de concluir.' },
   { version:'1.15.2', date:'03/11/2026', title:'Alfinete de fixar à esquerda', text:'O alfinete agora fica à esquerda da tarefa, sempre visível. Solto, aparece só o contorno; fixado, ganha contorno tracejado com fundo cinza. No painel da tarefa virou só o ícone, ao lado do menu ⋮. O título "Fixadas" ficou sem ícone.' },
   { version:'1.15.1', date:'03/11/2026', title:'Fixar mais discreto', text:'O alfinete agora fica sempre visível na linha da tarefa (só contorno quando solta, preenchido quando fixada), o grupo "Fixadas" ganhou um alfinete vermelho no título e as tarefas fixadas voltaram ao fundo branco.' },

@@ -3023,12 +3023,15 @@
   }
 
   /* Fixar tarefa no topo: grupo "Fixadas" + alfinete na linha e no painel */
-  .task-pin-btn, .task-pin-spacer{width:24px; height:24px; flex-shrink:0;}
+  .task-pin-btn, .task-pin-spacer{width:20px; height:24px; flex-shrink:0; margin-left:-4px;}
   .task-pin-btn{
     border:none; background:transparent; color:var(--ink-faint); border-radius:7px;
     display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
   }
   .task-pin-btn svg, .tp-pin-btn svg{width:15px; height:15px;}
   .task-pin-btn:hover, .tp-pin-btn:hover{background:var(--surface-2); color:var(--ink);}
+  .task-pin-btn:not(.on){opacity:0;}
+  .task-row:hover .task-pin-btn:not(.on), .task-pin-btn:not(.on):focus-visible{opacity:1;}
+  @media (hover:none){ .task-pin-btn:not(.on){opacity:.5;} }
   .task-pin-btn.on, .tp-pin-btn.on{background:var(--surface-2); color:var(--ink-soft);}
   .task-pin-btn.on svg path, .tp-pin-btn.on svg path{stroke-dasharray:2.6 2.6;}
