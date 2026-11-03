@@ -4,9 +4,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "icones": "node scripts/gerar-icones.mjs"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "vite": "^7.0.0"
   }
 }

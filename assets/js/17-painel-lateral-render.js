@@ -1,5 +1,6 @@
 import { G } from './globais.js';
-import { catById, escapeHtml, fmtDate, isOverdue, PIN_SVG, todayStr } from './10-helpers.js';
+import { icon } from './icones.js';
+import { catById, escapeHtml, fmtDate, isOverdue, todayStr } from './10-helpers.js';
 import { PRIORITY_CONFIG, STATUS_CONFIG, statusCircleSvg } from './12-render-tasks.js';
 import { closeAllTaskMenus } from './13-portais-de-tarefa.js';
 import { closeTaskPanel, recurrenceSummaryLabel } from './16-painel-lateral-de-tarefa.js';
@@ -53,8 +54,8 @@ export function taskPanelHtml(task){
         <div class="task-check task-check-circle ${task.done?'done':''}" id="tpDoneCheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
         <input type="text" class="tp-name-input ${task.done?'done':''}" id="tpName" placeholder="Nome da tarefa" value="${escapeHtml(task.title||'')}" ${G.creatingNewTask ? '' : 'readonly'}>
         <button type="button" class="tp-header-icon-btn tp-mobile-close" id="tpMobileClose" title="Fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-        ${task.done ? '' : `<button type="button" class="tp-header-icon-btn tp-pin-btn${task.pinned ? ' on' : ''}" id="tpPinBtn" aria-pressed="${task.pinned ? 'true' : 'false'}" title="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}" aria-label="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}">${PIN_SVG}</button>`}
-        <button type="button" class="tp-header-icon-btn" id="tpMenuBtn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></button>
+        ${task.done ? '' : `<button type="button" class="tp-header-icon-btn tp-pin-btn${task.pinned ? ' on' : ''}" id="tpPinBtn" aria-pressed="${task.pinned ? 'true' : 'false'}" title="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}" aria-label="${task.pinned ? 'Soltar do topo da lista' : 'Fixar no topo da lista'}">${icon('push-pin', task.pinned ? 'duotone' : 'regular')}</button>`}
+        <button type="button" class="tp-header-icon-btn" id="tpMenuBtn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
       </div>
       ${(!G.creatingNewTask || (task.projectId && projectById(task.projectId))) ? `<div class="tp-created-line">${!G.creatingNewTask ? `<span class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</span>` : ''}${task.projectId && projectById(task.projectId) ? `<button type="button" class="tp-proj-chip" id="tpProjChip" aria-haspopup="menu" title="${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h10M3 12h14M3 19h8"/></svg><span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span></button>` : ''}</div>` : ''}
       ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Tarefa concluída</div>` : ''}

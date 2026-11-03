@@ -1,6 +1,7 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
-import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, PIN_SVG, togglePinned, spawnNextRecurrence, todayStr } from './10-helpers.js';
+import { icon } from './icones.js';
+import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, togglePinned, spawnNextRecurrence, todayStr } from './10-helpers.js';
 import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
@@ -472,7 +473,7 @@ export function renderTaskRow(t){
     <div class="task-check task-check-circle ${t.done?'done':''}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
     </div>
-    ${t.done ? '<span class="task-pin-spacer"></span>' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${PIN_SVG}</button>`}
+    ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('push-pin', t.pinned ? 'duotone' : 'regular')}</button>`}
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
@@ -488,7 +489,7 @@ export function renderTaskRow(t){
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 014-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 01-4 4H3"/></svg></span>` : ''}
       ${statusPill}
       <div class="task-menu-wrap">
-        <button class="task-menu-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="12" cy="19" r="2.1"/></svg></button>
+        <button class="task-menu-btn">${icon('dots-three-vertical')}</button>
       </div>
     </div>
   `;

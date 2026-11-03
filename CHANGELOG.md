@@ -1,3 +1,16 @@
+## [1.16.0] - 2026-11-03 18:00
+
+### Changed
+
+#### Tarefas
+
+- **Alfinete de fixar na margem esquerda**, fora do cartão: não ocupa mais espaço entre o círculo e o título. Aparece ao passar o mouse; nas fixadas fica sempre visível (duotone cinza com fundo claro).
+
+#### Ícones
+
+- Início da migração dos ícones desenhados à mão para o **Phosphor Icons** (MIT, mesma biblioteca do Dolfin e do Anora). `scripts/gerar-icones.mjs` (`npm run icones`) gera `assets/js/icones.js` com os ícones usados; `icon('nome', 'peso')` devolve o SVG. Migrados: alfinete e menu ⋮ (lista e painel). O restante migra aos poucos.
+
+
 ## [1.15.5] - 2026-11-03 17:00
 
 ### Fixed

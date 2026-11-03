@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.16.0', date:'03/11/2026', title:'Novos ícones e alfinete na margem', text:'O alfinete de fixar agora fica na margem esquerda da lista (aparece ao passar o mouse; nas fixadas fica sempre visível), sem deixar espaço vazio ao lado do título. Começamos a trocar os ícones por uma biblioteca profissional (Phosphor): já valem o alfinete e o menu ⋮ das tarefas.' },
   { version:'1.15.5', date:'03/11/2026', title:'Subtarefa nova antes das concluídas', text:'Ao adicionar uma subtarefa, ela agora entra depois das pendentes e antes das concluídas, que continuam sempre no final da lista.' },
   { version:'1.15.4', date:'03/11/2026', title:'Alfinete aparece ao passar o mouse', text:'Na lista, o alfinete de fixar fica oculto e aparece ao passar o mouse na linha; nas tarefas já fixadas ele continua visível. Também ficou mais perto do círculo de concluir e do título.' },
   { version:'1.15.3', date:'03/11/2026', title:'Alfinete depois do círculo', text:'Na lista de tarefas, o alfinete de fixar agora fica logo depois do círculo de concluir.' },
