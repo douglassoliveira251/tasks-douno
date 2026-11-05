@@ -6,6 +6,7 @@ import { closeTagsPortal, ensureTagsPortal, positionTagsPortalNear } from './15-
 import { getOrCreateActiveTask } from './16-painel-lateral-de-tarefa.js';
 import { addDaysStr } from './25-calendario.js';
 import { dateInStageRange, flashStageRangeWarning } from './31-projetos.js';
+import { PAINEL_TAREFA } from './estado-ui.js';
 
 /* Acompanhamento, início, prazo e hora. */
 export function bindTpDates(panel, task){
@@ -13,8 +14,8 @@ export function bindTpDates(panel, task){
   if(tpFollowTrigger){
     tpFollowTrigger.onclick = (e) => {
       e.stopPropagation();
-      G.tpFollowOpen = !G.tpFollowOpen;
-      document.getElementById('tpFollowMenu').hidden = !G.tpFollowOpen;
+      PAINEL_TAREFA.tpFollowOpen = !PAINEL_TAREFA.tpFollowOpen;
+      document.getElementById('tpFollowMenu').hidden = !PAINEL_TAREFA.tpFollowOpen;
     };
     const fMenu = document.getElementById('tpFollowMenu');
     fMenu.onclick = (e) => e.stopPropagation();
@@ -23,12 +24,12 @@ export function bindTpDates(panel, task){
         const t = getOrCreateActiveTask(); if(!t) return;
         const days = b.dataset.clear ? null : parseInt(b.dataset.days, 10);
         t.followUpDate = days === null ? null : addDaysStr(todayStr(), days);
-        G.tpFollowOpen = false;
+        PAINEL_TAREFA.tpFollowOpen = false;
         markDirty();
       };
     });
     document.getElementById('tpFollowCustom').onclick = () => {
-      G.tpFollowOpen = false;
+      PAINEL_TAREFA.tpFollowOpen = false;
       fMenu.hidden = true;
       const inp = document.getElementById('tpFollowDate');
       try { inp.showPicker(); } catch(err) { inp.focus(); inp.click(); }
@@ -43,15 +44,15 @@ export function bindTpDates(panel, task){
   if(!window._tpFollowOutside){
     window._tpFollowOutside = true;
     document.addEventListener('click', () => {
-      if(!G.tpFollowOpen) return;
-      G.tpFollowOpen = false;
+      if(!PAINEL_TAREFA.tpFollowOpen) return;
+      PAINEL_TAREFA.tpFollowOpen = false;
       const m = document.getElementById('tpFollowMenu'); if(m) m.hidden = true;
     });
   }
   const tpStartLink = document.getElementById('tpStartLink');
   if(tpStartLink){
     const pop = document.getElementById('tpStartPop');
-    tpStartLink.onclick = (e) => { e.stopPropagation(); G.tpStartOpen = !G.tpStartOpen; pop.hidden = !G.tpStartOpen; };
+    tpStartLink.onclick = (e) => { e.stopPropagation(); PAINEL_TAREFA.tpStartOpen = !PAINEL_TAREFA.tpStartOpen; pop.hidden = !PAINEL_TAREFA.tpStartOpen; };
     pop.onclick = (e) => e.stopPropagation();
     const setStart = (v) => {
       const t = getOrCreateActiveTask(); if(!t) return;
@@ -60,7 +61,7 @@ export function bindTpDates(panel, task){
         return;
       }
       t.startDate = v || null;
-      G.tpStartOpen = false;
+      PAINEL_TAREFA.tpStartOpen = false;
       markDirty();
     };
     pop.querySelectorAll('[data-start]').forEach(b => { b.onclick = () => setStart(b.dataset.start); });
@@ -71,8 +72,8 @@ export function bindTpDates(panel, task){
   if(!window._tpStartOutside){
     window._tpStartOutside = true;
     document.addEventListener('click', () => {
-      if(!G.tpStartOpen) return;
-      G.tpStartOpen = false;
+      if(!PAINEL_TAREFA.tpStartOpen) return;
+      PAINEL_TAREFA.tpStartOpen = false;
       const m = document.getElementById('tpStartPop'); if(m) m.hidden = true;
     });
   }

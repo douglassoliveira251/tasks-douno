@@ -4,6 +4,7 @@ import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
 import { icon } from './icones.js';
+import { PAINEL_TAREFA } from './estado-ui.js';
 
 /* Recorrência e subtarefas. */
 export function bindTpRecurrenceAndSubtasks(panel, task){
@@ -129,10 +130,10 @@ export function bindTpComments(panel, task){
   {
     const ta = document.getElementById('tpNewComment');
     const key = currentCommentKey();
-    if(G.tpCommentDrafts[key]) ta.value = G.tpCommentDrafts[key];
+    if(PAINEL_TAREFA.tpCommentDrafts[key]) ta.value = PAINEL_TAREFA.tpCommentDrafts[key];
     ta.addEventListener('input', () => {
       const k = currentCommentKey();
-      if(ta.value) G.tpCommentDrafts[k] = ta.value; else delete G.tpCommentDrafts[k];
+      if(ta.value) PAINEL_TAREFA.tpCommentDrafts[k] = ta.value; else delete PAINEL_TAREFA.tpCommentDrafts[k];
       saveCommentDrafts();
     });
   }
@@ -144,8 +145,8 @@ export function bindTpComments(panel, task){
     const t = getOrCreateActiveTask(); if(!t) return;
     t.comments = t.comments || [];
     t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
-    delete G.tpCommentDrafts[keyBefore];
-    delete G.tpCommentDrafts[t.id];
+    delete PAINEL_TAREFA.tpCommentDrafts[keyBefore];
+    delete PAINEL_TAREFA.tpCommentDrafts[t.id];
     saveCommentDrafts();
     markDirty();
   };

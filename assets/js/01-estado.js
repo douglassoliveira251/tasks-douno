@@ -1,5 +1,6 @@
 import { G } from './globais.js';
 import { todayStr } from './10-helpers.js';
+import { FILTROS, NOTAS_UI } from './estado-ui.js';
 
 /* ===================== ESTADO ===================== */
 export const LS_KEY = 'tyvraTasksState';
@@ -30,19 +31,19 @@ G.activeCategoryFilter = null;
 /* Filtro de espaço só do Resumo: sempre começa em "Todos" e não mexe no espaço das demais telas */
 G.dashboardSpace = null;
 export function currentSpaceFilter(){ return G.currentView === 'dashboard' ? G.dashboardSpace : G.activeCategoryFilter; }
-G.activeTagFilters = [];
+FILTROS.activeTagFilters = [];
 G.taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
-G.activeCriticalityFilters = [];
-G.criticalityFilterPopoverOpen = false;
+FILTROS.activeCriticalityFilters = [];
+FILTROS.criticalityFilterPopoverOpen = false;
 G.activeNoteId = null;
-G.creatingNewNote = false;
-G.pendingNotePrefillTaskId = null;
-G.pendingNoteNotebookId = null;
+NOTAS_UI.creatingNewNote = false;
+NOTAS_UI.pendingNotePrefillTaskId = null;
+NOTAS_UI.pendingNoteNotebookId = null;
 export const expandedNotebookIds = new Set();
 G.notesDrawerOpen = false;
 G.notesFocusMode = false;
-G.draggedNoteId = null;
-G.draggedNotebookId = null;
+NOTAS_UI.draggedNoteId = null;
+NOTAS_UI.draggedNotebookId = null;
 G.searchTerm = '';
 G.fileHandle = null;
 G.dirty = false;

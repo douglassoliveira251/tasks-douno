@@ -8,6 +8,7 @@ import { renderTaskPanel } from './17-painel-lateral-render.js';
 import { projectById } from './31-projetos.js';
 import { followUpLabel, followUpState, openTemplatePickMenu } from './35-templates-de-tarefa.js';
 import { groupModeKey, render } from './48-render-principal.js';
+import { FILTROS } from './estado-ui.js';
 
 /* ===================== RENDER: TASKS ===================== */
 export const PRIORITY_CONFIG = [
@@ -82,8 +83,8 @@ function computeTaskGroupsUnpinned(pinnedOut){
   const term = fold(G.searchTerm.trim());
   let pool = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
   if(term) pool = pool.filter(t => fold(t.title).includes(term));
-  if(G.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => G.activeTagFilters.includes(id)));
-  if(G.activeCriticalityFilters.length) pool = pool.filter(t => G.activeCriticalityFilters.includes(t.priority||'media'));
+  if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
+  if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
   if(G.taskProjectFilter === 'personal') pool = pool.filter(t => !t.projectId);
   else if(G.taskProjectFilter === 'project') pool = pool.filter(t => !!t.projectId);
   else if(G.taskProjectFilter !== 'all') pool = pool.filter(t => t.projectId === G.taskProjectFilter);
@@ -158,8 +159,8 @@ export function computeCompletedGroup(){
   let pool = G.state.tasks.filter(t => t.done);
   pool = pool.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
   if(term) pool = pool.filter(t => fold(t.title).includes(term));
-  if(G.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => G.activeTagFilters.includes(id)));
-  if(G.activeCriticalityFilters.length) pool = pool.filter(t => G.activeCriticalityFilters.includes(t.priority||'media'));
+  if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
+  if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
   pool.sort((a,b) => (b.updatedAt||b.createdAt||0) - (a.updatedAt||a.createdAt||0));
   return { key:'concluidas', label:'Concluídas', color:'var(--ink-faint)', tasks: pool };
 }
@@ -231,15 +232,15 @@ export function renderTasks(){
         ${icon('flag')}
         <span id="critFilterLabel">Prioridade</span>
       </button>
-      <div class="tag-filter-popover" id="critFilterPopover" style="display:${G.criticalityFilterPopoverOpen?'block':'none'};">
+      <div class="tag-filter-popover" id="critFilterPopover" style="display:${FILTROS.criticalityFilterPopoverOpen?'block':'none'};">
         ${PRIORITY_CONFIG.map(p => `
           <label class="tag-filter-row">
-            <input type="checkbox" data-crit="${p.key}" ${G.activeCriticalityFilters.includes(p.key)?'checked':''}>
+            <input type="checkbox" data-crit="${p.key}" ${FILTROS.activeCriticalityFilters.includes(p.key)?'checked':''}>
             <span class="cat-swatch" style="background:${p.color}"></span>
             ${p.label}
           </label>
         `).join('')}
-        <button type="button" class="filter-clear-btn" id="critFilterClearBtn" ${G.activeCriticalityFilters.length?'':'disabled'}>Limpar filtro</button>
+        <button type="button" class="filter-clear-btn" id="critFilterClearBtn" ${FILTROS.activeCriticalityFilters.length?'':'disabled'}>Limpar filtro</button>
       </div>
     </div>
     <div class="tag-filter-control">
@@ -247,7 +248,7 @@ export function renderTasks(){
         ${icon('tag')}
         <span id="tagFilterLabel">Tags</span>
       </button>
-      <div class="tag-filter-popover" id="tagFilterPopover" style="display:${G.tagFilterPopoverOpen?'block':'none'};">
+      <div class="tag-filter-popover" id="tagFilterPopover" style="display:${FILTROS.tagFilterPopoverOpen?'block':'none'};">
         ${(() => {
           const usedTagIds = new Set();
           G.state.tasks
@@ -257,16 +258,16 @@ export function renderTasks(){
           if(usableTags.length === 0) return '<div style="font-size:12px;color:var(--ink-faint); padding:4px 2px;">Nenhuma tag em uso nas tarefas</div>';
           return usableTags.map(tg => `
             <label class="tag-filter-row">
-              <input type="checkbox" data-tag="${tg.id}" ${G.activeTagFilters.includes(tg.id)?'checked':''}>
+              <input type="checkbox" data-tag="${tg.id}" ${FILTROS.activeTagFilters.includes(tg.id)?'checked':''}>
               <span class="cat-swatch" style="background:${tg.color}"></span>
               ${escapeHtml(tg.name)}
             </label>
           `).join('');
         })()}
-        <button type="button" class="filter-clear-btn" id="tagFilterClearBtn" ${G.activeTagFilters.length?'':'disabled'}>Limpar filtro</button>
+        <button type="button" class="filter-clear-btn" id="tagFilterClearBtn" ${FILTROS.activeTagFilters.length?'':'disabled'}>Limpar filtro</button>
       </div>
     </div>
-    ${(G.activeTagFilters.length || G.activeCriticalityFilters.length) ? `
+    ${(FILTROS.activeTagFilters.length || FILTROS.activeCriticalityFilters.length) ? `
     <button type="button" class="filter-clear-all-btn" id="clearAllFiltersBtn" title="Limpar todos os filtros">
       ${icon('x')}
       Limpar filtros
@@ -296,8 +297,8 @@ export function renderTasks(){
   const groupModeDropdown = groupBar.querySelector('#groupModeDropdown');
   function closeOtherTaskFilterPopovers(exceptEl){
     if(groupModeDropdown !== exceptEl) groupModeDropdown.style.display = 'none';
-    if(critFilterPopoverEl !== exceptEl) { G.criticalityFilterPopoverOpen = false; critFilterPopoverEl.style.display = 'none'; }
-    if(tagFilterPopoverEl !== exceptEl) { G.tagFilterPopoverOpen = false; tagFilterPopoverEl.style.display = 'none'; }
+    if(critFilterPopoverEl !== exceptEl) { FILTROS.criticalityFilterPopoverOpen = false; critFilterPopoverEl.style.display = 'none'; }
+    if(tagFilterPopoverEl !== exceptEl) { FILTROS.tagFilterPopoverOpen = false; tagFilterPopoverEl.style.display = 'none'; }
   }
   groupModeTrigger.onclick = (e) => {
     e.stopPropagation();
@@ -319,17 +320,17 @@ export function renderTasks(){
   const critFilterPopoverEl = groupBar.querySelector('#critFilterPopover');
   critFilterBtn.onclick = (e) => {
     e.stopPropagation();
-    const willOpen = !G.criticalityFilterPopoverOpen;
+    const willOpen = !FILTROS.criticalityFilterPopoverOpen;
     closeOtherTaskFilterPopovers(critFilterPopoverEl);
-    G.criticalityFilterPopoverOpen = willOpen;
-    critFilterPopoverEl.style.display = G.criticalityFilterPopoverOpen ? 'block' : 'none';
+    FILTROS.criticalityFilterPopoverOpen = willOpen;
+    critFilterPopoverEl.style.display = FILTROS.criticalityFilterPopoverOpen ? 'block' : 'none';
   };
   critFilterPopoverEl.addEventListener('click', e => e.stopPropagation());
   critFilterPopoverEl.querySelectorAll('input[type=checkbox]').forEach(cb => {
     cb.addEventListener('change', e => {
       const key = e.target.dataset.crit;
-      if(e.target.checked){ if(!G.activeCriticalityFilters.includes(key)) G.activeCriticalityFilters.push(key); }
-      else { G.activeCriticalityFilters = G.activeCriticalityFilters.filter(k => k !== key); }
+      if(e.target.checked){ if(!FILTROS.activeCriticalityFilters.includes(key)) FILTROS.activeCriticalityFilters.push(key); }
+      else { FILTROS.activeCriticalityFilters = FILTROS.activeCriticalityFilters.filter(k => k !== key); }
       render();
     });
   });
@@ -337,7 +338,7 @@ export function renderTasks(){
   if(critFilterClearBtn){
     critFilterClearBtn.addEventListener('click', e => {
       e.stopPropagation();
-      G.activeCriticalityFilters = [];
+      FILTROS.activeCriticalityFilters = [];
       render();
     });
   }
@@ -346,17 +347,17 @@ export function renderTasks(){
   const tagFilterPopoverEl = groupBar.querySelector('#tagFilterPopover');
   tagFilterBtn.onclick = (e) => {
     e.stopPropagation();
-    const willOpen = !G.tagFilterPopoverOpen;
+    const willOpen = !FILTROS.tagFilterPopoverOpen;
     closeOtherTaskFilterPopovers(tagFilterPopoverEl);
-    G.tagFilterPopoverOpen = willOpen;
-    tagFilterPopoverEl.style.display = G.tagFilterPopoverOpen ? 'block' : 'none';
+    FILTROS.tagFilterPopoverOpen = willOpen;
+    tagFilterPopoverEl.style.display = FILTROS.tagFilterPopoverOpen ? 'block' : 'none';
   };
   tagFilterPopoverEl.addEventListener('click', e => e.stopPropagation());
   tagFilterPopoverEl.querySelectorAll('input[type=checkbox]').forEach(cb => {
     cb.addEventListener('change', e => {
       const tagId = e.target.dataset.tag;
-      if(e.target.checked){ if(!G.activeTagFilters.includes(tagId)) G.activeTagFilters.push(tagId); }
-      else { G.activeTagFilters = G.activeTagFilters.filter(id => id !== tagId); }
+      if(e.target.checked){ if(!FILTROS.activeTagFilters.includes(tagId)) FILTROS.activeTagFilters.push(tagId); }
+      else { FILTROS.activeTagFilters = FILTROS.activeTagFilters.filter(id => id !== tagId); }
       render();
     });
   });
@@ -364,17 +365,17 @@ export function renderTasks(){
   if(tagFilterClearBtn){
     tagFilterClearBtn.addEventListener('click', e => {
       e.stopPropagation();
-      G.activeTagFilters = [];
+      FILTROS.activeTagFilters = [];
       render();
     });
   }
   const clearAllFiltersBtn = groupBar.querySelector('#clearAllFiltersBtn');
   if(clearAllFiltersBtn){
     clearAllFiltersBtn.addEventListener('click', () => {
-      G.activeTagFilters = [];
-      G.activeCriticalityFilters = [];
-      G.tagFilterPopoverOpen = false;
-      G.criticalityFilterPopoverOpen = false;
+      FILTROS.activeTagFilters = [];
+      FILTROS.activeCriticalityFilters = [];
+      FILTROS.tagFilterPopoverOpen = false;
+      FILTROS.criticalityFilterPopoverOpen = false;
       render();
     });
   }

@@ -6,6 +6,7 @@ import { openProjectEditor, projectColor, projectIconSvg, taskProgress } from '.
 import { buildProjectReportData, projectCsv, projectReportHtml, taskStatusLabel } from './33-relatorio-do-projeto.js';
 import { effectiveStart } from './35-templates-de-tarefa.js';
 import { icon } from './icones.js';
+import { GANTT } from './estado-ui.js';
 
 /* ===== PDF gerado direto pelo app (jsPDF + autoTable, carregados só quando necessário) ===== */
 export function loadScriptOnce(url){
@@ -254,7 +255,7 @@ export function ganttTaskRow(t, stageStateKey, pos){
   }
   /* alerta de prazo (só tarefa aberta): atrasada em vermelho, hoje ou até 3 dias em laranja */
   let pill = '';
-  const pillAt = G.ganttFit ? ` style="left:${Math.min(endPx + 6, pos('9999-12-31') - 64)}px"` : '';
+  const pillAt = GANTT.ganttFit ? ` style="left:${Math.min(endPx + 6, pos('9999-12-31') - 64)}px"` : '';
   if(!t.done && t.dueDate){
     const diff = Math.round((new Date(t.dueDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
     const clock = icon('clock');

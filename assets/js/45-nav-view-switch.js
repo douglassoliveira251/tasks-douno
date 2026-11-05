@@ -11,6 +11,7 @@ import { getOrderedCategories, renderCatRows } from './38-configuracoes-espacos-
 import { clearSearchTerm } from './46-busca-e-notificacoes.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { NOTAS_UI } from './estado-ui.js';
 
 /* ===================== NAV / VIEW SWITCH ===================== */
 document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
@@ -22,8 +23,8 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
     G.currentView = btn.dataset.view;
     G.activeTaskId = null;
     G.creatingNewTask = false;
-    G.creatingNewNote = false;
-    G.pendingNoteNotebookId = null;
+    NOTAS_UI.creatingNewNote = false;
+    NOTAS_UI.pendingNoteNotebookId = null;
     clearSearchTerm();
     closeMobileSidebar();
     render();
@@ -50,8 +51,8 @@ export function openSettingsView(tab){
   if(tab) G.settingsTab = tab;
   G.activeTaskId = null;
   G.creatingNewTask = false;
-  G.creatingNewNote = false;
-  G.pendingNoteNotebookId = null;
+  NOTAS_UI.creatingNewNote = false;
+  NOTAS_UI.pendingNoteNotebookId = null;
   clearSearchTerm();
   render();
 }

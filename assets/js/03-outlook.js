@@ -6,6 +6,7 @@ import { markDirty, persistOnly } from './08-persistencia.js';
 import { catById, escapeHtml } from './10-helpers.js';
 import { DOUNO_WORDMARK_SRC } from './42-nuvem-persistencia.js';
 import { icon } from './icones.js';
+import { FILTROS } from './estado-ui.js';
 
 /* ===================== OUTLOOK (Microsoft Graph, via API server-side) =====================
    O token de acesso do Outlook não fica mais no navegador: fica guardado no
@@ -139,8 +140,8 @@ export function handleOutlookRedirectFeedback(){
 G.pendingOutlookToast = null;
 G.activeTaskId = null;
 G.creatingNewTask = false;
-G.tagsPopoverOpen = false;
-G.tagFilterPopoverOpen = false;
+FILTROS.tagsPopoverOpen = false;
+FILTROS.tagFilterPopoverOpen = false;
 
 export function applyTheme(){
   const isDark = G.state.theme === 'dark';

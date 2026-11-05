@@ -12,6 +12,7 @@ import { fmtUpdatedAt } from './23-texto-rico-utilitarios.js';
 import { addDaysStr } from './25-calendario.js';
 import { projectById, stageRange } from './31-projetos.js';
 import { FOLLOW_PRESETS, effectiveStart, followRelative, followWeekday, nextMondayStr } from './35-templates-de-tarefa.js';
+import { PAINEL_TAREFA } from './estado-ui.js';
 
 /* Painel lateral de tarefa. renderTaskPanel monta o HTML (taskPanelHtml) e liga cada área, na ordem:
    menu ⋮ (18), cabeçalho, espaço/agendas/notas, descrição/anexos (19), datas, prioridade/etiquetas (20),
@@ -82,7 +83,7 @@ export function taskPanelHtml(task){
           ${icon('caret-down', 'regular', ' class="tp-status-chevron"')}
         </button>
         <input type="date" class="tp-follow-date-hidden" id="tpFollowDate" value="${task.followUpDate||''}" tabindex="-1" aria-hidden="true">
-        <div class="tp-follow-menu" id="tpFollowMenu" ${G.tpFollowOpen ? '' : 'hidden'}>
+        <div class="tp-follow-menu" id="tpFollowMenu" ${PAINEL_TAREFA.tpFollowOpen ? '' : 'hidden'}>
           ${FOLLOW_PRESETS.map(([n, lb]) => { const d = addDaysStr(todayStr(), n); return `<button type="button" class="tp-follow-opt" data-days="${n}"><span>${lb}</span><small>${followWeekday(d)}</small></button>`; }).join('')}
           <div class="tp-follow-sep"></div>
           <button type="button" class="tp-follow-opt" id="tpFollowCustom"><span>Personalizada…</span></button>
@@ -92,7 +93,7 @@ export function taskPanelHtml(task){
       <div class="tp-box tp-due-box">
         <label class="tp-label tp-label-row"><span>Prazo (entrega)</span>
           <button type="button" class="tp-start-link" id="tpStartLink" title="Início da tarefa (opcional)">${task.startDate ? 'início ' + fmtDate(task.startDate) : '+ início'}</button></label>
-        ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${G.tpStartOpen ? '' : 'hidden'}>
+        ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${PAINEL_TAREFA.tpStartOpen ? '' : 'hidden'}>
           <div class="tp-start-k">Início da tarefa</div>
           <div class="tp-start-box"><input type="date" id="tpStartDate" value="${es.date}"><span>${es.source === 'own' ? 'definida por você' : (es.source === 'stage' ? 'herdada da etapa' : 'data de criação')}</span></div>
           <div class="tp-start-chips"><button type="button" data-start="${todayStr()}">Hoje</button><button type="button" data-start="${addDaysStr(todayStr(), 1)}">Amanhã</button><button type="button" data-start="${nextMondayStr()}">Segunda</button></div>

@@ -1,3 +1,12 @@
+## [1.20.1] - 2026-11-05 16:00
+
+### Changed
+
+#### Código
+
+- 18 propriedades do `G` agrupadas por assunto no novo módulo folha `estado-ui.js` (`FILTROS`, `NOTAS_UI`, `PAINEL_TAREFA`, `GANTT`). `G` caiu de 60 para 41 propriedades (eram 83).
+
+
 ## [1.20.0] - 2026-11-05 14:00
 
 ### Added

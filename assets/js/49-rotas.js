@@ -1,6 +1,7 @@
 import { G } from './globais.js';
 import { closeMobileSidebar } from './45-nav-view-switch.js';
 import { VIEW_TITLES, render } from './48-render-principal.js';
+import { NOTAS_UI } from './estado-ui.js';
 
 /* ===================== ROTAS (um endereço por tela) =====================
    A aplicação mora em /app, e o Resumo é a página inicial dela. As outras telas têm caminho próprio:
@@ -57,8 +58,8 @@ export function onRouteChange(){
   G.currentView = view;
   G.activeTaskId = null;
   G.creatingNewTask = false;
-  G.creatingNewNote = false;
-  G.pendingNoteNotebookId = null;
+  NOTAS_UI.creatingNewNote = false;
+  NOTAS_UI.pendingNoteNotebookId = null;
   closeMobileSidebar();
   render();
 }

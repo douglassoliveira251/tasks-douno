@@ -8,6 +8,7 @@ import { closeEventComposer } from './28-calendario-eventos.js';
 import { closeMobileSidebar } from './45-nav-view-switch.js';
 import { closeSearchResultsDropdown } from './46-busca-e-notificacoes.js';
 import { render } from './48-render-principal.js';
+import { FILTROS, NOTAS_UI, PAINEL_TAREFA } from './estado-ui.js';
 
 /* Concluir leva a subtarefa para o fim da lista e guarda onde ela estava (as pendentes que vinham
    depois dela, na ordem). Desmarcar devolve ao mesmo lugar: antes da primeira dessas ainda pendente
@@ -51,7 +52,7 @@ export function openTaskPanel(taskId){
   }
   G.activeTaskId = taskId;
   G.creatingNewTask = false;
-  G.tagsPopoverOpen = false;
+  FILTROS.tagsPopoverOpen = false;
   render();
 }
 
@@ -62,7 +63,7 @@ export function openNewTaskPanel(){
   }
   G.activeTaskId = null;
   G.creatingNewTask = true;
-  G.tagsPopoverOpen = false;
+  FILTROS.tagsPopoverOpen = false;
   render();
 }
 
@@ -70,10 +71,10 @@ export function openNewTaskPanel(){
    criada). Antes, qualquer alteração de campo redesenhava o painel e o texto do
    comentário sumia; agora ele é restaurado a cada redesenho. */
 export const COMMENT_DRAFTS_KEY = 'dounoCommentDrafts';
-G.tpCommentDrafts = {};
-try{ G.tpCommentDrafts = JSON.parse(sessionStorage.getItem(COMMENT_DRAFTS_KEY) || '{}') || {}; }catch(e){ G.tpCommentDrafts = {}; }
+PAINEL_TAREFA.tpCommentDrafts = {};
+try{ PAINEL_TAREFA.tpCommentDrafts = JSON.parse(sessionStorage.getItem(COMMENT_DRAFTS_KEY) || '{}') || {}; }catch(e){ PAINEL_TAREFA.tpCommentDrafts = {}; }
 export function saveCommentDrafts(){
-  try{ sessionStorage.setItem(COMMENT_DRAFTS_KEY, JSON.stringify(G.tpCommentDrafts)); }catch(e){}
+  try{ sessionStorage.setItem(COMMENT_DRAFTS_KEY, JSON.stringify(PAINEL_TAREFA.tpCommentDrafts)); }catch(e){}
 }
 export function currentCommentKey(){ return G.creatingNewTask ? '__new__' : G.activeTaskId; }
 export function showUnsentCommentDialog(){
@@ -96,9 +97,9 @@ export function showUnsentCommentDialog(){
   const key = currentCommentKey();
   const hide = () => ov.classList.remove('show');
   ov.querySelector('#unsentBack').onclick = hide;
-  ov.querySelector('#unsentDiscard').onclick = () => { delete G.tpCommentDrafts[key]; saveCommentDrafts(); hide(); closeTaskPanel(true); };
+  ov.querySelector('#unsentDiscard').onclick = () => { delete PAINEL_TAREFA.tpCommentDrafts[key]; saveCommentDrafts(); hide(); closeTaskPanel(true); };
   ov.querySelector('#unsentSend').onclick = () => {
-    const text = (G.tpCommentDrafts[key] || '').trim();
+    const text = (PAINEL_TAREFA.tpCommentDrafts[key] || '').trim();
     hide();
     if(text){
       const t = getOrCreateActiveTask();
@@ -107,7 +108,7 @@ export function showUnsentCommentDialog(){
         t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
       }
     }
-    delete G.tpCommentDrafts[key];
+    delete PAINEL_TAREFA.tpCommentDrafts[key];
     saveCommentDrafts();
     closeTaskPanel(true);
   };
@@ -116,7 +117,7 @@ export function showUnsentCommentDialog(){
 }
 export function closeTaskPanel(force){
   if(force !== true){
-    const draft = (G.tpCommentDrafts[currentCommentKey()] || '').trim();
+    const draft = (PAINEL_TAREFA.tpCommentDrafts[currentCommentKey()] || '').trim();
     if(draft){ showUnsentCommentDialog(); return; }
   }
   const panel = document.querySelector('.task-panel');
@@ -125,7 +126,7 @@ export function closeTaskPanel(force){
   }
   G.activeTaskId = null;
   G.creatingNewTask = false;
-  G.tagsPopoverOpen = false;
+  FILTROS.tagsPopoverOpen = false;
   render();
 }
 
@@ -161,7 +162,7 @@ document.addEventListener('keydown', (e) => {
     closeTaskPanel();
     return;
   }
-  if(G.currentView === 'notes' && (G.activeNoteId || G.creatingNewNote)){
+  if(G.currentView === 'notes' && (G.activeNoteId || NOTAS_UI.creatingNewNote)){
     closeNoteComposer();
     return;
   }
@@ -191,11 +192,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-  if(!G.tagsPopoverOpen) return;
+  if(!FILTROS.tagsPopoverOpen) return;
   const popover = document.getElementById('tpTagsPopover');
   const toggleBtn = document.getElementById('tpTagsToggleBtn');
   if(popover && toggleBtn && !popover.contains(e.target) && !toggleBtn.contains(e.target)){
-    G.tagsPopoverOpen = false;
+    FILTROS.tagsPopoverOpen = false;
     render();
   }
 });
@@ -212,7 +213,7 @@ export function getOrCreateActiveTask(){
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     G.state.tasks.push(t);
-    if(G.tpCommentDrafts['__new__'] !== undefined){ G.tpCommentDrafts[t.id] = G.tpCommentDrafts['__new__']; delete G.tpCommentDrafts['__new__']; saveCommentDrafts(); }
+    if(PAINEL_TAREFA.tpCommentDrafts['__new__'] !== undefined){ PAINEL_TAREFA.tpCommentDrafts[t.id] = PAINEL_TAREFA.tpCommentDrafts['__new__']; delete PAINEL_TAREFA.tpCommentDrafts['__new__']; saveCommentDrafts(); }
     G.activeTaskId = t.id;
     G.creatingNewTask = false;
     return t;

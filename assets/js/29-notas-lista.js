@@ -8,6 +8,7 @@ import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { stripHtml } from './23-texto-rico-utilitarios.js';
 import { buildNoteComposer } from './24-render-notes.js';
 import { icon } from './icones.js';
+import { NOTAS_UI } from './estado-ui.js';
 
 export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
 let lastRenderedNoteSpaceKey = null;
@@ -35,14 +36,14 @@ export function renderNotes(){
 
   // se o espaço mudou desde o último render, soltar a nota ativa para restaurar a do novo espaço
   if(lastRenderedNoteSpaceKey !== null && lastRenderedNoteSpaceKey !== noteSpaceKey()){
-    if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+    if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
     G.activeNoteId = null;
-    G.creatingNewNote = false;
+    NOTAS_UI.creatingNewNote = false;
   }
   lastRenderedNoteSpaceKey = noteSpaceKey();
 
   // restaurar última nota aberta deste espaço, se ainda não houver nota/edição ativa
-  if(!G.activeNoteId && !G.creatingNewNote){
+  if(!G.activeNoteId && !NOTAS_UI.creatingNewNote){
     const lastId = G.state.lastActiveNoteBySpace[noteSpaceKey()];
     if(lastId){
       const n = G.state.notes.find(x => x.id === lastId && !x.archived && (!G.activeCategoryFilter || x.categoryId === G.activeCategoryFilter));
@@ -134,15 +135,15 @@ export function renderNotes(){
   const activeNote = G.activeNoteId ? G.state.notes.find(n => n.id === G.activeNoteId) : null;
   if(activeNote){
     const { element, commit } = buildNoteComposer(activeNote);
-    G.currentNoteComposerCommit = commit;
+    NOTAS_UI.currentNoteComposerCommit = commit;
     detailCol.appendChild(element);
-  } else if(G.creatingNewNote){
-    const { element, commit } = buildNoteComposer(null, G.pendingNotePrefillTaskId, G.pendingNoteNotebookId);
-    G.currentNoteComposerCommit = commit;
+  } else if(NOTAS_UI.creatingNewNote){
+    const { element, commit } = buildNoteComposer(null, NOTAS_UI.pendingNotePrefillTaskId, NOTAS_UI.pendingNoteNotebookId);
+    NOTAS_UI.currentNoteComposerCommit = commit;
     detailCol.appendChild(element);
     setTimeout(() => { const t = element.querySelector('.note-title'); if(t) t.focus(); }, 0);
   } else {
-    G.currentNoteComposerCommit = null;
+    NOTAS_UI.currentNoteComposerCommit = null;
     detailCol.innerHTML = `<div class="note-detail-empty">
       ${icon('file-text')}
       <p>Selecione uma nota na lista de cadernos, ou crie uma nova para começar.</p>
@@ -151,8 +152,8 @@ export function renderNotes(){
 
   // barra do celular: caderno/nota atuais abrem a gaveta de cadernos; botão de modo foco
   const barNotebook = activeNote ? G.state.notebooks.find(x => x.id === activeNote.notebookId)
-    : (G.creatingNewNote && G.pendingNoteNotebookId ? G.state.notebooks.find(x => x.id === G.pendingNoteNotebookId) : null);
-  const barNoteTitle = activeNote ? (activeNote.title || 'Sem título') : (G.creatingNewNote ? 'Nova nota' : '');
+    : (NOTAS_UI.creatingNewNote && NOTAS_UI.pendingNoteNotebookId ? G.state.notebooks.find(x => x.id === NOTAS_UI.pendingNoteNotebookId) : null);
+  const barNoteTitle = activeNote ? (activeNote.title || 'Sem título') : (NOTAS_UI.creatingNewNote ? 'Nova nota' : '');
   const mbar = document.createElement('div');
   mbar.className = 'notes-mbar';
   mbar.innerHTML = `
@@ -194,9 +195,9 @@ export function renderNotes(){
   }
 
   function selectNote(noteId){
-    if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+    if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
     G.activeNoteId = noteId;
-    G.creatingNewNote = false;
+    NOTAS_UI.creatingNewNote = false;
     G.notesDrawerOpen = false;
     G.state.lastActiveNoteBySpace[noteSpaceKey()] = noteId;
     markDirty();
@@ -213,20 +214,20 @@ export function renderNotes(){
     });
     row.addEventListener('dragstart', (e) => {
       e.stopPropagation();
-      G.draggedNotebookId = row.dataset.nbId;
+      NOTAS_UI.draggedNotebookId = row.dataset.nbId;
       row.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
     row.addEventListener('dragend', () => {
-      G.draggedNotebookId = null;
+      NOTAS_UI.draggedNotebookId = null;
       row.classList.remove('dragging');
       notebooksCol.querySelectorAll('.drop-before,.drop-after').forEach(el => el.classList.remove('drop-before','drop-after'));
     });
     row.addEventListener('dragover', (e) => {
-      if(G.draggedNoteId){
+      if(NOTAS_UI.draggedNoteId){
         e.preventDefault();
         row.classList.add('drag-over');
-      } else if(G.draggedNotebookId && G.draggedNotebookId !== row.dataset.nbId){
+      } else if(NOTAS_UI.draggedNotebookId && NOTAS_UI.draggedNotebookId !== row.dataset.nbId){
         e.preventDefault();
         const rect = row.getBoundingClientRect();
         const isBefore = (e.clientY - rect.top) < rect.height/2;
@@ -239,18 +240,18 @@ export function renderNotes(){
       e.preventDefault();
       const isBefore = row.classList.contains('drop-before');
       row.classList.remove('drag-over','drop-before','drop-after');
-      if(G.draggedNoteId){
-        const n = G.state.notes.find(x => x.id === G.draggedNoteId);
+      if(NOTAS_UI.draggedNoteId){
+        const n = G.state.notes.find(x => x.id === NOTAS_UI.draggedNoteId);
         const nb = G.state.notebooks.find(x => x.id === row.dataset.nbId);
         if(!n || !nb || n.notebookId === nb.id) return;
-        if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+        if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
         n.notebookId = nb.id;
         n.categoryId = nb.categoryId;
         expandedNotebookIds.add(nb.id);
         markDirty();
         renderNotes();
-      } else if(G.draggedNotebookId && G.draggedNotebookId !== row.dataset.nbId){
-        const draggedNb = G.state.notebooks.find(x => x.id === G.draggedNotebookId);
+      } else if(NOTAS_UI.draggedNotebookId && NOTAS_UI.draggedNotebookId !== row.dataset.nbId){
+        const draggedNb = G.state.notebooks.find(x => x.id === NOTAS_UI.draggedNotebookId);
         const targetNb = G.state.notebooks.find(x => x.id === row.dataset.nbId);
         if(!draggedNb || !targetNb || draggedNb.categoryId !== targetNb.categoryId) return;
         const siblingsSorted = G.state.notebooks.filter(x => x.categoryId === targetNb.categoryId)
@@ -270,17 +271,17 @@ export function renderNotes(){
     item.addEventListener('click', () => selectNote(item.dataset.noteId));
     item.addEventListener('dragstart', (e) => {
       e.stopPropagation();
-      G.draggedNoteId = item.dataset.noteId;
+      NOTAS_UI.draggedNoteId = item.dataset.noteId;
       item.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
     item.addEventListener('dragend', () => {
-      G.draggedNoteId = null;
+      NOTAS_UI.draggedNoteId = null;
       item.classList.remove('dragging');
       notebooksCol.querySelectorAll('.drag-over,.drop-before,.drop-after').forEach(el => el.classList.remove('drag-over','drop-before','drop-after'));
     });
     item.addEventListener('dragover', (e) => {
-      if(!G.draggedNoteId || G.draggedNoteId === item.dataset.noteId) return;
+      if(!NOTAS_UI.draggedNoteId || NOTAS_UI.draggedNoteId === item.dataset.noteId) return;
       e.preventDefault();
       e.stopPropagation();
       const rect = item.getBoundingClientRect();
@@ -290,15 +291,15 @@ export function renderNotes(){
     });
     item.addEventListener('dragleave', () => item.classList.remove('drop-before','drop-after'));
     item.addEventListener('drop', (e) => {
-      if(!G.draggedNoteId || G.draggedNoteId === item.dataset.noteId) return;
+      if(!NOTAS_UI.draggedNoteId || NOTAS_UI.draggedNoteId === item.dataset.noteId) return;
       e.preventDefault();
       e.stopPropagation();
       const isBefore = item.classList.contains('drop-before');
       item.classList.remove('drop-before','drop-after');
       const targetNote = G.state.notes.find(n => n.id === item.dataset.noteId);
-      const draggedNote = G.state.notes.find(n => n.id === G.draggedNoteId);
+      const draggedNote = G.state.notes.find(n => n.id === NOTAS_UI.draggedNoteId);
       if(!targetNote || !draggedNote) return;
-      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+      if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
       draggedNote.notebookId = targetNote.notebookId;
       draggedNote.categoryId = targetNote.categoryId;
       const nbNotesSorted = G.state.notes.filter(n => n.notebookId === targetNote.notebookId && !n.archived)
@@ -321,7 +322,7 @@ export function renderNotes(){
       if(!n) return;
       n.pinned = !n.pinned;
       n.pinnedAt = n.pinned ? Date.now() : null;
-      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+      if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
       markDirty();
       renderNotes();
     });
@@ -329,11 +330,11 @@ export function renderNotes(){
   notebooksCol.querySelectorAll('.notebook-add-note-btn[data-nb-id]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+      if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
       G.activeNoteId = null;
-      G.creatingNewNote = true;
-      G.pendingNotePrefillTaskId = null;
-      G.pendingNoteNotebookId = btn.dataset.nbId;
+      NOTAS_UI.creatingNewNote = true;
+      NOTAS_UI.pendingNotePrefillTaskId = null;
+      NOTAS_UI.pendingNoteNotebookId = btn.dataset.nbId;
       expandedNotebookIds.add(btn.dataset.nbId);
       G.notesDrawerOpen = false;
       renderNotes();

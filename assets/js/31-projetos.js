@@ -4,11 +4,12 @@ import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { effectiveStart } from './35-templates-de-tarefa.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { GANTT } from './estado-ui.js';
 
 /* ===================== PROJETOS ===================== */
 G.activeProjectId = null;
 G.projectTab = 'timeline';
-G.ganttFit = false, G.ganttZoom = 'fit', G.ganttFilter = 'all', G.ganttScroll = 0, G.ganttCenterToday = true, G.ganttLastProject = null;
+GANTT.ganttFit = false, G.ganttZoom = 'fit', G.ganttFilter = 'all', GANTT.ganttScroll = 0, GANTT.ganttCenterToday = true, GANTT.ganttLastProject = null;
 export function defaultProjectTab(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 'lista' : 'timeline'; }
 G.selectedStageId = null;
 

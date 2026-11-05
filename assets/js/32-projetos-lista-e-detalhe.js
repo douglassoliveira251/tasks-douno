@@ -7,6 +7,7 @@ import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor,
 import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { GANTT } from './estado-ui.js';
 
 export function renderProjects(){
   const view = document.getElementById('projectsView');
@@ -291,7 +292,7 @@ export function renderProjectDetail(view, p){
   const ZOOMS = { fit: { dpx: 0, label: 'Ajustar' }, month: { dpx: 5, label: 'Mês' }, week: { dpx: 14, label: 'Semana' }, day: { dpx: 34, label: 'Dia' } };
   if(!ZOOMS[G.ganttZoom]) G.ganttZoom = 'fit';
   const fit = G.ganttZoom === 'fit';
-  G.ganttFit = fit;
+  GANTT.ganttFit = fit;
   const DAYMS = 86400000;
   const dates = [];
   stages.forEach(sg => { if(sg.start) dates.push(sg.start); if(sg.end) dates.push(sg.end); });
@@ -389,10 +390,10 @@ export function renderProjectDetail(view, p){
   const wrapEl = body.querySelector('.gantt-wrap');
   const glW = parseInt(getComputedStyle(wrapEl).getPropertyValue('--gl'), 10) || 260;
   const goToday = (smooth) => wrapEl.scrollTo({ left: Math.max(0, todayX - (wrapEl.clientWidth - glW) / 2), behavior: smooth ? 'smooth' : 'auto' });
-  if(G.ganttCenterToday || G.ganttLastProject !== p.id){ goToday(false); G.ganttCenterToday = false; G.ganttLastProject = p.id; }
-  else wrapEl.scrollLeft = G.ganttScroll || 0;
-  wrapEl.addEventListener('scroll', () => { G.ganttScroll = wrapEl.scrollLeft; });
-  body.querySelectorAll('[data-zoom]').forEach(btn => { btn.onclick = () => { G.ganttZoom = btn.dataset.zoom; G.ganttCenterToday = true; render(); }; });
+  if(GANTT.ganttCenterToday || GANTT.ganttLastProject !== p.id){ goToday(false); GANTT.ganttCenterToday = false; GANTT.ganttLastProject = p.id; }
+  else wrapEl.scrollLeft = GANTT.ganttScroll || 0;
+  wrapEl.addEventListener('scroll', () => { GANTT.ganttScroll = wrapEl.scrollLeft; });
+  body.querySelectorAll('[data-zoom]').forEach(btn => { btn.onclick = () => { G.ganttZoom = btn.dataset.zoom; GANTT.ganttCenterToday = true; render(); }; });
   body.querySelectorAll('[data-gfilter]').forEach(btn => { btn.onclick = () => { G.ganttFilter = btn.dataset.gfilter; render(); }; });
   if(!fit){
     body.querySelector('#ganttToday').onclick = () => goToday(true);

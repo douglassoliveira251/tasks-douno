@@ -7,6 +7,7 @@ import { currentCommentKey, saveCommentDrafts } from './16-painel-lateral-de-tar
 import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
 import { adoptCloudRow } from './42-nuvem-persistencia.js';
 import { render } from './48-render-principal.js';
+import { NOTAS_UI, PAINEL_TAREFA } from './estado-ui.js';
 
 /* ===================== PERSISTÊNCIA ===================== */
 export function loadFromLocalStorage(){
@@ -117,8 +118,8 @@ export function persistOnly(){
 // Garante que alterações pendentes sejam gravadas antes de a aba ser minimizada,
 // trocada ou fechada — evita perder a última edição feita bem antes do debounce disparar.
 export function commitOpenEditors(){
-  if(G.currentNoteComposerCommit){
-    try{ G.currentNoteComposerCommit(); }catch(e){ console.error(e); }
+  if(NOTAS_UI.currentNoteComposerCommit){
+    try{ NOTAS_UI.currentNoteComposerCommit(); }catch(e){ console.error(e); }
   }
   /* Título e descrição da tarefa já commitam no blur (protegidos pelo blur()
      genérico abaixo). O campo de novo comentário é a exceção: só grava quando
@@ -129,7 +130,7 @@ export function commitOpenEditors(){
   // (também em sessionStorage, então sobrevive a recarregar a página).
   const newCommentBox = document.getElementById('tpNewComment');
   if(newCommentBox && newCommentBox.value){
-    G.tpCommentDrafts[currentCommentKey()] = newCommentBox.value;
+    PAINEL_TAREFA.tpCommentDrafts[currentCommentKey()] = newCommentBox.value;
     saveCommentDrafts();
   }
   if(document.activeElement && typeof document.activeElement.blur === 'function'){

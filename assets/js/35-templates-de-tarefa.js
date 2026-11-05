@@ -10,6 +10,7 @@ import { addOneHourToTime } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { PAINEL_TAREFA } from './estado-ui.js';
 
 /* ===================== TEMPLATES DE TAREFA ===================== */
 export function templateFromTask(task){
@@ -60,7 +61,7 @@ export function followUpState(t){
 }
 /* Início da tarefa: opcional. Sem valor próprio (task.startDate), herda o início da etapa do projeto;
    sem etapa, vale "ao abrir" (a data de criação). Só guardamos algo quando o usuário ajusta. */
-G.tpStartOpen = false;
+PAINEL_TAREFA.tpStartOpen = false;
 export function effectiveStart(t){
   if(t.startDate) return { date: t.startDate, source: 'own' };
   const pr = t.projectId ? projectById(t.projectId) : null;
@@ -72,7 +73,7 @@ export function nextMondayStr(){
   const add = ((8 - d.getDay()) % 7) || 7;
   return addDaysStr(todayStr(), add);
 }
-G.tpFollowOpen = false;
+PAINEL_TAREFA.tpFollowOpen = false;
 export const FOLLOW_PRESETS = [[0,'Hoje'],[1,'Amanhã'],[3,'3 dias'],[7,'7 dias'],[15,'15 dias']];
 export function followWeekday(d){
   return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }).replace('.', '');

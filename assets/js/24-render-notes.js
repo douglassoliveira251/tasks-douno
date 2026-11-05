@@ -9,9 +9,10 @@ import { buildRichToolbar } from './22-texto-rico.js';
 import { attachFormattedPaste, attachTabIndent, openNoteExportMenu } from './23-texto-rico-utilitarios.js';
 import { noteSpaceKey, renderNotes } from './29-notas-lista.js';
 import { icon } from './icones.js';
+import { NOTAS_UI } from './estado-ui.js';
 
 /* ===================== RENDER: NOTES ===================== */
-G.currentNoteComposerCommit = null;
+NOTAS_UI.currentNoteComposerCommit = null;
 
 export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId){
   const composerSpaceKeyAtOpen = noteSpaceKey();
@@ -181,7 +182,7 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
       delete dup.noteOrder;
       G.state.notes.unshift(dup);
       G.activeNoteId = dup.id;
-      G.creatingNewNote = false;
+      NOTAS_UI.creatingNewNote = false;
       G.state.lastActiveNoteBySpace[noteSpaceKey()] = dup.id;
       markDirty();
       if(G.currentView === 'notes') renderNotes();
@@ -206,8 +207,8 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
       openConfirmPortal(e.currentTarget, 'Excluir esta nota?', () => {
         G.state.notes = G.state.notes.filter(x => x.id !== existingNote.id);
         deleted = true;
-        G.currentNoteComposerCommit = null;
-        if(G.activeNoteId === existingNote.id){ G.activeNoteId = null; G.creatingNewNote = false; }
+        NOTAS_UI.currentNoteComposerCommit = null;
+        if(G.activeNoteId === existingNote.id){ G.activeNoteId = null; NOTAS_UI.creatingNewNote = false; }
         markDirty();
         if(G.currentView === 'notes') renderNotes();
       });
@@ -245,7 +246,7 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
       G.state.notes.unshift(newNote);
       createdNoteRef = newNote;
       G.activeNoteId = newNote.id;
-      G.creatingNewNote = false;
+      NOTAS_UI.creatingNewNote = false;
     }
     G.state.lastActiveNoteBySpace[composerSpaceKeyAtOpen] = targetNote ? targetNote.id : createdNoteRef.id;
     persistOnly();
@@ -274,20 +275,20 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
 }
 
 export function openNoteComposer(existingNote, prefillTaskId){
-  if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+  if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
   if(existingNote){
     G.activeNoteId = existingNote.id;
-    G.creatingNewNote = false;
-    G.pendingNotePrefillTaskId = null;
-    G.pendingNoteNotebookId = null;
+    NOTAS_UI.creatingNewNote = false;
+    NOTAS_UI.pendingNotePrefillTaskId = null;
+    NOTAS_UI.pendingNoteNotebookId = null;
     if(existingNote.notebookId) expandedNotebookIds.add(existingNote.notebookId);
   } else {
     // caderno de destino, em ordem de preferência: nota atualmente aberta > caderno
     // selecionado (expandido mais recentemente) no espaço > primeiro caderno do espaço
     const previousActiveNote = G.activeNoteId ? G.state.notes.find(x => x.id === G.activeNoteId) : null;
     G.activeNoteId = null;
-    G.creatingNewNote = true;
-    G.pendingNotePrefillTaskId = prefillTaskId || null;
+    NOTAS_UI.creatingNewNote = true;
+    NOTAS_UI.pendingNotePrefillTaskId = prefillTaskId || null;
     const prefillTask = prefillTaskId ? G.state.tasks.find(x => x.id === prefillTaskId) : null;
     const catId = prefillTask ? prefillTask.categoryId : (previousActiveNote ? previousActiveNote.categoryId : (G.activeCategoryFilter || G.state.categories[0].id));
     let nb = null;
@@ -304,14 +305,14 @@ export function openNoteComposer(existingNote, prefillTaskId){
       nb = { id: uid('nb'), name: 'Notas', categoryId: catId, createdAt: Date.now() };
       G.state.notebooks.push(nb);
     }
-    G.pendingNoteNotebookId = nb.id;
+    NOTAS_UI.pendingNoteNotebookId = nb.id;
     expandedNotebookIds.add(nb.id);
   }
   if(G.currentView === 'notes') renderNotes();
 }
 
 export function closeNoteComposer(){
-  if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
+  if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
 }
 export function hideNoteComposerOverlay(){
   closeNoteComposer();

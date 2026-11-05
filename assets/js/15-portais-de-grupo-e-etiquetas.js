@@ -5,6 +5,7 @@ import { closeAllTaskMenus, closeColorPortal, ensureColorPortal } from './13-por
 import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { FILTROS } from './estado-ui.js';
 
 export function ensureMoveGroupPortal(){
   let portal = document.getElementById('moveGroupPortal');
@@ -151,10 +152,10 @@ document.addEventListener('click', () => {
   if(gd) gd.style.display = 'none';
 });
 document.addEventListener('click', () => {
-  if(G.tagFilterPopoverOpen){ G.tagFilterPopoverOpen = false; render(); }
+  if(FILTROS.tagFilterPopoverOpen){ FILTROS.tagFilterPopoverOpen = false; render(); }
 });
 document.addEventListener('click', () => {
-  if(G.criticalityFilterPopoverOpen){ G.criticalityFilterPopoverOpen = false; render(); }
+  if(FILTROS.criticalityFilterPopoverOpen){ FILTROS.criticalityFilterPopoverOpen = false; render(); }
 });
 window.addEventListener('scroll', closeColorPortal, true);
 document.addEventListener('click', closeAllTaskMenus);
