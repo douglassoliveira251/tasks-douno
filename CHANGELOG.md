@@ -1,3 +1,15 @@
+## [1.20.0] - 2026-11-05 14:00
+
+### Added
+
+- **Desfazer a conclusão de tarefa recorrente**: aviso com botão "Desfazer" por 8 s; devolve a original (com o status anterior e na mesma posição), apaga a próxima ocorrência e tira a conclusão do registro/contagem.
+- **Termos de Uso e Política de Privacidade** (minutas em `public/termos.html` e `public/privacidade.html`, com campos [entre colchetes] a preencher e revisão jurídica pendente), linkados no cadastro e em Sobre; `cleanUrls` na Vercel (`/termos`, `/privacidade`).
+
+### Fixed
+
+- Celular: divisores soltos na barra de filtros e texto cortado no campo de busca. Texto de Sobre atualizado (não diz mais "sem servidor").
+
+
 ## [1.19.0] - 2026-11-04 12:00
 
 ### Added

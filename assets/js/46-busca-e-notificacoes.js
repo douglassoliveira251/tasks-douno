@@ -180,6 +180,14 @@ export function renderSearchResultsDropdown(){
   dd.style.display = 'block';
 }
 // teclado: setas, Enter e Esc dentro da busca
+/* Em tela estreita o texto longo do campo de busca era cortado: usa uma versão curta. */
+{
+  const campo = document.getElementById('searchInput');
+  const estreita = window.matchMedia('(max-width:560px)');
+  const ajustar = () => { campo.placeholder = estreita.matches ? 'Buscar…' : 'Buscar tarefas, notas, eventos...'; };
+  ajustar();
+  estreita.addEventListener('change', ajustar);
+}
 document.getElementById('searchInput').addEventListener('keydown', (e) => {
   const dd = document.getElementById('searchResultsDropdown');
   if(!dd || dd.style.display === 'none') return;

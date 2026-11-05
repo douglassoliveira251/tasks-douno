@@ -1,5 +1,7 @@
 import { G } from './globais.js';
 import { addDaysStr } from './25-calendario.js';
+import { markDirty } from './08-persistencia.js';
+import { showToast, showUndoToast } from './42-nuvem-persistencia.js';
 
 /* ===================== HELPERS ===================== */
 export function uid(prefix){ return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -62,18 +64,32 @@ export function advanceDateByRecurrence(dateStr, recurrence, interval){
 /* Concluir uma tarefa recorrente remove a ocorrência e cria a próxima. Para a conclusão continuar
    contando (cabeçalho, painel de resumo) sem aparecer como uma tarefa a mais em "Concluídas", ela é
    registrada em state.completedLog: um registro enxuto, com o formato mínimo de tarefa concluída. */
-export function completeRecurring(task){
+export function completeRecurring(task, prevStatus){
+  const idx = G.state.tasks.indexOf(task);
   const next = spawnNextRecurrence(task);
   if(!next) return null;
   if(!Array.isArray(G.state.completedLog)) G.state.completedLog = [];
   const completedAt = task.completedAt || Date.now();
-  G.state.completedLog.push({
+  const entry = {
     id: uid('rc'), title: task.title, categoryId: task.categoryId, priority: task.priority, tagIds: (task.tagIds||[]).slice(),
     projectId: task.projectId || null, dueDate: task.dueDate || null, createdAt: task.createdAt || completedAt, completedAt,
     done: true, status: 'concluida', recurring: true,
-  });
+  };
+  G.state.completedLog.push(entry);
   const limit = Date.now() - 400 * 86400000;
   G.state.completedLog = G.state.completedLog.filter(e => e.completedAt >= limit);
+  /* Desfazer: devolve a ocorrência original (pendente, na mesma posição), apaga a próxima e tira a conclusão do registro. */
+  showUndoToast('Concluída. Próxima: ' + fmtDate(next.dueDate) + '.', 'Desfazer', () => {
+    if(!G.state.tasks.includes(next) || next.done){ showToast('Não dá mais para desfazer: a próxima ocorrência já foi alterada.'); return; }
+    task.done = false;
+    task.status = prevStatus && prevStatus !== 'concluida' ? prevStatus : 'nao_iniciado';
+    task.completedAt = null;
+    G.state.tasks = G.state.tasks.filter(x => x.id !== next.id && x.id !== task.id);
+    G.state.tasks.splice(idx >= 0 ? Math.min(idx, G.state.tasks.length) : G.state.tasks.length, 0, task);
+    G.state.completedLog = G.state.completedLog.filter(e => e.id !== entry.id);
+    if(G.activeTaskId === next.id){ G.activeTaskId = task.id; G.creatingNewTask = false; }
+    markDirty();
+  });
   return next;
 }
 

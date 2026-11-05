@@ -76,7 +76,7 @@ export function renderLoginGate(errorMsg){
         ${loginPasswordFieldHtml('new-password')}
         <div class="login-strength" id="loginStrength"><i></i><i></i><i></i><i></i></div>
         <div class="login-hint">Use 8 ou mais caracteres, com letras e números.</div>
-        <label class="login-terms"><input type="checkbox" id="signupTerms"${G.signupDraft.terms ? ' checked' : ''}><span>Li e aceito os Termos de Uso e a Política de Privacidade.</span></label>
+        <label class="login-terms"><input type="checkbox" id="signupTerms"${G.signupDraft.terms ? ' checked' : ''}><span>Li e aceito os <a href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
         ${err}
         <button type="submit" class="btn login-submit-btn" id="signupSubmitBtn">Criar conta</button>
       </form>`;

@@ -496,12 +496,13 @@ export function renderTaskRow(t){
   row.querySelector('.task-check').onclick = (e) => {
     e.stopPropagation();
     const wasDone = t.done;
+    const prevStatus = t.status;
     t.done = !t.done;
     t.status = t.done ? 'concluida' : 'nao_iniciado';
     t.completedAt = t.done ? Date.now() : null;
     if(t.done) t.pinned = false;
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
-      const next = completeRecurring(t);
+      const next = completeRecurring(t, prevStatus);
       if(next){
         G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
         markDirty();

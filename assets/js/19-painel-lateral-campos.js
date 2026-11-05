@@ -41,12 +41,13 @@ export function bindTpHeader(panel, task){
   document.getElementById('tpDoneCheck').onclick = () => {
     const t = getOrCreateActiveTask(); if(!t) return;
     const wasDone = t.done;
+    const prevStatus = t.status;
     t.done = !t.done;
     t.status = t.done ? 'concluida' : 'nao_iniciado';
     t.completedAt = t.done ? Date.now() : null;
     if(t.done) t.pinned = false;
     if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
-      const next = completeRecurring(t);
+      const next = completeRecurring(t, prevStatus);
       if(next){
         G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
         markDirty();
@@ -69,12 +70,13 @@ export function bindTpHeader(panel, task){
     opt.onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
       const s = opt.dataset.s;
+      const prevStatus = t.status;
       t.status = s;
       t.done = (s === 'concluida');
       t.completedAt = t.done ? Date.now() : null;
       tpStatusDropdown.style.display = 'none';
       if(t.done && t.recurrence && t.recurrence !== 'none'){
-        const next = completeRecurring(t);
+        const next = completeRecurring(t, prevStatus);
         if(next){
           G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
           markDirty();

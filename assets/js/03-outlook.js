@@ -170,13 +170,18 @@ export function openAboutModal(){
       <div style="font-size:13px; font-weight:500; color:#3B82F6;">Tasks</div>
     </div>
     <div style="font-size:13px; color:var(--ink-soft); line-height:1.6; margin-bottom:16px;">
-      Sistema pessoal de tarefas, notas, calendário e indicadores — sem servidor, seus dados ficam só no seu dispositivo.
+      Sistema de tarefas, notas, calendário e projetos para organizar o seu dia.
     </div>
     <div style="display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); padding:5px 12px; border-radius:20px; font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);">
       Versão ${APP_VERSION}
     </div>
     <div style="margin-top:14px;">
       <button type="button" class="btn ghost small" id="aboutWhatsNewBtn">Ver novidades</button>
+    </div>
+    <div style="margin-top:14px; font-size:12px;">
+      <a href="/termos" target="_blank" rel="noopener" style="color:var(--primary);">Termos de Uso</a>
+      <span style="color:var(--ink-faint);"> · </span>
+      <a href="/privacidade" target="_blank" rel="noopener" style="color:var(--primary);">Política de Privacidade</a>
     </div>
   `;
   document.getElementById('aboutOverlay').classList.add('show');

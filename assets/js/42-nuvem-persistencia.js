@@ -212,6 +212,31 @@ export function showToast(message){
   }, 3000);
 }
 
+/* Aviso com um botão de ação (ex.: "Desfazer"). Fica visível por mais tempo e só um por vez. */
+let undoToastEl = null;
+export function showUndoToast(message, actionLabel, onAction){
+  if(undoToastEl){ undoToastEl.remove(); undoToastEl = null; }
+  const el = document.createElement('div');
+  el.className = 'undo-toast';
+  el.setAttribute('role', 'status');
+  const msg = document.createElement('span');
+  msg.textContent = message;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = actionLabel;
+  el.append(msg, btn);
+  document.body.appendChild(el);
+  undoToastEl = el;
+  requestAnimationFrame(() => el.classList.add('show'));
+  const close = () => {
+    if(undoToastEl === el) undoToastEl = null;
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  };
+  btn.onclick = () => { close(); onAction(); };
+  setTimeout(close, 8000);
+}
+
 export function dounoIconSvg(color){
   return `<svg viewBox="0 0 512 512" fill="none"><path d="M112 152H292 C364 152 408 192 408 256 C408 320 364 360 292 360 H112 V300" stroke="${color}" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
