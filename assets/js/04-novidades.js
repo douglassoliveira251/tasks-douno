@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.21.0', date:'05/11/2026', title:'Excluir a minha conta', text:'Em Perfil › Conta você já pode excluir a sua conta e todos os seus dados por conta própria. Antes, dá para baixar um backup. A exclusão pede o seu e-mail e a senha e é definitiva.' },
   { version:'1.20.1', date:'05/11/2026', title:'Mais arrumação por dentro', text:'Mais uma parte do estado interno do sistema foi organizada por assunto (filtros, notas, painel da tarefa e linha do tempo). Nada muda no que você vê.' },
   { version:'1.20.0', date:'05/11/2026', title:'Desfazer conclusão, termos e celular', text:'Ao concluir uma tarefa recorrente aparece o aviso "Desfazer", que devolve a tarefa e apaga a próxima ocorrência. Também chegaram os Termos de Uso e a Política de Privacidade (links no cadastro e em Sobre) e pequenos ajustes de tela no celular.' },
   { version:'1.19.0', date:'04/11/2026', title:'Boas-vindas para quem está começando', text:'Contas novas agora são recebidas por um assistente de 3 passos: você escolhe como vai usar (cria os espaços), pode adicionar modelos prontos e já registra a primeira tarefa. Depois, o Resumo mostra o cartão "Comece por aqui" com um checklist que se marca sozinho.' },

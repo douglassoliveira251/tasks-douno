@@ -1,3 +1,12 @@
+## [1.21.0] - 2026-11-05 17:00
+
+### Added
+
+#### Conta
+
+- Excluir a própria conta (Perfil › Conta › "Excluir minha conta…"). Janela de confirmação com lista do que será apagado, botão para baixar backup, e-mail e senha. Novo endpoint `api/account/delete.js`: confere token, e-mail e senha no servidor e apaga `outlook_tokens`, `taskin_state` e o usuário do Supabase Auth. A exclusão é imediata e definitiva; depois a pessoa volta para a tela de login.
+
+
 ## [1.20.1] - 2026-11-05 16:00
 
 ### Changed

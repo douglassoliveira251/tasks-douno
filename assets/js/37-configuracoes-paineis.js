@@ -7,6 +7,7 @@ import { downloadFallback, openFile, saveFile, saveFileAs, updateFileStatus } fr
 import { escapeHtml } from './10-helpers.js';
 import { avatarInnerHtml } from './30-perfil-e-configuracoes.js';
 import { openCropModal } from './39-recorte-de-imagem.js';
+import { bindDangerZone, dangerZoneHtml } from './52-excluir-conta.js';
 import { icon } from './icones.js';
 
 export function renderPersonalizationPanel(panel){
@@ -262,6 +263,7 @@ export function renderProfilePanel(panel){
           </div>
         </div>
       </div>
+      ${dangerZoneHtml()}
     `}
   `;
   document.getElementById('profileNameInput').value = G.state.profile.name || '';
@@ -285,6 +287,7 @@ export function renderProfilePanel(panel){
   };
 
   if(!G.cloudSession) return;
+  bindDangerZone();
 
   const changeEmailForm = document.getElementById('changeEmailForm');
   document.getElementById('changeEmailToggleBtn').onclick = () => {
