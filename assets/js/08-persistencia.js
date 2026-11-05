@@ -27,15 +27,15 @@ export function saveToLocalStorage(){
   catch(e){ console.error('Erro ao salvar localStorage', e); }
 }
 
-G.autoSaveTimer = null;
+let autoSaveTimer = null;
 export const AUTOSAVE_DEBOUNCE_MS = 250;
 
 /* Único ponto que agenda a escrita atrasada, seja pra arquivo local ou pra nuvem -
    markDirty/persistOnly só chamam isto, sem saber qual backend está ativo. */
-G.cloudWriteInFlight = null;
-G.cloudWritePending = false;
+let cloudWriteInFlight = null;
+let cloudWritePending = false;
 G.cloudWriteFailed = false;
-G.cloudWriteRetryTimer = null;
+let cloudWriteRetryTimer = null;
 /* Sem debounce pra nuvem: um refresh (beforeunload/pagehide) nao espera uma
    escrita assincrona terminar, entao um commit adiado alguns ms podia nunca
    chegar ao Supabase e um refresh logo em seguida lia dados desatualizados.
@@ -54,29 +54,29 @@ G.cloudWriteRetryTimer = null;
    salva, apagando-a silenciosamente. Agora, em caso de erro, `dirty` continua
    true (bloqueando o refresh) e a escrita e tentada de novo automaticamente. */
 export function triggerCloudWrite(){
-  if(G.cloudWriteInFlight){ G.cloudWritePending = true; return; }
-  clearTimeout(G.cloudWriteRetryTimer);
-  G.cloudWriteInFlight = G.writeStateToCloud()
+  if(cloudWriteInFlight){ cloudWritePending = true; return; }
+  clearTimeout(cloudWriteRetryTimer);
+  cloudWriteInFlight = G.writeStateToCloud()
     .then(() => {
-      G.cloudWriteInFlight = null;
+      cloudWriteInFlight = null;
       G.cloudWriteFailed = false;
       G.dirty = false;
       updateFileStatus();
-      if(G.cloudWritePending){ G.cloudWritePending = false; triggerCloudWrite(); }
+      if(cloudWritePending){ cloudWritePending = false; triggerCloudWrite(); }
     })
     .catch(e => {
       console.error('Auto-save na nuvem falhou', e);
-      G.cloudWriteInFlight = null;
+      cloudWriteInFlight = null;
       G.cloudWriteFailed = true;
       updateFileStatus();
-      G.cloudWriteRetryTimer = setTimeout(triggerCloudWrite, 8000);
+      cloudWriteRetryTimer = setTimeout(triggerCloudWrite, 8000);
     });
 }
 
 export function scheduleAutoSave(){
   if(G.fileHandle){
-    clearTimeout(G.autoSaveTimer);
-    G.autoSaveTimer = setTimeout(async () => {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(async () => {
       try{ await writeStateToFile(); G.dirty = false; updateFileStatus(); }
       catch(e){ console.error('Auto-save falhou', e); }
     }, AUTOSAVE_DEBOUNCE_MS);
@@ -88,12 +88,12 @@ export function scheduleAutoSave(){
 export async function flushAutoSave(){
   if(!G.dirty) return;
   if(G.fileHandle){
-    clearTimeout(G.autoSaveTimer);
+    clearTimeout(autoSaveTimer);
     try{ await writeStateToFile(); G.dirty = false; updateFileStatus(); }
     catch(e){ console.error('Auto-save falhou', e); }
   } else if(G.cloudSession){
     triggerCloudWrite();
-    if(G.cloudWriteInFlight){ try{ await G.cloudWriteInFlight; }catch(e){} }
+    if(cloudWriteInFlight){ try{ await cloudWriteInFlight; }catch(e){} }
   }
 }
 
@@ -151,13 +151,13 @@ export function isEditingSomething(){
    na primeira janela. Ao voltar o foco pra uma aba/janela, se nao ha nada sendo digitado
    nem uma escrita pendente, busca o estado mais recente da nuvem antes que o usuario
    comece a editar ali - assim a escrita seguinte parte sempre do dado mais atual. */
-G.cloudRefreshInFlight = false;
+let cloudRefreshInFlight = false;
 export async function refreshFromCloudIfSafe(){
   if(!sbClient || !G.cloudSession) return;
-  if(G.dirty || G.cloudWriteInFlight || G.cloudWritePending) return;
+  if(G.dirty || cloudWriteInFlight || cloudWritePending) return;
   if(isEditingSomething()) return;
-  if(G.cloudRefreshInFlight) return;
-  G.cloudRefreshInFlight = true;
+  if(cloudRefreshInFlight) return;
+  cloudRefreshInFlight = true;
   try{
     const data = await G.fetchCloudStateRow();
     /* A busca é assíncrona — o usuário pode ter começado a editar algo
@@ -172,7 +172,7 @@ export async function refreshFromCloudIfSafe(){
       render();
     }
   }catch(e){ console.error('Erro ao atualizar dados da nuvem', e); }
-  finally{ G.cloudRefreshInFlight = false; }
+  finally{ cloudRefreshInFlight = false; }
 }
 window.addEventListener('focus', refreshFromCloudIfSafe);
 // janela aberta mas sem foco (ex.: lado a lado com outra): confere a nuvem de tempos em tempos

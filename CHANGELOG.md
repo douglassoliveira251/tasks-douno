@@ -1,3 +1,13 @@
+## [1.18.2] - 2026-11-04 09:00
+
+### Changed
+
+#### Código
+
+- 23 propriedades do objeto global `G` que só um módulo usava viraram variáveis locais desse módulo (autosave e escrita na nuvem em `08-persistencia`, busca em `46-busca-e-notificacoes`, etc.). `G` caiu de 83 para 60 propriedades.
+- `supabase/.temp/` passa a ser ignorado pelo git; teste de ordem das subtarefas unificado; teste de fixar não depende mais do dia da semana.
+
+
 ## [1.18.1] - 2026-11-03 22:30
 
 ### Changed

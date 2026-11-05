@@ -10,7 +10,7 @@ import { buildNoteComposer } from './24-render-notes.js';
 import { icon } from './icones.js';
 
 export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
-G.lastRenderedNoteSpaceKey = null;
+let lastRenderedNoteSpaceKey = null;
 
 export function closeNotebookMenu(){
   const m = document.getElementById('notebookMenuPopover');
@@ -34,12 +34,12 @@ export function renderNotes(){
     .sort((a,b) => (a.notebookOrder!=null?a.notebookOrder:(a.createdAt||0)) - (b.notebookOrder!=null?b.notebookOrder:(b.createdAt||0)));
 
   // se o espaço mudou desde o último render, soltar a nota ativa para restaurar a do novo espaço
-  if(G.lastRenderedNoteSpaceKey !== null && G.lastRenderedNoteSpaceKey !== noteSpaceKey()){
+  if(lastRenderedNoteSpaceKey !== null && lastRenderedNoteSpaceKey !== noteSpaceKey()){
     if(G.currentNoteComposerCommit) G.currentNoteComposerCommit();
     G.activeNoteId = null;
     G.creatingNewNote = false;
   }
-  G.lastRenderedNoteSpaceKey = noteSpaceKey();
+  lastRenderedNoteSpaceKey = noteSpaceKey();
 
   // restaurar última nota aberta deste espaço, se ainda não houver nota/edição ativa
   if(!G.activeNoteId && !G.creatingNewNote){

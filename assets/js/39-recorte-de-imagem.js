@@ -57,12 +57,12 @@ document.getElementById('cropZoom').addEventListener('input', e => {
 });
 
 document.getElementById('cancelCropBtn').onclick = () => document.getElementById('cropOverlay').classList.remove('show');
-G.cropOverlayMouseDownOnBackdrop = false;
+let cropOverlayMouseDownOnBackdrop = false;
 document.getElementById('cropOverlay').addEventListener('mousedown', e => {
-  G.cropOverlayMouseDownOnBackdrop = (e.target.id === 'cropOverlay');
+  cropOverlayMouseDownOnBackdrop = (e.target.id === 'cropOverlay');
 });
 document.getElementById('cropOverlay').addEventListener('click', e => {
-  if(e.target.id==='cropOverlay' && G.cropOverlayMouseDownOnBackdrop) e.target.classList.remove('show');
+  if(e.target.id==='cropOverlay' && cropOverlayMouseDownOnBackdrop) e.target.classList.remove('show');
 });
 
 document.getElementById('applyCropBtn').onclick = () => {

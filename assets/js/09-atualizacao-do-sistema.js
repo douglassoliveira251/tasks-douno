@@ -14,8 +14,8 @@ G.fetchPublishedVersion = fetchPublishedVersion; G.reloadForUpdate = reloadForUp
    antiga depois de um deploy. Aqui o app relê o próprio index.html de tempos em tempos (e ao voltar
    para a aba), compara o APP_VERSION publicado com o carregado e, se houver versão mais nova,
    mostra um aviso obrigatório: salva o que estiver pendente e recarrega. */
-G.updatePromptShown = false;
-G.lastUpdateCheck = 0;
+let updatePromptShown = false;
+let lastUpdateCheck = 0;
 export function versionIsNewer(remote, local){
   const a = String(remote).split('.').map(n => parseInt(n, 10) || 0), b = String(local).split('.').map(n => parseInt(n, 10) || 0);
   for(let i = 0; i < Math.max(a.length, b.length); i++){
@@ -38,9 +38,9 @@ async function fetchPublishedVersion(){
   return m ? m[1] : null;
 }
 export async function checkForAppUpdate(force){
-  if(G.updatePromptShown || location.protocol === 'file:') return;
-  if(!force && Date.now() - G.lastUpdateCheck < 60000) return;
-  G.lastUpdateCheck = Date.now();
+  if(updatePromptShown || location.protocol === 'file:') return;
+  if(!force && Date.now() - lastUpdateCheck < 60000) return;
+  lastUpdateCheck = Date.now();
   try{
     const remote = await G.fetchPublishedVersion();
     if(remote && versionIsNewer(remote, APP_VERSION)) showUpdatePrompt(remote);
@@ -52,8 +52,8 @@ function reloadForUpdate(){
   Promise.all(urls.map(u => fetch(u, { cache: 'reload' }).catch(() => {}))).then(() => location.reload());
 }
 export function showUpdatePrompt(remoteVersion){
-  if(G.updatePromptShown) return;
-  G.updatePromptShown = true;
+  if(updatePromptShown) return;
+  updatePromptShown = true;
   const ov = document.createElement('div');
   ov.className = 'overlay show update-overlay';
   ov.id = 'updateOverlay';

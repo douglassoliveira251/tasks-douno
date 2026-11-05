@@ -9,6 +9,7 @@ import { openEventComposer } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+let searchShowDone;
 
 export function updateSearchClearBtnVisibility(){
   const input = document.getElementById('searchInput');
@@ -21,9 +22,9 @@ export function clearSearchTerm(){
   if(input) input.value = '';
   updateSearchClearBtnVisibility();
 }
-G.searchTab = 'all';
-G.searchActiveIdx = 0;
-G.searchShowDone = false; // busca: concluídas ficam ocultas até o usuário pedir
+let searchTab = 'all';
+let searchActiveIdx = 0;
+searchShowDone = false; // busca: concluídas ficam ocultas até o usuário pedir
 export const SEARCH_LIMIT = 8;
 export function computeGlobalSearchResults(term){
   const t = fold(term.trim());
@@ -90,7 +91,7 @@ export function renderSearchResultsDropdown(){
   if(!term.trim()){ dd.style.display = 'none'; return; }
   const res = computeGlobalSearchResults(term);
   const nDone = res.counts.done;
-  const showDone = G.searchShowDone && nDone > 0;
+  const showDone = searchShowDone && nDone > 0;
   const counts = { tasks: res.counts.tasks + (showDone ? nDone : 0), notes: res.counts.notes, events: res.counts.events };
   const total = counts.tasks + counts.notes + counts.events;
   const toggle = nDone ? `<span class="sr-toggle" id="srToggleDone" role="button" tabindex="0">${SR_ICON_EYE}${showDone ? 'Ocultar concluídas' : 'Mostrar concluídas (' + nDone + ')'}</span>` : '';
@@ -101,25 +102,25 @@ export function renderSearchResultsDropdown(){
     return;
   }
   const TABS = [['all', 'Tudo', total], ['tasks', 'Tarefas', counts.tasks], ['notes', 'Notas', counts.notes], ['events', 'Agenda', counts.events]];
-  if(G.searchTab !== 'all' && !counts[G.searchTab]) G.searchTab = 'all';
+  if(searchTab !== 'all' && !counts[searchTab]) searchTab = 'all';
   const KIND = { tasks: { cls: 't', icon: 'tasks', svg: SR_ICON_TASK }, notes: { cls: 'n', icon: 'notes', svg: SR_ICON_NOTE }, events: { cls: 'e', icon: 'calendar', svg: SR_ICON_EVENT } };
   let items = [];
-  if(G.searchTab === 'all' || G.searchTab === 'tasks') items = items.concat(res.tasks.map(it => ({ kind: 'tasks', it })));
-  if(G.searchTab === 'all' || G.searchTab === 'notes') items = items.concat(res.notes.map(it => ({ kind: 'notes', it })));
-  if(G.searchTab === 'all' || G.searchTab === 'events') items = items.concat(res.events.map(it => ({ kind: 'events', it })));
-  const doneItems = showDone && (G.searchTab === 'all' || G.searchTab === 'tasks') ? res.doneTasks.map(it => ({ kind: 'tasks', it, done: true })) : [];
+  if(searchTab === 'all' || searchTab === 'tasks') items = items.concat(res.tasks.map(it => ({ kind: 'tasks', it })));
+  if(searchTab === 'all' || searchTab === 'notes') items = items.concat(res.notes.map(it => ({ kind: 'notes', it })));
+  if(searchTab === 'all' || searchTab === 'events') items = items.concat(res.events.map(it => ({ kind: 'events', it })));
+  const doneItems = showDone && (searchTab === 'all' || searchTab === 'tasks') ? res.doneTasks.map(it => ({ kind: 'tasks', it, done: true })) : [];
   items = items.concat(doneItems);
-  if(G.searchActiveIdx >= items.length) G.searchActiveIdx = 0;
+  if(searchActiveIdx >= items.length) searchActiveIdx = 0;
   let doneHeadShown = false;
   dd.innerHTML = `
-    <div class="sr-tabs">${TABS.map(tb => `<button type="button" class="sr-tab ${G.searchTab === tb[0] ? 'on' : ''}" data-tab="${tb[0]}">${tb[1]}<i>${tb[2]}</i></button>`).join('')}</div>
+    <div class="sr-tabs">${TABS.map(tb => `<button type="button" class="sr-tab ${searchTab === tb[0] ? 'on' : ''}" data-tab="${tb[0]}">${tb[1]}<i>${tb[2]}</i></button>`).join('')}</div>
     <div class="sr-list">
       ${items.length ? items.map((x, i) => {
         const k = KIND[x.kind];
         const snip = x.kind === 'notes' && !fold(x.it.title).includes(fold(term.trim())) ? searchSnippet(x.it, term) : '';
         let head = '';
         if(x.done && !doneHeadShown){ doneHeadShown = true; head = '<div class="sr-sec">Concluídas</div>'; }
-        return head + `<div class="sr-row ${x.done ? 'done' : ''} ${i === G.searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">
+        return head + `<div class="sr-row ${x.done ? 'done' : ''} ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">
           <span class="sr-ic ${k.cls}">${k.svg}</span>
           <span class="sr-main">
             <span class="sr-title">${highlightTerm(x.it.title || 'Sem título', term)}</span>
@@ -162,17 +163,17 @@ export function renderSearchResultsDropdown(){
   dd._openResult = openResult;
   const srToggle = dd.querySelector('#srToggleDone');
   if(srToggle){
-    const flip = (e) => { e.stopPropagation(); G.searchShowDone = !G.searchShowDone; G.searchActiveIdx = 0; renderSearchResultsDropdown(); };
+    const flip = (e) => { e.stopPropagation(); searchShowDone = !searchShowDone; searchActiveIdx = 0; renderSearchResultsDropdown(); };
     srToggle.onclick = flip;
     srToggle.onkeydown = (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(e); } };
   }
   dd.querySelectorAll('.sr-tab').forEach(btn => {
-    btn.onclick = (e) => { e.stopPropagation(); G.searchTab = btn.dataset.tab; G.searchActiveIdx = 0; renderSearchResultsDropdown(); };
+    btn.onclick = (e) => { e.stopPropagation(); searchTab = btn.dataset.tab; searchActiveIdx = 0; renderSearchResultsDropdown(); };
   });
   dd.querySelectorAll('.sr-row').forEach(row => {
     row.onclick = () => openResult(row);
     row.onmouseenter = () => {
-      G.searchActiveIdx = +row.dataset.i;
+      searchActiveIdx = +row.dataset.i;
       dd.querySelectorAll('.sr-row').forEach(r => r.classList.toggle('on', r === row));
     };
   });
@@ -187,12 +188,12 @@ document.getElementById('searchInput').addEventListener('keydown', (e) => {
   if(!rows.length) return;
   if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
     e.preventDefault();
-    G.searchActiveIdx = (G.searchActiveIdx + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
-    rows.forEach((r, i) => r.classList.toggle('on', i === G.searchActiveIdx));
-    rows[G.searchActiveIdx].scrollIntoView({ block: 'nearest' });
+    searchActiveIdx = (searchActiveIdx + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+    rows.forEach((r, i) => r.classList.toggle('on', i === searchActiveIdx));
+    rows[searchActiveIdx].scrollIntoView({ block: 'nearest' });
   } else if(e.key === 'Enter'){
     e.preventDefault();
-    const row = rows[G.searchActiveIdx] || rows[0];
+    const row = rows[searchActiveIdx] || rows[0];
     if(row && dd._openResult) dd._openResult(row);
   }
 });

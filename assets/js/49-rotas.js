@@ -37,18 +37,18 @@ export function routeIsCanonical(){
   return location.hash === (route ? '#/' + route : '');
 }
 
-G.routeSynced = false;
+let routeSynced = false;
 export function syncRouteToView(){
   const route = VIEW_ROUTES[G.currentView];
   if(route === undefined) return;
   document.title = (G.currentView === 'dashboard' ? '' : (VIEW_TITLES[G.currentView] || '') + ' · ') + 'DOUNO Tasks';
-  if(routeFromLocation() === G.currentView && routeIsCanonical()){ G.routeSynced = true; return; }
+  if(routeFromLocation() === G.currentView && routeIsCanonical()){ routeSynced = true; return; }
   const url = ROUTE_MODE === 'path'
     ? APP_BASE + (route ? '/' + route : '') + location.search
     : location.pathname + location.search + (route ? '#/' + route : '');
   // a primeira acomodação (/ vira /app, /app/xyz vira /app) troca o endereço; as seguintes entram no histórico
-  try{ history[G.routeSynced ? 'pushState' : 'replaceState'](null, '', url); }catch(e){}
-  G.routeSynced = true;
+  try{ history[routeSynced ? 'pushState' : 'replaceState'](null, '', url); }catch(e){}
+  routeSynced = true;
 }
 
 export function onRouteChange(){

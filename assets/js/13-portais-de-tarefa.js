@@ -8,7 +8,7 @@ import { openTemplateEditor, templateFromTask } from './35-templates-de-tarefa.j
 import { icon } from './icones.js';
 
 /* ---- menu-portal dos 3 pontinhos (fixo, nunca cortado pelos grupos) ---- */
-G.openMenuWrapEl = null;
+let openMenuWrapEl = null;
 
 export function ensureTaskMenuPortal(){
   let portal = document.getElementById('taskMenuPortal');
@@ -22,7 +22,7 @@ export function ensureTaskMenuPortal(){
 }
 
 export function closeAllTaskMenus(){
-  if(G.openMenuWrapEl){ G.openMenuWrapEl.classList.remove('open'); G.openMenuWrapEl = null; }
+  if(openMenuWrapEl){ openMenuWrapEl.classList.remove('open'); openMenuWrapEl = null; }
   const portal = document.getElementById('taskMenuPortal');
   if(portal){ portal.classList.remove('show'); portal.style.minWidth = ''; }
 }
@@ -42,7 +42,7 @@ export function openTaskRowMenu(task, btnEl, wrapEl){
   portal.style.left = 'auto';
   portal.classList.add('show');
   wrapEl.classList.add('open');
-  G.openMenuWrapEl = wrapEl;
+  openMenuWrapEl = wrapEl;
 
   portal.querySelector('[data-action="edit"]').onclick = (e) => {
     e.stopPropagation();

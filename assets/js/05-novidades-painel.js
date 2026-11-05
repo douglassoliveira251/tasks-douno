@@ -27,7 +27,7 @@ export const WHATS_NEW_CLOSE_BTN = `
       ${icon('x', 'regular', ' style="width:16px; height:16px;"')}
     </button>`;
 // novidades acumuladas desde a última visita (sem a mais recente, que fica em destaque)
-G.whatsNewPending = [];
+let whatsNewPending = [];
 export function computePendingWhatsNew(){
   const seen = getSeenVersion();
   if(!seen) return [];
@@ -35,7 +35,7 @@ export function computePendingWhatsNew(){
 }
 export function openWhatsNew(keepPending){
   const n = WHATS_NEW[0];
-  if(keepPending !== true) G.whatsNewPending = computePendingWhatsNew();
+  if(keepPending !== true) whatsNewPending = computePendingWhatsNew();
   const body = document.getElementById('whatsNewModalBody');
   body.classList.remove('is-history');
   body.innerHTML = WHATS_NEW_CLOSE_BTN + `
@@ -45,11 +45,11 @@ export function openWhatsNew(keepPending){
     <div class="whatsnew-eyebrow">Novidade</div>
     <h3 class="whatsnew-title">${escapeHtml(n.title)}</h3>
     <p class="whatsnew-text">${escapeHtml(n.text)}</p>
-    ${G.whatsNewPending.length ? `
+    ${whatsNewPending.length ? `
       <div class="whatsnew-prev">
         <div class="whatsnew-prev-label">Também desde sua última visita</div>
         <ul class="whatsnew-prev-list">
-          ${G.whatsNewPending.map(w => `<li>
+          ${whatsNewPending.map(w => `<li>
             <div class="whatsnew-prev-item-meta">v${w.version} · ${w.date}</div>
             <div class="whatsnew-prev-item-title">${escapeHtml(w.title)}</div>
             <p class="whatsnew-prev-item-text">${escapeHtml(w.text)}</p>
@@ -98,12 +98,12 @@ export function openWhatsNewHistory(){
 export function closeWhatsNew(){
   document.getElementById('whatsNewOverlay').classList.remove('show');
 }
-G.whatsNewOverlayMouseDownOnBackdrop = false;
+let whatsNewOverlayMouseDownOnBackdrop = false;
 document.getElementById('whatsNewOverlay').addEventListener('mousedown', e => {
-  G.whatsNewOverlayMouseDownOnBackdrop = (e.target.id === 'whatsNewOverlay');
+  whatsNewOverlayMouseDownOnBackdrop = (e.target.id === 'whatsNewOverlay');
 });
 document.getElementById('whatsNewOverlay').addEventListener('click', e => {
-  if(e.target.id === 'whatsNewOverlay' && G.whatsNewOverlayMouseDownOnBackdrop) closeWhatsNew();
+  if(e.target.id === 'whatsNewOverlay' && whatsNewOverlayMouseDownOnBackdrop) closeWhatsNew();
 });
 document.getElementById('avatarMenuWhatsNewBtn').onclick = () => {
   document.getElementById('avatarDropdownMenu').style.display = 'none';
@@ -111,13 +111,13 @@ document.getElementById('avatarMenuWhatsNewBtn').onclick = () => {
 };
 /* Abre sozinho uma vez por versão, só quando o app já está utilizável (fora
    das telas de login e de vínculo de arquivo). */
-G.whatsNewChecked = false;
+let whatsNewChecked = false;
 G.appUnlocked = false; // vira true quando sai a tela de login (ou de vínculo de arquivo)
 export function maybeShowWhatsNew(){
-  if(G.whatsNewChecked || !G.appUnlocked) return;
+  if(whatsNewChecked || !G.appUnlocked) return;
   if(document.getElementById('loginOverlay').classList.contains('show')) return;
   if(document.getElementById('linkOverlay').classList.contains('show')) return;
-  G.whatsNewChecked = true;
+  whatsNewChecked = true;
   if(hasUnseenWhatsNew()) openWhatsNew();
 }
 

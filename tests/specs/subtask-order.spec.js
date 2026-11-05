@@ -50,4 +50,12 @@ test.describe('Ordem das subtarefas', () => {
     await page.locator('.tp-subtask-row', { hasText: 'A' }).locator('.task-check').click();
     expect(await page.locator('.tp-subtask-title').allTextContents()).toEqual(['A', 'B', 'C']);
   });
+  test('subtarefa nova entra antes das concluídas', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(seed, [{ id: 's1', title: 'Pendente 1', done: false }, { id: 's2', title: 'Feita', done: true }]);
+    await page.locator('#tpNewSubtask').fill('Nova');
+    await page.locator('#tpNewSubtask').press('Enter');
+    await expect.poll(() => page.evaluate(() => state.tasks[0].subtasks.map(x => x.title))).toEqual(['Pendente 1', 'Nova', 'Feita']);
+  });
 });

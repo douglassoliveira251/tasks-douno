@@ -33,8 +33,8 @@ async function fetchCloudStateRow(){
    2. grava só se a versão da nuvem ainda é a que foi mesclada; se alguém
       gravou no meio, repete. */
 export const SYNC_COLLECTIONS = ['categories', 'tags', 'tasks', 'notes', 'events', 'notebooks', 'taskTemplates', 'projects', 'completedLog'];
-G.cloudBaseUpdatedAt = null;
-G.cloudBaseSnapshot = null;
+let cloudBaseUpdatedAt = null;
+let cloudBaseSnapshot = null;
 
 export function syncHash(value){
   const str = JSON.stringify(value === undefined ? null : value);
@@ -115,8 +115,8 @@ export function normalizeRemoteData(data){
   return data;
 }
 export function adoptCloudRow(row){
-  G.cloudBaseUpdatedAt = row ? row.updated_at : null;
-  G.cloudBaseSnapshot = makeSyncSnapshot(G.state);
+  cloudBaseUpdatedAt = row ? row.updated_at : null;
+  cloudBaseSnapshot = makeSyncSnapshot(G.state);
 }
 
 export async function loadStateFromCloud(){
@@ -139,16 +139,16 @@ async function writeStateToCloud(){
   for(let attempt = 0; attempt < 4; attempt++){
     const row = await G.fetchCloudStateRow();
     if(row && row.data && typeof row.data === 'object'){
-      const changedRemotely = !G.cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(G.cloudBaseUpdatedAt);
+      const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
       if(changedRemotely){
         const remote = normalizeRemoteData(row.data);
-        const base = G.cloudBaseSnapshot || makeSyncSnapshot(remote);
+        const base = cloudBaseSnapshot || makeSyncSnapshot(remote);
         G.state = mergeStates(base, G.state, remote);
         normalizeState();
         mergedFromRemote = true;
         // a partir daqui a base passa a ser a versão da nuvem que acabou de ser mesclada
-        G.cloudBaseSnapshot = makeSyncSnapshot(remote);
-        G.cloudBaseUpdatedAt = row.updated_at;
+        cloudBaseSnapshot = makeSyncSnapshot(remote);
+        cloudBaseUpdatedAt = row.updated_at;
       }
     }
     const stamp = new Date().toISOString();

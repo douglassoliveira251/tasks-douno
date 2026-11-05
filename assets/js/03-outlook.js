@@ -187,11 +187,11 @@ export function closeAboutModal(){
   document.getElementById('aboutOverlay').classList.remove('show');
 }
 document.getElementById('aboutBtn').onclick = openAboutModal;
-G.aboutOverlayMouseDownOnBackdrop = false;
+let aboutOverlayMouseDownOnBackdrop = false;
 document.getElementById('aboutOverlay').addEventListener('mousedown', e => {
-  G.aboutOverlayMouseDownOnBackdrop = (e.target.id === 'aboutOverlay');
+  aboutOverlayMouseDownOnBackdrop = (e.target.id === 'aboutOverlay');
 });
 document.getElementById('aboutOverlay').addEventListener('click', e => {
-  if(e.target.id === 'aboutOverlay' && G.aboutOverlayMouseDownOnBackdrop) closeAboutModal();
+  if(e.target.id === 'aboutOverlay' && aboutOverlayMouseDownOnBackdrop) closeAboutModal();
 });
 

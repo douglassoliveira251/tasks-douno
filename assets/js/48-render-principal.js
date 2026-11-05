@@ -32,7 +32,7 @@ export function loadUiSession(){
     if(saved && (typeof saved.activeCategoryFilter === 'string' || saved.activeCategoryFilter === null)) G.activeCategoryFilter = saved.activeCategoryFilter;
   }catch(e){}
 }
-G.lastRenderedView = null;
+let lastRenderedView = null;
 export function render_syncStages(){ try{ syncStageDates(); }catch(e){} }
 G.lastGroupModeKey = null; // var: pode ser zerada por normalizeState antes desta linha rodar
 export const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem escolha própria abre por Retomada
@@ -48,8 +48,8 @@ export function render(){
     const saved = G.state.categoryGroupModes && G.state.categoryGroupModes[G.lastGroupModeKey];
     G.taskGroupMode = GROUP_MODES.includes(saved) ? saved : DEFAULT_GROUP_MODE;
   }
-  if(G.currentView !== G.lastRenderedView){
-    G.lastRenderedView = G.currentView;
+  if(G.currentView !== lastRenderedView){
+    lastRenderedView = G.currentView;
     refreshFromCloudIfSafe();
   }
   if(G.currentView !== 'notes') G.notesDrawerOpen = false;

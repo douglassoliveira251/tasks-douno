@@ -13,11 +13,13 @@ test.describe('Fixar tarefas', () => {
   test('fixar na lista leva a tarefa ao grupo "Fixadas", no topo; soltar devolve ao grupo de origem', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(seed);
-    expect((await groupTitles(page))[0]).toBe('Vencida');
+    const antes = await groupTitles(page);
+    expect(antes[0]).toBe('Vencida');
     const rowA = page.locator('.task-row[data-id="a"]');
     await rowA.hover();
     await rowA.locator('.task-pin-btn').click();
-    expect(await groupTitles(page)).toEqual(['Fixadas', 'Vence hoje', 'Nessa semana']);
+    // o nome do 3º grupo depende do dia da semana; o que importa é que A saiu de "Vencida" para "Fixadas"
+    expect(await groupTitles(page)).toEqual(['Fixadas', antes[1], antes[2]]);
     await expect(page.locator('.bucket.pinned-bucket .task-row[data-id="a"]')).toHaveCount(1);
     expect(await page.evaluate(() => state.tasks.find(t => t.id === 'a').pinned)).toBe(true);
     // segue em cima em outro agrupamento

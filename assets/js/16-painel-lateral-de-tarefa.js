@@ -129,18 +129,18 @@ export function closeTaskPanel(force){
   render();
 }
 
-G.taskPanelMouseDownOutside = false;
+let taskPanelMouseDownOutside = false;
 document.addEventListener('mousedown', (e) => {
   if(G.currentView !== 'tasks' && G.currentView !== 'projects') return;
   if(!(G.activeTaskId || G.creatingNewTask)) return;
   const panel = document.querySelector('.task-panel');
-  G.taskPanelMouseDownOutside = !panel || !panel.contains(e.target);
+  taskPanelMouseDownOutside = !panel || !panel.contains(e.target);
 }, true);
 
 document.addEventListener('click', (e) => {
   if(G.currentView !== 'tasks' && G.currentView !== 'projects') return;
   if(!(G.activeTaskId || G.creatingNewTask)) return;
-  if(!G.taskPanelMouseDownOutside) return;
+  if(!taskPanelMouseDownOutside) return;
   const panel = document.querySelector('.task-panel');
   if(!panel || panel.contains(e.target)) return;
   if(e.target.closest && (

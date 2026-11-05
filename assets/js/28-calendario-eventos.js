@@ -499,11 +499,11 @@ export function closeEventComposer(){
   document.getElementById('eventComposerOverlay').classList.remove('show');
 }
 
-G.eventOverlayMouseDownOnBackdrop = false;
+let eventOverlayMouseDownOnBackdrop = false;
 document.getElementById('eventComposerOverlay').addEventListener('mousedown', e => {
-  G.eventOverlayMouseDownOnBackdrop = (e.target.id === 'eventComposerOverlay');
+  eventOverlayMouseDownOnBackdrop = (e.target.id === 'eventComposerOverlay');
 });
 document.getElementById('eventComposerOverlay').addEventListener('click', e => {
-  if(e.target.id === 'eventComposerOverlay' && G.eventOverlayMouseDownOnBackdrop) closeEventComposer();
+  if(e.target.id === 'eventComposerOverlay' && eventOverlayMouseDownOnBackdrop) closeEventComposer();
 });
 
