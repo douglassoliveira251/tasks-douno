@@ -7,7 +7,10 @@ export function catById(id){ return G.state.categories.find(c => c.id === id); }
 /* Texto para comparar em buscas: minúsculo e sem acento (á→a, ç→c), mantendo o mesmo tamanho do original
    (os índices de um texto "dobrado" valem no texto de origem, para destacar o trecho achado). */
 export function fold(s){ return String(s == null ? '' : s).replace(/[À-ɏ]/g, c => c.normalize('NFD').charAt(0)).toLowerCase(); }
-export function togglePinned(t){ t.pinned = !t.pinned; }
+export function togglePinned(t){
+  t.pinned = !t.pinned;
+  if(t.pinned && G.state.onboarding) G.state.onboarding.pinned = true; // marca o passo "fixar" do cartão Comece por aqui
+}
 export function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 export function fmtDate(d){
   if(!d) return '';

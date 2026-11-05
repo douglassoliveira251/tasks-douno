@@ -1,3 +1,13 @@
+## [1.19.0] - 2026-11-04 12:00
+
+### Added
+
+#### Primeiro uso
+
+- **Assistente de boas-vindas** (`51-primeiro-uso.js`) para conta sem nenhum dado: passo 1 escolhe o uso (Trabalho, Estudos, Casa e vida pessoal) e cria/renomeia os espaços; passo 2 oferece modelos prontos (opcional); passo 3 cria a primeira tarefa. Pode ser pulado (Esc ou "Pular por agora"). Não abre para quem já tem dados e substitui as Novidades na primeira visita.
+- **Cartão "Comece por aqui"** no Resumo, com checklist que se marca sozinho (primeira tarefa, espaços, fixar uma tarefa, Outlook) e botão "Dispensar". Estado em `state.onboarding`.
+
+
 ## [1.18.2] - 2026-11-04 09:00
 
 ### Changed

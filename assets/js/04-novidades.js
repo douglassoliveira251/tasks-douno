@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'1.19.0', date:'04/11/2026', title:'Boas-vindas para quem está começando', text:'Contas novas agora são recebidas por um assistente de 3 passos: você escolhe como vai usar (cria os espaços), pode adicionar modelos prontos e já registra a primeira tarefa. Depois, o Resumo mostra o cartão "Comece por aqui" com um checklist que se marca sozinho.' },
   { version:'1.18.2', date:'04/11/2026', title:'Arrumação por dentro', text:'Parte do estado interno do sistema deixou de ser compartilhado entre todos os módulos e passou a ficar dentro de cada um, o que deixa as próximas melhorias mais seguras. Nada muda no que você vê.' },
   { version:'1.18.1', date:'03/11/2026', title:'Alfinete um pouco maior', text:'O alfinete de fixar na lista de tarefas ficou um pouco maior.' },
   { version:'1.18.0', date:'03/11/2026', title:'Criar tarefa de um template ficou mais claro', text:'O botão "Template" saiu do meio dos filtros e virou "Criar de template", em destaque, à direita da barra. O menu mostra o que cada template traz (subtarefas, agendas e recorrência) para você escolher sem precisar abrir.' },

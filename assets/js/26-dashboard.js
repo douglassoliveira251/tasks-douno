@@ -9,6 +9,7 @@ import { defaultProjectTab, projectById, projectColor, projectIconSvg, projectSt
 import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { bindOnboardingCard, onboardingCardHtml } from './51-primeiro-uso.js';
 
 /* ===================== DASHBOARD ===================== */
 export function svgSparkline(values, width, height, color){
@@ -226,6 +227,7 @@ export function renderDashboard(){
 
   view.innerHTML = `
     <div class="dash-wrap">
+      ${onboardingCardHtml()}
       <div class="rs-top">
         <div class="rs-card rs-hero">
           <div class="rs-chips"><span class="rs-label">Hoje</span>
@@ -346,6 +348,7 @@ export function renderDashboard(){
   view.querySelectorAll('.rs-space[data-space]').forEach(el => {
     el.onclick = () => { G.activeCategoryFilter = el.dataset.space; G.currentView = 'tasks'; render(); };
   });
+  bindOnboardingCard(view);
   const rsAdd = document.getElementById('rsAddSpace');
   if(rsAdd) rsAdd.onclick = () => { G.settingsTab = 'categorias'; G.currentView = 'settings'; render(); };
   view.querySelectorAll('.rs-proj[data-project]').forEach(el => {

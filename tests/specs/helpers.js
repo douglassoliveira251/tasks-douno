@@ -5,17 +5,18 @@
  *
  * `seenVersion` marca as novidades como já vistas, pra o painel não abrir por
  * cima dos testes; passe null pra testar a primeira abertura. */
-export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0' } = {}) {
+export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0', onboarding = false } = {}) {
   // roda a cada navegação, então só aplica na primeira (um reload no meio do
   // teste não pode desfazer o "já visto" gravado pelo próprio app)
-  await page.addInitScript((v) => {
+  await page.addInitScript(([v, onb]) => {
     try {
       if (sessionStorage.getItem('__seeded')) return;
       sessionStorage.setItem('__seeded', '1');
+      if (onb) localStorage.removeItem('dounoOnboardingSeen'); else localStorage.setItem('dounoOnboardingSeen', '1');
       if (v === null) localStorage.removeItem('dounoSeenVersion');
       else localStorage.setItem('dounoSeenVersion', v);
     } catch (e) {}
-  }, seenVersion);
+  }, [seenVersion, onboarding]);
   await page.goto('/index.html');
   await page.waitForFunction(() => typeof render === 'function');
   await page.evaluate((view) => {

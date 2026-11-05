@@ -1,5 +1,6 @@
 import { G } from './globais.js';
 import { maybeShowWhatsNew, updateWhatsNewDot } from './05-novidades-painel.js';
+import { maybeShowOnboarding } from './51-primeiro-uso.js';
 import { renderHelpPanelContent, renderPageHeaderMeta } from './06-cabecalho-e-ajuda.js';
 import { refreshFromCloudIfSafe } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
@@ -92,6 +93,7 @@ export function render(){
   renderProfileCard();
   updateNotifBadge();
   updateWhatsNewDot();
+  maybeShowOnboarding();
   maybeShowWhatsNew();
   if(document.getElementById('helpPanel').classList.contains('show')) renderHelpPanelContent();
   renderSidebarCats();

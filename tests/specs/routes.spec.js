@@ -10,7 +10,7 @@ const pathOf = (page) => new URL(page.url()).pathname;
 
 test.describe('Rotas: um endereço por tela', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => { try { localStorage.setItem('dounoSeenVersion', '999.0.0'); } catch (e) {} });
+    await page.addInitScript(() => { try { localStorage.setItem('dounoSeenVersion', '999.0.0'); localStorage.setItem('dounoOnboardingSeen', '1'); } catch (e) {} });
   });
 
   test('cada endereço abre a sua tela', async ({ page }) => {

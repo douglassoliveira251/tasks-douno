@@ -2514,6 +2514,55 @@
   .update-modal .btn{width:100%; justify-content:center;}
   .update-icon{width:48px; height:48px; border-radius:14px; background:var(--primary-light); color:var(--primary); display:grid; place-items:center; margin:0 auto 14px;}
   .update-icon svg{width:24px; height:24px;}
+  /* Primeiro uso: assistente de boas-vindas e cartão "Comece por aqui" */
+  .onb-modal{width:560px; padding:26px 28px 22px; border-radius:20px; box-shadow:var(--shadow-md);}
+  .onb-dots{display:flex; gap:6px; justify-content:center; margin-bottom:16px;}
+  .onb-dots i{width:22px; height:5px; border-radius:3px; background:var(--border);}
+  .onb-dots i.on{background:var(--primary);}
+  .onb-eyebrow{text-align:center; font-size:11px; letter-spacing:.6px; font-weight:700; text-transform:uppercase; color:var(--primary);}
+  .onb-title{text-align:center; font-family:var(--font-display); font-size:21px; margin:5px 0 3px;}
+  .onb-sub{text-align:center; color:var(--ink-soft); font-size:12.5px; margin:0 0 8px;}
+  .onb-opt{
+    display:flex; align-items:center; gap:12px; width:100%; margin-top:9px; padding:12px 14px; text-align:left;
+    border:1.5px solid var(--border); border-radius:12px; background:var(--surface); cursor:pointer; color:var(--ink);
+  }
+  .onb-opt:hover{background:var(--surface-2);}
+  .onb-opt.sel{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 9%, var(--surface));}
+  .onb-ico{width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    background:color-mix(in srgb, var(--primary) 12%, var(--surface)); color:var(--primary);}
+  .onb-ico svg{width:18px; height:18px;}
+  .onb-txt{display:flex; flex-direction:column; min-width:0;}
+  .onb-txt b{font-size:13.5px; font-weight:600;}
+  .onb-txt small{font-size:11.5px; color:var(--ink-faint); margin-top:1px;}
+  .onb-tick{margin-left:auto; color:var(--primary); opacity:0; display:flex;}
+  .onb-opt.sel .onb-tick{opacity:1;}
+  .onb-tick svg{width:16px; height:16px;}
+  .onb-input{width:100%; margin-top:10px; padding:11px 12px; font:inherit; font-size:14px; border:1.5px solid var(--border); border-radius:10px; background:var(--surface); color:var(--ink);}
+  .onb-input:focus{outline:none; border-color:var(--primary);}
+  .onb-check{display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:var(--ink-soft);}
+  .onb-foot{display:flex; justify-content:space-between; align-items:center; margin-top:20px;}
+  .onb-skip{border:none; background:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer;}
+  .onb-skip:hover{color:var(--ink);}
+  .onb-foot .btn svg{width:14px; height:14px;}
+  .onb-card{margin-bottom:14px;}
+  .onb-card-head{display:flex; justify-content:space-between; align-items:flex-start;}
+  .onb-card-head b{display:block; font-size:15px;}
+  .onb-card-head small{color:var(--ink-faint); font-size:12px;}
+  .onb-dismiss{border:none; background:none; color:var(--ink-faint); font-size:12px; cursor:pointer;}
+  .onb-dismiss:hover{color:var(--ink);}
+  .onb-prog{height:6px; border-radius:3px; background:var(--surface-2); margin:10px 0 6px; overflow:hidden;}
+  .onb-prog i{display:block; height:100%; background:var(--primary); border-radius:3px;}
+  .onb-step{display:flex; align-items:center; gap:11px; padding:10px 0; border-top:1px solid var(--border); font-size:13px;}
+  .onb-chk{width:20px; height:20px; border-radius:50%; border:1.5px solid var(--ink-faint); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#fff;}
+  .onb-chk svg{width:12px; height:12px;}
+  .onb-step.ok .onb-chk{background:var(--ok, #1FB36B); border-color:var(--ok, #1FB36B);}
+  .onb-step.ok .onb-step-txt b{text-decoration:line-through; color:var(--ink-faint); font-weight:500;}
+  .onb-step-txt{display:flex; flex-direction:column; min-width:0;}
+  .onb-step-txt b{font-weight:600;}
+  .onb-step-txt small{font-size:11.5px; color:var(--ink-faint);}
+  .onb-go{margin-left:auto; display:flex; align-items:center; gap:6px; padding:6px 11px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;
+    color:var(--primary-dark); background:color-mix(in srgb, var(--primary) 10%, var(--surface)); border:1px solid color-mix(in srgb, var(--primary) 30%, var(--border));}
+  .onb-go svg{width:12px; height:12px;}
   .whatsnew-dot{width:7px; height:7px; border-radius:50%; background:var(--primary); margin-left:auto; flex-shrink:0;}
   .whatsnew-modal{
     position:relative; width:400px; padding:30px 28px 24px; border-radius:20px; text-align:left;
