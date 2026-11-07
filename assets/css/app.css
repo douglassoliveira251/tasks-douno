@@ -3147,3 +3147,28 @@
   .save-error-badge.offline{background:var(--surface-2); color:var(--ink-soft); border-color:var(--border);}
   .save-error-badge.offline .ic-warn{display:none;}
   .save-error-badge.offline .ic-off{display:block; width:15px; height:15px; flex-shrink:0;}
+
+  /* Aviso para instalar o aplicativo (canto da tela) */
+  .install-card{
+    position:fixed; right:22px; bottom:22px; width:360px; max-width:calc(100vw - 24px); z-index:60;
+    background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 16px 14px;
+    box-shadow:0 14px 40px rgba(15,23,42,.22); animation:installIn .25s ease;
+  }
+  @keyframes installIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+  .install-row{display:flex; gap:12px; align-items:center; padding-right:18px;}
+  .install-logo{width:44px; height:44px; flex:none; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(21,27,40,.25);}
+  .install-logo svg{width:44px; height:44px; display:block;}
+  .install-tx b{display:block; font-size:14.5px;}
+  .install-tx small{display:block; margin-top:2px; font-size:12.5px; line-height:1.45; color:var(--ink-soft);}
+  .install-tx small svg{width:13px; height:13px; vertical-align:-2px;}
+  .install-actions{display:flex; justify-content:flex-end; gap:6px; margin-top:12px;}
+  .install-actions .btn.ghost{border-color:transparent;}
+  .install-x{
+    position:absolute; top:8px; right:8px; width:24px; height:24px; border:none; background:transparent; border-radius:50%;
+    color:var(--ink-faint); display:grid; place-items:center;
+  }
+  .install-x:hover{background:var(--surface-2); color:var(--ink);}
+  .install-x svg{width:13px; height:13px;}
+  @media (max-width:768px){
+    .install-card{left:12px; right:12px; width:auto; bottom:calc(58px + env(safe-area-inset-bottom, 0px) + 12px);}
+  }

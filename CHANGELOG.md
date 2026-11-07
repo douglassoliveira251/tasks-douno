@@ -1,3 +1,12 @@
+## [3.3.0] - 2026-11-07 21:00
+
+### Added
+
+#### Aplicativo instalável
+
+- Aviso no canto da tela (primeira abertura no navegador) sugerindo instalar o app: botão "Instalar" abre a instalação do navegador; "Agora não" ou fechar o esconde por 30 dias. Não aparece depois de instalado (evento `appinstalled`) nem quando o app já está aberto como aplicativo, e espera a tela estar livre (sem login, boas-vindas ou janelas abertas). No iPhone (Safari), que não tem o botão automático, mostra a dica "Compartilhar > Adicionar à Tela de Início". No celular o cartão fica acima da barra de baixo.
+
+
 ## [3.2.0] - 2026-11-07 20:00
 
 ### Added

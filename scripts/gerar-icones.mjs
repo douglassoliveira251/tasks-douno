@@ -77,6 +77,7 @@ const ICONES = {
   'x': ['regular'],
   'note': ['regular'],
   'trend-up': ['regular'],
+  'export': ['regular'],
   'note-pencil': ['regular'],
   'calendar-plus': ['regular'],
   'copy-simple': ['regular'],
