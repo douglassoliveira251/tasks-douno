@@ -1,3 +1,19 @@
+## [3.4.0] - 2026-11-07 22:00
+
+### Changed
+
+#### Layout
+
+- Fundo do modo claro liso, em cinza quase branco (sem o degradê azul). O modo escuro não mudou.
+- Marca no topo maior (DOUNO e Tasks), com o ícone D igual.
+- Seletor de espaço de volta na barra do topo (em todas as telas), com a etiqueta "Espaço" e a cor do espaço na frente, sem ícone e sem a borda arredondada. Enquanto a busca está aberta ele some para o campo caber. O topo se adapta a telas médias (rótulos das abas e da marca saem em janelas estreitas).
+- Campo de busca: sem o contorno escuro do navegador ao abrir; borda clara e suave.
+
+#### Visão geral
+
+- A tabela de tarefas (Hoje, Atrasadas, Próximas) junta prazo e retomada: tarefas com retomada hoje (ou antes) aparecem em Hoje, e com retomada nos próximos 7 dias em Próximas, com a etiqueta "Retomar" e, sem prazo, a data de retomada na coluna Prazo.
+
+
 ## [3.3.0] - 2026-11-07 21:00
 
 ### Added

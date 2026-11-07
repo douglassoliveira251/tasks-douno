@@ -103,5 +103,6 @@ test.describe('Cabeçalho das páginas no celular', () => {
     expect(topbar.height).toBeLessThan(110);
     const chip = await page.locator('#spaceSelectorBtn').boundingBox();
     expect(chip.x + chip.width).toBeLessThanOrEqual(390);
+    expect(chip.y).toBeLessThan(60); // o espaço fica na barra do topo
   });
 });

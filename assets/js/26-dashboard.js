@@ -173,10 +173,18 @@ export function renderDashboard(){
   /* ---- tabela de tarefas (Hoje | Atrasadas | Próximas) ---- */
   const aba = ['hoje', 'atrasadas', 'proximas'].includes(PAINEL_INICIO.aba) ? PAINEL_INICIO.aba : 'hoje';
   const doneToday = scopeTasks.filter(t => t.done && t.dueDate === todayS);
+  /* A tabela junta prazo e retomada: além das tarefas com prazo, entram as que é hora de retomar
+     (retomada hoje ou antes, em "Hoje"; retomada nos próximos 7 dias, em "Próximas"), sinalizadas com "Retomar". */
+  const taken = new Set();
+  const uniq = list => list.filter(t => { if(taken.has(t.id)) return false; taken.add(t.id); return true; });
+  const hojeList = uniq(dueToday.slice().sort((a, b) => (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')));
+  const retHoje = uniq(open.filter(t => t.followUpDate && t.followUpDate <= todayS && !(t.dueDate && t.dueDate < todayS)).sort((x, y) => x.followUpDate.localeCompare(y.followUpDate)));
+  const proxList = uniq(upcomingTasks.filter(t => t.dueDate > todayS));
+  const retProx = uniq(open.filter(t => t.followUpDate && t.followUpDate > todayS && t.followUpDate <= addDaysStr(todayS, 7)).sort((x, y) => x.followUpDate.localeCompare(y.followUpDate)));
   const tabLists = {
-    hoje: dueToday.slice().sort((a, b) => (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')).concat(doneToday),
+    hoje: hojeList.concat(retHoje, doneToday.filter(t => !taken.has(t.id))),
     atrasadas: overdue.slice().sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
-    proximas: upcomingTasks.filter(t => t.dueDate > todayS),
+    proximas: proxList.concat(retProx),
   };
   const tabEmpty = { hoje: 'Nenhuma tarefa para hoje.', atrasadas: 'Nada atrasado. Bom trabalho!', proximas: 'Nada com prazo nos próximos 7 dias.' };
   const listNow = tabLists[aba];
@@ -186,7 +194,10 @@ export function renderDashboard(){
   };
   const dueLabel = t => {
     if(t.done) return 'Concluída';
-    if(!t.dueDate) return '—';
+    if(!t.dueDate){
+      if(t.followUpDate) return '↻ ' + (t.followUpDate <= todayS ? 'Hoje' : t.followUpDate.slice(8) + '/' + t.followUpDate.slice(5, 7));
+      return '—';
+    }
     if(t.dueDate === todayS) return 'Hoje' + (t.dueTime ? ' ' + t.dueTime : '');
     const d = new Date(t.dueDate + 'T12:00:00');
     return WEEKDAY_LABELS[d.getDay()] + ' ' + t.dueDate.slice(8) + '/' + t.dueDate.slice(5, 7);
@@ -196,7 +207,7 @@ export function renderDashboard(){
     const pr = t.projectId ? projectById(t.projectId) : null;
     return `<div class="dv-tr${t.done ? ' done' : ''}${t.dueDate && t.dueDate < todayS && !t.done ? ' late' : ''}" data-task-id="${t.id}">
       <span class="dv-cb${t.done ? ' on' : ''}" data-check="${t.id}" role="checkbox" aria-checked="${t.done ? 'true' : 'false'}" aria-label="Concluir tarefa" tabindex="0">${t.done ? icon('check') : ''}</span>
-      <span class="dv-t1"><b>${escapeHtml(t.title || 'Sem título')}</b>${pr ? `<small>${escapeHtml(pr.name)}</small>` : ''}</span>
+      <span class="dv-t1"><span class="ln"><b>${escapeHtml(t.title || 'Sem título')}</b>${!t.done && t.followUpDate && t.followUpDate <= (aba === 'proximas' ? addDaysStr(todayS, 7) : todayS) ? `<i class="dv-ret" title="É hora de retomar esta tarefa (${fmtDate(t.followUpDate)})">↻ Retomar</i>` : ''}</span>${pr ? `<small>${escapeHtml(pr.name)}</small>` : ''}</span>
       <span class="dv-sp">${cat ? `<i style="background:${cat.color}"></i>${escapeHtml(cat.name)}` : ''}</span>
       <span>${prioChip(t.priority)}</span>
       <span class="dv-due">${dueLabel(t)}</span>

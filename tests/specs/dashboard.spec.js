@@ -153,3 +153,23 @@ test('agenda da visão geral: hoje + próximos dias, 4 no cartão e "Ver mais" l
   await page.locator('#dashAgendaMore').click();
   await expect(page.locator('#agendaMoreOverlay .dash-list-row')).toHaveCount(6);
 });
+
+test('tabela de tarefas junta prazo e retomada: quem é para retomar hoje aparece em Hoje, sinalizado', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, title, extra) => Object.assign({ id, title, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    state.tasks = [t('p', 'Com prazo hoje', { dueDate: today }), t('r', 'So retomar hoje', { followUpDate: today }), t('f', 'Retomar na semana', { followUpDate: addDaysStr(today, 3) }), t('o', 'Atrasada por prazo', { dueDate: addDaysStr(today, -1) })];
+    render();
+  });
+  const rows = page.locator('.dv-tr');
+  await expect(rows).toHaveCount(2); // Hoje: a com prazo + a para retomar
+  await expect(page.locator('.dv-tr[data-task-id="r"] .dv-ret')).toBeVisible();
+  await expect(page.locator('.dv-tr[data-task-id="p"] .dv-ret')).toHaveCount(0);
+  await expect(page.locator('.dv-tr[data-task-id="r"]')).toContainText('↻ Hoje');
+  await page.locator('[data-aba="proximas"]').click();
+  await expect(page.locator('.dv-tr[data-task-id="f"] .dv-ret')).toBeVisible();
+  await page.locator('[data-aba="atrasadas"]').click();
+  await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
+});

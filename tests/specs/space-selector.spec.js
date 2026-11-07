@@ -1,20 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { gotoApp } from './helpers.js';
 
-for (const view of ['tasks', 'notes', 'calendar']) {
-  test(`desktop (${view}): seletor de espaço fica na faixa de título, à direita`, async ({ page }) => {
+for (const view of ['dashboard', 'tasks', 'notes', 'projects', 'calendar']) {
+  test(`desktop (${view}): seletor de espaço fica na barra do menu, com a cor na frente`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoApp(page, { view });
     const chip = await page.locator('#spaceSelectorBtn').boundingBox();
-    const topbar = await page.locator('.topbar').boundingBox();
-    expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topbar'))).toBe(true);
+    const search = await page.locator('#searchWrap').boundingBox();
+    expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topnav'))).toBe(true);
+    expect(chip.y).toBeLessThan(60); // na mesma barra do menu
     expect(chip.height).toBeLessThanOrEqual(34);
-    expect(chip.width).toBeLessThan(220);
-    expect(chip.x).toBeGreaterThan(640); // à direita da faixa
-    await expect(page.locator('#spaceSelectorBtn .space-selector-tag')).toBeVisible();
-    await expect(page.locator('#spaceSelectorBtn .space-selector-tag')).toHaveText('Espaço:');
-    expect(chip.y).toBeGreaterThanOrEqual(topbar.y);
-    expect(chip.y + chip.height).toBeLessThanOrEqual(topbar.y + topbar.height);
+    expect(chip.width).toBeLessThan(260);
+    expect(chip.x + chip.width).toBeLessThanOrEqual(search.x + 4); // à esquerda da busca
+    await expect(page.locator('#spaceSelectorBtn .space-selector-tag')).toHaveText('Espaço');
+    await expect(page.locator('#spaceSelectorDot')).toBeVisible();
+    await expect(page.locator('#spaceSelectorBtn > svg:first-child')).toHaveCount(0); // sem ícone na frente
   });
 }
 
@@ -29,13 +29,14 @@ test('desktop: a lista de espaços abre dentro da tela, alinhada à direita do b
   expect(Math.abs((dd.x + dd.width) - (chip.x + chip.width))).toBeLessThan(2);
 });
 
-test('celular: o seletor fica dentro da faixa de título e cabe na tela', async ({ page }) => {
+test('celular: o seletor fica no topo e cabe na tela', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await gotoApp(page, { view: 'tasks' });
-  expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topbar'))).toBe(true);
+  expect(await page.locator('#spaceSelectorWrap').evaluate(el => !!el.closest('.topnav'))).toBe(true);
   const chip = await page.locator('#spaceSelectorBtn').boundingBox();
   expect(chip.x).toBeGreaterThanOrEqual(0);
   expect(chip.x + chip.width).toBeLessThanOrEqual(390);
+  expect(chip.y).toBeLessThan(60);
 });
 
 test('Visão geral mostra o seletor; Configurações não', async ({ page }) => {

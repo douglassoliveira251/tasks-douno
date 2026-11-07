@@ -66,7 +66,6 @@ export function renderSpaceSelector(){
   const shown = currentSpaceFilter();
   const cat = shown ? catById(shown) : null;
   document.getElementById('spaceSelectorDot').style.background = cat ? cat.color : 'var(--ink-faint)';
-  document.getElementById('spaceSelectorDot').style.display = cat ? 'inline-block' : 'none';
   const nameEl = document.getElementById('spaceSelectorName');
   if(cat) nameEl.textContent = cat.name;
   else nameEl.innerHTML = 'Todos<span class="ssn-extra"> os espaços</span>';
