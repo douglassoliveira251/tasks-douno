@@ -1,3 +1,12 @@
+## [3.1.0] - 2026-11-07 19:00
+
+### Added
+
+#### Aplicativo instalável (PWA)
+
+- Manifesto (`manifest.webmanifest`), ícones (192, 512 e maskable), metatags (cor do tema, ícone da Apple) e service worker (`sw.js`). O app pode ser instalado pelo navegador e abre em janela própria. O service worker usa rede primeiro e só serve a cópia guardada se não houver rede; `/api`, `version.json` e outros domínios ficam de fora. Só é registrado no site publicado (não em localhost).
+
+
 ## [3.0.0] - 2026-11-07 17:00
 
 ### Changed

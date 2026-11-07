@@ -60,3 +60,9 @@ export async function boot(){
   initFileLink();
 }
 boot();
+
+/* App instalável (PWA): registra o service worker no site publicado.
+   Fica de fora em localhost para não interferir no desenvolvimento e nos testes. */
+if('serviceWorker' in navigator && location.protocol === 'https:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+}

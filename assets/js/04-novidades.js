@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.1.0', date:'07/11/2026', title:'Instale como aplicativo', text:'Agora o DOUNO Tasks pode ser instalado pelo navegador, no computador ou no celular, e abre em janela própria, como um aplicativo. No Chrome e no Edge procure o ícone de instalar na barra de endereço.' },
   { version:'3.0.0', date:'07/11/2026', title:'Versão 3: novo visual', text:'Menu no topo (no celular, na barra de baixo), botão + para criar tarefa, evento, nota ou projeto de qualquer tela, e uma Visão geral mais compacta, com período, gráficos e tarefas que você conclui direto do painel.' },
   { version:'1.21.0', date:'05/11/2026', title:'Excluir a minha conta', text:'Em Perfil › Conta você já pode excluir a sua conta e todos os seus dados por conta própria. Antes, dá para baixar um backup. A exclusão pede o seu e-mail e a senha e é definitiva.' },
   { version:'1.20.1', date:'05/11/2026', title:'Mais arrumação por dentro', text:'Mais uma parte do estado interno do sistema foi organizada por assunto (filtros, notas, painel da tarefa e linha do tempo). Nada muda no que você vê.' },
