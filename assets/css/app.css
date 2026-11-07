@@ -3493,3 +3493,13 @@
     .tn-right .notification-btn{width:36px; height:36px;}
     .topbar-profile-chip{height:36px; padding:4px 8px 4px 4px;}
   }
+
+  /* botões de criar: todos do mesmo tamanho do "Nova tarefa" com a setinha (144 x 32) */
+  .tn-new-btn{width:144px; height:32px; border-radius:10px;}
+  body[data-view="tasks"] .tn-new-btn{width:118px; border-radius:10px 0 0 10px;}
+  body.view-dashboard .tn-new-btn, body.view-dashboard .period-selector-wrap{width:144px;}
+  body.view-dashboard #periodSelectorBtn{height:32px;}
+  @media (max-width:768px){
+    .tn-new-btn{width:auto; height:30px; padding:0 12px;}
+    body[data-view="tasks"] .tn-new-btn{width:auto;}
+  }

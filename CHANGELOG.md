@@ -1,3 +1,9 @@
+## [3.6.4] - 2026-11-08 02:30
+
+### Changed
+
+- Botões de criar (Novo item, Nova nota, Novo projeto, Novo evento) com o mesmo tamanho do "Nova tarefa" com a setinha (144 x 32 px); o seletor de período da Visão geral acompanha.
+
 ## [3.6.3] - 2026-11-08 02:00
 
 ### Changed
