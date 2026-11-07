@@ -75,6 +75,11 @@ const ICONES = {
   'warning': ['regular'],
   'warning-circle': ['regular'],
   'x': ['regular'],
+  'note': ['regular'],
+  'trend-up': ['regular'],
+  'note-pencil': ['regular'],
+  'calendar-plus': ['regular'],
+  'copy-simple': ['regular'],
 };
 
 const base = new URL('../node_modules/@phosphor-icons/core/assets/', import.meta.url);

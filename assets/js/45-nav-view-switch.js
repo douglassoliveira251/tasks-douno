@@ -3,15 +3,11 @@ import { DEFAULT_COLORS, currentSpaceFilter } from './01-estado.js';
 import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, uid } from './10-helpers.js';
 import { selectSpace } from './11-render-sidebar.js';
-import { openNewTaskPanel } from './16-painel-lateral-de-tarefa.js';
-import { openNoteComposer } from './24-render-notes.js';
-import { openEventComposer } from './28-calendario-eventos.js';
-import { openProjectEditor, openStageEditor, projectById } from './31-projetos.js';
 import { getOrderedCategories, renderCatRows } from './38-configuracoes-espacos-e-etiquetas.js';
 import { clearSearchTerm } from './46-busca-e-notificacoes.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
-import { NOTAS_UI } from './estado-ui.js';
+import { NOTAS_UI, PAINEL_INICIO, PERIODOS } from './estado-ui.js';
 
 /* ===================== NAV / VIEW SWITCH ===================== */
 document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
@@ -26,21 +22,9 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
     NOTAS_UI.creatingNewNote = false;
     NOTAS_UI.pendingNoteNotebookId = null;
     clearSearchTerm();
-    closeMobileSidebar();
     render();
   };
 });
-
-export function openMobileSidebar(){
-  document.querySelector('.sidebar').classList.add('mobile-open');
-  document.getElementById('sidebarBackdrop').classList.add('show');
-}
-export function closeMobileSidebar(){
-  document.querySelector('.sidebar').classList.remove('mobile-open');
-  document.getElementById('sidebarBackdrop').classList.remove('show');
-}
-document.getElementById('mobileMenuBtn').onclick = openMobileSidebar;
-document.getElementById('sidebarBackdrop').onclick = closeMobileSidebar;
 
 export function openSettingsView(tab){
   const panel = document.querySelector('.task-panel');
@@ -71,28 +55,10 @@ export function closeSpaceSelectorDropdown(){
   if(dd) dd.style.display = 'none';
 }
 
-export const spaceSelectorMobileMQ = window.matchMedia('(max-width:768px)');
-export function placeSpaceSelector(){
-  const wrap = document.getElementById('spaceSelectorWrap');
-  if(!wrap) return;
-  const mobile = spaceSelectorMobileMQ.matches;
-  if(mobile){
-    const titleWrap = document.getElementById('topbarTitle');
-    if(titleWrap && wrap.parentElement !== titleWrap) titleWrap.appendChild(wrap);
-  } else {
-    // antes da busca: busca, ajuda, notificações e conta ficam no mesmo lugar em todas as telas
-    const topbar = document.querySelector('.topbar');
-    const search = document.getElementById('searchWrap');
-    if(topbar && search && wrap.parentElement !== topbar) topbar.insertBefore(wrap, search);
-  }
-  wrap.classList.toggle('in-topbar', !mobile);
-}
-if(spaceSelectorMobileMQ.addEventListener) spaceSelectorMobileMQ.addEventListener('change', placeSpaceSelector);
-
 export function renderSpaceSelector(){
+  renderPeriodSelector();
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
-  placeSpaceSelector();
   const showOn = (G.currentView === 'dashboard' || G.currentView === 'tasks' || G.currentView === 'notes' || G.currentView === 'calendar' || G.currentView === 'projects');
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }
@@ -100,6 +66,7 @@ export function renderSpaceSelector(){
   const shown = currentSpaceFilter();
   const cat = shown ? catById(shown) : null;
   document.getElementById('spaceSelectorDot').style.background = cat ? cat.color : 'var(--ink-faint)';
+  document.getElementById('spaceSelectorDot').style.display = cat ? 'inline-block' : 'none';
   const nameEl = document.getElementById('spaceSelectorName');
   if(cat) nameEl.textContent = cat.name;
   else nameEl.innerHTML = 'Todos<span class="ssn-extra"> os espaços</span>';
@@ -110,6 +77,7 @@ document.getElementById('spaceSelectorBtn').onclick = (e) => {
   const dd = document.getElementById('spaceSelectorDropdown');
   const wasOpen = dd.style.display !== 'none';
   closeSpaceSelectorDropdown();
+  closePeriodDropdown();
   if(wasOpen) return;
 
   const checkSvg = icon('check', 'regular', ' class="space-selector-check"');
@@ -158,17 +126,48 @@ document.addEventListener('click', (e) => {
   }
 });
 
-document.getElementById('primaryAddBtn').onclick = () => {
-  if(G.currentView === 'tasks'){
-    openNewTaskPanel();
-  } else if(G.currentView === 'notes'){
-    openNoteComposer();
-  } else if(G.currentView === 'calendar'){
-    openEventComposer(null, G.calendarFocusDate);
-  } else if(G.currentView === 'projects'){
-    const openProject = G.activeProjectId ? projectById(G.activeProjectId) : null;
-    if(openProject) openStageEditor(openProject, null);
-    else openProjectEditor(null);
-  }
+/* ---------- Período do painel inicial ---------- */
+export function closePeriodDropdown(){
+  const dd = document.getElementById('periodSelectorDropdown');
+  if(dd) dd.style.display = 'none';
+}
+export function renderPeriodSelector(){
+  const wrap = document.getElementById('periodSelectorWrap');
+  if(!wrap) return;
+  const show = G.currentView === 'dashboard';
+  wrap.style.display = show ? 'flex' : 'none';
+  if(!show){ closePeriodDropdown(); return; }
+  const cur = PERIODOS.find(p => p.key === PAINEL_INICIO.periodo) || PERIODOS[1];
+  document.getElementById('periodSelectorName').textContent = cur.label;
+}
+document.getElementById('periodSelectorBtn').onclick = (e) => {
+  e.stopPropagation();
+  const dd = document.getElementById('periodSelectorDropdown');
+  const wasOpen = dd.style.display !== 'none';
+  closeSpaceSelectorDropdown();
+  closePeriodDropdown();
+  if(wasOpen) return;
+  const checkSvg = icon('check', 'regular', ' class="space-selector-check"');
+  dd.innerHTML = '<div class="space-selector-label">PERÍODO</div>' + PERIODOS.map(p => `
+    <div class="space-selector-item" data-period="${p.key}">
+      <span class="space-selector-item-name">${p.label}</span>
+      ${PAINEL_INICIO.periodo === p.key ? checkSvg : ''}
+    </div>`).join('');
+  dd.style.display = 'block';
+  dd.querySelectorAll('[data-period]').forEach(item => {
+    item.onclick = () => {
+      PAINEL_INICIO.periodo = item.dataset.period;
+      try{ localStorage.setItem('dounoPeriodoPainel', PAINEL_INICIO.periodo); }catch(err){}
+      closePeriodDropdown();
+      render();
+    };
+  });
 };
-
+try{
+  const salvo = localStorage.getItem('dounoPeriodoPainel');
+  if(PERIODOS.some(p => p.key === salvo)) PAINEL_INICIO.periodo = salvo;
+}catch(e){}
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('periodSelectorWrap');
+  if(wrap && !wrap.contains(e.target)) closePeriodDropdown();
+});

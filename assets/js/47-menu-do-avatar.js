@@ -34,4 +34,7 @@ document.getElementById('avatarMenuLogoutBtn').onclick = (e) => {
   disconnectFile(e);
   document.getElementById('avatarDropdownMenu').style.display = 'none';
 };
-
+// qualquer item do menu da conta fecha o menu (Ajuda, Modo escuro, Sobre…)
+document.querySelectorAll('#avatarDropdownMenu .avatar-dropdown-item').forEach(item => {
+  item.addEventListener('click', () => { document.getElementById('avatarDropdownMenu').style.display = 'none'; });
+});

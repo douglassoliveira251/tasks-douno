@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { gotoApp } from './helpers.js';
 
-test('cartão Agenda: 5 itens e agenda de vários dias numa linha só com início e fim', async ({ page }) => {
+test('cartão Agenda: 4 itens e agenda de vários dias numa linha só com início e fim', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate(() => {
@@ -19,10 +19,9 @@ test('cartão Agenda: 5 itens e agenda de vários dias numa linha só com iníci
     ];
     render();
   });
-  const rows = page.locator('.rs-agenda .dash-list-row');
-  await expect(rows).toHaveCount(5);
-  await expect(page.locator('.rs-agenda .dash-list-row', { hasText: 'Viagem de trabalho' })).toHaveCount(1);
-  await expect(page.locator('.rs-agenda .dash-list-row', { hasText: 'Viagem de trabalho' })).toContainText('até');
-  await expect(page.locator('#dashAgendaMore')).toContainText('Ver mais (2)');
-  await page.locator('.rs-agenda').screenshot({ path: 'C:/Users/dougl/AppData/Local/Temp/claude/C--Users-dougl-OneDrive-Projetos-Taskin/46ecb1d9-892f-47df-80c6-aa1f793830c6/scratchpad/dag.png' });
+  const rows = page.locator('.dv-agenda .dash-list-row');
+  await expect(rows).toHaveCount(4);
+  await expect(page.locator('.dv-agenda .dash-list-row', { hasText: 'Viagem de trabalho' })).toHaveCount(1);
+  await expect(page.locator('.dv-agenda .dash-list-row', { hasText: 'Viagem de trabalho' })).toContainText('até');
+  await expect(page.locator('#dashAgendaMore')).toContainText('Ver mais (3)');
 });

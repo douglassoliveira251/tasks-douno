@@ -23,7 +23,7 @@ test('feriados nacionais: datas calculadas, mês/semana/dia e liga-desliga', asy
   // dia
   await page.evaluate(() => { calendarView = 'day'; calendarFocusDate = '2026-04-21'; render(); });
   await expect(page.locator('.cal-hol-chip')).toContainText('Tiradentes');
-  // facultativos podem ser desligados pelo menu Camadas sem esconder os demais
+  // facultativos podem ser desligados pelo menu Personalizar sem esconder os demais
   await page.evaluate(() => { calendarView = 'month'; calendarFocusDate = '2026-02-10'; render(); });
   await expect(page.locator('.cal-month-cell[data-date="2026-02-16"] .cal-hol')).toHaveText('Carnaval');
   await page.locator('#calLayersBtn').click();

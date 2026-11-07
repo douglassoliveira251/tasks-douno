@@ -73,7 +73,7 @@ test.describe('Notas no celular', () => {
     await expect(page.locator('#topbarTitle')).toBeHidden();
     await expect(page.locator('.topbar')).toBeHidden();
     const after = await page.locator('.note-detail-col').boundingBox();
-    expect(after.height).toBeGreaterThan(before.height + 100);
+    expect(after.height).toBeGreaterThan(before.height + 40);
 
     await page.locator('#notesFocusBtn').click();
     await expect(page.locator('#topbarTitle')).toBeVisible();
@@ -92,14 +92,16 @@ test.describe('Notas no desktop', () => {
 });
 
 test.describe('Cabeçalho das páginas no celular', () => {
-  test('título, contagem e espaço cabem na linha do título', async ({ page }) => {
+  test('menu de telas vai para a barra fixa de baixo e a faixa de título cabe na tela', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
     await gotoApp(page, { view: 'tasks' });
-    const title = await page.locator('#topbarTitle').boundingBox();
-    expect(title.height).toBeLessThan(70);
+    const nav = await page.locator('.nav').boundingBox();
+    expect(nav.y + nav.height).toBeGreaterThan(790); // colado no rodapé
+    expect(nav.width).toBeGreaterThan(380);
+    await expect(page.locator('.nav-item[data-view="notes"] .nav-label')).toBeVisible();
+    const topbar = await page.locator('.topbar').boundingBox();
+    expect(topbar.height).toBeLessThan(110);
     const chip = await page.locator('#spaceSelectorBtn').boundingBox();
-    expect(chip.width).toBeLessThan(110);
-    expect(chip.y).toBeGreaterThanOrEqual(title.y - 1);
-    expect(chip.y + chip.height).toBeLessThanOrEqual(title.y + title.height + 1);
+    expect(chip.x + chip.width).toBeLessThanOrEqual(390);
   });
 });

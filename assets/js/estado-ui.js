@@ -34,3 +34,12 @@ export const GANTT = {
   ganttLastProject: undefined,
   ganttScroll: undefined,
 };
+
+/* Início (Visão geral): período escolhido no filtro do topo. */
+export const PAINEL_INICIO = { periodo: 'mes', aba: 'hoje' };
+export const PERIODOS = [
+  { key: 'semana', label: 'Últimos 7 dias', short: '7d' },
+  { key: 'mes', label: 'Este mês', short: 'no mês' },
+  { key: '30', label: 'Últimos 30 dias', short: '30d' },
+  { key: '90', label: 'Últimos 90 dias', short: '90d' },
+];

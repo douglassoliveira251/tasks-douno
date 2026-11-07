@@ -84,6 +84,7 @@ test.describe('Enviar comentários', () => {
       window.__fb = null;
       Object.defineProperty(sbClient, 'functions', { configurable: true, value: { invoke: async (name, opts) => { window.__fb = { name, body: opts.body }; return { data: { ok: true }, error: null }; } } });
     });
+    await page.locator('#topbarAvatarBtn').click();
     await page.locator('#helpBtn').click();
     await page.locator('#helpFeedbackBtn').click();
     await page.locator('.fb-kind.bad').click();
@@ -93,13 +94,14 @@ test.describe('Enviar comentários', () => {
     await expect.poll(() => page.evaluate(() => window.__fb && window.__fb.name)).toBe('send-feedback');
     const body = await page.evaluate(() => window.__fb.body);
     expect(body).toMatchObject({ kind: 'bad', message: 'A lista poderia ter atalhos' });
-    expect(body.version).toMatch(/^1\./);
+    expect(body.version).toMatch(/^3\./);
     await expect(page.locator('#feedbackOverlay')).not.toHaveClass(/show/);
     await page.evaluate(() => { cloudSession = null; });
   });
 
   test('sem mensagem ou sem login mostra aviso e não envia', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
+    await page.locator('#topbarAvatarBtn').click();
     await page.locator('#helpBtn').click();
     await page.locator('#helpFeedbackBtn').click();
     await page.locator('#fbSend').click();

@@ -30,3 +30,9 @@ export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0', o
 export async function evalApp(page, fn, arg) {
   return page.evaluate(fn, arg);
 }
+
+/** Cria algo pelo botão "+" do topo (key: task | event | note | project | stage | template). */
+export async function novoItem(page, key) {
+  await page.locator('#newBtn').click();
+  await page.locator(`.new-menu-item[data-new="${key}"]`).click();
+}

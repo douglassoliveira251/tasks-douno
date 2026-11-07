@@ -211,7 +211,7 @@ export function onboardingCardHtml(){
   const passos = onboardingSteps();
   const feitos = passos.filter(p => p.feito).length;
   return `
-    <div class="rs-card onb-card" id="onbCard">
+    <div class="dv-card onb-card" id="onbCard">
       <div class="onb-card-head">
         <div><b>Comece por aqui</b><small>${feitos} de ${passos.length} passos concluídos</small></div>
         <button type="button" class="onb-dismiss" id="onbDismiss">Dispensar</button>

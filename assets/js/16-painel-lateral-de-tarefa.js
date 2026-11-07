@@ -5,7 +5,6 @@ import { closeHelpPanel } from './06-cabecalho-e-ajuda.js';
 import { catById, todayStr, uid } from './10-helpers.js';
 import { closeNoteComposer } from './24-render-notes.js';
 import { closeEventComposer } from './28-calendario-eventos.js';
-import { closeMobileSidebar } from './45-nav-view-switch.js';
 import { closeSearchResultsDropdown } from './46-busca-e-notificacoes.js';
 import { render } from './48-render-principal.js';
 import { FILTROS, NOTAS_UI, PAINEL_TAREFA } from './estado-ui.js';
@@ -180,10 +179,6 @@ document.addEventListener('keydown', (e) => {
   }
   if(document.getElementById('helpPanel').classList.contains('show')){
     closeHelpPanel();
-    return;
-  }
-  if(document.querySelector('.sidebar').classList.contains('mobile-open')){
-    closeMobileSidebar();
     return;
   }
   if(document.getElementById('searchResultsDropdown').style.display !== 'none'){

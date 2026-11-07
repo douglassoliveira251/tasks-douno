@@ -1,5 +1,4 @@
 import { G } from './globais.js';
-import { closeMobileSidebar } from './45-nav-view-switch.js';
 import { VIEW_TITLES, render } from './48-render-principal.js';
 import { NOTAS_UI } from './estado-ui.js';
 
@@ -60,7 +59,6 @@ export function onRouteChange(){
   G.creatingNewTask = false;
   NOTAS_UI.creatingNewNote = false;
   NOTAS_UI.pendingNoteNotebookId = null;
-  closeMobileSidebar();
   render();
 }
 window.addEventListener(ROUTE_MODE === 'path' ? 'popstate' : 'hashchange', onRouteChange);

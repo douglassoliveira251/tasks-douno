@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { gotoApp } from './helpers.js';
+import { gotoApp, novoItem } from './helpers.js';
 
 test.describe('Tarefas — básico', () => {
   test('criar uma tarefa pela UI persiste no state', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(() => { state.tasks = []; });
 
-    await page.getByTitle('Nova tarefa').click();
+    await novoItem(page, 'task');
     await page.locator('#tpName').fill('Tarefa de teste');
     await page.locator('#tpDesc').fill('Descrição de teste');
     await page.locator('#tpDesc').blur();

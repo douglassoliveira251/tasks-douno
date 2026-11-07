@@ -1,41 +1,43 @@
 import { G } from './globais.js';
-import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
+import { markDirty } from './08-persistencia.js';
+import { catById, completeRecurring, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
 import { PRIORITY_CONFIG } from './12-render-tasks.js';
-import { fmtActivityTime } from './23-texto-rico-utilitarios.js';
-import { openNoteComposer } from './24-render-notes.js';
-import { MONTH_LABELS, WEEKDAY_FULL_LABELS, WEEKDAY_LABELS, addDaysStr, eventStartsOn, eventsOnDate, upcomingEventOccurrences } from './25-calendario.js';
+import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventStartsOn, eventsOnDate } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { defaultProjectTab, projectById, projectColor, projectIconSvg, projectStatus } from './31-projetos.js';
 import { getOrderedCategories } from './38-configuracoes-espacos-e-etiquetas.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
 import { bindOnboardingCard, onboardingCardHtml } from './51-primeiro-uso.js';
+import { PAINEL_INICIO, PERIODOS } from './estado-ui.js';
 
-/* ===================== DASHBOARD ===================== */
-export function svgSparkline(values, width, height, color){
-  const max = Math.max(1, ...values);
-  const stepX = width / Math.max(1, values.length - 1);
-  const points = values.map((v,i) => {
-    const x = i*stepX;
-    const y = height - (v/max) * (height-4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-  return `<svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
-    <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-  </svg>`;
+/* ===================== DASHBOARD (Visão geral) ===================== */
+/* Período escolhido no filtro do topo: [início, fim] em AAAA-MM-DD e o período anterior, do mesmo tamanho. */
+export function periodRange(todayS, key){
+  let start;
+  if(key === 'semana') start = addDaysStr(todayS, -6);
+  else if(key === '30') start = addDaysStr(todayS, -29);
+  else if(key === '90') start = addDaysStr(todayS, -89);
+  else start = todayS.slice(0, 8) + '01';
+  const days = Math.round((Date.parse(todayS) - Date.parse(start)) / 86400000) + 1;
+  const prevEnd = addDaysStr(start, -1);
+  const prevStart = addDaysStr(start, -days);
+  return { start, end: todayS, days, prevStart, prevEnd };
 }
-export function svgBarChart(values, labels, width, height){
-  const max = Math.max(1, ...values);
-  const barW = width/values.length;
-  let bars = '';
-  values.forEach((v,i) => {
-    const h = v>0 ? Math.max(2, (v/max)*(height-18)) : 0;
-    const x = i*barW + barW*0.22;
-    const w = barW*0.56;
-    const y = height - h - 14;
-    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="var(--primary)"><title>${labels?labels[i]:''}: ${v}</title></rect>`;
-  });
-  return `<svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">${bars}</svg>`;
+
+/* Marca a tarefa como concluída (ou reabre) direto do painel, igual ao círculo da lista de tarefas. */
+function toggleTaskFromDashboard(t){
+  const wasDone = t.done;
+  const prevStatus = t.status;
+  t.done = !t.done;
+  t.status = t.done ? 'concluida' : 'nao_iniciado';
+  t.completedAt = t.done ? Date.now() : null;
+  if(t.done) t.pinned = false;
+  if(!wasDone && t.done && t.recurrence && t.recurrence !== 'none'){
+    const next = completeRecurring(t, prevStatus);
+    if(next) G.state.tasks = G.state.tasks.filter(x => x.id !== t.id);
+  }
+  markDirty();
 }
 
 export function renderDashboard(){
@@ -43,45 +45,108 @@ export function renderDashboard(){
   const todayS = todayStr();
   const inSpace = x => !G.dashboardSpace || x.categoryId === G.dashboardSpace;
   const scopeTasks = G.state.tasks.filter(inSpace);
-  const scopeNotes = G.state.notes.filter(inSpace);
   const scopeEvents = G.state.events.filter(inSpace);
-
   const scopeLog = (G.state.completedLog || []).filter(inSpace);
   const completed = scopeTasks.filter(t => t.done).concat(scopeLog);
   const now = Date.now();
   const DAY = 86400000;
-  const completedRecent45 = completed.filter(t => t.completedAt && t.completedAt >= now - 45*DAY);
 
   const open = scopeTasks.filter(t => !t.done);
   const overdue = open.filter(t => t.dueDate && t.dueDate < todayS);
   const dueToday = open.filter(t => t.dueDate === todayS);
-  const endOfWeekS = addDaysStr(todayS, 6);
-  const dueThisWeek = open.filter(t => t.dueDate && t.dueDate > todayS && t.dueDate <= endOfWeekS);
   const noDue = open.filter(t => !t.dueDate);
-  const overdueOrToday = overdue.concat(dueToday).sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
-  const criticalOverdue = overdue.filter(t => t.priority === 'critica');
+  const noFollow = open.filter(t => !t.followUpDate);
   const todayEvents = eventsOnDate(scopeEvents, todayS);
+  const inProgress = open.filter(t => t.status === 'em_andamento');
+  const openPct = scopeTasks.length ? Math.round(open.length / scopeTasks.length * 100) : 0;
+  const pctOf = n => open.length ? Math.round(n / open.length * 100) : 0;
 
-  // Card: Tarefas (concluídas consideram só os últimos 45 dias)
-  const kpiTasksTotal = scopeTasks.length;
-  const kpiTasksDone = completedRecent45.length;
-  const kpiTasksPending = open.length;
-  const kpiTasksPct = kpiTasksTotal ? Math.round(kpiTasksDone/kpiTasksTotal*100) : 0;
+  const completedLast7 = completed.filter(t => t.completedAt && t.completedAt >= now - 7 * DAY);
+  const completedPrev7 = completed.filter(t => t.completedAt && t.completedAt >= now - 14 * DAY && t.completedAt < now - 7 * DAY);
+  const trend7 = completedLast7.length - completedPrev7.length;
 
-  // Card: Notas (+ sparkline dos ultimos 10 dias)
-  const kpiNotesTotal = scopeNotes.length;
-  const kpiNotesNew7 = scopeNotes.filter(n => n.createdAt && n.createdAt >= now - 7*DAY).length;
-  const sparkDays = 10;
-  const sparkCounts = [];
-  for(let i=sparkDays-1;i>=0;i--){
+  const followToday = open.filter(t => t.followUpDate && t.followUpDate <= todayS)
+    .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
+  const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
+    .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99')));
+  const prStatus = (G.state.projects || []).filter(p => !G.dashboardSpace || p.categoryId === G.dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
+  const lateProjects = prStatus.filter(x => x.st.late).length;
+  const importantTasks = open.filter(t => t.priority === 'alta' || t.priority === 'critica')
+    .sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999'));
+  const spaceList = getOrderedCategories();
+  const dateOfDay = d => dateToStr(new Date(d));
+
+  /* ---- período escolhido no topo ---- */
+  const per = periodRange(todayS, PAINEL_INICIO.periodo);
+  const perDef = PERIODOS.find(p => p.key === PAINEL_INICIO.periodo) || PERIODOS[1];
+  const inRange = (t, a, b) => { if(!t.completedAt) return false; const d = dateOfDay(t.completedAt); return d >= a && d <= b; };
+  const donePeriod = completed.filter(t => inRange(t, per.start, per.end));
+  const donePrev = completed.filter(t => inRange(t, per.prevStart, per.prevEnd));
+  const periodTrend = donePrev.length ? Math.round((donePeriod.length - donePrev.length) / donePrev.length * 100) : null;
+
+  /* conclusões por dia da semana (seg → dom) dentro do período */
+  const wk = [0, 0, 0, 0, 0, 0, 0];
+  donePeriod.forEach(t => { wk[(new Date(t.completedAt).getDay() + 6) % 7]++; });
+  const wkLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const wkMax = Math.max(1, ...wk);
+  const wkToday = (new Date().getDay() + 6) % 7;
+  const bestIdx = wk.indexOf(Math.max(...wk));
+  const bestLabel = Math.max(...wk) > 0 ? wkLabels[bestIdx] + ' · ' + wk[bestIdx] : '—';
+  const avgPerDay = per.days ? (donePeriod.length / per.days) : 0;
+  let streak = 0;
+  for(let i = 0; i < 365; i++){
     const dStr = addDaysStr(todayS, -i);
-    sparkCounts.push(scopeNotes.filter(n => n.createdAt && dateToStr(new Date(n.createdAt)) === dStr).length);
+    if(completed.some(t => t.completedAt && dateOfDay(t.completedAt) === dStr)) streak++;
+    else if(i === 0) continue;
+    else break;
   }
 
-  // Card: Eventos hoje
-  const kpiTodayEvents = todayEvents;
-  /* agenda: hoje + próximos 7 dias numa lista só (o cartão mostra 5, o resto abre em "Ver mais").
-     Agenda de vários dias é uma linha só, com início e fim, e não uma por dia. */
+  /* últimos 14 dias (gráfico do cartão Hoje) */
+  const dayLabels = [], dayCounts = [];
+  for(let i = 13; i >= 0; i--){
+    const dStr = addDaysStr(todayS, -i);
+    dayLabels.push(dStr.slice(8, 10) + '/' + dStr.slice(5, 7));
+    dayCounts.push(completed.filter(t => t.completedAt && dateOfDay(t.completedAt) === dStr).length);
+  }
+  const heroChart = (() => {
+    const W = 250, H = 78, n = dayCounts.length, mx = Math.max(1, ...dayCounts) + 1;
+    const px = dayCounts.map((_, i) => 8 + i * (W - 16) / (n - 1));
+    const py = dayCounts.map(v => H - 18 - v / mx * (H - 30));
+    const line = px.map((x, i) => x.toFixed(1) + ',' + py[i].toFixed(1)).join(' ');
+    const base = H - 18;
+    const labs = [[0, dayLabels[0]], [3, dayLabels[3]], [6, dayLabels[6]], [9, dayLabels[9]], [13, 'Hoje']].map(([i, l]) => `<text x="${px[i].toFixed(1)}" y="${H - 4}" font-size="9.5" text-anchor="${i === 0 ? 'start' : (i === 13 ? 'end' : 'middle')}" fill="var(--ink-faint)">${l}</text>`).join('');
+    const grid = [0, .5, 1].map(f => `<line x1="8" x2="${W - 8}" y1="${(H - 18 - f * (H - 30)).toFixed(1)}" y2="${(H - 18 - f * (H - 30)).toFixed(1)}" stroke="var(--border)"/>`).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Tarefas concluídas nos últimos 14 dias"><defs><linearGradient id="dvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".28"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>${grid}
+      <polygon points="${line} ${px[n - 1].toFixed(1)},${base} ${px[0].toFixed(1)},${base}" fill="url(#dvg)"/>
+      <polyline points="${line}" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${px[n - 1].toFixed(1)}" cy="${py[n - 1].toFixed(1)}" r="3.5" fill="var(--surface)" stroke="var(--primary)" stroke-width="2"/>${labs}</svg>`;
+  })();
+
+  /* ---- status das tarefas (rosca) ---- */
+  const stOver = overdue.length;
+  const stProg = open.filter(t => t.status === 'em_andamento' && !(t.dueDate && t.dueDate < todayS)).length;
+  const stPend = Math.max(0, open.length - stOver - stProg);
+  const stDone = donePeriod.length;
+  const stBuckets = [
+    { label: 'Em andamento', n: stProg, color: 'var(--primary)' },
+    { label: 'Não iniciadas', n: stPend, color: 'var(--dv-pend)' },
+    { label: 'Atrasadas', n: stOver, color: 'var(--danger)' },
+    { label: `Concluídas (${perDef.short})`, n: stDone, color: 'var(--ok)' },
+  ];
+  const stTotal = stBuckets.reduce((s, b) => s + b.n, 0);
+  const donut = (() => {
+    const size = 98, sw = 13, r = (size - sw) / 2, c = 2 * Math.PI * r;
+    let off = 0;
+    const segs = stBuckets.filter(b => b.n > 0).map(b => {
+      const len = c * b.n / (stTotal || 1);
+      const seg = `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${b.color}" stroke-width="${sw}" stroke-dasharray="${Math.max(len - 3, 1).toFixed(1)} ${c.toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}"/>`;
+      off += len;
+      return seg;
+    }).join('');
+    return `<div class="dv-donut"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)" role="img" aria-label="Tarefas por status"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${sw}"/>${segs}</svg><div class="dv-donut-c"><b>${stTotal}</b><small>tarefas</small></div></div>`;
+  })();
+
+  /* ---- agenda ---- */
   const agendaRows = [];
   const agendaSeen = new Set();
   const evSpan = ev => (ev.endDate && ev.endDate > ev.date) ? Math.round((Date.parse(ev.endDate) - Date.parse(ev.date)) / 86400000) : 0;
@@ -98,276 +163,189 @@ export function renderDashboard(){
     });
   }
   const agendaDayLabel = d => d === todayS ? '' : (d === addDaysStr(todayS, 1) ? 'Amanhã' : new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', ''));
-  const agendaRowHtml = r => `<div class="rs-row dash-list-row" data-event-id="${r.ev.id}"><span class="rs-tag ok">${r.ev.allDay || !r.ev.startTime ? 'Dia todo' : r.ev.startTime}</span><span class="tt"><b>${escapeHtml(r.ev.title || 'Sem título')}</b>${r.until ? `<small>até ${r.until.slice(8)}/${r.until.slice(5, 7)}</small>` : ''}</span><span class="dt">${r.until ? (agendaDayLabel(r.date) || 'Hoje') : agendaDayLabel(r.date)}</span></div>`;
-  const nowTimeStr = new Date().toTimeString().slice(0,5);
-  const kpiNextEvent = kpiTodayEvents.find(ev => !ev.startTime || ev.startTime >= nowTimeStr) || kpiTodayEvents[0] || null;
-
-  // Card: Itens importantes (tarefas alta/critica em aberto + notas fixadas)
-  const importantTasks = open.filter(t => t.priority==='alta' || t.priority==='critica');
-  const importantTasksSorted = importantTasks.slice().sort((a,b) => (a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
-  const importantNotes = scopeNotes.filter(n => n.pinned && !n.archived);
-
-  // --- Tarefas por status (donut) ---
-  const statusDoneCount = completed.length;
-  const statusOverdueCount = overdue.length;
-  const statusInProgressCount = open.filter(t => t.status === 'em_andamento' && !(t.dueDate && t.dueDate < todayS)).length;
-  const statusPendingCount = Math.max(0, open.length - statusOverdueCount - statusInProgressCount);
-  const statusTotalCount = scopeTasks.length + scopeLog.length;
-  const statusBuckets = [
-    { label:'Concluídas', count: statusDoneCount, color:'var(--priority-media)' },
-    { label:'Em andamento', count: statusInProgressCount, color:'var(--priority-alta)' },
-    { label:'Pendentes', count: statusPendingCount, color:'var(--priority-baixa)' },
-    { label:'Atrasadas', count: statusOverdueCount, color:'var(--danger)' },
-  ];
-
-  // --- Atividades recentes ---
-  const activityIcons = {
-    task_done: icon('check-square'),
-    note_created: icon('file-text'),
-    event_updated: icon('calendar-blank'),
-    event_created: icon('calendar-blank'),
+  const agendaRowHtml = r => {
+    const cat = catById(r.ev.categoryId);
+    const sub = r.until ? `até ${r.until.slice(8)}/${r.until.slice(5, 7)}` : (cat ? escapeHtml(cat.name) : '');
+    const day = r.until ? (agendaDayLabel(r.date) || 'Hoje') : agendaDayLabel(r.date);
+    return `<div class="dv-tl dash-list-row" data-event-id="${r.ev.id}"><span class="h">${r.ev.allDay || !r.ev.startTime ? 'Dia todo' : r.ev.startTime}</span><span class="l" style="background:${cat ? cat.color : 'var(--primary)'}"></span><div class="tx"><b>${escapeHtml(r.ev.title || 'Sem título')}</b><small>${sub}</small></div>${day ? `<span class="d">${day}</span>` : ''}</div>`;
   };
-  const activityColors = { task_done:'priority-media', note_created:'purple', event_updated:'info', event_created:'info' };
-  const activityItems = [];
-  completed.forEach(t => { if(t.completedAt) activityItems.push({ type:'task_done', ts:t.completedAt, msg:`Você concluiu a tarefa "${t.title||'Sem título'}"`, cat: catById(t.categoryId), module:'Tarefas' }); });
-  scopeNotes.forEach(n => { if(n.createdAt) activityItems.push({ type:'note_created', ts:n.createdAt, msg:`Nova nota criada "${n.title||'Sem título'}"`, cat: catById(n.categoryId), module:'Notas' }); });
-  scopeEvents.forEach(ev => {
-    if(ev.wasEdited && ev.updatedAt) activityItems.push({ type:'event_updated', ts:ev.updatedAt, msg:`Evento atualizado "${ev.title||'Sem título'}"`, cat: catById(ev.categoryId), module:'Calendário' });
-    else if(ev.createdAt) activityItems.push({ type:'event_created', ts:ev.createdAt, msg:`Nova agenda criada "${ev.title||'Sem título'}"`, cat: catById(ev.categoryId), module:'Calendário' });
-  });
-  activityItems.sort((a,b) => b.ts - a.ts);
-  const recentActivities = activityItems.slice(0, 4);
 
-  const kpiImportantTotal = importantTasks.length + importantNotes.length;
-
-  const completedLast7 = completed.filter(t => t.completedAt && t.completedAt >= now - 7*DAY);
-  const completedPrev7 = completed.filter(t => t.completedAt && t.completedAt >= now - 14*DAY && t.completedAt < now - 7*DAY);
-  const completedLast30 = completed.filter(t => t.completedAt && t.completedAt >= now - 30*DAY);
-  const createdLast30 = scopeTasks.filter(t => t.createdAt && t.createdAt >= now - 30*DAY);
-  const conclusionRate = scopeTasks.length ? Math.round((completedRecent45.length/scopeTasks.length)*100) : 0;
-  const overduePct = open.length ? Math.round((overdue.length/open.length)*100) : 0;
-  const trend = completedLast7.length - completedPrev7.length;
-
-  const catLoad = {};
-  open.forEach(t => { catLoad[t.categoryId] = (catLoad[t.categoryId]||0)+1; });
-  const catLoadList = getOrderedCategories().map(c => ({ cat:c, count: catLoad[c.id]||0 })).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
-
-  const weekdayCounts = [0,0,0,0,0,0,0];
-  completed.forEach(t => { if(t.completedAt) weekdayCounts[new Date(t.completedAt).getDay()]++; });
-  const maxWeekdayIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
-  const bestWeekday = Math.max(...weekdayCounts) > 0 ? WEEKDAY_LABELS[maxWeekdayIdx] : '—';
-
-  const dayLabels = [];
-  const dayCounts = [];
-  for(let i=13;i>=0;i--){
-    const dStr = addDaysStr(todayS, -i);
-    dayLabels.push(dStr.slice(8,10)+'/'+dStr.slice(5,7));
-    dayCounts.push(completed.filter(t => t.completedAt && dateToStr(new Date(t.completedAt)) === dStr).length);
-  }
-
-  const avgByPriority = {};
-  PRIORITY_CONFIG.forEach(p => {
-    const items = completed.filter(t => t.priority===p.key && t.completedAt && t.createdAt);
-    if(items.length){
-      const avgMs = items.reduce((s,t)=>s+(t.completedAt-t.createdAt),0)/items.length;
-      avgByPriority[p.key] = Math.round(avgMs/DAY*10)/10;
-    }
-  });
-
-  let streak = 0;
-  for(let i=0;i<365;i++){
-    const dStr = addDaysStr(todayS, -i);
-    const hasCompletion = completed.some(t => t.completedAt && dateToStr(new Date(t.completedAt)) === dStr);
-    if(hasCompletion) streak++;
-    else if(i===0) continue;
-    else break;
-  }
-
-  const priorityCounts = PRIORITY_CONFIG.slice().reverse().map(p => ({ ...p, count: open.filter(t=>t.priority===p.key).length }));
-  const maxPriorityCount = Math.max(1, ...priorityCounts.map(p=>p.count));
-
-  const upcomingEvents = upcomingEventOccurrences(scopeEvents, todayS, 90).slice(0,6);
-
-  const noTagOpen = open.filter(t => !(t.tagIds||[]).length);
-  const activeRecurring = scopeTasks.filter(t => t.recurrence && t.recurrence !== 'none');
-
-  const focusD = new Date(todayS+'T00:00:00');
-  const fullDateLabel = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()]} de ${focusD.getFullYear()}`;
-
-  function emptyDashState(icon, msg){
-    return `<div class="dash-empty-state">${icon}<p>${msg}</p></div>`;
-  }
-  function dashTaskRow(t){
-    const isOverdue = t.dueDate && t.dueDate < todayS;
-    return `<div class="dash-list-row" data-task-id="${t.id}">
-      <span class="dash-list-title">${escapeHtml(t.title||'Sem título')}</span>
-      <span class="dash-list-date ${isOverdue?'overdue':''}">${fmtDate(t.dueDate)}</span>
+  /* ---- tabela de tarefas (Hoje | Atrasadas | Próximas) ---- */
+  const aba = ['hoje', 'atrasadas', 'proximas'].includes(PAINEL_INICIO.aba) ? PAINEL_INICIO.aba : 'hoje';
+  const doneToday = scopeTasks.filter(t => t.done && t.dueDate === todayS);
+  const tabLists = {
+    hoje: dueToday.slice().sort((a, b) => (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')).concat(doneToday),
+    atrasadas: overdue.slice().sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
+    proximas: upcomingTasks.filter(t => t.dueDate > todayS),
+  };
+  const tabEmpty = { hoje: 'Nenhuma tarefa para hoje.', atrasadas: 'Nada atrasado. Bom trabalho!', proximas: 'Nada com prazo nos próximos 7 dias.' };
+  const listNow = tabLists[aba];
+  const prioChip = k => {
+    const p = PRIORITY_CONFIG.find(x => x.key === k);
+    return p ? `<span class="dv-chip p-${p.key}">${p.label}</span>` : '<span class="dv-muted">—</span>';
+  };
+  const dueLabel = t => {
+    if(t.done) return 'Concluída';
+    if(!t.dueDate) return '—';
+    if(t.dueDate === todayS) return 'Hoje' + (t.dueTime ? ' ' + t.dueTime : '');
+    const d = new Date(t.dueDate + 'T12:00:00');
+    return WEEKDAY_LABELS[d.getDay()] + ' ' + t.dueDate.slice(8) + '/' + t.dueDate.slice(5, 7);
+  };
+  const taskRow = t => {
+    const cat = catById(t.categoryId);
+    const pr = t.projectId ? projectById(t.projectId) : null;
+    return `<div class="dv-tr${t.done ? ' done' : ''}${t.dueDate && t.dueDate < todayS && !t.done ? ' late' : ''}" data-task-id="${t.id}">
+      <span class="dv-cb${t.done ? ' on' : ''}" data-check="${t.id}" role="checkbox" aria-checked="${t.done ? 'true' : 'false'}" aria-label="Concluir tarefa" tabindex="0">${t.done ? icon('check') : ''}</span>
+      <span class="dv-t1"><b>${escapeHtml(t.title || 'Sem título')}</b>${pr ? `<small>${escapeHtml(pr.name)}</small>` : ''}</span>
+      <span class="dv-sp">${cat ? `<i style="background:${cat.color}"></i>${escapeHtml(cat.name)}` : ''}</span>
+      <span>${prioChip(t.priority)}</span>
+      <span class="dv-due">${dueLabel(t)}</span>
     </div>`;
-  }
+  };
+  const TASK_ROWS = 6;
 
-  /* ===== Resumo (bento) ===== */
-  const followToday = open.filter(t => t.followUpDate && t.followUpDate <= todayS)
-    .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
-  const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
-    .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99'))).slice(0, 5);
-  const prStatus = (G.state.projects || []).filter(p => !G.dashboardSpace || p.categoryId === G.dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
-  const lateProjects = prStatus.filter(x => x.st.late).length;
-  const spark14 = dayCounts;
-  const sparkMax = Math.max(1, ...spark14);
-  const sparkPts = spark14.map((v, i) => [(i / (spark14.length - 1)) * 420, 100 - (v / sparkMax) * 80 - 8]);
-  const sparkLine = sparkPts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const inProgress = open.filter(t => t.status === 'em_andamento').length;
-  const openPct = scopeTasks.length ? Math.round(open.length / scopeTasks.length * 100) : 0;
-  // tarefas abertas sem data: sem prazo, sem data de retomada e sem nenhuma das duas
-  const noFollow = open.filter(t => !t.followUpDate);
-  const noDates = open.filter(t => !t.dueDate && !t.followUpDate);
-  const miniTitles = list => list.slice(0, 2).map(t => escapeHtml(t.title || 'Sem título')).join(', ') + (list.length > 2 ? '…' : '');
-  const spaceList = getOrderedCategories();
-  const priColor = k => (PRIORITY_CONFIG.find(x => x.key === k) || {}).color || 'var(--ink-faint)';
+  const projRows = prStatus.slice(0, 4).map(x => {
+    const fin = x.st.total && x.st.done === x.st.total;
+    const sub = fin ? 'Concluído' : (x.st.next ? escapeHtml(x.st.next.name || 'Etapa') + ' · ' + fmtDate(x.st.next.end) : (x.st.end ? 'Entrega ' + fmtDate(x.st.end) : 'Sem etapas'));
+    const tag = x.st.late ? `${x.st.lateCount} atrasada${x.st.lateCount > 1 ? 's' : ''}` : (fin ? 'Concluído' : 'No prazo');
+    return `<div class="dv-pr" data-project="${x.p.id}" style="--c:${projectColor(x.p)}; --p:${x.st.pct}">
+      <div class="pj-ig"><i><b>${projectIconSvg(x.p.icon || 'briefcase')}</b></i><em>${x.st.pct}%</em></div>
+      <div class="pj-tx"><b>${escapeHtml(x.p.name || 'Projeto')}</b><small>${sub}</small></div>
+      <span class="dv-tag${x.st.late ? ' late' : (fin ? ' ok' : '')}">${tag}</span>
+    </div>`;
+  }).join('');
+
+  const spacesHtml = spaceList.slice(0, 5).map(c => {
+    const o = open.filter(t => t.categoryId === c.id).length;
+    const d = completed.filter(t => t.categoryId === c.id).length;
+    const pct = (o + d) ? Math.round(d / (o + d) * 100) : 0;
+    return `<div class="dv-sp-row" data-space="${c.id}" title="Ver as tarefas deste espaço">
+      <span class="sq" style="background:color-mix(in srgb, ${c.color} 18%, var(--surface)); color:${c.color};">${escapeHtml((c.name || '?').charAt(0).toUpperCase())}</span>
+      <div class="tx"><div class="top"><b>${escapeHtml(c.name)}</b><small>${o} aberta${o === 1 ? '' : 's'}</small></div><span class="dv-bar"><u style="width:${pct}%; background:${c.color}"></u></span></div>
+    </div>`;
+  }).join('');
+
+  const chart = wk.map((v, i) => `<div class="dv-col${i === wkToday ? ' today' : ''}" title="${wkLabels[i]}: ${v}"><span class="n">${v || ''}</span><i style="height:${v ? Math.max(5, Math.round(v / wkMax * 96)) : 4}px"></i><span class="l">${wkLabels[i]}</span></div>`).join('');
 
   view.innerHTML = `
-    <div class="dash-wrap">
+    <div class="dv">
       ${onboardingCardHtml()}
-      <div class="rs-top">
-        <div class="rs-card rs-hero">
-          <div class="rs-chips"><span class="rs-label">Hoje</span>
-            ${followToday.length ? `<span class="rs-tag warn">↻ ${followToday.length} para retomar</span>` : ''}
-            ${overdue.length ? `<span class="rs-tag late">${overdue.length} atrasada${overdue.length > 1 ? 's' : ''}</span>` : ''}
-            ${lateProjects ? `<span class="rs-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
+      <div class="dv-r1">
+        <section class="dv-card dv-hero">
+          <div class="dv-eb"><span>HOJE</span>
+            ${followToday.length ? `<span class="dv-tag warn">${icon('repeat')} ${followToday.length} para retomar</span>` : ''}
+            ${overdue.length ? `<span class="dv-tag late">${overdue.length} atrasada${overdue.length > 1 ? 's' : ''}</span>` : ''}
+            ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
           </div>
-          <div class="rs-big">${dueToday.length}<small>tarefa${dueToday.length === 1 ? '' : 's'} para hoje</small></div>
-          <div class="rs-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} nos últimos 7 dias${trend ? ' (' + (trend > 0 ? '+' : '') + trend + ' vs. semana anterior)' : ''}</div>
-          <svg class="rs-spark" viewBox="0 0 420 110" preserveAspectRatio="none"><defs><linearGradient id="rsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".4"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs><path d="${sparkLine} L420 110 L0 110Z" fill="url(#rsg)"/><path d="${sparkLine}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
-          <div class="rs-stats">
-            <div><span>Concluídas (7 dias)</span><br><b>${completedLast7.length}</b></div>
-            <div><span>Em andamento</span><br><b>${inProgress}</b></div>
-            <div><span>Abertas</span><br><b>${open.length}</b><div class="rs-bar"><i style="width:${openPct}%"></i></div></div>
-            <i class="rs-stat-sep"></i>
-            <div class="rs-stat-link" data-nodate="due" title="Ver tarefas sem prazo"><span>Sem prazo</span><br><b class="${noDue.length ? 'amb' : ''}">${noDue.length}</b><div class="rs-bar amb"><i style="width:${open.length ? Math.round(noDue.length / open.length * 100) : 0}%"></i></div></div>
-            <div class="rs-stat-link" data-nodate="follow" title="Ver tarefas sem data de retomada"><span>Sem retomada</span><br><b class="${noFollow.length ? 'amb' : ''}">${noFollow.length}</b><div class="rs-bar amb"><i style="width:${open.length ? Math.round(noFollow.length / open.length * 100) : 0}%"></i></div></div>
+          <div class="dv-hero-top">
+            <div>
+              <div class="dv-big"><b>${dueToday.length}</b><span>tarefa${dueToday.length === 1 ? '' : 's'} para hoje</span></div>
+              <div class="dv-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} nos últimos 7 dias${trend7 ? ' (' + (trend7 > 0 ? '+' : '') + trend7 + ' vs. semana anterior)' : ''}</div>
+            </div>
+            <div class="dv-hero-chart">${heroChart}</div>
           </div>
-        </div>
-        <div class="rs-card">
-          <h3>Próximos prazos <span>7 dias</span></h3>
-          ${upcomingTasks.length ? upcomingTasks.map(t => { const cat = catById(t.categoryId), pr = t.projectId ? projectById(t.projectId) : null; return `
-            <div class="rs-row dash-list-row" data-task-id="${t.id}">
-              <span class="bar-pr" style="background:${priColor(t.priority)}"></span>
-              <span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${pr ? escapeHtml(pr.name) : (cat ? escapeHtml(cat.name) : '')}</small></span>
-              <span class="dt">${t.dueDate === todayS ? 'Hoje' : fmtDate(t.dueDate)}${t.dueTime ? ' ' + t.dueTime : ''}</span>
-            </div>`; }).join('') : '<div class="rs-empty">Nada com prazo nos próximos 7 dias.</div>'}
-          <span class="rs-link" id="dashSeeAllTasksLink">Ver todas as tarefas →</span>
-        </div>
+          <div class="dv-stats">
+            <div><small>Concluídas 7d</small><b>${completedLast7.length}</b></div>
+            <div><small>Em andamento</small><b>${inProgress.length}</b></div>
+            <div><small>Abertas</small><b>${open.length}</b><span class="dv-bar"><u style="width:${openPct}%; background:var(--primary)"></u></span></div>
+            <div class="link" data-nodate="due" title="Ver tarefas sem prazo"><small>Sem prazo</small><b class="${noDue.length ? 'amb' : ''}">${noDue.length}</b><span class="dv-bar"><u style="width:${pctOf(noDue.length)}%; background:#E8A33D"></u></span></div>
+            <div class="link" data-nodate="follow" title="Ver tarefas sem data de retomada"><small>Sem retomada</small><b class="${noFollow.length ? 'amb' : ''}">${noFollow.length}</b><span class="dv-bar"><u style="width:${pctOf(noFollow.length)}%; background:#E8A33D"></u></span></div>
+          </div>
+        </section>
+        <section class="dv-card">
+          <h3>${icon('flag')}Status das tarefas</h3>
+          <div class="dv-status">${donut}
+            <div class="dv-legend">${stBuckets.map(b => `<div><i style="background:${b.color}"></i>${b.label}<b>${b.n}</b></div>`).join('')}</div>
+          </div>
+        </section>
+        <section class="dv-card dv-agenda">
+          <h3>${icon('calendar-blank')}Agenda <span class="dv-more" id="${agendaRows.length > 4 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 4 ? 'Ver mais (' + (agendaRows.length - 4) + ') →' : 'Calendário →'}</span></h3>
+          ${agendaRows.length ? agendaRows.slice(0, 4).map(agendaRowHtml).join('') : '<div class="dv-empty">Nenhum evento nos próximos 7 dias.</div>'}
+        </section>
       </div>
 
-      <div class="rs-spaces">
-        ${spaceList.map(c => {
-          const o = open.filter(t => t.categoryId === c.id).length;
-          const d = completed.filter(t => t.categoryId === c.id).length;
-          const pct = (o + d) ? Math.round(d / (o + d) * 100) : 0;
-          return `<div class="rs-card rs-space" data-space="${c.id}" title="Ver as tarefas deste espaço">
-            <div class="sq" style="background:${c.color}2E; color:${c.color};">${escapeHtml((c.name || '?').charAt(0).toUpperCase())}</div>
-            <div class="tx"><small>${escapeHtml(c.name)}</small><b>${o} aberta${o === 1 ? '' : 's'}</b><div class="rs-bar"><i style="width:${pct}%; background:${c.color}"></i></div></div>
-          </div>`; }).join('')}
-        <div class="rs-card rs-add" id="rsAddSpace"><span style="font-size:20px; line-height:1">＋</span>Espaço</div>
+      <div class="dv-r2">
+        <section class="dv-card">
+          <h3>${icon('list-bullets')}Tarefas
+            <span class="dv-seg" role="tablist">
+              <a role="tab" data-aba="hoje" class="${aba === 'hoje' ? 'on' : ''}">Hoje</a><a role="tab" data-aba="atrasadas" class="${aba === 'atrasadas' ? 'on' : ''}">Atrasadas</a><a role="tab" data-aba="proximas" class="${aba === 'proximas' ? 'on' : ''}">Próximas</a>
+            </span></h3>
+          <div class="dv-thead"><span></span><span>Tarefa</span><span>Espaço</span><span>Prior.</span><span>Prazo</span></div>
+          ${listNow.length ? listNow.slice(0, TASK_ROWS).map(taskRow).join('') : `<div class="dv-empty">${tabEmpty[aba]}</div>`}
+          ${listNow.length > TASK_ROWS ? `<span class="dv-link" id="dashSeeAllTasksLink">Ver todas (${listNow.length}) →</span>` : ''}
+        </section>
+        <section class="dv-card dv-conc">
+          <h3>${icon('trend-up')}Conclusões por dia ${periodTrend !== null ? `<span class="dv-chip ${periodTrend >= 0 ? 'ok' : 'late'}">${periodTrend >= 0 ? '↑' : '↓'} ${Math.abs(periodTrend)}%</span>` : ''}</h3>
+          <div class="dv-chart">${chart}</div>
+          <div class="dv-mrow"><div><small>Média por dia</small><b>${avgPerDay.toFixed(1).replace('.', ',')}</b></div><div><small>Melhor dia</small><b>${bestLabel}</b></div><div><small>Sequência</small><b>${streak} dia${streak === 1 ? '' : 's'}</b></div></div>
+        </section>
+        <section class="dv-card">
+          <h3>${icon('calendar-blank')}Próximos prazos <span class="dv-more" id="dashSeeAllTasksTop">Tarefas →</span></h3>
+          ${upcomingTasks.length ? upcomingTasks.slice(0, 4).map(t => { const cat = catById(t.categoryId), pr = t.projectId ? projectById(t.projectId) : null; const d = new Date(t.dueDate + 'T12:00:00'); return `
+            <div class="dv-li dash-list-row" data-task-id="${t.id}">
+              <span class="dv-dt"><b>${t.dueDate.slice(8)}</b>${MONTH_LABELS[d.getMonth()].slice(0, 3)}</span>
+              <div class="tx"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${pr ? escapeHtml(pr.name) : (cat ? escapeHtml(cat.name) : '')}${t.dueTime ? ' · ' + t.dueTime : ''}</small></div>
+            </div>`; }).join('') : '<div class="dv-empty">Nada com prazo nos próximos 7 dias.</div>'}
+        </section>
       </div>
 
-      <div class="rs-three">
-        <div class="rs-card">
-          <h3>Projetos <span>${prStatus.length ? prStatus.length + ' ativo' + (prStatus.length > 1 ? 's' : '') : ''}</span></h3>
-          ${prStatus.length ? prStatus.slice(0, 4).map(x => { const fin = x.st.total && x.st.done === x.st.total; return `<div class="rs-proj" data-project="${x.p.id}" style="--c:${projectColor(x.p)}; --p:${x.st.pct}">
-            <div class="pj-ig"><i><b>${projectIconSvg(x.p.icon || 'briefcase')}</b></i><em>${x.st.pct}%</em></div>
-            <div class="pj-tx"><b>${escapeHtml(x.p.name || 'Projeto')}</b><small>${fin ? 'Concluído' : (x.st.next ? escapeHtml(x.st.next.name || 'Etapa') + ' · ' + fmtDate(x.st.next.end) : (x.st.end ? 'Entrega ' + fmtDate(x.st.end) : 'Sem etapas'))}</small></div>
-            <span class="rs-tag ${x.st.late ? 'late' : (fin ? 'ok' : '')}">${x.st.late ? x.st.lateCount + ' atrasada' + (x.st.lateCount > 1 ? 's' : '') : (fin ? 'Concluído' : 'No prazo')}</span></div>`; }).join('')
-            : '<div class="rs-empty">Nenhum projeto ainda.</div>'}
-          <span class="rs-link" id="rsSeeProjects">Ver projetos →</span>
-        </div>
-        <div class="rs-card">
-          <h3>Retomar hoje <span>${followToday.length ? followToday.length : ''}</span></h3>
-          ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="rs-row dash-list-row" data-task-id="${t.id}"><span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></span></div>`).join('')
-            : '<div class="rs-empty">Nada para retomar hoje.</div>'}
-        </div>
-        <div class="rs-card rs-agenda">
-          <h3>Agenda <span>${todayEvents.length ? todayEvents.length + ' hoje' : ''}</span></h3>
-          ${agendaRows.length ? agendaRows.slice(0, 5).map(r => agendaRowHtml(r)).join('') : '<div class="rs-empty">Nenhum evento nos próximos 7 dias.</div>'}
-          <span class="rs-link" id="${agendaRows.length > 5 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 5 ? 'Ver mais (' + (agendaRows.length - 5) + ') →' : 'Ver calendário →'}</span>
-        </div>
-      </div>
-
-      <div class="rs-two rs-bottom">
-        <div class="rs-card">
-          <h3>Tarefas importantes <span id="dashSeeAllImportantLink" style="cursor:pointer; color:var(--primary); font-weight:600;">Ver todas →</span></h3>
-          ${importantTasksSorted.length ? importantTasksSorted.slice(0, 5).map(t => `<div class="rs-row dash-tasklist-row" data-task-id="${t.id}">
-            <span class="bar-pr" style="background:${t.priority === 'critica' ? 'var(--priority-critica)' : 'var(--priority-alta)'}"></span>
-            <span class="tt"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.priority === 'critica' ? 'Crítica' : 'Alta'}</small></span>
-            <span class="dt ${t.dueDate && t.dueDate < todayS ? 'late' : ''}">${t.dueDate ? fmtDate(t.dueDate) : ''}</span></div>`).join('')
-            : '<div class="rs-empty">Nenhuma tarefa importante.</div>'}
-        </div>
-        <div class="rs-card rs-datas">
-          <h3>Tarefas sem data</h3>
-          <div class="rs-drow" data-nodate="due">
-            <span class="ic">${icon('calendar-blank')}</span>
-            <span class="n">${noDue.length}</span>
-            <span class="tx"><b>Sem prazo</b><small>${noDue.length ? miniTitles(noDue) : 'Tudo com prazo'}</small></span>
-            <span class="go">Ver →</span>
-          </div>
-          <div class="rs-drow" data-nodate="follow">
-            <span class="ic">${icon('repeat')}</span>
-            <span class="n">${noFollow.length}</span>
-            <span class="tx"><b>Sem data de retomada</b><small>${noFollow.length ? miniTitles(noFollow) : 'Tudo com retomada'}</small></span>
-            <span class="go">Ver →</span>
-          </div>
-          <div class="rs-drow ${noDates.length ? 'warn' : ''}" data-nodate="none">
-            <span class="ic">${icon('prohibit')}</span>
-            <span class="n">${noDates.length}</span>
-            <span class="tx"><b>Sem nenhuma data</b><small>${noDates.length ? miniTitles(noDates) : 'Nenhuma tarefa solta'}</small></span>
-            <span class="go">${noDates.length ? 'Organizar →' : ''}</span>
-          </div>
-        </div>
-        <div class="rs-card">
-          <h3>Atividades recentes</h3>
-          ${recentActivities.length ? recentActivities.map(a => `<div class="rs-row" style="cursor:default"><span class="tt"><b>${escapeHtml(a.msg)}</b><small>${a.cat ? escapeHtml(a.cat.name) + ' · ' : ''}${a.module}</small></span><span class="dt">${fmtActivityTime(a.ts)}</span></div>`).join('')
-            : '<div class="rs-empty">Nenhuma atividade ainda.</div>'}
-        </div>
+      <div class="dv-r3">
+        <section class="dv-card">
+          <h3>${icon('kanban')}Projetos <span class="dv-more" id="rsSeeProjects">${prStatus.length ? prStatus.length + ' ativo' + (prStatus.length > 1 ? 's' : '') + ' · ' : ''}Ver todos →</span></h3>
+          ${prStatus.length ? projRows : '<div class="dv-empty">Nenhum projeto ainda.</div>'}
+        </section>
+        <section class="dv-card">
+          <h3>${icon('stack')}Espaços <span class="dv-more" id="rsAddSpace">+ Espaço</span></h3>
+          ${spacesHtml || '<div class="dv-empty">Nenhum espaço.</div>'}
+        </section>
+        <section class="dv-card">
+          <h3>${icon('flag')}Tarefas importantes <span class="dv-more" id="dashSeeAllImportantLink">Ver todas →</span></h3>
+          ${importantTasks.length ? importantTasks.slice(0, 4).map(t => `<div class="dv-li dash-tasklist-row" data-task-id="${t.id}">
+            <span class="dv-fl ${t.priority}">${icon('flag')}</span>
+            <div class="tx"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? fmtDate(t.dueDate) : 'Sem prazo'}</small></div>${prioChip(t.priority)}</div>`).join('') : '<div class="dv-empty">Nenhuma tarefa importante.</div>'}
+        </section>
+        <section class="dv-card">
+          <h3>${icon('repeat')}Retomar hoje ${followToday.length ? `<span class="dv-count">${followToday.length}</span>` : ''}</h3>
+          ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="dv-li dash-list-row" data-task-id="${t.id}"><span class="dv-fl">${icon('repeat')}</span><div class="tx"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></div></div>`).join('') : '<div class="dv-empty">Nada para retomar hoje.</div>'}
+        </section>
       </div>
     </div>
   `;
 
+  /* ---- interações ---- */
   view.querySelectorAll('[data-nodate]').forEach(el => {
     el.onclick = () => {
-      const kind = el.dataset.nodate;
-      if(kind === 'none' && noDates.length){
-        // abre a primeira tarefa sem nenhuma data para já definir a retomada
-        G.currentView = 'tasks'; G.activeTaskId = noDates[0].id; G.creatingNewTask = false; render();
-        return;
-      }
       G.currentView = 'tasks';
-      G.taskGroupMode = kind === 'due' ? 'periodo' : 'retomada';
+      G.taskGroupMode = el.dataset.nodate === 'due' ? 'periodo' : 'retomada';
       render();
     };
   });
-  view.querySelectorAll('.rs-space[data-space]').forEach(el => {
+  view.querySelectorAll('.dv-sp-row[data-space]').forEach(el => {
     el.onclick = () => { G.activeCategoryFilter = el.dataset.space; G.currentView = 'tasks'; render(); };
   });
   bindOnboardingCard(view);
-  const rsAdd = document.getElementById('rsAddSpace');
-  if(rsAdd) rsAdd.onclick = () => { G.settingsTab = 'categorias'; G.currentView = 'settings'; render(); };
-  view.querySelectorAll('.rs-proj[data-project]').forEach(el => {
+  const addSpace = document.getElementById('rsAddSpace');
+  if(addSpace) addSpace.onclick = () => { G.settingsTab = 'categorias'; G.currentView = 'settings'; render(); };
+  view.querySelectorAll('.dv-pr[data-project]').forEach(el => {
     el.onclick = () => { G.activeProjectId = el.dataset.project; G.projectTab = defaultProjectTab(); G.currentView = 'projects'; render(); };
   });
-  const rsSeeProjects = document.getElementById('rsSeeProjects');
-  if(rsSeeProjects) rsSeeProjects.onclick = () => { G.activeProjectId = null; G.currentView = 'projects'; render(); };
+  const seeProjects = document.getElementById('rsSeeProjects');
+  if(seeProjects) seeProjects.onclick = () => { G.activeProjectId = null; G.currentView = 'projects'; render(); };
 
-  view.querySelectorAll('.dash-list-row[data-task-id]').forEach(row => {
-    row.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = row.dataset.taskId; G.creatingNewTask = false; render(); };
+  view.querySelectorAll('[data-aba]').forEach(el => {
+    el.onclick = () => { PAINEL_INICIO.aba = el.dataset.aba; renderDashboard(); };
   });
-  view.querySelectorAll('.dash-list-row[data-note-id], .dash-note-card[data-note-id]').forEach(row => {
-    row.onclick = () => {
-      G.currentView = 'notes';
-      render();
-      const n = G.state.notes.find(x => x.id === row.dataset.noteId);
-      if(n) openNoteComposer(n);
+  view.querySelectorAll('[data-check]').forEach(el => {
+    const toggle = (e) => {
+      e.stopPropagation();
+      const t = G.state.tasks.find(x => x.id === el.dataset.check);
+      if(t) toggleTaskFromDashboard(t);
     };
+    el.onclick = toggle;
+    el.onkeydown = (e) => { if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(e); } };
   });
+  const openTask = id => { G.currentView = 'tasks'; G.activeTaskId = id; G.creatingNewTask = false; render(); };
+  view.querySelectorAll('.dv-tr[data-task-id], .dv-li[data-task-id]').forEach(row => { row.onclick = () => openTask(row.dataset.taskId); });
   view.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => {
     row.onclick = () => {
       const ev = G.state.events.find(x => x.id === row.dataset.eventId);
@@ -390,25 +368,10 @@ export function renderDashboard(){
     ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
     ov.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => { row.onclick = () => { close(); const ev = G.state.events.find(x => x.id === row.dataset.eventId); if(ev) openEventComposer(ev); }; });
   };
-  const seeAllImportantLink = document.getElementById('dashSeeAllImportantLink');
-  if(seeAllImportantLink) seeAllImportantLink.onclick = (e) => { e.preventDefault(); G.currentView = 'tasks'; render(); };
-  const seeAllImportantBottomLink = document.getElementById('dashSeeAllImportantBottomLink');
-  if(seeAllImportantBottomLink) seeAllImportantBottomLink.onclick = () => { G.currentView = 'tasks'; render(); };
-  view.querySelectorAll('.dash-tasklist-row[data-task-id]').forEach(row => {
-    row.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = row.dataset.taskId; G.creatingNewTask = false; render(); };
-  });
-
-  const kpiEventsCard = document.getElementById('dashKpiEventsCard');
-  if(kpiEventsCard) kpiEventsCard.onclick = () => { G.currentView = 'calendar'; render(); };
-  const kpiImportantCard = document.getElementById('dashKpiImportantCard');
-  if(kpiImportantCard) kpiImportantCard.onclick = () => { G.currentView = 'tasks'; render(); };
-
-  const seeAllTasksLink = document.getElementById('dashSeeAllTasksLink');
-  if(seeAllTasksLink) seeAllTasksLink.onclick = () => { G.currentView = 'tasks'; render(); };
-  const seeCalendarLink = document.getElementById('dashSeeCalendarLink');
-  if(seeCalendarLink) seeCalendarLink.onclick = (e) => { e.preventDefault(); G.currentView = 'calendar'; render(); };
-  const seeAllEventsLink = document.getElementById('dashSeeAllEventsLink');
-  if(seeAllEventsLink) seeAllEventsLink.onclick = () => { G.currentView = 'calendar'; render(); };
+  const goTasks = () => { G.currentView = 'tasks'; render(); };
+  ['dashSeeAllImportantLink', 'dashSeeAllTasksLink', 'dashSeeAllTasksTop'].forEach(id => { const el = document.getElementById(id); if(el) el.onclick = goTasks; });
+  const seeEvents = document.getElementById('dashSeeAllEventsLink');
+  if(seeEvents) seeEvents.onclick = () => { G.currentView = 'calendar'; render(); };
 }
 
 

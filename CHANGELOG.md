@@ -1,3 +1,30 @@
+## [3.0.0] - 2026-11-07 17:00
+
+### Changed
+
+#### Layout
+
+- Menu de telas no topo (Visão geral, Tarefas, Notas, Projetos, Calendário) no lugar da barra lateral escura. No celular o mesmo menu fica numa barra fixa embaixo, como num aplicativo.
+- Marca oficial (ícone D + DOUNO + Tasks) alinhada no topo. A busca virou um ícone que abre o campo (atalho Ctrl+K). Ajuda, Modo escuro e Sobre foram para o menu da conta.
+- Faixa de título abaixo do topo: saudação e data na Visão geral, nome e contadores nas demais telas, com o filtro de espaço.
+- Visão geral refeita, compacta: cartão Hoje com gráfico de 14 dias, status das tarefas (rosca), agenda, tabela de tarefas (Hoje, Atrasadas, Próximas) com conclusão direto do painel, conclusões por dia com média, melhor dia e sequência, próximos prazos, projetos (anel de progresso), espaços, tarefas importantes e retomar hoje.
+
+#### Calendário
+
+- O botão "Camadas" virou "Personalizar" (painel "Personalizar o calendário"), onde se escolhe o que aparece, como feriados nacionais e facultativos.
+
+### Added
+
+#### Criar
+
+- Botão "+" redondo no topo com menu: Tarefa, Evento, Nota, Projeto (e Etapa, com um projeto aberto) e "A partir de um modelo". Atalhos T, E, N e P com o menu aberto.
+- Filtro de período na Visão geral (últimos 7 dias, este mês, 30 e 90 dias), usado em status das tarefas e conclusões por dia.
+
+### Removed
+
+- Barra lateral escura e botão flutuante "+" (substituído pelo "+" do topo). Os cartões "Tarefas sem data" e "Atividades recentes" saíram da Visão geral; os atalhos de sem prazo e sem retomada continuam na faixa do cartão Hoje.
+
+
 ## [1.21.0] - 2026-11-05 17:00
 
 ### Added

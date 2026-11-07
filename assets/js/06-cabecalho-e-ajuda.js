@@ -92,12 +92,10 @@ export function openHelpPanel(){
   renderHelpPanelContent();
   document.getElementById('helpPanel').classList.add('show');
   document.getElementById('helpPanelBackdrop').classList.add('show');
-  document.getElementById('primaryAddBtn').classList.add('help-open');
 }
 export function closeHelpPanel(){
   document.getElementById('helpPanel').classList.remove('show');
   document.getElementById('helpPanelBackdrop').classList.remove('show');
-  document.getElementById('primaryAddBtn').classList.remove('help-open');
 }
 document.getElementById('helpBtn').onclick = openHelpPanel;
 document.getElementById('saveErrorBadge').onclick = () => { if(G.cloudSession) triggerCloudWrite(); };

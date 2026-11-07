@@ -5,7 +5,6 @@ import { renderHelpPanelContent, renderPageHeaderMeta } from './06-cabecalho-e-a
 import { refreshFromCloudIfSafe } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { escapeHtml, todayStr } from './10-helpers.js';
-import { renderSidebarCats } from './11-render-sidebar.js';
 import { renderTasks } from './12-render-tasks.js';
 import { MONTH_LABELS, WEEKDAY_FULL_LABELS } from './25-calendario.js';
 import { renderDashboard } from './26-dashboard.js';
@@ -70,7 +69,7 @@ export function render(){
   const subtitleEl = document.getElementById('viewSubtitle');
   if(G.currentView === 'dashboard'){
     const focusD = new Date(todayStr()+'T00:00:00');
-    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()} · suas tarefas, do seu jeito`;
+    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()}`;
     subtitleEl.style.display = 'block';
   } else {
     subtitleEl.style.display = 'none';
@@ -82,21 +81,12 @@ export function render(){
   document.getElementById('projectsView').style.display = G.currentView === 'projects' ? 'block' : 'none';
   document.getElementById('settingsView').style.display = G.currentView === 'settings' ? 'block' : 'none';
   document.getElementById('searchWrap').style.display = 'flex';
-  const addBtn = document.getElementById('primaryAddBtn');
-  if(G.currentView === 'settings' || G.currentView === 'dashboard'){
-    addBtn.style.display = 'none';
-  } else {
-    addBtn.style.display = 'flex';
-    addBtn.title = G.currentView === 'tasks' ? 'Nova tarefa' : G.currentView === 'calendar' ? 'Nova agenda' : G.currentView === 'projects' ? (G.activeProjectId ? 'Nova etapa' : 'Novo projeto') : 'Nova nota';
-  }
-  addBtn.classList.toggle('shifted', (G.currentView === 'tasks' || G.currentView === 'projects') && (G.activeTaskId || G.creatingNewTask));
   renderProfileCard();
   updateNotifBadge();
   updateWhatsNewDot();
   maybeShowOnboarding();
   maybeShowWhatsNew();
   if(document.getElementById('helpPanel').classList.contains('show')) renderHelpPanelContent();
-  renderSidebarCats();
   if(G.currentView === 'dashboard') renderDashboard();
   else if(G.currentView === 'tasks') renderTasks();
   else if(G.currentView === 'notes') renderNotes();

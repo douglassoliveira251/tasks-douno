@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'fs';
-import { gotoApp } from './helpers.js';
+import { gotoApp, novoItem } from './helpers.js';
 
 const seed = () => {
   const cat = state.categories[0].id;
@@ -203,7 +203,7 @@ test('etapa: resumo lateral, progresso com subtarefas e + cria etapa', async ({ 
   await page.locator('#stgSideBack').click();
   await expect(page.locator('#prjSideEdit')).toBeVisible();
   // + cria etapa quando há projeto aberto
-  await page.locator('#primaryAddBtn').click();
+  await novoItem(page, 'stage');
   await expect(page.locator('#stgName')).toBeVisible();
   await page.locator('#stgCancel').click();
 });

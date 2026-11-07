@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.0.0', date:'07/11/2026', title:'Versão 3: novo visual', text:'Menu no topo (no celular, na barra de baixo), botão + para criar tarefa, evento, nota ou projeto de qualquer tela, e uma Visão geral mais compacta, com período, gráficos e tarefas que você conclui direto do painel.' },
   { version:'1.21.0', date:'05/11/2026', title:'Excluir a minha conta', text:'Em Perfil › Conta você já pode excluir a sua conta e todos os seus dados por conta própria. Antes, dá para baixar um backup. A exclusão pede o seu e-mail e a senha e é definitiva.' },
   { version:'1.20.1', date:'05/11/2026', title:'Mais arrumação por dentro', text:'Mais uma parte do estado interno do sistema foi organizada por assunto (filtros, notas, painel da tarefa e linha do tempo). Nada muda no que você vê.' },
   { version:'1.20.0', date:'05/11/2026', title:'Desfazer conclusão, termos e celular', text:'Ao concluir uma tarefa recorrente aparece o aviso "Desfazer", que devolve a tarefa e apaga a próxima ocorrência. Também chegaram os Termos de Uso e a Política de Privacidade (links no cadastro e em Sobre) e pequenos ajustes de tela no celular.' },

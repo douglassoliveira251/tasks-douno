@@ -37,8 +37,9 @@ export function renderCalendar(){
     </div>
     <div class="cal-period-label">${periodLabel}</div>
     <div class="cal-layers">
-      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" aria-haspopup="true" aria-expanded="${G.calLayersOpen}">${icon('stack')}Camadas</button>
-      ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Camadas do calendário</h4>
+      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" title="Personalizar o calendário" aria-haspopup="true" aria-expanded="${G.calLayersOpen}">${icon('sliders-horizontal')}Personalizar</button>
+      ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Personalizar o calendário</h4>
+        <p class="cal-lay-hint">Escolha o que aparece no calendário.</p>
         <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
         <label class="cal-lay-row sub ${G.state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${G.state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
       </div>` : ''}

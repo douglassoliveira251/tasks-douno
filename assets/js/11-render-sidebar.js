@@ -14,11 +14,3 @@ export function selectSpace(catId){
   clearSearchTerm();
   render();
 }
-
-export function renderSidebarCats(){
-  const tasksInScope = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
-  const notesInScope = G.state.notes.filter(n => !G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter);
-  document.getElementById('taskNavCount').textContent = tasksInScope.filter(t=>!t.done).length;
-  document.getElementById('noteNavCount').textContent = notesInScope.filter(n=>!n.archived).length;
-}
-
