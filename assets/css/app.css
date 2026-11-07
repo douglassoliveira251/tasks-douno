@@ -3503,3 +3503,12 @@
     .tn-new-btn{width:auto; height:30px; padding:0 12px;}
     body[data-view="tasks"] .tn-new-btn{width:auto;}
   }
+
+  /* mesmas margens laterais e mesmo respiro no topo em todas as páginas (computador) */
+  @media (min-width:769px){
+    .topbar{padding:10px 44px 8px;}
+    body.view-dashboard .topbar{padding:10px 44px 4px;}
+    .view, #dashboardView{padding-left:44px; padding-right:44px;}
+    body.view-dashboard .topbar-filters{margin-top:0;}
+    body[data-view="tasks"] #tasksView{padding-left:14px; padding-right:44px;}
+  }

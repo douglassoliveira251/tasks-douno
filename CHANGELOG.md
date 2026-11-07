@@ -1,3 +1,9 @@
+## [3.6.5] - 2026-11-08 03:00
+
+### Changed
+
+- Margens laterais de 44 px e topo mais enxuto também na Visão geral, Notas, Projetos, Calendário e Configurações (computador), no mesmo padrão de Tarefas.
+
 ## [3.6.4] - 2026-11-08 02:30
 
 ### Changed
