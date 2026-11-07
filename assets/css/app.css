@@ -3465,3 +3465,31 @@
     body[data-view="tasks"] .topbar{padding-top:8px;}
     .task-row .task-status-pill{border-radius:4px; padding:1px 8px; font-size:10.5px; line-height:1.5;}
   }
+
+  /* v3.6.3: Tarefas com margens laterais maiores, título maior, linhas quadradas e mais altas, grupos menores */
+  @media (min-width:769px){
+    body[data-view="tasks"] .topbar{padding-left:44px; padding-right:44px;}
+    body[data-view="tasks"] #tasksView{padding-left:14px; padding-right:44px;} /* +30px do espaço do alfinete = lista alinhada com o título */
+    body[data-view="tasks"] .topbar-title .view-title{font-size:27px; letter-spacing:-.4px;}
+    .task-row{border-radius:0; min-height:42px; padding-top:8px; padding-bottom:8px;}
+    .tasks-list-col .bucket-title{font-size:12px; letter-spacing:.01em;}
+    .tasks-list-col .bucket-header{margin-bottom:6px;}
+  }
+
+  /* mesmo padrão de título e subtítulo da Visão geral em todas as páginas (computador) */
+  @media (min-width:769px){
+    .topbar{padding:16px 28px 10px;}
+    .topbar-title-text{flex-direction:column; align-items:flex-start; gap:3px;}
+    .topbar-title .view-title{font-size:27px; font-weight:700; letter-spacing:-.4px; line-height:1.15;}
+    .topbar-title .view-subtitle, .topbar-title .page-header-stat, .topbar-title .page-header-stats{font-size:13.5px;}
+  }
+
+  /* ícones do canto direito (busca, sino, conta): mesma caixa de 36px e espaço igual entre eles */
+  @media (min-width:769px){
+    .tn-right{gap:10px;}
+    .search-wrap{width:36px; height:36px;}
+    .search-wrap > svg{left:9.5px;}
+    .search-wrap input{height:36px;}
+    .tn-right .notification-btn{width:36px; height:36px;}
+    .topbar-profile-chip{height:36px; padding:4px 8px 4px 4px;}
+  }

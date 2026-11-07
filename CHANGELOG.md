@@ -1,3 +1,11 @@
+## [3.6.3] - 2026-11-08 02:00
+
+### Changed
+
+- Título e subtítulo de todas as páginas no mesmo padrão da Visão geral (computador): título 27 px, subtítulo 13,5 px, com mais respiro no topo.
+- Tarefas: margens laterais maiores (título e lista alinhados), linhas da lista totalmente quadradas e mais altas (42 px), nomes dos grupos menores.
+- Busca, notificações e conta no topo com caixas do mesmo tamanho e espaçamento igual entre os centros.
+
 ## [3.6.2] - 2026-11-08 01:00
 
 ### Changed

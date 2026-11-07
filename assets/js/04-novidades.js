@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.6.3', date:'08/11/2026', title:'Títulos maiores e lista quadrada', text:'O título das páginas ficou maior e igual ao da Visão geral, com mais margem nas laterais de Tarefas. As linhas da lista ficaram quadradas e um pouco mais altas, os nomes dos grupos menores, e os ícones de busca, notificações e conta ganharam o mesmo espaçamento.' },
   { version:'3.6.2', date:'08/11/2026', title:'Lista de tarefas mais compacta', text:'As linhas da lista de tarefas ficaram menores e com os cantos mais retos, e o botão Nova tarefa subiu um pouco no topo.' },
   { version:'3.6.1', date:'08/11/2026', title:'Botões "Novo" e sombras ajustadas', text:'Os botões voltaram a dizer "Novo item", "Nova tarefa", "Nova nota"... Em Tarefas, o "Nova tarefa" ficou na linha de cima. Na Visão geral os cartões ganharam uma sombra mais suave e os botões, uma sombra um pouco mais marcada.' },
   { version:'3.6.0', date:'07/11/2026', title:'Botão + em cada tela e topo de Tarefas novo', text:'O botão redondo do topo saiu. Agora cada tela tem o seu "+": + Tarefa, + Nota, + Evento, + Projeto. Na Visão geral é o "+ Item", que abre o menu com tudo, acima do Período. O topo de Tarefas ficou solto, com filtros em pílulas e a troca Lista/Kanban (Kanban em breve).' },
