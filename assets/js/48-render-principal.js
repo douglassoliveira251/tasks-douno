@@ -2,6 +2,7 @@ import { G } from './globais.js';
 import { maybeShowWhatsNew, updateWhatsNewDot } from './05-novidades-painel.js';
 import { maybeShowOnboarding } from './51-primeiro-uso.js';
 import { renderHelpPanelContent, renderPageHeaderMeta } from './06-cabecalho-e-ajuda.js';
+import { isMobileViewport } from './01-estado.js';
 import { refreshFromCloudIfSafe } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { escapeHtml, todayStr } from './10-helpers.js';
@@ -47,6 +48,11 @@ export function render(){
     G.lastGroupModeKey = groupModeKey();
     const saved = G.state.categoryGroupModes && G.state.categoryGroupModes[G.lastGroupModeKey];
     G.taskGroupMode = GROUP_MODES.includes(saved) ? saved : DEFAULT_GROUP_MODE;
+  }
+  /* celular: ao abrir o calendário, começa na visão Dia (de hoje), qualquer que seja a escolha do computador */
+  if(G.currentView === 'calendar' && lastRenderedView !== 'calendar' && isMobileViewport()){
+    if(G.calendarView !== 'day') G.calendarFocusDate = todayStr();
+    G.calendarView = 'day';
   }
   if(G.currentView !== lastRenderedView){
     lastRenderedView = G.currentView;

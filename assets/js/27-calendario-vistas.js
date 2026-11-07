@@ -1,5 +1,6 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
+import { isMobileViewport } from './01-estado.js';
 import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
 import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, getEventsForDate, startOfWeekStr } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
@@ -55,6 +56,7 @@ export function renderCalendar(){
   header.querySelectorAll('[data-cv]').forEach(btn => {
     btn.onclick = () => {
       G.calendarView = btn.dataset.cv;
+      if(isMobileViewport()){ render(); return; } // no celular a troca vale só para agora; a escolha do computador não é alterada
       G.state.calendarViewDefault = G.calendarView;
       if(G.activeCategoryFilter){
         G.state.categoryCalendarViews[G.activeCategoryFilter] = G.calendarView;

@@ -1,3 +1,12 @@
+## [3.4.1] - 2026-11-07 22:30
+
+### Changed
+
+#### Calendário
+
+- No celular (tela estreita) o calendário abre sempre na visão **Dia**, de hoje, independente da visão escolhida no computador. Trocar a visão no celular vale só naquele momento: não altera a escolha do computador nem a por espaço, e ao reabrir o calendário volta para Dia.
+
+
 ## [3.4.0] - 2026-11-07 22:00
 
 ### Changed
