@@ -79,7 +79,40 @@ export function toggleNewMenu(force){
   if(first) first.focus();
 }
 
-btn().onclick = (e) => { e.stopPropagation(); toggleNewMenu(); };
+/* O botão "+" é contextual: em cada tela cria o que é daquela tela (+ Tarefa, + Nota...).
+   Na Visão geral (e onde não há item próprio) é "+ Item" e abre o menu com tudo. */
+function newBtnMode(){
+  const v = G.currentView;
+  if(v === 'tasks') return { label: 'Tarefa', title: 'Nova tarefa', run: () => { G.currentView = 'tasks'; openNewTaskPanel(); } };
+  if(v === 'notes') return { label: 'Nota', title: 'Nova nota', run: () => { openNoteComposer(); } };
+  if(v === 'calendar') return { label: 'Evento', title: 'Novo evento', run: () => { openEventComposer(null, G.calendarFocusDate); } };
+  if(v === 'projects'){
+    const pr = G.activeProjectId ? projectById(G.activeProjectId) : null;
+    if(pr) return { label: 'Etapa', title: 'Nova etapa do projeto', run: () => openStageEditor(pr, null) };
+    return { label: 'Projeto', title: 'Novo projeto', run: () => { G.activeProjectId = null; openProjectEditor(null); } };
+  }
+  return { label: 'Item', title: 'Criar novo item', menu: true };
+}
+export function syncNewButton(){
+  const b = btn();
+  if(!b) return;
+  const m = newBtnMode();
+  const lb = document.getElementById('newBtnLabel');
+  if(lb) lb.textContent = m.label;
+  b.title = m.title;
+  b.setAttribute('aria-label', m.title);
+  b.classList.toggle('has-menu', !!m.menu);
+  if(m.menu) b.setAttribute('aria-haspopup', 'menu'); else { b.removeAttribute('aria-haspopup'); b.removeAttribute('aria-expanded'); closeNewMenu(); }
+}
+document.addEventListener('douno:rendered', syncNewButton);
+document.getElementById('newBtnSplit').onclick = (e) => { e.stopPropagation(); openTemplatePickMenu(document.getElementById('newMenuWrap')); };
+document.addEventListener('douno:novo-menu', () => toggleNewMenu(true));
+btn().onclick = (e) => {
+  e.stopPropagation();
+  const m = newBtnMode();
+  if(m.menu) toggleNewMenu(); else m.run();
+};
+syncNewButton();
 document.addEventListener('click', (e) => {
   const wrap = document.getElementById('newMenuWrap');
   if(isOpen() && wrap && !wrap.contains(e.target)) closeNewMenu();

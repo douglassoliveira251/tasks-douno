@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.6.0', date:'07/11/2026', title:'Botão + em cada tela e topo de Tarefas novo', text:'O botão redondo do topo saiu. Agora cada tela tem o seu "+": + Tarefa, + Nota, + Evento, + Projeto. Na Visão geral é o "+ Item", que abre o menu com tudo, acima do Período. O topo de Tarefas ficou solto, com filtros em pílulas e a troca Lista/Kanban (Kanban em breve).' },
   { version:'3.5.1', date:'07/11/2026', title:'Visão geral melhor no celular', text:'No celular a Visão geral foi reorganizada: indicadores em grade 2x2, avisos de tarefas sem prazo e sem retomada tocáveis, anel com o andamento do dia e Tarefas e Agenda logo no começo, com os títulos inteiros.' },
   { version:'3.5.0', date:'07/11/2026', title:'Mapa de compromissos na Visão geral', text:'Um calendário do mês pinta cada dia conforme a quantidade de prazos e eventos (passe o mouse para ver o detalhe, clique para abrir o dia). A Agenda foi para o lugar do Retomar hoje, e a Visão geral ganhou fundo branco com cartões em sombra leve.' },
   { version:'3.4.1', date:'07/11/2026', title:'Calendário no celular abre em Dia', text:'No celular o calendário agora abre na visão Dia, de hoje. A escolha que você faz no computador (Dia, Semana ou Mês) continua como está.' },

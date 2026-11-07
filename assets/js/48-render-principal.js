@@ -61,6 +61,8 @@ export function render(){
   if(G.currentView !== 'notes') G.notesDrawerOpen = false;
   document.body.classList.toggle('notes-focus', G.notesFocusMode && G.currentView === 'notes');
   document.body.classList.toggle('view-dashboard', G.currentView === 'dashboard');
+  document.body.dataset.view = G.currentView;
+  if(G.currentView !== 'tasks') document.querySelectorAll('#topbarFilters .group-mode-bar, #topbarFilters .view-mode-toggle').forEach(el => el.remove());
   renderSpaceSelector();
   document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === G.currentView));
   const viewTitleEl = document.getElementById('viewTitle');
@@ -101,5 +103,6 @@ export function render(){
   else if(G.currentView === 'projects') renderProjects();
   else renderSettingsView();
   updateFileStatus();
+  document.dispatchEvent(new Event('douno:rendered'));
 }
 

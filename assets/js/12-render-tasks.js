@@ -281,11 +281,6 @@ export function renderTasks(){
       ${G.state.projects.map(p => `<option value="${p.id}" ${G.taskProjectFilter===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
     </select>` : ''}
     <span class="group-bar-div first"></span>
-    <button type="button" class="tpl-create-btn" id="useTemplateBtn" title="Criar tarefa a partir de um template">
-      ${icon('copy')}
-      <span>Criar de template</span>
-      ${icon('caret-down')}
-    </button>
     <span class="group-bar-div"></span>
     <label class="completed-toggle">
       <span>Mostrar concluídas</span>
@@ -382,16 +377,21 @@ export function renderTasks(){
 
   const projFilterEl = groupBar.querySelector('#taskProjectFilter');
   if(projFilterEl) projFilterEl.addEventListener('change', e => { G.taskProjectFilter = e.target.value; render(); });
-  groupBar.querySelector('#useTemplateBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    openTemplatePickMenu(e.currentTarget);
-  });
   groupBar.querySelector('#showCompletedToggle').addEventListener('change', e => {
     G.state.showCompletedTasks = e.target.checked;
     markDirty();
   });
 
-  view.appendChild(groupBar);
+  /* o topo da tela vive na barra de cima: filtros, "+ Tarefa" e a troca Lista/Kanban (Kanban ainda desativado) */
+  const topFilters = document.getElementById('topbarFilters');
+  topFilters.querySelectorAll('.group-mode-bar, .view-mode-toggle').forEach(el => el.remove());
+  const modeToggle = document.createElement('div');
+  modeToggle.className = 'view-mode-toggle';
+  modeToggle.innerHTML = `
+    <button type="button" class="on" aria-pressed="true" title="Lista">${icon('list')}</button>
+    <button type="button" disabled aria-disabled="true" title="Kanban (em breve)">${icon('kanban')}</button>`;
+  topFilters.prepend(groupBar);
+  topFilters.appendChild(modeToggle);
 
   const layout = document.createElement('div');
   layout.className = 'tasks-layout';

@@ -69,10 +69,6 @@
         <button type="button" class="search-clear-btn" id="searchClearBtn" title="Limpar busca" style="display:none;"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></button>
         <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
       </div>
-      <div class="tn-new" id="newMenuWrap">
-        <button type="button" class="tn-new-btn" id="newBtn" title="Criar novo" aria-label="Criar novo" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg></button>
-        <div class="new-menu" id="newMenu" role="menu" style="display:none;"></div>
-      </div>
       <div class="topbar-notif-wrap" id="topbarNotifWrap">
         <button class="notification-btn" id="notificationBtn" title="Notificações">
           <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"/></svg>
@@ -142,6 +138,11 @@
         </div>
       </div>
       <div class="topbar-filters" id="topbarFilters">
+        <div class="tn-new" id="newMenuWrap">
+          <button type="button" class="tn-new-btn" id="newBtn" title="Criar novo" aria-label="Criar novo" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg><span id="newBtnLabel">Item</span><svg class="tn-new-caret" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button>
+          <button type="button" class="tn-new-split" id="newBtnSplit" title="Criar a partir de um template" aria-label="Escolher template para a nova tarefa" aria-haspopup="menu"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button>
+          <div class="new-menu" id="newMenu" role="menu" style="display:none;"></div>
+        </div>
         <div class="space-selector-wrap period-selector-wrap" id="periodSelectorWrap" style="display:none;">
           <button class="space-selector-btn" id="periodSelectorBtn" title="Escolher período" aria-label="Escolher período">
             <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/></svg>

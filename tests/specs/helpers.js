@@ -31,8 +31,8 @@ export async function evalApp(page, fn, arg) {
   return page.evaluate(fn, arg);
 }
 
-/** Cria algo pelo botão "+" do topo (key: task | event | note | project | stage | template). */
+/** Cria algo pelo menu do botão "+ Item" (abre o menu completo em qualquer tela) (key: task | event | note | project | stage | template). */
 export async function novoItem(page, key) {
-  await page.locator('#newBtn').click();
+  await page.evaluate(() => document.dispatchEvent(new Event('douno:novo-menu')));
   await page.locator(`.new-menu-item[data-new="${key}"]`).click();
 }

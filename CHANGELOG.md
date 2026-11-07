@@ -1,3 +1,11 @@
+## [3.6.0] - 2026-11-07 23:59
+
+### Changed
+
+- O botão "+" redondo do topo foi substituído por um botão em cada tela: "+ Tarefa", "+ Nota", "+ Evento", "+ Projeto" (e "+ Etapa" dentro de um projeto). Na Visão geral é o "+ Item", pequeno, acima do seletor de Período, e abre o menu com tarefa, evento, nota e projeto.
+- Topo da tela Tarefas sem a caixa de fundo: título com o resumo embaixo, filtros em pílulas, "+ Tarefa" e a troca Lista/Kanban (Kanban visível, ainda desativado).
+- "Tasks" ao lado do logo um pouco menor e mais forte.
+
 ## [3.5.1] - 2026-11-07 23:30
 
 ### Changed

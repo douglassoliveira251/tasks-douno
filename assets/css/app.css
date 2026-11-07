@@ -2830,8 +2830,8 @@
   .tn-word .sidebar-wordmark-img{height:18px; width:auto; display:block; flex:none;}
   [data-theme="dark"] .tn-word .sidebar-wordmark-img{filter:brightness(0) invert(1);}
   .tn-word .brand-sub{
-    display:flex; align-items:center; height:18px; font-size:17px; font-weight:600; line-height:1; letter-spacing:0;
-    color:var(--primary); margin:0; padding:0;
+    display:flex; align-items:center; height:18px; font-size:16px; font-weight:700; line-height:1; letter-spacing:-.1px;
+    color:var(--primary-dark, var(--primary)); margin:0; padding:0;
   }
 
   .nav{display:flex; align-items:stretch; gap:2px; height:50px;}
@@ -3371,4 +3371,75 @@
     .dv-t1 .ln b{white-space:normal;}
     .dv-ret em{display:none;}
     .dv-ret{padding:1px 6px;}
+  }
+
+  /* ===== v3.6: botão "+ Item" contextual (opção C) e topo de Tarefas solto ===== */
+  .tn-new{position:relative; flex:none;}
+  .tn-new-btn{
+    width:auto; height:30px; padding:0 12px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    font-size:12.5px; font-weight:700; letter-spacing:0; white-space:nowrap;
+  }
+  .tn-new-btn svg{width:14px; height:14px; transition:none;}
+  .tn-new-btn[aria-expanded="true"] svg{transform:none;}
+  .tn-new-caret{display:none;}
+  .tn-new-btn.has-menu .tn-new-caret{display:block; width:11px; height:11px; margin-left:1px; opacity:.85;}
+  .topbar-filters .new-menu{right:0; left:auto;}
+
+  body.view-dashboard .topbar-filters{flex-direction:column; align-items:flex-end; gap:6px; margin-top:-10px;}
+  body.view-dashboard .tn-new-btn, body.view-dashboard .period-selector-wrap{width:150px;}
+  body.view-dashboard #periodSelectorBtn{width:100%; height:30px; justify-content:center;}
+  body.view-dashboard #periodSelectorBtn .space-selector-tag{display:none;}
+  @media (max-width:768px){
+    body.view-dashboard .topbar-filters{flex-direction:row; align-items:center; margin-top:4px;}
+  }
+
+  body[data-view="tasks"] .topbar{border-bottom:0; background:transparent; padding:20px 22px 8px; align-items:center;}
+  body[data-view="tasks"] .topbar-title{flex:0 0 auto;}
+  body[data-view="tasks"] .topbar-title-text{flex-direction:column; align-items:flex-start; gap:2px;}
+  body[data-view="tasks"] .topbar-title .view-title{font-size:21px; font-weight:700; letter-spacing:-.3px; line-height:1.15;}
+  body[data-view="tasks"] .topbar-filters{flex:1 1 auto; flex-wrap:wrap; justify-content:flex-end; gap:8px; min-width:0;}
+  body[data-view="tasks"] .topbar-filters .group-mode-bar{
+    background:transparent; border:0; box-shadow:none; padding:0; margin:0; border-radius:0; flex-wrap:wrap; justify-content:flex-end; gap:8px; min-width:0;
+  }
+  body[data-view="tasks"] .topbar-filters .group-mode-label{display:none;}
+  body[data-view="tasks"] .topbar-filters .group-bar-div.first{margin-left:0;}
+  body[data-view="tasks"] .group-mode-trigger .tp-status-trigger-label::before{content:'Agrupar: '; color:var(--ink-faint); font-weight:500;}
+  body[data-view="tasks"] .topbar-filters .tp-status-trigger.group-mode-trigger,
+  body[data-view="tasks"] .topbar-filters .tag-filter-btn{height:32px; border-radius:10px; box-shadow:var(--shadow-sm); font-weight:600;}
+  body[data-view="tasks"] .tn-new-btn{height:32px; border-radius:10px;}
+  .view-mode-toggle{display:inline-flex; padding:3px; gap:2px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); flex:none;}
+  .view-mode-toggle button{width:32px; height:26px; border:none; background:transparent; border-radius:7px; display:grid; place-items:center; color:var(--ink-soft); padding:0;}
+  .view-mode-toggle button.on{background:var(--surface); color:var(--primary); box-shadow:var(--shadow-sm);}
+  .view-mode-toggle button:disabled{opacity:.45; cursor:not-allowed;}
+  .view-mode-toggle svg{width:16px; height:16px;}
+  body:not([data-view="tasks"]) .view-mode-toggle{display:none;}
+
+  /* "+ Tarefa" com a setinha ao lado: clicar na setinha escolhe o template */
+  .tn-new{display:flex; align-items:stretch;}
+  .tn-new-split{display:none; width:26px; border:none; border-left:1px solid rgba(255,255,255,.35); border-radius:0 10px 10px 0; background:var(--primary); color:#fff; place-items:center; padding:0; box-shadow:0 2px 6px rgba(47,95,158,.3);}
+  .tn-new-split:hover{background:var(--primary-dark);}
+  .tn-new-split svg{width:11px; height:11px;}
+  body[data-view="tasks"] .tn-new-split{display:grid; height:32px;}
+  body[data-view="tasks"] .tn-new-btn{border-radius:10px 0 0 10px;}
+  .new-menu{top:calc(100% + 8px);}
+
+  @media (max-width:768px){
+    body:not([data-view="tasks"]) .topbar-title{flex:1 1 0; min-width:0;}
+    body:not([data-view="tasks"]) .topbar-filters{margin-left:auto; flex-wrap:nowrap; flex:none;}
+    body[data-view="tasks"] .topbar-title{flex:1 1 100%;}
+    body[data-view="tasks"] .topbar-filters{flex:1 1 100%; justify-content:flex-start;}
+    body.view-dashboard .topbar-filters{margin-top:0; flex-direction:column; align-items:flex-end;}
+  }
+
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar-filters{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px;}
+    body[data-view="tasks"] .topbar-filters::-webkit-scrollbar{display:none;}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar{flex-wrap:nowrap; flex:none;}
+    body[data-view="tasks"] .topbar-filters > *{flex:none;}
+    body[data-view="tasks"] .topbar-filters .tag-filter-popover{position:fixed; left:12px; right:12px; top:auto; min-width:0;}
+    body[data-view="tasks"] .topbar-filters .completed-toggle span:first-child{display:none;}
+  }
+
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{padding:10px 14px 4px; gap:4px 10px;}
   }

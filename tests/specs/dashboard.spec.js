@@ -263,3 +263,21 @@ test.describe('Visão geral no celular', () => {
     await expect(page.locator('.dv-ring')).toBeHidden();
   });
 });
+
+test('botão "+" é contextual: + Item na Visão geral (menu) e + Tarefa/Nota/Evento/Projeto nas outras telas', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await expect(page.locator('#newBtnLabel')).toHaveText('Item');
+  const nb = await page.locator('#newBtn').boundingBox();
+  const per = await page.locator('#periodSelectorBtn').boundingBox();
+  expect(nb.y).toBeLessThan(per.y); // acima do Período
+  await expect(page.locator('.tn-right #newBtn')).toHaveCount(0); // saiu do menu do topo
+  for (const [view, label] of [['tasks', 'Tarefa'], ['notes', 'Nota'], ['calendar', 'Evento'], ['projects', 'Projeto']]) {
+    await page.evaluate(v => { currentView = v; render(); }, view);
+    await expect(page.locator('#newBtn')).toContainText(label);
+  }
+  await page.evaluate(() => { currentView = 'tasks'; render(); });
+  await page.locator('#newBtn').click();
+  expect(await page.evaluate(() => creatingNewTask)).toBe(true);
+  await expect(page.locator('.view-mode-toggle button[disabled]')).toHaveCount(1); // Kanban ainda desativado
+});

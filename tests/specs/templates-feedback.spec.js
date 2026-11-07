@@ -24,7 +24,7 @@ test.describe('Templates de tarefa', () => {
     expect(saved.events[0]).toMatchObject({ title: 'Reunião de fechamento', offsetDays: 2, startTime: '15:00' });
 
     // aplicar pelo botão Template
-    await page.locator('#useTemplateBtn').click();
+    await page.locator('#newBtnSplit').click();
     await page.locator('[data-tpl]').first().click();
 
     const r = await page.evaluate(() => ({
