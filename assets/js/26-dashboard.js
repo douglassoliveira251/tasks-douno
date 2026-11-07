@@ -207,7 +207,7 @@ export function renderDashboard(){
     const pr = t.projectId ? projectById(t.projectId) : null;
     return `<div class="dv-tr${t.done ? ' done' : ''}${t.dueDate && t.dueDate < todayS && !t.done ? ' late' : ''}" data-task-id="${t.id}">
       <span class="dv-cb${t.done ? ' on' : ''}" data-check="${t.id}" role="checkbox" aria-checked="${t.done ? 'true' : 'false'}" aria-label="Concluir tarefa" tabindex="0">${t.done ? icon('check') : ''}</span>
-      <span class="dv-t1"><span class="ln"><b>${escapeHtml(t.title || 'Sem título')}</b>${!t.done && t.followUpDate && t.followUpDate <= (aba === 'proximas' ? addDaysStr(todayS, 7) : todayS) ? `<i class="dv-ret" title="É hora de retomar esta tarefa (${fmtDate(t.followUpDate)})">↻ Retomar</i>` : ''}</span>${pr ? `<small>${escapeHtml(pr.name)}</small>` : ''}</span>
+      <span class="dv-t1"><span class="ln"><b>${escapeHtml(t.title || 'Sem título')}</b>${!t.done && t.followUpDate && t.followUpDate <= (aba === 'proximas' ? addDaysStr(todayS, 7) : todayS) ? `<i class="dv-ret" title="É hora de retomar esta tarefa (${fmtDate(t.followUpDate)})">↻<em> Retomar</em></i>` : ''}</span>${pr ? `<small>${escapeHtml(pr.name)}</small>` : ''}</span>
       <span class="dv-sp">${cat ? `<i style="background:${cat.color}"></i>${escapeHtml(cat.name)}` : ''}</span>
       <span>${prioChip(t.priority)}</span>
       <span class="dv-due">${dueLabel(t)}</span>
@@ -256,6 +256,13 @@ export function renderDashboard(){
     const tip = `${WEEKDAY_LABELS[dow]}, ${d} ${MONTH_LABELS[mapM - 1].slice(0, 3).toLowerCase()}\n` + (n ? `${n} ${n === 1 ? 'item' : 'itens'} · ${prazos} ${prazos === 1 ? 'prazo' : 'prazos'} e ${evs} ${evs === 1 ? 'evento' : 'eventos'}` : 'Nada marcado');
     heatCells.push(`<button type="button" class="hm-c l${Math.min(n, 4)}${ds === todayS ? ' today' : ''}" data-day="${ds}" data-tip="${tip}" aria-label="${tip.replace('\n', ': ')}">${d}</button>`);
   }
+  /* celular: anel com o andamento do dia e indicadores em grade */
+  const feitasHoje = completed.filter(t => t.completedAt && dateOfDay(t.completedAt) === todayS).length;
+  const diaTotal = dueToday.length + feitasHoje;
+  const diaPct = diaTotal ? Math.round(feitasHoje / diaTotal * 100) : 0;
+  const ringHtml = diaTotal ? `<div class="dv-ring" role="img" aria-label="${diaPct}% do dia concluído"><svg width="62" height="62" viewBox="0 0 62 62" style="transform:rotate(-90deg)"><circle cx="31" cy="31" r="26" fill="none" stroke="var(--surface-2)" stroke-width="7"/><circle cx="31" cy="31" r="26" fill="none" stroke="var(--primary)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(diaPct * 1.634).toFixed(1)} 164"/></svg><b>${diaPct}%</b></div>` : '';
+  const kpiTile = (ic_, cls, n, lbl) => `<div class="dv-kt ${cls}"><span class="ki">${icon(ic_)}</span><div><b>${n}</b><small>${lbl}</small></div></div>`;
+  const alertRow = (kind, ic_, n, one, many) => n ? `<div class="dv-al" data-nodate="${kind}" role="button" tabindex="0"><span class="ai">${icon(ic_)}</span><b>${n} ${n === 1 ? one : many}</b>${icon('caret-right')}</div>` : '';
   const chart = wk.map((v, i) => `<div class="dv-col${i === wkToday ? ' today' : ''}" title="${wkLabels[i]}: ${v}"><span class="n">${v || ''}</span><i style="height:${v ? Math.max(5, Math.round(v / wkMax * 96)) : 4}px"></i><span class="l">${wkLabels[i]}</span></div>`).join('');
 
   view.innerHTML = `
@@ -274,6 +281,7 @@ export function renderDashboard(){
               <div class="dv-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} nos últimos 7 dias${trend7 ? ' (' + (trend7 > 0 ? '+' : '') + trend7 + ' vs. semana anterior)' : ''}</div>
             </div>
             <div class="dv-hero-chart">${heroChart}</div>
+            ${ringHtml}
           </div>
           <div class="dv-stats">
             <div><small>Concluídas 7d</small><b>${completedLast7.length}</b></div>
@@ -283,7 +291,13 @@ export function renderDashboard(){
             <div class="link" data-nodate="follow" title="Ver tarefas sem data de retomada"><small>Sem retomada</small><b class="${noFollow.length ? 'amb' : ''}">${noFollow.length}</b><span class="dv-bar"><u style="width:${pctOf(noFollow.length)}%; background:#E8A33D"></u></span></div>
           </div>
         </section>
-        <section class="dv-card">
+        <section class="dv-mkpis">
+          <div class="dv-kgrid">
+            ${kpiTile('list-bullets', 'k-ab', open.length, 'Abertas')}${kpiTile('clock', 'k-an', inProgress.length, 'Em andamento')}${kpiTile('warning-circle', 'k-at', overdue.length, 'Atrasadas')}${kpiTile('check-square', 'k-ok', completedLast7.length, 'Concluídas 7d')}
+          </div>
+          ${(noDue.length || noFollow.length) ? `<div class="dv-card dv-alerts">${alertRow('due', 'calendar-blank', noDue.length, 'tarefa sem prazo', 'tarefas sem prazo')}${alertRow('follow', 'repeat', noFollow.length, 'tarefa sem data de retomada', 'tarefas sem data de retomada')}</div>` : ''}
+        </section>
+        <section class="dv-card dv-status-card">
           <h3>${icon('flag')}Status das tarefas</h3>
           <div class="dv-status">${donut}
             <div class="dv-legend">${stBuckets.map(b => `<div><i style="background:${b.color}"></i>${b.label}<b>${b.n}</b></div>`).join('')}</div>
@@ -299,7 +313,7 @@ export function renderDashboard(){
       </div>
 
       <div class="dv-r2">
-        <section class="dv-card">
+        <section class="dv-card dv-tarefas">
           <h3>${icon('list-bullets')}Tarefas
             <span class="dv-seg" role="tablist">
               <a role="tab" data-aba="hoje" class="${aba === 'hoje' ? 'on' : ''}">Hoje</a><a role="tab" data-aba="atrasadas" class="${aba === 'atrasadas' ? 'on' : ''}">Atrasadas</a><a role="tab" data-aba="proximas" class="${aba === 'proximas' ? 'on' : ''}">Próximas</a>
@@ -313,7 +327,7 @@ export function renderDashboard(){
           <div class="dv-chart">${chart}</div>
           <div class="dv-mrow"><div><small>Média por dia</small><b>${avgPerDay.toFixed(1).replace('.', ',')}</b></div><div><small>Melhor dia</small><b>${bestLabel}</b></div><div><small>Sequência</small><b>${streak} dia${streak === 1 ? '' : 's'}</b></div></div>
         </section>
-        <section class="dv-card">
+        <section class="dv-card dv-prazos">
           <h3>${icon('calendar-blank')}Próximos prazos <span class="dv-more" id="dashSeeAllTasksTop">Tarefas →</span></h3>
           ${upcomingTasks.length ? upcomingTasks.slice(0, 4).map(t => { const cat = catById(t.categoryId), pr = t.projectId ? projectById(t.projectId) : null; const d = new Date(t.dueDate + 'T12:00:00'); return `
             <div class="dv-li dash-list-row" data-task-id="${t.id}">
@@ -324,15 +338,15 @@ export function renderDashboard(){
       </div>
 
       <div class="dv-r3">
-        <section class="dv-card">
+        <section class="dv-card dv-proj">
           <h3>${icon('kanban')}Projetos <span class="dv-more" id="rsSeeProjects">${prStatus.length ? prStatus.length + ' ativo' + (prStatus.length > 1 ? 's' : '') + ' · ' : ''}Ver todos →</span></h3>
           ${prStatus.length ? projRows : '<div class="dv-empty">Nenhum projeto ainda.</div>'}
         </section>
-        <section class="dv-card">
+        <section class="dv-card dv-esp">
           <h3>${icon('stack')}Espaços <span class="dv-more" id="rsAddSpace">+ Espaço</span></h3>
           ${spacesHtml || '<div class="dv-empty">Nenhum espaço.</div>'}
         </section>
-        <section class="dv-card">
+        <section class="dv-card dv-imp">
           <h3>${icon('flag')}Tarefas importantes <span class="dv-more" id="dashSeeAllImportantLink">Ver todas →</span></h3>
           ${importantTasks.length ? importantTasks.slice(0, 4).map(t => `<div class="dv-li dash-tasklist-row" data-task-id="${t.id}">
             <span class="dv-fl ${t.priority}">${icon('flag')}</span>
@@ -348,6 +362,7 @@ export function renderDashboard(){
 
   /* ---- interações ---- */
   view.querySelectorAll('[data-nodate]').forEach(el => {
+    el.onkeydown = ev => { if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); el.click(); } };
     el.onclick = () => {
       G.currentView = 'tasks';
       G.taskGroupMode = el.dataset.nodate === 'due' ? 'periodo' : 'retomada';

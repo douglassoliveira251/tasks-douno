@@ -3311,3 +3311,64 @@
   .tn-right .space-selector-dropdown{right:14px;}
   @media (max-width:1180px) and (min-width:769px){ .tn-right .space-selector-dropdown{right:10px;} }
   @media (max-width:768px){ .tn-right .space-selector-dropdown{right:-40px;} }
+
+  /* ---------- Visão geral no celular: ordem, indicadores em grade e lista de tarefas ---------- */
+  .dv-mkpis, .dv-ring{display:none;}
+  .dv-ret em{font-style:normal;}
+  @media (max-width:768px){
+    .dv{gap:10px;}
+    .dv-r1, .dv-r2, .dv-r3{display:contents;}
+    .dv .onb-card{order:0;}
+    .dv-hero{order:1;} .dv-mkpis{order:2;} .dv-tarefas{order:3;} .dv-agenda{order:4;} .dv-heat{order:5;} .dv-status-card{order:6;}
+    .dv-conc{order:7;} .dv-prazos{order:8;} .dv-proj{order:9;} .dv-esp{order:10;} .dv-imp{order:11;}
+
+    /* cartão Hoje: número grande, anel do dia e chips; os indicadores saem daqui */
+    .dv-hero{padding:14px;}
+    .dv-hero-top{grid-template-columns:minmax(0,1fr) auto; align-items:center;}
+    .dv-ring{display:block; position:relative; width:62px; height:62px; flex:none;}
+    .dv-ring b{position:absolute; inset:0; display:grid; place-items:center; font-size:13px; font-weight:800;}
+    .dv-big b{font-size:36px;}
+    .dv-big span{font-size:14px;}
+    .dv-stats{display:none;}
+    .dv-eb{gap:6px;}
+    .dv-tag{font-size:10.5px; padding:0 8px;}
+
+    /* indicadores em grade 2x2 + avisos tocáveis */
+    .dv-mkpis{display:flex; flex-direction:column; gap:8px;}
+    .dv-kgrid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+    .dv-kt{
+      display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:12px; background:var(--surface);
+      box-shadow:0 1px 3px rgba(15,23,42,.06), 0 6px 18px rgba(15,23,42,.07);
+    }
+    [data-theme="dark"] .dv-kt{border:1px solid var(--border); box-shadow:0 1px 2px rgba(0,0,0,.35);}
+    .dv-kt .ki{width:32px; height:32px; border-radius:10px; display:grid; place-items:center; flex:none;}
+    .dv-kt .ki svg{width:17px; height:17px;}
+    .dv-kt b{display:block; font-family:var(--font-display); font-size:20px; letter-spacing:-.02em; line-height:1.1;}
+    .dv-kt small{font-size:11px; color:var(--ink-soft);}
+    .dv-kt.k-ab .ki{background:#EEF1FB; color:#5B6BD6;}
+    .dv-kt.k-an .ki{background:#FEF3DC; color:#B7791F;}
+    .dv-kt.k-at .ki{background:var(--danger-light); color:var(--danger);}
+    .dv-kt.k-ok .ki{background:var(--ok-light); color:var(--ok);}
+    .dv-alerts{padding:2px 14px;}
+    .dv-al{display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer;}
+    .dv-al:last-child{border-bottom:0;}
+    .dv-al .ai{color:#B26A00; display:grid; place-items:center;}
+    .dv-al .ai svg{width:16px; height:16px;}
+    .dv-al b{flex:1; font-size:13px; font-weight:600;}
+    .dv-al > svg{width:15px; height:15px; color:var(--primary);}
+
+    /* lista de tarefas legível: título inteiro, espaço e prazo na linha de baixo, prioridade à direita */
+    .dv-thead{display:none;}
+    .dv-tr{
+      grid-template-columns:22px minmax(0,1fr) auto; grid-template-areas:"cb t1 pr" "cb sp due"; row-gap:2px; padding:9px 4px; min-height:0; align-items:center;
+    }
+    .dv-tr > :nth-child(1){grid-area:cb; align-self:start; margin-top:2px;}
+    .dv-tr > :nth-child(2){grid-area:t1;}
+    .dv-tr > :nth-child(3){grid-area:sp; font-size:11.5px; color:var(--ink-faint);}
+    .dv-tr > :nth-child(4){grid-area:pr; justify-self:end;}
+    .dv-tr > :nth-child(5){grid-area:due; justify-self:end; font-size:11.5px;}
+    .dv-tr > :nth-child(3), .dv-tr > :nth-child(5){display:flex;}
+    .dv-t1 .ln b{white-space:normal;}
+    .dv-ret em{display:none;}
+    .dv-ret{padding:1px 6px;}
+  }

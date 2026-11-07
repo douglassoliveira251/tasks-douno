@@ -1,3 +1,16 @@
+## [3.5.1] - 2026-11-07 23:30
+
+### Changed
+
+#### Visão geral no celular
+
+- Nova ordem dos cartões: Hoje, indicadores, Tarefas, Agenda, Compromissos, Status, Conclusões por dia, Próximos prazos, Projetos, Espaços e Tarefas importantes.
+- Indicadores (Abertas, Em andamento, Atrasadas e Concluídas 7d) em grade 2x2 com ícone, no lugar da faixa que se quebrava de forma desigual. "Sem prazo" e "Sem data de retomada" viram duas linhas de aviso tocáveis (só aparecem quando há tarefas).
+- Cartão Hoje enxuto, com um anel que mostra o andamento do dia (feitas hoje / a fazer + feitas) ao lado do número.
+- Lista de tarefas legível: título inteiro (quebra em vez de cortar), espaço e prazo na linha de baixo, prioridade à direita e "Retomar" só com o ícone ↻.
+- No computador nada muda (a faixa de indicadores continua no cartão Hoje).
+
+
 ## [3.5.0] - 2026-11-07 23:00
 
 ### Added
