@@ -3455,3 +3455,13 @@
     body[data-view="tasks"] .topbar-title{align-self:center;}
     body[data-view="tasks"] .tn-new{order:-1; flex:1 1 100%; justify-content:flex-end;}
   }
+
+  /* v3.6.2: lista de tarefas compacta (opção A): cantos quase retos e linhas de ~36px; "Nova tarefa" mais no alto */
+  @media (min-width:769px){
+    .task-row{border-radius:6px; padding:6px 12px 6px 10px; gap:10px; font-size:12.5px; min-height:36px; border-left-width:3px;}
+    .task-row .task-check{width:16px; height:16px;}
+    .task-row .task-menu-btn{width:24px; height:24px;}
+    .task-row .task-menu-btn svg{width:15px; height:15px;}
+    body[data-view="tasks"] .topbar{padding-top:8px;}
+    .task-row .task-status-pill{border-radius:4px; padding:1px 8px; font-size:10.5px; line-height:1.5;}
+  }

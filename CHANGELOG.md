@@ -1,3 +1,10 @@
+## [3.6.2] - 2026-11-08 01:00
+
+### Changed
+
+- Lista de tarefas compacta (computador): linhas de cerca de 36 px, cantos mais retos (raio 6), selo Vencida/Hoje com cantos retos e barra de prioridade mais fina. No celular nada muda.
+- "Nova tarefa" mais no alto do cabeçalho de Tarefas.
+
 ## [3.6.1] - 2026-11-08 00:30
 
 ### Changed
