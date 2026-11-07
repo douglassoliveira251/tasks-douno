@@ -1,3 +1,16 @@
+## [3.2.0] - 2026-11-07 20:00
+
+### Added
+
+#### Uso sem internet
+
+- Alterações feitas sem conexão ficam marcadas como pendentes no aparelho e **não são mais trocadas pelo que está na nuvem** ao reabrir o app. Ao conectar, a escrita mescla (três vias, item a item) com o que mudou em outros aparelhos e envia. A "base" da mesclagem (última versão vista da nuvem) agora é guardada no aparelho.
+- Aviso "Sem conexão" no topo (neutro, com o ícone de sem sinal) e aviso "Conexão de volta. Suas alterações foram sincronizadas." quando volta. Sem internet, o app nem tenta enviar (menos erros e novas tentativas inúteis); ao voltar a conexão ele renova a sessão e envia na hora.
+- Com o token de acesso vencido e sem internet, o app usa a sessão guardada no aparelho em vez de mostrar a tela de login.
+- O service worker agora também guarda o script do Supabase (CDN) para o aplicativo abrir sem internet.
+- Sair da conta, excluir a conta ou trocar de conta limpam os marcadores de sincronização.
+
+
 ## [3.1.0] - 2026-11-07 19:00
 
 ### Added

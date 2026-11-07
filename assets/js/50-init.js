@@ -1,5 +1,5 @@
 import { G } from './globais.js';
-import { sbClient } from './02-nuvem.js';
+import { readStoredSession, sbClient } from './02-nuvem.js';
 import { applyTheme } from './03-outlook.js';
 import { loadFromLocalStorage } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
@@ -19,8 +19,11 @@ export async function boot(){
   if(sbClient){
     try{
       const { data } = await sbClient.auth.getSession();
-      if(data && data.session){
-        G.cloudSession = data.session;
+      let session = data && data.session;
+      /* sem internet e com o token vencido o Supabase não devolve a sessão: usa a que está guardada no aparelho */
+      if(!session && navigator.onLine === false) session = readStoredSession();
+      if(session){
+        G.cloudSession = session;
         await G.startCloudSession();
         return;
       }

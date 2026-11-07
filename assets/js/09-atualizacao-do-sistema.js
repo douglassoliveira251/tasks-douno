@@ -90,7 +90,14 @@ export function updateFileStatus(){
   const cls = 'status-dot ' + (G.dirty ? 'dirty' : 'saved');
   const title = G.dirty ? 'Alterações não salvas' : 'Sincronizado';
   const badge = document.getElementById('saveErrorBadge');
-  if(badge) badge.style.display = G.cloudWriteFailed ? 'flex' : 'none';
+  const offline = !!G.cloudSession && navigator.onLine === false;
+  if(badge){
+    badge.style.display = (G.cloudWriteFailed || offline) ? 'flex' : 'none';
+    badge.classList.toggle('offline', offline);
+    const txt = badge.querySelector('.badge-text');
+    if(txt) txt.textContent = offline ? 'Sem conexão' : 'Falha ao salvar';
+    badge.title = offline ? 'Sem internet: suas alterações ficam salvas neste aparelho e sobem sozinhas quando a conexão voltar.' : 'Clique para tentar salvar de novo agora';
+  }
   if(G.cloudSession){
     if(dotSettings){ dotSettings.className = G.cloudWriteFailed ? 'status-dot dirty' : cls; dotSettings.title = G.cloudWriteFailed ? 'Falha ao salvar na nuvem — tentando de novo' : title; }
     if(textSettings) textSettings.textContent = `${G.cloudSession.user.email} (nuvem)`;

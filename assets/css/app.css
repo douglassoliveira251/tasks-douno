@@ -3141,3 +3141,9 @@
     .dv-thead > :nth-child(3), .dv-tr > :nth-child(3){display:none;}
     .dv-status{flex-wrap:wrap;}
   }
+
+  /* Aviso de "Sem conexão" (offline): neutro, não é erro */
+  .save-error-badge .ic-off{display:none;}
+  .save-error-badge.offline{background:var(--surface-2); color:var(--ink-soft); border-color:var(--border);}
+  .save-error-badge.offline .ic-warn{display:none;}
+  .save-error-badge.offline .ic-off{display:block; width:15px; height:15px; flex-shrink:0;}

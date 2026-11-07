@@ -1,11 +1,11 @@
 import { G } from './globais.js';
 import { LS_KEY } from './01-estado.js';
-import { sbClient } from './02-nuvem.js';
+import { SYNC_PENDING_KEY, sbClient } from './02-nuvem.js';
 import { normalizeState } from './07-normalizacao-do-estado.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { currentCommentKey, saveCommentDrafts } from './16-painel-lateral-de-tarefa.js';
 import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
-import { adoptCloudRow } from './42-nuvem-persistencia.js';
+import { adoptCloudRow, showToast } from './42-nuvem-persistencia.js';
 import { render } from './48-render-principal.js';
 import { NOTAS_UI, PAINEL_TAREFA } from './estado-ui.js';
 
@@ -54,8 +54,13 @@ let cloudWriteRetryTimer = null;
    estado antigo do servidor e sobrescrevia a edicao que nunca chegou a ser
    salva, apagando-a silenciosamente. Agora, em caso de erro, `dirty` continua
    true (bloqueando o refresh) e a escrita e tentada de novo automaticamente. */
+function setSyncPending(on){
+  try{ if(on) localStorage.setItem(SYNC_PENDING_KEY, '1'); else localStorage.removeItem(SYNC_PENDING_KEY); }catch(e){}
+}
 export function triggerCloudWrite(){
   if(cloudWriteInFlight){ cloudWritePending = true; return; }
+  /* sem internet nem tenta: as alterações já estão no aparelho e sobem quando a conexão voltar */
+  if(navigator.onLine === false){ updateFileStatus(); return; }
   clearTimeout(cloudWriteRetryTimer);
   cloudWriteInFlight = G.writeStateToCloud()
     .then(() => {
@@ -64,6 +69,7 @@ export function triggerCloudWrite(){
       G.dirty = false;
       updateFileStatus();
       if(cloudWritePending){ cloudWritePending = false; triggerCloudWrite(); }
+      else setSyncPending(false);
     })
     .catch(e => {
       console.error('Auto-save na nuvem falhou', e);
@@ -100,6 +106,7 @@ export async function flushAutoSave(){
 
 export function markDirty(){
   G.dirty = true;
+  if(G.cloudSession) setSyncPending(true);
   saveToLocalStorage();
   updateFileStatus();
   render();
@@ -110,6 +117,7 @@ export function markDirty(){
    destruir o elemento que o usuário acabou de clicar (ex: seletor de fonte/cor) no meio da interação. */
 export function persistOnly(){
   G.dirty = true;
+  if(G.cloudSession) setSyncPending(true);
   saveToLocalStorage();
   updateFileStatus();
   scheduleAutoSave();
@@ -155,6 +163,7 @@ export function isEditingSomething(){
 let cloudRefreshInFlight = false;
 export async function refreshFromCloudIfSafe(){
   if(!sbClient || !G.cloudSession) return;
+  if(navigator.onLine === false) return;
   if(G.dirty || cloudWriteInFlight || cloudWritePending) return;
   if(isEditingSomething()) return;
   if(cloudRefreshInFlight) return;
@@ -180,3 +189,21 @@ window.addEventListener('focus', refreshFromCloudIfSafe);
 setInterval(() => { if(!document.hidden) refreshFromCloudIfSafe(); }, 45000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshFromCloudIfSafe(); });
 
+/* ---------- Sem internet ----------
+   Offline: o aviso do topo mostra "Sem conexão" e tudo continua sendo salvo no aparelho.
+   Ao voltar a conexão: renova a sessão, envia o que ficou pendente (mesclando com a nuvem) e avisa. */
+window.addEventListener('offline', () => updateFileStatus());
+window.addEventListener('online', async () => {
+  updateFileStatus();
+  if(!sbClient || !G.cloudSession) return;
+  try{
+    const { data } = await sbClient.auth.getSession();
+    if(data && data.session) G.cloudSession = data.session;
+  }catch(e){ console.error(e); }
+  if(G.dirty){
+    await flushAutoSave();
+    if(!G.dirty && !G.cloudWriteFailed) showToast('Conexão de volta. Suas alterações foram sincronizadas.');
+  } else {
+    refreshFromCloudIfSafe();
+  }
+});

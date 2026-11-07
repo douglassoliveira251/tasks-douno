@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { LS_KEY, freshState } from './01-estado.js';
-import { LS_OWNER_KEY, sbClient } from './02-nuvem.js';
+import { LS_OWNER_KEY, clearSyncMarkers, sbClient } from './02-nuvem.js';
 import { outlookApi } from './03-outlook.js';
 import { downloadFallback } from './09-atualizacao-do-sistema.js';
 import { escapeHtml } from './10-helpers.js';
@@ -123,6 +123,7 @@ async function finishAfterDeletion(){
   G.dirty = false;
   try{ await sbClient.auth.signOut({ scope: 'local' }); }catch(e){ console.error(e); }
   try{ localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_OWNER_KEY); }catch(e){}
+  clearSyncMarkers();
   G.state = freshState();
   G.loginMode = 'login';
   renderLoginGate();

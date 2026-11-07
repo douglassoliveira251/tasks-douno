@@ -1,8 +1,8 @@
 import { G } from './globais.js';
-import { claimLocalCache, sbClient } from './02-nuvem.js';
+import { SYNC_BASE_KEY, SYNC_PENDING_KEY, claimLocalCache, sbClient } from './02-nuvem.js';
 import { applyTheme, handleOutlookRedirectFeedback } from './03-outlook.js';
 import { normalizeState } from './07-normalizacao-do-estado.js';
-import { isEditingSomething, markDirty, saveToLocalStorage } from './08-persistencia.js';
+import { isEditingSomething, markDirty, saveToLocalStorage, scheduleAutoSave } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { closeLoginGate } from './43-tela-de-login.js';
 import { loadUiSession, render } from './48-render-principal.js';
@@ -117,10 +117,44 @@ export function normalizeRemoteData(data){
 export function adoptCloudRow(row){
   cloudBaseUpdatedAt = row ? row.updated_at : null;
   cloudBaseSnapshot = makeSyncSnapshot(G.state);
+  /* guarda a base no aparelho: se a pessoa editar sem internet e reabrir o app, a mesclagem
+     com a nuvem continua partindo da última versão que este aparelho viu */
+  try{
+    localStorage.setItem(SYNC_BASE_KEY, JSON.stringify({ uid: G.cloudSession && G.cloudSession.user ? G.cloudSession.user.id : null, updatedAt: cloudBaseUpdatedAt, snap: cloudBaseSnapshot }));
+  }catch(e){}
+}
+export function hasPendingSync(){
+  try{ return localStorage.getItem(SYNC_PENDING_KEY) === '1'; }catch(e){ return false; }
+}
+function restoreSyncBase(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(SYNC_BASE_KEY) || 'null');
+    if(saved && saved.snap && G.cloudSession && saved.uid === G.cloudSession.user.id){
+      cloudBaseUpdatedAt = saved.updatedAt || null;
+      cloudBaseSnapshot = saved.snap;
+      return true;
+    }
+  }catch(e){}
+  return false;
 }
 
 export async function loadStateFromCloud(){
-  const row = await G.fetchCloudStateRow();
+  /* Alterações feitas sem internet e ainda não enviadas: NÃO podem ser trocadas pelo que está na nuvem.
+     Mantém os dados do aparelho e deixa a escrita mesclar (três vias) e enviar. */
+  const pending = hasPendingSync();
+  restoreSyncBase();
+  let row;
+  try{
+    row = await G.fetchCloudStateRow();
+  }catch(e){
+    G.dirty = pending; // sem conexão: segue com os dados guardados no aparelho
+    throw e;
+  }
+  if(pending){
+    normalizeState();
+    G.dirty = true;
+    return;
+  }
   if(row && row.data && typeof row.data === 'object'){
     G.state = row.data;
   }
@@ -197,6 +231,7 @@ async function startCloudSession(){
   handleOutlookRedirectFeedback();
   render();
   updateFileStatus();
+  if(G.dirty) scheduleAutoSave(); // havia alterações feitas sem internet: envia agora
   if(G.pendingOutlookToast){ showToast(G.pendingOutlookToast); G.pendingOutlookToast = null; }
 }
 

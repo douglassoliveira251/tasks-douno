@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { LS_KEY, freshState } from './01-estado.js';
-import { LS_OWNER_KEY, sbClient } from './02-nuvem.js';
+import { LS_OWNER_KEY, clearSyncMarkers, sbClient } from './02-nuvem.js';
 import { applyTheme } from './03-outlook.js';
 import { normalizeState } from './07-normalizacao-do-estado.js';
 import { saveToLocalStorage } from './08-persistencia.js';
@@ -66,6 +66,7 @@ export async function disconnectFile(e){
       G.cloudSession = null;
       G.dirty = false;
       try{ localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_OWNER_KEY); }catch(e3){}
+      clearSyncMarkers();
       G.state = freshState();
       G.loginMode = 'login';
       renderLoginGate();
