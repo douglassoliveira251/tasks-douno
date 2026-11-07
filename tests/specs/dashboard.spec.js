@@ -267,12 +267,12 @@ test.describe('Visão geral no celular', () => {
 test('botão "+" é contextual: + Item na Visão geral (menu) e + Tarefa/Nota/Evento/Projeto nas outras telas', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'dashboard' });
-  await expect(page.locator('#newBtnLabel')).toHaveText('Item');
+  await expect(page.locator('#newBtnLabel')).toHaveText('Novo item');
   const nb = await page.locator('#newBtn').boundingBox();
   const per = await page.locator('#periodSelectorBtn').boundingBox();
   expect(nb.y).toBeLessThan(per.y); // acima do Período
   await expect(page.locator('.tn-right #newBtn')).toHaveCount(0); // saiu do menu do topo
-  for (const [view, label] of [['tasks', 'Tarefa'], ['notes', 'Nota'], ['calendar', 'Evento'], ['projects', 'Projeto']]) {
+  for (const [view, label] of [['tasks', 'Nova tarefa'], ['notes', 'Nova nota'], ['calendar', 'Novo evento'], ['projects', 'Novo projeto']]) {
     await page.evaluate(v => { currentView = v; render(); }, view);
     await expect(page.locator('#newBtn')).toContainText(label);
   }

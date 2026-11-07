@@ -83,15 +83,15 @@ export function toggleNewMenu(force){
    Na Visão geral (e onde não há item próprio) é "+ Item" e abre o menu com tudo. */
 function newBtnMode(){
   const v = G.currentView;
-  if(v === 'tasks') return { label: 'Tarefa', title: 'Nova tarefa', run: () => { G.currentView = 'tasks'; openNewTaskPanel(); } };
-  if(v === 'notes') return { label: 'Nota', title: 'Nova nota', run: () => { openNoteComposer(); } };
-  if(v === 'calendar') return { label: 'Evento', title: 'Novo evento', run: () => { openEventComposer(null, G.calendarFocusDate); } };
+  if(v === 'tasks') return { label: 'Nova tarefa', title: 'Nova tarefa', run: () => { G.currentView = 'tasks'; openNewTaskPanel(); } };
+  if(v === 'notes') return { label: 'Nova nota', title: 'Nova nota', run: () => { openNoteComposer(); } };
+  if(v === 'calendar') return { label: 'Novo evento', title: 'Novo evento', run: () => { openEventComposer(null, G.calendarFocusDate); } };
   if(v === 'projects'){
     const pr = G.activeProjectId ? projectById(G.activeProjectId) : null;
-    if(pr) return { label: 'Etapa', title: 'Nova etapa do projeto', run: () => openStageEditor(pr, null) };
-    return { label: 'Projeto', title: 'Novo projeto', run: () => { G.activeProjectId = null; openProjectEditor(null); } };
+    if(pr) return { label: 'Nova etapa', title: 'Nova etapa do projeto', run: () => openStageEditor(pr, null) };
+    return { label: 'Novo projeto', title: 'Novo projeto', run: () => { G.activeProjectId = null; openProjectEditor(null); } };
   }
-  return { label: 'Item', title: 'Criar novo item', menu: true };
+  return { label: 'Novo item', title: 'Criar novo item', menu: true };
 }
 export function syncNewButton(){
   const b = btn();

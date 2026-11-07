@@ -3264,7 +3264,7 @@
   /* Visão geral: cartões sem borda, com sombra leve para se destacar no fundo branco (modo claro) */
   .dv-card{
     background:var(--surface); border-color:transparent;
-    box-shadow:0 1px 3px rgba(15,23,42,.06), 0 6px 18px rgba(15,23,42,.07);
+    box-shadow:0 1px 2px rgba(15,23,42,.035), 0 4px 14px rgba(15,23,42,.045);
   }
   .dv-hero{background:linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 96%, var(--primary)) 100%);}
   [data-theme="dark"] .dv-card{border-color:var(--border); box-shadow:0 1px 2px rgba(0,0,0,.35);}
@@ -3442,4 +3442,16 @@
 
   @media (max-width:768px){
     body[data-view="tasks"] .topbar{padding:10px 14px 4px; gap:4px 10px;}
+  }
+
+  /* v3.6.1: botões com sombra um pouco mais presente; "Nova tarefa" na linha de cima */
+  .tn-new-btn, .tn-new-split{box-shadow:0 3px 10px rgba(47,95,158,.45);}
+  body.view-dashboard .tn-new-btn, body.view-dashboard .period-selector-wrap{width:160px;}
+  body.view-dashboard #periodSelectorBtn, .topbar-filters .tag-filter-btn, .topbar-filters .tp-status-trigger.group-mode-trigger, .view-mode-toggle{
+    box-shadow:0 1px 3px rgba(15,23,42,.12), 0 3px 8px rgba(15,23,42,.07);
+  }
+  @media (min-width:769px){
+    body[data-view="tasks"] .topbar{align-items:flex-start;}
+    body[data-view="tasks"] .topbar-title{align-self:center;}
+    body[data-view="tasks"] .tn-new{order:-1; flex:1 1 100%; justify-content:flex-end;}
   }

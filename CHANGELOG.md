@@ -1,3 +1,11 @@
+## [3.6.1] - 2026-11-08 00:30
+
+### Changed
+
+- Botões de criação com "Novo/Nova" na frente: Novo item, Nova tarefa, Nova nota, Novo evento, Novo projeto e Nova etapa.
+- Em Tarefas (computador), "Nova tarefa" fica na linha de cima, acima dos filtros; no celular continua na mesma linha rolável.
+- Visão geral: sombra dos cartões (gráficos e indicadores) mais suave; botões com sombra um pouco mais marcada.
+
 ## [3.6.0] - 2026-11-07 23:59
 
 ### Changed
