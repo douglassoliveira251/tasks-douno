@@ -1,3 +1,20 @@
+## [3.5.0] - 2026-11-07 23:00
+
+### Added
+
+#### Visão geral
+
+- **Mapa de compromissos**: calendário do mês em que cada dia é pintado em cinco níveis conforme o número de itens (prazos de tarefas em aberto + eventos). Balão com o detalhe ao passar o mouse ("5 itens · 3 prazos e 2 eventos"), clique abre o dia no calendário, setas trocam de mês, total do mês na legenda e dia de hoje destacado. Respeita o filtro de espaço e o dia de início da semana configurado.
+
+### Changed
+
+- A **Agenda** foi para o lugar do cartão "Retomar hoje" (última coluna de baixo) e o mapa de compromissos ocupa o lugar antigo da Agenda. O cartão "Retomar hoje" saiu; as retomadas seguem sinalizadas na tabela de tarefas e no chip "para retomar" do cartão Hoje.
+- Topo da Visão geral: saudação grande com a frase embaixo, solta no fundo (sem a barra de divisão) e o filtro de período ao lado.
+- Marca no topo um pouco menor (DOUNO e Tasks).
+- Botão de espaço no topo: "ESPAÇO" pequeno em cima do nome, com a cor na frente, entre divisores (no celular, só cor e nome).
+- Fundo do modo claro totalmente branco; na Visão geral os cartões perdem a borda e ganham sombra leve. O modo escuro mantém as bordas.
+
+
 ## [3.4.1] - 2026-11-07 22:30
 
 ### Changed

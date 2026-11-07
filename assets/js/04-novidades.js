@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.5.0', date:'07/11/2026', title:'Mapa de compromissos na Visão geral', text:'Um calendário do mês pinta cada dia conforme a quantidade de prazos e eventos (passe o mouse para ver o detalhe, clique para abrir o dia). A Agenda foi para o lugar do Retomar hoje, e a Visão geral ganhou fundo branco com cartões em sombra leve.' },
   { version:'3.4.1', date:'07/11/2026', title:'Calendário no celular abre em Dia', text:'No celular o calendário agora abre na visão Dia, de hoje. A escolha que você faz no computador (Dia, Semana ou Mês) continua como está.' },
   { version:'3.4.0', date:'07/11/2026', title:'Visual mais limpo e retomadas na Visão geral', text:'Fundo claro liso, logo maior e o seletor de espaço de volta no topo, com a cor na frente. Na Visão geral, a tabela de tarefas agora inclui as que é hora de retomar, sinalizadas com "Retomar".' },
   { version:'3.3.0', date:'07/11/2026', title:'Sugestão para instalar o app', text:'Na primeira vez que você abre o DOUNO Tasks no navegador, um aviso discreto oferece instalar como aplicativo. Se fechar, só volta em 30 dias; depois de instalado, não aparece mais.' },

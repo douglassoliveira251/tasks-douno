@@ -236,6 +236,26 @@ export function renderDashboard(){
     </div>`;
   }).join('');
 
+  /* ---- mapa de calor: prazos de tarefas em aberto + eventos, dia a dia, no mês escolhido ---- */
+  const mesKey = /^\d{4}-\d{2}$/.test(PAINEL_INICIO.mapaMes || '') ? PAINEL_INICIO.mapaMes : todayS.slice(0, 7);
+  const [mapY, mapM] = mesKey.split('-').map(Number);
+  const mapDias = new Date(mapY, mapM, 0).getDate();
+  const mapIni = G.state.weekStartDay || 0;
+  const mapLead = (new Date(mapY, mapM - 1, 1).getDay() - mapIni + 7) % 7;
+  const mapLetters = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  let mapTotal = 0;
+  const heatCells = [];
+  for(let i = 0; i < mapLead; i++) heatCells.push('<i class="hm-c empty"></i>');
+  for(let d = 1; d <= mapDias; d++){
+    const ds = mesKey + '-' + String(d).padStart(2, '0');
+    const prazos = open.filter(t => t.dueDate === ds).length;
+    const evs = eventsOnDate(scopeEvents, ds).length;
+    const n = prazos + evs;
+    mapTotal += n;
+    const dow = new Date(mapY, mapM - 1, d).getDay();
+    const tip = `${WEEKDAY_LABELS[dow]}, ${d} ${MONTH_LABELS[mapM - 1].slice(0, 3).toLowerCase()}\n` + (n ? `${n} ${n === 1 ? 'item' : 'itens'} · ${prazos} ${prazos === 1 ? 'prazo' : 'prazos'} e ${evs} ${evs === 1 ? 'evento' : 'eventos'}` : 'Nada marcado');
+    heatCells.push(`<button type="button" class="hm-c l${Math.min(n, 4)}${ds === todayS ? ' today' : ''}" data-day="${ds}" data-tip="${tip}" aria-label="${tip.replace('\n', ': ')}">${d}</button>`);
+  }
   const chart = wk.map((v, i) => `<div class="dv-col${i === wkToday ? ' today' : ''}" title="${wkLabels[i]}: ${v}"><span class="n">${v || ''}</span><i style="height:${v ? Math.max(5, Math.round(v / wkMax * 96)) : 4}px"></i><span class="l">${wkLabels[i]}</span></div>`).join('');
 
   view.innerHTML = `
@@ -269,9 +289,12 @@ export function renderDashboard(){
             <div class="dv-legend">${stBuckets.map(b => `<div><i style="background:${b.color}"></i>${b.label}<b>${b.n}</b></div>`).join('')}</div>
           </div>
         </section>
-        <section class="dv-card dv-agenda">
-          <h3>${icon('calendar-blank')}Agenda <span class="dv-more" id="${agendaRows.length > 4 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 4 ? 'Ver mais (' + (agendaRows.length - 4) + ') →' : 'Calendário →'}</span></h3>
-          ${agendaRows.length ? agendaRows.slice(0, 4).map(agendaRowHtml).join('') : '<div class="dv-empty">Nenhum evento nos próximos 7 dias.</div>'}
+        <section class="dv-card dv-heat">
+          <h3>${icon('calendar-blank')}Compromissos
+            <span class="hm-nav"><button type="button" id="hmPrev" aria-label="Mês anterior">${icon('caret-left')}</button><span>${MONTH_LABELS[mapM - 1]} ${mapY}</span><button type="button" id="hmNext" aria-label="Próximo mês">${icon('caret-right')}</button></span></h3>
+          <div class="hm-wd">${[0, 1, 2, 3, 4, 5, 6].map(k => `<span>${mapLetters[(k + mapIni) % 7]}</span>`).join('')}</div>
+          <div class="hm-g">${heatCells.join('')}</div>
+          <div class="hm-legend"><span>Menos</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Mais</span><b>${mapTotal} ${mapTotal === 1 ? 'item' : 'itens'} no mês</b></div>
         </section>
       </div>
 
@@ -315,9 +338,9 @@ export function renderDashboard(){
             <span class="dv-fl ${t.priority}">${icon('flag')}</span>
             <div class="tx"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? fmtDate(t.dueDate) : 'Sem prazo'}</small></div>${prioChip(t.priority)}</div>`).join('') : '<div class="dv-empty">Nenhuma tarefa importante.</div>'}
         </section>
-        <section class="dv-card">
-          <h3>${icon('repeat')}Retomar hoje ${followToday.length ? `<span class="dv-count">${followToday.length}</span>` : ''}</h3>
-          ${followToday.length ? followToday.slice(0, 4).map(t => `<div class="dv-li dash-list-row" data-task-id="${t.id}"><span class="dv-fl">${icon('repeat')}</span><div class="tx"><b>${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'Prazo ' + fmtDate(t.dueDate) : 'Sem prazo'}</small></div></div>`).join('') : '<div class="dv-empty">Nada para retomar hoje.</div>'}
+        <section class="dv-card dv-agenda">
+          <h3>${icon('calendar-blank')}Agenda <span class="dv-more" id="${agendaRows.length > 4 ? 'dashAgendaMore' : 'dashSeeAllEventsLink'}">${agendaRows.length > 4 ? 'Ver mais (' + (agendaRows.length - 4) + ') →' : 'Calendário →'}</span></h3>
+          ${agendaRows.length ? agendaRows.slice(0, 4).map(agendaRowHtml).join('') : '<div class="dv-empty">Nenhum evento nos próximos 7 dias.</div>'}
         </section>
       </div>
     </div>
@@ -379,6 +402,17 @@ export function renderDashboard(){
     ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
     ov.querySelectorAll('.dash-list-row[data-event-id]').forEach(row => { row.onclick = () => { close(); const ev = G.state.events.find(x => x.id === row.dataset.eventId); if(ev) openEventComposer(ev); }; });
   };
+  view.querySelectorAll('.hm-c[data-day]').forEach(el => {
+    el.onclick = () => { G.calendarFocusDate = el.dataset.day; G.calendarView = 'day'; G.currentView = 'calendar'; render(); };
+  });
+  const moveMes = delta => {
+    const d = new Date(mapY, mapM - 1 + delta, 1);
+    PAINEL_INICIO.mapaMes = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    renderDashboard();
+  };
+  const hmPrev = document.getElementById('hmPrev'), hmNext = document.getElementById('hmNext');
+  if(hmPrev) hmPrev.onclick = () => moveMes(-1);
+  if(hmNext) hmNext.onclick = () => moveMes(1);
   const goTasks = () => { G.currentView = 'tasks'; render(); };
   ['dashSeeAllImportantLink', 'dashSeeAllTasksLink', 'dashSeeAllTasksTop'].forEach(id => { const el = document.getElementById(id); if(el) el.onclick = goTasks; });
   const seeEvents = document.getElementById('dashSeeAllEventsLink');

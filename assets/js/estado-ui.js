@@ -36,7 +36,7 @@ export const GANTT = {
 };
 
 /* Início (Visão geral): período escolhido no filtro do topo. */
-export const PAINEL_INICIO = { periodo: 'mes', aba: 'hoje' };
+export const PAINEL_INICIO = { periodo: 'mes', aba: 'hoje', mapaMes: null };
 export const PERIODOS = [
   { key: 'semana', label: 'Últimos 7 dias', short: '7d' },
   { key: 'mes', label: 'Este mês', short: 'no mês' },

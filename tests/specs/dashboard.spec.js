@@ -21,7 +21,7 @@ test.describe('Resumo', () => {
     await expect(page.locator('.dv-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.dv-pr')).toContainText('Casa');
     await expect(page.locator('.dv-agenda')).toContainText('Reunião');
-    await expect(page.locator('.dv-card', { hasText: 'Retomar hoje' }).first()).toContainText('Hoje 2');
+    await expect(page.locator('.dv-card', { hasText: 'Retomar hoje' })).toHaveCount(0); // o cartão saiu; as retomadas ficam sinalizadas na tabela e no chip do cartão Hoje
   });
 
   test('cartão do espaço abre as tarefas daquele espaço', async ({ page }) => {
@@ -172,4 +172,42 @@ test('tabela de tarefas junta prazo e retomada: quem é para retomar hoje aparec
   await expect(page.locator('.dv-tr[data-task-id="f"] .dv-ret')).toBeVisible();
   await page.locator('[data-aba="atrasadas"]').click();
   await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
+});
+
+test('mapa de calor: pinta os dias por quantidade de prazos e eventos, navega o mês e abre o dia no calendário', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  const dia = await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const alvo = today.slice(0, 8) + '15';
+    const t = (id, extra) => Object.assign({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    state.tasks = [t('1', { dueDate: alvo }), t('2', { dueDate: alvo }), t('3', { dueDate: alvo, done: true })]; // a concluída não conta
+    state.events = [{ id: 'e1', title: 'Ev', date: alvo, endDate: alvo, startTime: '09:00', endTime: '10:00', allDay: false, categoryId: cat, tagIds: [], recurrence: 'none', recurrenceInterval: 1, createdAt: 1 }];
+    render();
+    return alvo;
+  });
+  const cell = page.locator(`.hm-c[data-day="${dia}"]`);
+  await expect(cell).toHaveClass(/l3/); // 2 prazos + 1 evento = 3 itens
+  await expect(cell).toHaveAttribute('data-tip', /3 itens · 2 prazos e 1 evento/);
+  await expect(page.locator('.dv-heat .hm-legend b')).toContainText('3 itens no mês');
+  const mes = await page.locator('.hm-nav > span').textContent();
+  await page.locator('#hmNext').click();
+  expect(await page.locator('.hm-nav > span').textContent()).not.toBe(mes);
+  await expect(page.locator('.dv-heat .hm-legend b')).toContainText('0 itens no mês');
+  await page.locator('#hmPrev').click();
+  await page.locator(`.hm-c[data-day="${dia}"]`).click();
+  expect(await page.evaluate(() => [currentView, calendarView])).toEqual(['calendar', 'day']);
+  expect(await page.evaluate(() => calendarFocusDate)).toBe(dia);
+});
+
+test('Agenda ficou na última coluna de baixo e o mapa de calor no lugar dela, na linha de cima', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await gotoApp(page, { view: 'dashboard' });
+  const topo = await page.locator('.dv-heat').boundingBox();
+  const agenda = await page.locator('.dv-agenda').boundingBox();
+  expect(topo.y).toBeLessThan(agenda.y);
+  const status = await page.locator('.dv-card', { hasText: 'Status das tarefas' }).boundingBox();
+  expect(topo.x).toBeGreaterThan(status.x); // mapa à direita do status
+  const imp = await page.locator('.dv-card', { hasText: 'Tarefas importantes' }).boundingBox();
+  expect(agenda.x).toBeGreaterThan(imp.x); // agenda à direita das importantes
 });

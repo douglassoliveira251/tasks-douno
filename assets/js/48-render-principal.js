@@ -60,6 +60,7 @@ export function render(){
   }
   if(G.currentView !== 'notes') G.notesDrawerOpen = false;
   document.body.classList.toggle('notes-focus', G.notesFocusMode && G.currentView === 'notes');
+  document.body.classList.toggle('view-dashboard', G.currentView === 'dashboard');
   renderSpaceSelector();
   document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === G.currentView));
   const viewTitleEl = document.getElementById('viewTitle');
@@ -75,7 +76,7 @@ export function render(){
   const subtitleEl = document.getElementById('viewSubtitle');
   if(G.currentView === 'dashboard'){
     const focusD = new Date(todayStr()+'T00:00:00');
-    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()}`;
+    subtitleEl.textContent = `${WEEKDAY_FULL_LABELS[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()} · acompanhe suas tarefas, prazos e compromissos`;
     subtitleEl.style.display = 'block';
   } else {
     subtitleEl.style.display = 'none';
