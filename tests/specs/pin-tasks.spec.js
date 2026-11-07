@@ -10,7 +10,7 @@ const seed = () => {
 const groupTitles = (page) => page.locator('.bucket-title').allTextContents();
 
 test.describe('Fixar tarefas', () => {
-  test('fixar na lista leva a tarefa ao grupo "Fixadas", no topo; soltar devolve ao grupo de origem', async ({ page }) => {
+  test('fixar na lista leva a tarefa ao grupo "Favoritos", no topo; soltar devolve ao grupo de origem', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(seed);
     const antes = await groupTitles(page);
@@ -18,13 +18,13 @@ test.describe('Fixar tarefas', () => {
     const rowA = page.locator('.task-row[data-id="a"]');
     await rowA.hover();
     await rowA.locator('.task-pin-btn').click();
-    // o nome do 3º grupo depende do dia da semana; o que importa é que A saiu de "Vencida" para "Fixadas"
-    expect(await groupTitles(page)).toEqual(['Fixadas', antes[1], antes[2]]);
+    // o nome do 3º grupo depende do dia da semana; o que importa é que A saiu de "Vencida" para "Favoritos"
+    expect(await groupTitles(page)).toEqual(['Favoritos', antes[1], antes[2]]);
     await expect(page.locator('.bucket.pinned-bucket .task-row[data-id="a"]')).toHaveCount(1);
     expect(await page.evaluate(() => state.tasks.find(t => t.id === 'a').pinned)).toBe(true);
     // segue em cima em outro agrupamento
     await page.evaluate(() => { taskGroupMode = 'retomada'; render(); });
-    expect((await groupTitles(page))[0]).toBe('Fixadas');
+    expect((await groupTitles(page))[0]).toBe('Favoritos');
     // solta
     await page.locator('.bucket.pinned-bucket .task-pin-btn').click();
     await page.evaluate(() => { taskGroupMode = 'periodo'; render(); });

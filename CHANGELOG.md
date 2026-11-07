@@ -1,3 +1,10 @@
+## [3.7.0] - 2026-11-08 04:00
+
+### Changed
+
+- Fixar tarefa virou Favoritar: estrela à direita da linha (aparece ao passar o mouse; dourada quando favorita), grupo "Favoritos" no topo e mesma estrela no painel da tarefa. O dado continua o mesmo (tarefas já fixadas viram favoritas).
+- Linha de tarefa em uma só linha: título e marcadores à esquerda; espaço, prazo, status, situação (Hoje/Vencida), estrela e menu à direita. A margem de 30 px do alfinete saiu.
+
 ## [3.6.5] - 2026-11-08 03:00
 
 ### Changed

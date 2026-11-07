@@ -197,7 +197,7 @@ function onboardingSteps(){
     { key: 'conta', titulo: 'Criar sua conta', dica: '', feito: true },
     { key: 'tarefa', titulo: 'Criar sua primeira tarefa', dica: 'Toque no + ou use "Criar de template"', feito: s.tasks.length > 0 || (s.completedLog || []).length > 0, acao: 'Criar' },
     { key: 'espacos', titulo: 'Organizar em espaços', dica: 'Trabalho, estudos, casa…', feito: s.categories.length > 1, acao: 'Abrir' },
-    { key: 'fixar', titulo: 'Fixar uma tarefa importante', dica: 'Ela fica sempre no topo da lista', feito: !!(s.onboarding && s.onboarding.pinned) || s.tasks.some(t => t.pinned), acao: 'Ver tarefas' },
+    { key: 'fixar', titulo: 'Favoritar uma tarefa importante', dica: 'Ela fica sempre no topo da lista, em Favoritos', feito: !!(s.onboarding && s.onboarding.pinned) || s.tasks.some(t => t.pinned), acao: 'Ver tarefas' },
     { key: 'outlook', titulo: 'Conectar o Outlook', dica: 'Opcional: agenda e e-mails sincronizados', feito: outlook, acao: 'Abrir' },
   ];
 }

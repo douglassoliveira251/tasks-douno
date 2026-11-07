@@ -24,7 +24,7 @@ export const STATUS_CONFIG = [
   { key:'concluida', label:'Concluída' }
 ];
 export function pinIconSvg(isPinned){
-  return icon('push-pin', isPinned ? 'duotone' : 'regular');
+  return icon('star', isPinned ? 'fill' : 'regular');
 }
 
 export function statusCircleSvg(statusKey){
@@ -73,11 +73,11 @@ export const PERIOD_CONFIG = [
   { key:'sem_prazo', label:'Sem prazo', color:'var(--ink-faint)' }
 ];
 
-/* Tarefas fixadas saem dos grupos e vão para um grupo "Fixadas" sempre no topo, em qualquer agrupamento. */
+/* Tarefas favoritas (estrela) saem dos grupos e vão para um grupo "Favoritos" sempre no topo, em qualquer agrupamento. */
 export function computeTaskGroups(){
   const pinned = [];
   const groups = computeTaskGroupsUnpinned(pinned);
-  return pinned.length ? [{ key:'fixadas', label:'Fixadas', color:'var(--accent)', tasks: pinned, quickAddDefaults: {} }, ...groups] : groups;
+  return pinned.length ? [{ key:'fixadas', label:'Favoritos', color:'var(--accent)', tasks: pinned, quickAddDefaults: {} }, ...groups] : groups;
 }
 function computeTaskGroupsUnpinned(pinnedOut){
   const term = fold(G.searchTerm.trim());
@@ -415,6 +415,7 @@ export function renderTasks(){
       <div class="bucket-header">
         <span class="bucket-chevron">${icon('caret-down')}</span>
         ${(!isCompletedGroup && (G.taskGroupMode === 'grupos' || G.taskGroupMode === 'prioridade')) ? `<span class="cat-swatch" style="background:${group.color}"></span>` : ''}
+        ${group.key === 'fixadas' ? `<span class="bucket-star">${icon('star', 'fill')}</span>` : ''}
         <span class="bucket-title">${escapeHtml(group.label)}</span>
         <span class="bucket-count">${group.tasks.length}</span>
       </div>
@@ -470,25 +471,28 @@ export function renderTaskRow(t){
   if(overdue) statusPill = `<span class="task-status-pill overdue">Vencida</span>`;
   else if(isToday && !t.done) statusPill = `<span class="task-status-pill today">Hoje</span>`;
 
+  const cat_ = (G.state.categories || []).find(c => c.id === t.categoryId);
+  const stLabel_ = (STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label;
   row.innerHTML = `
     <div class="task-check task-check-circle ${t.done?'done':''}">
       ${icon('check')}
     </div>
-    ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-label="${t.pinned ? 'Soltar do topo' : 'Fixar no topo'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('push-pin', t.pinned ? 'duotone' : 'regular')}</button>`}
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
-      <span class="task-status-label">${(STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label}</span>
-      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}" style="margin-left:10px;">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
-    </div>
-    <div class="task-row-right">
       ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
-      ${statusPill}
+    </div>
+    <div class="task-row-right">
+      ${cat_ ? `<span class="task-space-chip"><i class="dot" style="background:${cat_.color || 'var(--ink-faint)'}"></i>${escapeHtml(cat_.name)}</span>` : ''}
+      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
+      <span class="task-status-label">${stLabel_}</span>
+      ${statusPill || '<span class="task-pill-ph"></span>'}
+      ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'fill' : 'regular')}</button>`}
       <div class="task-menu-wrap">
         <button class="task-menu-btn">${icon('dots-three-vertical')}</button>
       </div>

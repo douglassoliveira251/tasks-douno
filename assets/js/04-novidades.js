@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.7.0', date:'08/11/2026', title:'Favoritos e lista de tarefas renovada', text:'O alfinete virou uma estrela: passe o mouse na tarefa e clique na estrela à direita para favoritar. As favoritas ficam no grupo Favoritos, no topo. Cada tarefa agora ocupa uma linha só, com espaço, prazo, status e situação alinhados à direita.' },
   { version:'3.6.5', date:'08/11/2026', title:'Mesmas margens em todas as páginas', text:'A Visão geral e as demais páginas ganharam as mesmas margens laterais e o mesmo respiro no topo que a tela de Tarefas.' },
   { version:'3.6.4', date:'08/11/2026', title:'Botões de criar do mesmo tamanho', text:'Os botões Novo item, Nova nota, Novo projeto e Novo evento ganharam o mesmo tamanho do Nova tarefa, e o seletor de período da Visão geral acompanha essa largura.' },
   { version:'3.6.3', date:'08/11/2026', title:'Títulos maiores e lista quadrada', text:'O título das páginas ficou maior e igual ao da Visão geral, com mais margem nas laterais de Tarefas. As linhas da lista ficaram quadradas e um pouco mais altas, os nomes dos grupos menores, e os ícones de busca, notificações e conta ganharam o mesmo espaçamento.' },
