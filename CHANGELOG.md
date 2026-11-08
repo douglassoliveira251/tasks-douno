@@ -1,3 +1,9 @@
+## [3.8.1] - 2026-11-08 08:00
+
+### Changed
+
+- Topo de todas as páginas padronizado (computador): sem linha divisória, mesma altura (70 px), título, subtítulo e botões na mesma posição.
+
 ## [3.8.0] - 2026-11-08 07:00
 
 ### Changed

@@ -3583,3 +3583,11 @@
     box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
   }
   #spaceSelectorBtn:hover .space-selector-chevron, #spaceSelectorBtn[aria-expanded="true"] .space-selector-chevron{color:var(--primary);}
+
+  /* v3.8.1: topo igual em todas as páginas (sem linha divisória; título, subtítulo e botões na mesma posição) */
+  @media (min-width:769px){
+    .topbar{border-bottom:0; background:transparent; align-items:center; min-height:70px; padding:10px 44px 8px;}
+    body.view-dashboard .topbar{padding:10px 44px 8px; align-items:center;}
+    body.view-dashboard .topbar-filters{margin-bottom:0;}
+    .topbar-filters{align-items:center;}
+  }
