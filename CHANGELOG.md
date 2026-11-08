@@ -1,3 +1,6 @@
+## [3.18.0] - 2026-11-08 20:00
+- Calendário: nova visão Agenda; coluna esquerda com mini calendário, espaços e opções Mostrar em todas as visões; topo em uma linha com Novo evento; estrela de favorita do painel da tarefa só com contorno.
+
 ## [3.17.0] - 2026-11-09 15:00
 - Projeto no celular: cabeçalho de duas linhas, seletor Etapas / Linha do tempo / Lista, etapas em cartões com as tarefas dentro, botão flutuante de tarefa e Nova etapa no menu ⋮.
 

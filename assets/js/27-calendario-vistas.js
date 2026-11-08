@@ -2,7 +2,8 @@ import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { isMobileViewport } from './01-estado.js';
 import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
-import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, getEventsForDate, startOfWeekStr } from './25-calendario.js';
+import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, eventsInScope, getEventsForDate, startOfWeekStr } from './25-calendario.js';
+import { selectSpace } from './11-render-sidebar.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
@@ -21,29 +22,40 @@ export function renderCalendar(){
     const end = addDaysStr(start, 6);
     const sD = new Date(start+'T00:00:00'), eD = new Date(end+'T00:00:00');
     periodLabel = `${sD.getDate()} de ${MONTH_LABELS[sD.getMonth()]} – ${eD.getDate()} de ${MONTH_LABELS[eD.getMonth()]}`;
+  } else if(G.calendarView === 'agenda'){
+    const aEnd = new Date(addDaysStr(G.calendarFocusDate, 29) + 'T00:00:00');
+    periodLabel = `${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()]} – ${aEnd.getDate()} de ${MONTH_LABELS[aEnd.getMonth()]}`;
   } else {
     periodLabel = `${WEEKDAY_FULL[focusD.getDay()]}, ${focusD.getDate()} de ${MONTH_LABELS[focusD.getMonth()].toLowerCase()}`;
   }
 
+  const todayCount = getEventsForDate(todayStr()).length, totalEv = eventsInScope().length;
   header.innerHTML = `
-    <div class="cal-view-toggle">
-      <button type="button" data-cv="day" class="${G.calendarView==='day'?'active':''}">Dia</button>
-      <button type="button" data-cv="week" class="${G.calendarView==='week'?'active':''}">Semana</button>
-      <button type="button" data-cv="month" class="${G.calendarView==='month'?'active':''}">Mês</button>
+    <div class="cal-head-title">
+      <div class="cal-period-label">${periodLabel}</div>
+      <div class="cal-head-sub"><b>${todayCount}</b> ${todayCount === 1 ? 'agenda hoje' : 'agendas hoje'} · <b>${totalEv}</b> ${totalEv === 1 ? 'agenda no total' : 'agendas no total'}</div>
     </div>
-    <div class="cal-nav">
-      <button type="button" id="calPrevBtn" title="Anterior">${icon('caret-left')}</button>
-      <button type="button" id="calTodayBtn">Hoje</button>
-      <button type="button" id="calNextBtn" title="Próximo">${icon('caret-right')}</button>
-    </div>
-    <div class="cal-period-label">${periodLabel}</div>
-    <div class="cal-layers">
-      <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" title="Personalizar o calendário" aria-haspopup="true" aria-expanded="${G.calLayersOpen}">${icon('sliders-horizontal')}Personalizar</button>
-      ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Personalizar o calendário</h4>
+    <div class="cal-head-tools">
+      <div class="cal-view-toggle">
+        <button type="button" data-cv="agenda" class="${G.calendarView==='agenda'?'active':''}">Agenda</button>
+        <button type="button" data-cv="day" class="${G.calendarView==='day'?'active':''}">Dia</button>
+        <button type="button" data-cv="week" class="${G.calendarView==='week'?'active':''}">Semana</button>
+        <button type="button" data-cv="month" class="${G.calendarView==='month'?'active':''}">Mês</button>
+      </div>
+      <div class="cal-nav">
+        <button type="button" id="calPrevBtn" title="Anterior">${icon('caret-left')}</button>
+        <button type="button" id="calTodayBtn">Hoje</button>
+        <button type="button" id="calNextBtn" title="Próximo">${icon('caret-right')}</button>
+      </div>
+      <button type="button" class="cal-new-btn" id="calNewBtn">${icon('plus')}<span>Novo evento</span></button>
+      <div class="cal-layers">
+        <button type="button" class="cal-layers-btn${G.calLayersOpen ? ' open' : ''}" id="calLayersBtn" title="Personalizar o calendário" aria-haspopup="true" aria-expanded="${G.calLayersOpen}">${icon('sliders-horizontal')}<span>Personalizar</span></button>
+        ${G.calLayersOpen ? `<div class="cal-layers-pop" id="calLayersPop"><h4>Personalizar o calendário</h4>
         <p class="cal-lay-hint">Escolha o que aparece no calendário.</p>
         <label class="cal-lay-row"><span>Feriados nacionais</span><span class="completed-toggle"><input type="checkbox" id="layHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
         <label class="cal-lay-row sub ${G.state.showHolidays === false ? 'off' : ''}"><span>Incluir facultativos (Carnaval, Corpus Christi)</span><span class="completed-toggle"><input type="checkbox" id="layOpt" ${G.state.showOptionalHolidays !== false ? 'checked' : ''}><span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span></span></label>
       </div>` : ''}
+      </div>
     </div>
   `;
   view.appendChild(header);
@@ -64,16 +76,22 @@ export function renderCalendar(){
       markDirty();
     };
   });
+  header.querySelector('#calNewBtn').onclick = () => openEventComposer(null, G.calendarFocusDate);
   header.querySelector('#calTodayBtn').onclick = () => { G.calendarFocusDate = todayStr(); render(); };
   header.querySelector('#calPrevBtn').onclick = () => { navigateCalendar(-1); };
   header.querySelector('#calNextBtn').onclick = () => { navigateCalendar(1); };
 
+  const shell = document.createElement('div');
+  shell.className = 'cal-shell';
+  shell.appendChild(buildCalSidebar());
   const body = document.createElement('div');
   body.className = 'cal-body';
-  view.appendChild(body);
+  shell.appendChild(body);
+  view.appendChild(shell);
 
   if(G.calendarView === 'month') renderCalendarMonth(body);
   else if(G.calendarView === 'week') renderCalendarWeek(body);
+  else if(G.calendarView === 'agenda') renderCalendarAgenda(body);
   else renderCalendarDay(body);
 }
 
@@ -84,6 +102,8 @@ export function navigateCalendar(dir){
     G.calendarFocusDate = dateToStr(d);
   } else if(G.calendarView === 'week'){
     G.calendarFocusDate = addDaysStr(G.calendarFocusDate, dir*7);
+  } else if(G.calendarView === 'agenda'){
+    G.calendarFocusDate = addDaysStr(G.calendarFocusDate, dir*30);
   } else {
     G.calendarFocusDate = addDaysStr(G.calendarFocusDate, dir);
   }
@@ -149,7 +169,7 @@ export function renderCalendarMonth(body){
   /* painel do dia selecionado */
   const sd = new Date(G.calSelectedDate + 'T00:00:00');
   const dayEvents = getEventsForDate(G.calSelectedDate).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
-  const dayTasks = G.state.tasks.filter(t => !t.done && t.dueDate === G.calSelectedDate && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === G.calSelectedDate && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
   const nEv = dayEvents.length, nTk = dayTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
@@ -260,20 +280,21 @@ export function buildCalSidebar(){
   mini.querySelectorAll('.cal-mini-day').forEach(b => { b.onclick = () => { G.calendarFocusDate = b.dataset.date; render(); }; });
   side.appendChild(mini);
 
-  const agenda = document.createElement('div');
-  agenda.className = 'cal-side-agenda';
-  const sections = [['Hoje', todayS], ['Amanhã', addDaysStr(todayS, 1)]];
-  const sortEv = list => list.slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
-  agenda.innerHTML = sections.map(([label, ds]) => {
-    const d = new Date(ds + 'T00:00:00');
-    const evs = sortEv(getEventsForDate(ds));
-    return `<div class="cal-side-label">${label} · ${d.getDate()} de ${MONTH_LABELS[d.getMonth()].toLowerCase()}</div>` +
-      (evs.length ? evs.map(ev => `<div class="cal-side-item" data-event-id="${ev.id}" style="--c:${eventColor(ev)}"><span class="tm">${ev.startTime || 'Dia'}</span><i></i><div><b>${escapeHtml(ev.title||'Sem título')}</b><small>${ev.startTime ? ev.startTime + (ev.endTime ? ' – ' + ev.endTime : '') : 'Dia inteiro'}</small></div></div>`).join('')
-        : '<div class="cal-side-empty">Nada marcado</div>');
-  }).join('');
-  agenda.querySelectorAll('[data-event-id]').forEach(el => {
-    el.onclick = () => { const ev = G.state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
-  });
+  const cats = (G.state.categories || []);
+  const evIn = id => G.state.events.filter(ev => ev.categoryId === id).length;
+  const info = document.createElement('div');
+  info.className = 'cal-side-info';
+  info.innerHTML = `
+    <div class="cal-side-label">Espaços</div>
+    <button type="button" class="cal-sp${!G.activeCategoryFilter ? ' on' : ''}" data-space=""><i style="background:var(--ink-faint)"></i><span>Todos</span><small>${G.state.events.length}</small></button>
+    ${cats.map(c => `<button type="button" class="cal-sp${G.activeCategoryFilter === c.id ? ' on' : ''}" data-space="${c.id}"><i style="background:${c.color || 'var(--primary)'}"></i><span>${escapeHtml(c.name)}</span><small>${evIn(c.id)}</small></button>`).join('')}
+    <div class="cal-side-label" style="margin-top:16px">Mostrar</div>
+    <label class="cal-chk"><input type="checkbox" id="sideHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="bx"></span>Feriados</label>
+    <label class="cal-chk"><input type="checkbox" id="sideTask" ${G.state.showCalTasks !== false ? 'checked' : ''}><span class="bx"></span>Tarefas com prazo</label>`;
+  info.querySelectorAll('[data-space]').forEach(b => { b.onclick = () => selectSpace(b.dataset.space || null); });
+  info.querySelector('#sideHol').onchange = e => { G.state.showHolidays = e.target.checked; markDirty(); render(); };
+  info.querySelector('#sideTask').onchange = e => { G.state.showCalTasks = e.target.checked; markDirty(); render(); };
+  const agenda = info;
   side.appendChild(agenda);
   return side;
 }
@@ -439,7 +460,6 @@ export function renderCalendarWeek(body){
   wrap.appendChild(scrollWrap);
   const layout = document.createElement('div');
   layout.className = 'cal-week-layout';
-  layout.appendChild(buildCalSidebar());
   layout.appendChild(wrap);
   body.appendChild(layout);
 
@@ -550,8 +570,8 @@ export function renderCalendarDay(body){
   layout.appendChild(card);
 
   /* lateral: resumo do dia, dia inteiro, tarefas */
-  const dayTasks = G.state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
-  const lateTasks = isToday ? G.state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
+  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+  const lateTasks = (isToday && G.state.showCalTasks !== false) ? G.state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
   const nEv = all.length, nTk = dayTasks.length + lateTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
@@ -583,3 +603,38 @@ export function renderCalendarDay(body){
   scroll.scrollTop = (isToday ? Math.min(startHour, firstEv) : Math.min(CAL_START_HOUR, firstEv)) * hourHeight;
 }
 
+
+/* ---- Agenda: lista dos próximos 30 dias, com agendas, tarefas com prazo e feriados juntos ---- */
+export function renderCalendarAgenda(body){
+  const todayS = todayStr();
+  const start = G.calendarFocusDate;
+  const showTasks = G.state.showCalTasks !== false;
+  const card = document.createElement('div');
+  card.className = 'cal-agenda';
+  let html = '', any = false;
+  for(let i = 0; i < 30; i++){
+    const ds = addDaysStr(start, i);
+    const d = new Date(ds + 'T00:00:00');
+    const hol = holidayOn(ds);
+    const evs = getEventsForDate(ds).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
+    const tks = showTasks ? G.state.tasks.filter(t => !t.done && t.dueDate === ds && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
+    if(!hol && !evs.length && !tks.length) continue;
+    any = true;
+    const isToday = ds === todayS;
+    html += `<div class="cal-ag-day${isToday ? ' today' : ''}">
+      <div class="cal-ag-date"><small>${isToday ? 'Hoje · ' : ''}${WEEKDAY_LABELS[d.getDay()]}</small><b>${d.getDate()}</b><small>${MONTH_LABELS[d.getMonth()].slice(0, 3)}</small></div>
+      <div class="cal-ag-items">
+        ${hol ? `<div class="cal-ag-item hol"><span class="tm">${HOL_FLAG}</span><div><b>${escapeHtml(hol.name)}</b><small>${hol.optional ? 'Ponto facultativo' : 'Feriado nacional'}</small></div></div>` : ''}
+        ${evs.map(ev => `<div class="cal-ag-item" data-event-id="${ev.id}" style="--c:${eventColor(ev)}"><span class="tm">${ev.startTime || 'Dia todo'}</span><i></i><div><b>${escapeHtml(ev.title || 'Sem título')}</b><small>${ev.startTime ? ev.startTime + (ev.endTime ? ' – ' + ev.endTime : '') : 'Dia inteiro'}${(ev.attendees || []).length ? ' · ' + ev.attendees.length + (ev.attendees.length === 1 ? ' pessoa' : ' pessoas') : ''}${ev.recurrence && ev.recurrence !== 'none' ? ' · Recorrente' : ''}</small></div></div>`).join('')}
+        ${tks.map(t => `<div class="cal-ag-item task" data-task-id="${t.id}"><span class="tm">${calIcon('task', 15)}</span><i></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>Tarefa · prazo${t.dueTime ? ' ' + t.dueTime : ''}</small></div></div>`).join('')}
+      </div></div>`;
+  }
+  card.innerHTML = any ? html : '<div class="cal-ag-empty">Nada marcado nos próximos 30 dias.</div>';
+  card.querySelectorAll('[data-event-id]').forEach(el => {
+    el.onclick = () => { const ev = G.state.events.find(x => x.id === el.dataset.eventId); if(ev) openEventComposer(ev); };
+  });
+  card.querySelectorAll('[data-task-id]').forEach(el => {
+    el.onclick = () => { G.currentView = 'tasks'; G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
+  });
+  body.appendChild(card);
+}

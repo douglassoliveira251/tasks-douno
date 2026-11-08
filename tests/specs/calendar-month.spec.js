@@ -62,3 +62,29 @@ test.describe('Cadastro de agenda (duas colunas)', () => {
     await expect(page.locator('#evSendInvite')).not.toBeChecked();
   });
 });
+
+test.describe('Calendário — Agenda e coluna esquerda', () => {
+  test('quatro visões, coluna esquerda sempre presente e Agenda junta agendas, tarefas e feriados', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoApp(page, { view: 'calendar' });
+    await page.evaluate(() => {
+      const t = todayStr();
+      state.categories = [{ id: 'c1', name: 'Geral', color: '#2F5F9E' }];
+      state.events = [{ id: 'e1', title: 'Reunião A', date: addDaysStr(t, 1), endDate: addDaysStr(t, 1), startTime: '09:00', endTime: '10:00', categoryId: 'c1', tagIds: [], description: '', attendees: [], recurrence: 'none', recurrenceInterval: 1, createdAt: 1, updatedAt: 1 }];
+      state.tasks = [{ id: 't1', title: 'Tarefa com prazo', done: false, status: 'nao_iniciado', priority: 'media', dueDate: t, dueTime: '', categoryId: 'c1', tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }];
+      calendarView = 'agenda'; calendarFocusDate = t; render();
+    });
+    await expect(page.locator('.cal-view-toggle button')).toHaveText(['Agenda', 'Dia', 'Semana', 'Mês']);
+    await expect(page.locator('.cal-shell > .cal-side')).toBeVisible();
+    await expect(page.locator('.cal-ag-item:not(.hol)')).toHaveCount(2);
+    await expect(page.locator('.cal-ag-item.task')).toContainText('Tarefa com prazo');
+    // esconder tarefas com prazo
+    await page.locator('#sideTask').evaluate(el => el.click());
+    await expect(page.locator('.cal-ag-item.task')).toHaveCount(0);
+    // as outras visões mantêm a coluna esquerda
+    for (const v of ['day', 'week', 'month']) {
+      await page.evaluate(vv => { calendarView = vv; render(); }, v);
+      await expect(page.locator('.cal-shell > .cal-side .cal-mini')).toBeVisible();
+    }
+  });
+});

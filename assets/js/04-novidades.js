@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.18.0', date:'08/11/2026', title:'Calendário com Agenda e coluna lateral', text:'O calendário ganhou a visão Agenda (lista dos próximos 30 dias com agendas, tarefas com prazo e feriados) ao lado de Dia, Semana e Mês. Todas as visões têm agora, à esquerda, o mini calendário, os espaços e as opções Mostrar (feriados e tarefas com prazo). O topo ficou numa linha só, com o botão Novo evento.' },
   { version:'3.17.0', date:'09/11/2026', title:'Projeto no celular mais prático', text:'No celular, o projeto aberto ganhou um cabeçalho de duas linhas, o seletor Etapas / Linha do tempo / Lista, etapas em cartões com as tarefas dentro e um botão flutuante para criar tarefa. Nova etapa e Editar ficam no menu ⋮.' },
   { version:'3.16.0', date:'09/11/2026', title:'Projeto aberto com o layout novo', text:'Ao abrir um projeto, o cabeçalho ficou mais enxuto (nome, situação e números em uma linha, com os botões ao lado), a linha do tempo ocupa a esquerda e o resumo do projeto fica numa coluna à direita, com indicadores, próximas tarefas e descrição.' },
   { version:'3.15.0', date:'09/11/2026', title:'Projetos com o layout novo', text:'A lista de Projetos ficou mais enxuta, com os filtros (Status e Ordenar) no topo e o resumo do projeto selecionado encaixado ao lado: andamento, indicadores, etapas e próximas tarefas.' },
