@@ -1,3 +1,9 @@
+## [3.10.0] - 2026-11-08 11:00
+
+### Added
+
+- Tela de Tarefas (a partir de 1100 px): com nenhuma tarefa aberta, a coluna da direita mostra o "Resumo do dia" (anel de andamento, abertas, vencidas, feitas hoje, retomar hoje, barra por prioridade, próximas tarefas e agenda de hoje), respeitando o espaço escolhido. Ao abrir uma tarefa, o detalhe ocupa o lugar do resumo.
+
 ## [3.9.2] - 2026-11-08 10:30
 
 ### Changed

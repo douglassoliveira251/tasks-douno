@@ -70,3 +70,22 @@ test('tarefa nova nasce sem prazo', async ({ page }) => {
   expect(t.dueDate).toBeNull();
   expect(t.dueTime).toBe('');
 });
+
+test('Resumo do dia aparece na coluna da direita sem tarefa aberta e some quando uma tarefa é aberta', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, d, done) => ({ id, title: 'T' + id, done, status: done ? 'concluida' : 'nao_iniciado', priority: 'alta', dueDate: d, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1, completedAt: done ? Date.now() : null });
+    state.tasks = [t('a', today, false), t('b', today, true), t('c', addDaysStr(today, -1), false)];
+    render();
+  });
+  const ds = page.locator('.day-summary');
+  await expect(ds).toBeVisible();
+  await expect(ds.locator('.ds-big')).toContainText('1 de 2');
+  await expect(ds.locator('.ds-kpi').nth(0)).toContainText('2'); // abertas
+  await expect(ds.locator('.ds-kpi').nth(1)).toContainText('1'); // vencidas
+  await ds.locator('.ds-task').first().click();
+  await expect(page.locator('.task-panel')).toBeVisible();
+  await expect(page.locator('.day-summary')).toHaveCount(0);
+});

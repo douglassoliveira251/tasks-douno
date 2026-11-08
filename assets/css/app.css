@@ -3651,3 +3651,35 @@
     .tp-follow-box > .tp-label{margin-bottom:4px;} .tp-follow-trigger{margin:0; display:flex; align-items:center;}
     .tp-follow{gap:0;} .tp-follow-trigger, [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
   }
+
+  /* v3.10: Resumo do dia na coluna da direita de Tarefas (sem tarefa aberta) */
+  @media (min-width:1100px){
+    body[data-view="tasks"] #tasksView:has(.day-summary){padding-right:0;}
+    .tasks-layout:has(.day-summary){gap:0;}
+    .tasks-layout:has(.day-summary) .tasks-list-col{padding-right:20px;}
+    .day-summary{
+      position:sticky; top:0; align-self:flex-start; flex:none; width:390px; height:calc(100vh - 160px); overflow-y:auto;
+      border-left:1px solid var(--border); background:var(--surface); padding:14px 18px 24px; font-size:12px;
+    }
+    .ds-cap{font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#94A3B8; margin:14px 0 6px;}
+    .ds-cap:first-child{margin-top:0;}
+    .ds-top{display:flex; align-items:center; gap:14px;}
+    .ds-ring{flex:none; color:var(--ink);}
+    .ds-big{font-size:15px; font-weight:700; color:var(--ink);} .ds-big span{font-size:12px; font-weight:500; color:var(--ink-soft);}
+    .ds-sub{font-size:10.5px; color:var(--ink-faint); margin-top:2px;}
+    .ds-next{font-size:11.5px; margin-top:5px; color:var(--ink);} .ds-next span{color:var(--ink-faint);} .ds-next b{font-weight:700;}
+    .ds-kpis{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+    .ds-kpi{background:var(--tpf); border-radius:6px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+    .ds-kpi small{font-size:11px; color:var(--ink-soft); font-weight:600;}
+    .ds-kpi b{font-size:18px; font-weight:700; line-height:1;}
+    .ds-kpi b.bad{color:#C0453A;} .ds-kpi b.ok{color:#2B7A55;} .ds-kpi b.pri{color:var(--primary);}
+    .ds-stack{display:flex; height:8px; border-radius:4px; overflow:hidden; gap:2px;} .ds-stack i{display:block; height:100%;}
+    .ds-legend{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:5px; font-size:10.5px; color:var(--ink-soft);}
+    .ds-task{display:flex; gap:9px; align-items:stretch; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--border); padding:7px 0; cursor:pointer; color:var(--ink);}
+    .ds-task:hover{background:var(--surface-2);}
+    .ds-task i{width:3px; border-radius:2px; flex:none;}
+    .ds-task b{display:block; font-size:12px; font-weight:600;} .ds-task small{display:block; font-size:10.5px; color:var(--ink-faint);}
+    .ds-ev{display:flex; align-items:center; gap:9px; width:100%; height:34px; padding:0 10px; background:var(--tpf); border:0; border-radius:6px; margin-bottom:4px; text-align:left; cursor:pointer; color:var(--ink); font-size:12px;}
+    .ds-ev .t{color:var(--ink-soft); font-size:11px; width:48px; flex:none;} .ds-ev b{font-weight:600;}
+    .ds-empty{font-size:11.5px; color:var(--ink-faint); padding:4px 0;}
+  }

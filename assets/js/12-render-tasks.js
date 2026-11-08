@@ -9,6 +9,7 @@ import { projectById } from './31-projetos.js';
 import { followUpLabel, followUpState, openTemplatePickMenu } from './35-templates-de-tarefa.js';
 import { groupModeKey, render } from './48-render-principal.js';
 import { FILTROS } from './estado-ui.js';
+import { buildDaySummary } from './55-resumo-do-dia.js';
 
 /* ===================== RENDER: TASKS ===================== */
 export const PRIORITY_CONFIG = [
@@ -498,6 +499,8 @@ export function renderTasks(){
     panel.className = 'task-panel';
     layout.appendChild(panel);
     renderTaskPanel(panel);
+  } else if(window.matchMedia('(min-width:1100px)').matches){
+    layout.appendChild(buildDaySummary()); // coluna da direita sem tarefa aberta
   }
 }
 
