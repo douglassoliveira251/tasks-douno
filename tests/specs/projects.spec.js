@@ -64,11 +64,12 @@ test.describe('Projetos', () => {
     await page.locator('.nav-item[data-view="projects"]').click();
 
     await expect(page.locator('#viewTitle')).toHaveText('Projetos');
-    await expect(page.locator('.plist-row')).toHaveCount(1);
-    await expect(page.locator('.plist-row')).toContainText('Construção da casa');
-    await expect(page.locator('.plist-row')).toContainText('50%');
+    await expect(page.locator('.pl-row')).toHaveCount(1);
+    await expect(page.locator('.pl-row')).toContainText('Construção da casa');
+    await expect(page.locator('.pl-row')).toContainText('50%');
+  await expect(page.locator('.pl-panel')).toContainText('Construção da casa'); // resumo encaixado ao lado
 
-    await page.locator('.plist-row').click();
+    await page.locator('.pl-row').dblclick();
     await expect(page.locator('.gantt-row')).toHaveCount(3);
     await expect(page.locator('.gantt-bar.concluida')).toHaveCount(1);
     await expect(page.locator('.gantt-today')).toBeVisible();
@@ -81,7 +82,7 @@ test.describe('Projetos', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoApp(page, { view: 'projects' });
     await page.evaluate(() => { state.projects = []; state.tasks = []; render(); });
-    await page.locator('#prjNewBtn').click();
+    await page.locator('#newBtn').click();
     await page.locator('#prjName').fill('Lançamento do site');
     await page.locator('#prjSave').click();
     await expect(page.locator('#prjAddStage')).toBeVisible();
@@ -141,14 +142,17 @@ test('lista de projetos: filtros por situação', async ({ page }) => {
     ];
     projectListFilter = 'all'; activeProjectId = null; currentView = 'projects'; render();
   });
-  await expect(page.locator('.plist-row')).toHaveCount(3);
-  await page.locator('.plist-chip[data-f="atrasado"]').click();
-  await expect(page.locator('.plist-row')).toHaveCount(1);
-  await expect(page.locator('.plist-row')).toContainText('Atrasado');
-  await page.locator('.plist-chip[data-f="concluido"]').click();
-  await expect(page.locator('.plist-row')).toContainText('Feito');
-  await page.locator('.plist-chip[data-f="andamento"]').click();
-  await expect(page.locator('.plist-row')).toContainText('Em dia');
+  await expect(page.locator('.pl-row')).toHaveCount(3);
+  await page.locator('.proj-filters [data-pop="status"]').click();
+  await page.locator('input[name="projStatus"][value="atrasado"]').check();
+  await expect(page.locator('.pl-row')).toHaveCount(1);
+  await expect(page.locator('.pl-row')).toContainText('Atrasado');
+  await page.locator('.proj-filters [data-pop="status"]').click();
+  await page.locator('input[name="projStatus"][value="concluido"]').check();
+  await expect(page.locator('.pl-row')).toContainText('Feito');
+  await page.locator('.proj-filters [data-pop="status"]').click();
+  await page.locator('input[name="projStatus"][value="andamento"]').check();
+  await expect(page.locator('.pl-row')).toContainText('Em dia');
 });
 
 test('tarefa de projeto: desvincular pelo menu ⋮ e criar tarefa pelo projeto', async ({ page }) => {
@@ -304,7 +308,7 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await gotoApp(page, { view: 'projects' });
   await page.evaluate((src) => { eval('(' + src + ')')(); currentView = 'projects'; activeProjectId = null; render(); }, seed.toString());
   // ícone e cor pelo cadastro
-  await page.locator('.plist-row').click();
+  await page.locator('.pl-row').dblclick();
   await page.locator('#prjMore').click();
   await page.locator('#prjEdit').click();
   // nem ícones nem cores ficam na tela: só abrem pelos botões ao lado do nome

@@ -62,6 +62,7 @@ const ICONES = {
   'stack': ['regular'],
   'star': ['regular', 'fill', 'bold'],
   'rows': ['regular'],
+  'funnel': ['regular'],
   'sun': ['regular'],
   'tag': ['regular'],
   'text-align-center': ['regular'],

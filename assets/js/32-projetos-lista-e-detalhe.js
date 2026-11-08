@@ -48,17 +48,26 @@ export function projectListKind(st){
   if(st.late) return 'atrasado';
   return 'andamento';
 }
+export const PROJ_SORTS = [['entrega', 'Entrega'], ['nome', 'Nome'], ['progresso', 'Progresso'], ['criacao', 'Criação']];
+G.projectSort = G.projectSort || 'entrega';
+G.projectListSel = G.projectListSel || null;
 export function renderProjectList(view){
   const all = projectsInScope();
   const rows = all.map(p => ({ p, st: projectStatus(p) }));
   rows.forEach(r => { r.kind = projectListKind(r.st); });
   const counts = { all: rows.length, andamento: rows.filter(r => r.kind === 'andamento').length, atrasado: rows.filter(r => r.kind === 'atrasado').length, concluido: rows.filter(r => r.kind === 'concluido').length };
   const filtered = rows.filter(r => G.projectListFilter === 'all' || r.kind === G.projectListFilter);
-  const chip = (key, label) => `<button type="button" class="plist-chip ${G.projectListFilter === key ? 'on' : ''}" data-f="${key}">${label} ${counts[key]}</button>`;
-  function stageLabel(p, st){
-    if(!st.total) return '—';
-    return st.next ? st.next.name : '—';
-  }
+  const cmp = {
+    entrega: (a, b) => (a.st.end || '9999').localeCompare(b.st.end || '9999'),
+    nome: (a, b) => (a.p.name || '').localeCompare(b.p.name || '', 'pt-BR'),
+    progresso: (a, b) => b.st.pct - a.st.pct,
+    criacao: (a, b) => (b.p.createdAt || 0) - (a.p.createdAt || 0),
+  }[G.projectSort] || (() => 0);
+  filtered.sort(cmp);
+  renderProjectFilters(counts);
+  const sel = filtered.find(r => r.p.id === G.projectListSel) || filtered[0] || null;
+  G.projectListSel = sel ? sel.p.id : null;
+  const today = todayStr();
   function statusChip(r){
     const { st, kind } = r;
     if(kind === 'concluido') return '<span class="proj-chip ok">Concluído</span>';
@@ -66,31 +75,92 @@ export function renderProjectList(view){
     if(!st.total) return '<span class="proj-chip">Sem etapas</span>';
     return st.pct > 0 ? '<span class="proj-chip" style="background:var(--primary-light); color:var(--primary-dark);">Em andamento</span>' : '<span class="proj-chip">Não iniciado</span>';
   }
-  view.innerHTML = `
-    <div class="plist-card">
-      <div class="plist-tools">
-        ${chip('all', 'Todos')}${chip('andamento', 'Em andamento')}${chip('atrasado', 'Atrasados')}${chip('concluido', 'Concluídos')}
-        <button type="button" class="btn small" id="prjNewBtn" style="margin-left:auto;">+ Novo projeto</button>
-      </div>
-      ${all.length ? `
-      <div class="plist-head"><span>Projeto</span><span>Progresso</span><span>Entrega</span><span>Status</span></div>
-      ${filtered.length ? filtered.map(r => {
-        const cat = catById(r.p.categoryId);
-        const pc = projectColor(r.p);
-        const nextTxt = r.kind === 'concluido' ? 'Concluído' : (r.st.next ? 'Próxima: ' + r.st.next.name : (r.st.total ? '' : 'Sem etapas'));
-        return `<div class="plist-row" data-id="${r.p.id}" style="--pc:${pc}">
-          <div class="plist-name"><span class="prj-tile">${projectIconSvg(r.p.icon || 'briefcase')}</span><div class="plist-nm"><b>${escapeHtml(r.p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${r.st.total} etapa${r.st.total === 1 ? '' : 's'}</small></div></div>
-          <div class="plist-prog"><div class="plist-ptop"><span>${escapeHtml(nextTxt)}</span><b>${r.st.pct}%</b></div><div class="proj-bar"><i style="width:${r.st.pct}%; background:var(--pc);"></i></div></div>
-          <span class="plist-end"><small>Entrega</small>${r.st.end ? fmtDate(r.st.end) : '—'}</span>
-          <span>${statusChip(r)}</span>
-        </div>`;
-      }).join('') : '<div class="plist-empty">Nenhum projeto neste filtro.</div>'}` : `
-      <div class="plist-empty">Nenhum projeto ainda. Crie um para organizar etapas, prazos e tarefas num só lugar.</div>`}
+  const taskCount = p => { const ts = G.state.tasks.filter(t => t.projectId === p.id); return { done: ts.filter(t => t.done).length, total: ts.length, list: ts }; };
+  const listHtml = filtered.length ? filtered.map(r => {
+    const cat = catById(r.p.categoryId);
+    const tc = taskCount(r.p);
+    const nextTxt = r.kind === 'concluido' ? 'Todas as etapas concluídas' : (r.st.next ? 'Próxima: ' + r.st.next.name : (r.st.total ? '' : 'Sem etapas'));
+    return `<div class="pl-row${sel && sel.p.id === r.p.id ? ' on' : ''}" data-id="${r.p.id}" style="--pc:${projectColor(r.p)}">
+      <span class="prj-tile">${projectIconSvg(r.p.icon || 'briefcase')}</span>
+      <div class="pl-nm"><div class="pl-top"><b>${escapeHtml(r.p.name || 'Projeto')}</b>${statusChip(r)}</div><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${escapeHtml(nextTxt)}</small></div>
+      <div class="pl-prog"><div class="pl-ptop"><span>${tc.done}/${tc.total} tarefas</span><b>${r.st.pct}%</b></div><div class="proj-bar"><i style="width:${r.st.pct}%; background:var(--pc);"></i></div></div>
+      <span class="pl-end"><small>Entrega</small><b>${r.st.end ? fmtDate(r.st.end) : '—'}</b></span>
     </div>`;
-  view.querySelector('#prjNewBtn').onclick = () => openProjectEditor(null);
-  view.querySelectorAll('.plist-chip').forEach(b => { b.onclick = () => { G.projectListFilter = b.dataset.f; render(); }; });
-  view.querySelectorAll('.plist-row').forEach(r => { r.onclick = () => { G.activeProjectId = r.dataset.id; G.projectTab = defaultProjectTab(); G.selectedStageId = null; render(); }; });
+  }).join('') : (all.length ? '<div class="plist-empty">Nenhum projeto neste filtro.</div>' : '<div class="plist-empty">Nenhum projeto ainda. Crie um para organizar etapas, prazos e tarefas num só lugar.</div>');
+
+  let panelHtml = '';
+  if(sel){
+    const { p, st } = sel;
+    const cat = catById(p.categoryId);
+    const tc = taskCount(p);
+    const soonLim = addDaysStr(today, 3);
+    const nLate = tc.list.filter(t => !t.done && t.dueDate && t.dueDate < today).length;
+    const nSoon = tc.list.filter(t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLim).length;
+    const daysLeft = st.end ? Math.round((new Date(st.end + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
+    const stages = (p.stages || []).slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999'));
+    const open = tc.list.filter(t => !t.done).sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999')).slice(0, 3);
+    const kp = (v, l, color) => `<div class="pl-kp"><b${color ? ` style="color:${color}"` : ''}>${v}</b><small>${l}</small></div>`;
+    panelHtml = `
+      <div class="pl-ptitle" style="--pc:${projectColor(p)}"><span class="prj-tile">${projectIconSvg(p.icon || 'briefcase')}</span><div><b>${escapeHtml(p.name || 'Projeto')}</b><small>${cat ? escapeHtml(cat.name) + ' · ' : ''}${st.total} etapa${st.total === 1 ? '' : 's'}</small></div></div>
+      <div class="proj-side-top" style="margin:14px 0 12px;">
+        <div class="proj-ring" style="--p:${st.pct}; --pc:${projectColor(p)}"><b>${st.pct}%</b></div>
+        <div><b>${st.done} de ${st.total} etapa${st.total === 1 ? '' : 's'}</b><div class="proj-side-sub">Entrega prevista ${st.end ? fmtDate(st.end) : '—'}</div></div>
+      </div>
+      <div class="pl-kps">${kp(tc.done + '<span>/' + tc.total + '</span>', 'tarefas')}${kp(nLate, nLate === 1 ? 'atrasada' : 'atrasadas', nLate ? 'var(--danger)' : '')}${kp(nSoon, 'em 3 dias', nSoon ? '#C77700' : '')}${kp(daysLeft == null ? '—' : daysLeft, 'dias p/ entrega', daysLeft != null && daysLeft < 0 ? 'var(--danger)' : '')}</div>
+      <div class="proj-side-label" style="margin-top:14px;">Etapas</div>
+      ${stages.length ? stages.slice(0, 6).map(sg => { const s = stageState(p, sg); return `<div class="pl-stage"><i class="${s}"></i><b>${escapeHtml(sg.name)}</b><span>${stagePercent(p, sg)}%</span></div>`; }).join('') : '<div class="proj-side-sub" style="padding:6px 0;">Nenhuma etapa ainda.</div>'}
+      <div class="proj-side-label" style="margin-top:14px;">Próximas tarefas</div>
+      ${open.length ? open.map(t => { const sg = (p.stages || []).find(x => x.id === t.stageId); return `<div class="proj-side-task" data-task-id="${t.id}" data-pid="${p.id}"><i class="${t.dueDate && t.dueDate < today ? 'late' : ''}"></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>${sg ? escapeHtml(sg.name) + ' · ' : ''}${t.dueDate ? fmtDate(t.dueDate) : 'sem prazo'}</small></div></div>`; }).join('') : '<div class="proj-side-sub" style="padding:6px 0;">Nenhuma tarefa pendente.</div>'}
+      <div class="pl-actions"><button type="button" class="btn small" id="plOpen">Abrir projeto</button><button type="button" class="btn small secondary" id="plEdit">Editar</button></div>`;
+  }
+  view.innerHTML = `<div class="pl-layout"><div class="pl-list">${listHtml}</div>${sel ? `<aside class="pl-panel">${panelHtml}</aside>` : ''}</div>`;
+  const openProject = id => { G.activeProjectId = id; G.projectTab = defaultProjectTab(); G.selectedStageId = null; render(); };
+  view.querySelectorAll('.pl-row').forEach(r => {
+    r.onclick = () => {
+      if(window.matchMedia('(max-width:1099px)').matches) return openProject(r.dataset.id);
+      G.projectListSel = r.dataset.id; render();
+    };
+    r.ondblclick = () => openProject(r.dataset.id);
+  });
+  const plOpen = view.querySelector('#plOpen');
+  if(plOpen) plOpen.onclick = () => openProject(sel.p.id);
+  const plEdit = view.querySelector('#plEdit');
+  if(plEdit) plEdit.onclick = () => openProjectEditor(sel.p);
+  view.querySelectorAll('.pl-panel .proj-side-task').forEach(el => {
+    el.onclick = () => { G.activeProjectId = el.dataset.pid; G.projectTab = defaultProjectTab(); G.selectedStageId = null; G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
+  });
 }
+
+/* Filtros no topo (mesmo padrão de Tarefas e Notas): Status e Ordenar */
+function renderProjectFilters(counts){
+  const host = document.getElementById('topbarFilters');
+  if(!host) return;
+  host.querySelectorAll('.proj-filters').forEach(el => el.remove());
+  const STATUS = [['all', 'Todos'], ['andamento', 'Em andamento'], ['atrasado', 'Atrasados'], ['concluido', 'Concluídos']];
+  const curStatus = (STATUS.find(x => x[0] === G.projectListFilter) || STATUS[0])[1];
+  const curSort = (PROJ_SORTS.find(x => x[0] === G.projectSort) || PROJ_SORTS[0])[1];
+  const wrap = document.createElement('div');
+  wrap.className = 'proj-filters';
+  wrap.innerHTML = `
+    <div class="tag-filter-control"><button type="button" class="tag-filter-btn${G.projectListFilter !== 'all' ? ' on' : ''}" data-pop="status">${icon('funnel')}<span><i class="nf-k">Status:</i> <b>${curStatus}</b></span>${icon('caret-down')}</button>
+      <div class="tag-filter-popover" data-popover="status" style="display:none;">${STATUS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="projStatus" value="${k}" ${G.projectListFilter === k ? 'checked' : ''}>${l}<span class="pf-n">${counts[k]}</span></label>`).join('')}</div></div>
+    <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="sort">${icon('rows')}<span><i class="nf-k">Ordenar:</i> <b>${curSort}</b></span>${icon('caret-down')}</button>
+      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${PROJ_SORTS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="projSort" value="${k}" ${G.projectSort === k ? 'checked' : ''}>${l}</label>`).join('')}</div></div>`;
+  host.prepend(wrap);
+  wrap.querySelectorAll('[data-pop]').forEach(b => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      const pop = wrap.querySelector(`[data-popover="${b.dataset.pop}"]`);
+      const open = pop.style.display === 'block';
+      wrap.querySelectorAll('[data-popover]').forEach(p => { p.style.display = 'none'; });
+      pop.style.display = open ? 'none' : 'block';
+    };
+  });
+  wrap.querySelectorAll('[data-popover]').forEach(p => p.addEventListener('click', e => e.stopPropagation()));
+  wrap.querySelectorAll('input[name="projStatus"]').forEach(r => r.addEventListener('change', () => { G.projectListFilter = r.value; render(); }));
+  wrap.querySelectorAll('input[name="projSort"]').forEach(r => r.addEventListener('change', () => { G.projectSort = r.value; render(); }));
+}
+document.addEventListener('click', () => { document.querySelectorAll('.proj-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });
 
 export function renderProjectDetail(view, p){
   const st = projectStatus(p);

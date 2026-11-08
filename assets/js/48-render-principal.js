@@ -64,6 +64,7 @@ export function render(){
   document.body.dataset.view = G.currentView;
   if(G.currentView !== 'tasks') document.querySelectorAll('#topbarFilters .group-mode-bar, #topbarFilters .view-mode-toggle').forEach(el => el.remove());
   if(G.currentView !== 'notes') document.querySelectorAll('#topbarFilters .notes-filters').forEach(el => el.remove());
+  if(G.currentView !== 'projects' || G.activeProjectId) document.querySelectorAll('#topbarFilters .proj-filters').forEach(el => el.remove());
   renderSpaceSelector();
   document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === G.currentView));
   const viewTitleEl = document.getElementById('viewTitle');

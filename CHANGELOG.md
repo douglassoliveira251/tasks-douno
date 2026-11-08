@@ -1,3 +1,6 @@
+## [3.15.0] - 2026-11-09 10:00
+- Projetos: lista enxuta com filtros Status e Ordenar no topo e resumo do projeto encaixado à direita (clique seleciona, duplo clique ou "Abrir projeto" abre); no celular, toque abre o projeto.
+
 ## [3.14.11] - 2026-11-09 08:00
 - Notas: o layout novo (cadernos | lista | editor, filtros no topo) passa a valer a partir de 769 px, inclusive no modo desktop do celular.
 
