@@ -3560,3 +3560,26 @@
   /* busca recolhida: o campo tem exatamente a caixa do ícone (36px), sem invadir o sino ao passar o mouse */
   .search-wrap input{box-sizing:border-box; min-width:0;}
   .search-wrap:not(:focus-within):not(.has-term) input{padding:0; width:100%;}
+
+  /* v3.8: "Nova tarefa" à direita do Lista/Kanban; Visão geral com Período (filtro) + Novo item na mesma linha; hover do espaço */
+  .ct-short{display:none;}
+  @media (min-width:769px) and (max-width:1500px){ .ct-long{display:none;} .ct-short{display:inline;} }
+  @media (min-width:769px){
+    body[data-view="tasks"] .tn-new{order:3; flex:0 0 auto; justify-content:flex-start;}
+    body[data-view="tasks"] .view-mode-toggle{order:2;}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar{order:1;}
+    body[data-view="tasks"] .topbar{align-items:center;}
+    body.view-dashboard .topbar{align-items:flex-end;}
+    body.view-dashboard .topbar-filters{flex-direction:row; align-items:center; gap:8px; margin-top:0; margin-bottom:4px;}
+    body.view-dashboard .period-selector-wrap{order:1; width:auto;}
+    body.view-dashboard .tn-new{order:2;}
+    body.view-dashboard #periodSelectorBtn{width:auto; height:32px; padding:0 12px; gap:7px; border-radius:10px; justify-content:center; box-shadow:0 1px 3px rgba(15,23,42,.12), 0 3px 8px rgba(15,23,42,.07);}
+    body.view-dashboard #periodSelectorBtn .space-selector-tag{display:inline; border:0; padding:0; font-size:12.5px; font-weight:500; letter-spacing:0; text-transform:none; color:var(--ink-faint);}
+    body.view-dashboard #periodSelectorBtn .space-selector-name{font-weight:700; max-width:none;}
+  }
+  /* seletor de espaço: ao passar o mouse, contorno azul com halo (fundo continua claro) */
+  #spaceSelectorBtn:hover, #spaceSelectorBtn:focus-visible, #spaceSelectorBtn[aria-expanded="true"]{
+    background:var(--surface); border-color:var(--primary);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  #spaceSelectorBtn:hover .space-selector-chevron, #spaceSelectorBtn[aria-expanded="true"] .space-selector-chevron{color:var(--primary);}

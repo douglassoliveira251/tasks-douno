@@ -1,3 +1,11 @@
+## [3.8.0] - 2026-11-08 07:00
+
+### Changed
+
+- Tarefas: "Nova tarefa" na linha dos filtros, à direita do seletor Lista/Kanban; "Mostrar concluídas" vira "Concluídas" em telas até 1500 px.
+- Visão geral: Período no mesmo estilo dos filtros de Tarefas e "Novo item" ao lado dele, na mesma linha.
+- Seletor de espaço: ao passar o mouse (ou focar/abrir), contorno azul com halo suave e seta azul, no lugar do fundo cinza.
+
 ## [3.7.5] - 2026-11-08 06:30
 
 ### Changed

@@ -307,7 +307,7 @@ export function renderTasks(){
     <span class="group-bar-div first"></span>
     <span class="group-bar-div"></span>
     <label class="completed-toggle">
-      <span>Mostrar concluídas</span>
+      <span><span class="ct-long">Mostrar concluídas</span><span class="ct-short">Concluídas</span></span>
       <input type="checkbox" id="showCompletedToggle" ${G.state.showCompletedTasks?'checked':''}>
       <span class="completed-toggle-track"><span class="completed-toggle-thumb"></span></span>
     </label>
