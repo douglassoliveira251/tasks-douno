@@ -4096,3 +4096,7 @@
   }
   /* resumo do projeto: mesma largura e mesma borda esquerda do detalhe da tarefa (vai até a borda da tela) */
   @media (min-width:1101px){ body[data-proj="open"] .proj-split{margin-right:-44px;} body[data-proj="open"] .proj-side{padding-right:44px;} }
+
+  /* prioridade no detalhe da tarefa: todos os botões (ativo ou não) com a mesma altura e dentro da caixa */
+  .task-panel .tp-priority-group{box-sizing:border-box; height:34px; padding:3px; gap:3px; align-items:stretch;}
+  .task-panel .tp-priority-btn{box-sizing:border-box; flex:1 1 0; min-width:0; height:100%; padding:0; border-width:0; display:flex; align-items:center; justify-content:center; line-height:1;}
