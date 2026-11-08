@@ -1,3 +1,9 @@
+## [3.7.3] - 2026-11-08 05:30
+
+### Changed
+
+- Ícone de comentários da tarefa movido para a direita, antes do status.
+
 ## [3.7.2] - 2026-11-08 05:00
 
 ### Changed
