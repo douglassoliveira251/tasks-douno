@@ -512,8 +512,8 @@ test('detalhe da tarefa aberto a partir do projeto fica sobreposto (não cai par
   await expect(page.locator('.task-panel')).toBeVisible();
   expect(await page.locator('.task-panel').evaluate(el => getComputedStyle(el).position)).toBe('fixed');
   const box = await page.locator('.task-panel').boundingBox();
-  expect(box.y).toBeGreaterThan(100); // abaixo do topo da página, como o painel encaixado de Tarefas
-  expect(box.y).toBeLessThan(200);
+  expect(box.y).toBeGreaterThan(40); // logo abaixo da barra do menu
+  expect(box.y).toBeLessThan(80);
   expect(Math.round(box.width)).toBe(520);
   expect(box.x).toBeGreaterThan(900);
 });
