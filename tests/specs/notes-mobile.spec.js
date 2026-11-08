@@ -103,3 +103,20 @@ test.describe('Notas no computador largo', () => {
     expect(titulos).toEqual(['Alinhamento semanal', 'Redesenho do app']);
   });
 });
+
+test('celular: a lista de notas rola quando há muitas notas', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  await gotoApp(page, { view: 'notes' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, now = Date.now();
+    state.notebooks = [{ id: 'nb1', name: 'Reuniões', categoryId: cat, createdAt: now }];
+    state.notes = Array.from({ length: 25 }, (_, i) => ({ id: 'n' + i, title: 'Nota ' + i, body: '<div>Conteúdo da nota ' + i + ' com um texto para a prévia.</div>', notebookId: 'nb1', categoryId: cat, createdAt: now - i, updatedAt: now - i, archived: false, pinned: false, tagIds: [], attachments: [] }));
+    state.tasks = []; state.events = []; activeNoteId = null; currentView = 'notes'; render();
+  });
+  const rolagem = await page.locator('#notesView').evaluate(el => ({ sh: el.scrollHeight, ch: el.clientHeight, ov: getComputedStyle(el).overflowY }));
+  expect(rolagem.ov).toBe('auto');
+  expect(rolagem.sh).toBeGreaterThan(rolagem.ch + 200);
+  await page.locator('#notesView').evaluate(el => { el.scrollTop = el.scrollHeight; });
+  expect(await page.locator('#notesView').evaluate(el => el.scrollTop)).toBeGreaterThan(200);
+  await expect(page.locator('.notes-list-item', { hasText: 'Nota 24' })).toBeInViewport();
+});

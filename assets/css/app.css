@@ -3836,3 +3836,8 @@
     .notes-mchips .chipf.on{background:var(--primary); border-color:var(--primary); color:#fff;}
     .notes-mchips .chipf.on .n{background:rgba(255,255,255,.22); color:#fff;}
   }
+
+  /* celular: a lista de notas rola (o editor em tela cheia tem a própria rolagem) */
+  @media (max-width:768px){
+    #notesView:has(.notes-layout.m-list){overflow-y:auto !important; overflow-x:hidden !important; -webkit-overflow-scrolling:touch; padding-bottom:84px !important;}
+  }

@@ -1,3 +1,9 @@
+## [3.13.1] - 2026-11-08 16:00
+
+### Fixed
+
+- Celular: a lista de notas (3.13.0) não rolava com muitas notas, porque a área das Notas tinha a rolagem bloqueada. Agora a lista rola; o editor em tela cheia mantém a própria rolagem.
+
 ## [3.13.0] - 2026-11-08 15:30
 
 ### Changed
