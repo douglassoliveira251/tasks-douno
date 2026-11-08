@@ -3764,3 +3764,16 @@
     .notes-layout .note-detail-col{border:0; border-radius:0; background:transparent; box-shadow:none; padding:4px 0 0 28px;}
     .notes-layout .note-composer-inline{max-width:none;}
   }
+
+  /* v3.12.1: cadernos exatamente como o modelo (sem o botão redondo "+", "+ Novo caderno" no fim da lista) */
+  .nb-new-row{display:none;}
+  @media (min-width:1100px){
+    .notes-layout .notebook-new-btn-top{display:none;}
+    .notes-layout .nb-new-row{display:flex; align-items:center; width:100%; margin-top:8px; border:0; background:transparent; color:var(--primary); cursor:pointer; text-align:left;}
+    .notes-layout .nb-new-row:hover{background:var(--surface-2);}
+    .notes-layout .nb-new-row svg{width:15px; height:15px; flex:none;}
+    .notes-layout .notebook-row{gap:9px;}
+    .notes-layout .notebooks-col-header-row{padding:0 4px 6px 10px;}
+    .notes-layout .notebook-menu-btn{opacity:0;}
+    .notes-layout .notebook-row:hover .notebook-menu-btn{opacity:1;}
+  }

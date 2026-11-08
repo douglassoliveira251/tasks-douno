@@ -91,7 +91,7 @@ export function renderNotes(){
     G.state.categories.forEach(cat => {
       const catNotebooks = spaceNotebooks.filter(nb => nb.categoryId === cat.id);
       if(catNotebooks.length === 0) return;
-      nbHtml += `<div class="notebooks-space-header"><span class="cat-swatch" style="background:${cat.color}"></span>${escapeHtml(cat.name)}</div>`;
+      if(G.state.categories.filter(c => spaceNotebooks.some(nb => nb.categoryId === c.id)).length > 1) nbHtml += `<div class="notebooks-space-header"><span class="cat-swatch" style="background:${cat.color}"></span>${escapeHtml(cat.name)}</div>`;
       catNotebooks.forEach(nb => { nbHtml += notebookGroupHtml(nb); });
     });
   }
@@ -105,7 +105,7 @@ export function renderNotes(){
         ${icon('x')}
       </button>
     </div>
-    <div class="notebooks-list">${desktop ? `<div class="notebook-row nb-all-row${NOTAS_UI.notebookFilter === 'all' ? ' on' : ''}" id="nbAllRow">${icon('note')}<span class="notebook-name">Todas as notas</span><span class="notebook-count">${G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter) && matches(n)).length}</span></div>` : ''}${nbHtml}</div>
+    <div class="notebooks-list">${desktop ? `<div class="notebook-row nb-all-row${NOTAS_UI.notebookFilter === 'all' ? ' on' : ''}" id="nbAllRow">${icon('note')}<span class="notebook-name">Todas as notas</span><span class="notebook-count">${G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter) && matches(n)).length}</span></div>` : ''}${nbHtml}${desktop ? `<button type="button" class="notebook-row nb-new-row" id="newNotebookRow">${icon('plus')}<span class="notebook-name">Novo caderno</span></button>` : ''}</div>
     <div class="notebooks-col-resize-handle" id="notebooksColResizeHandle" title="Arrastar para redimensionar"></div>
   `;
   notebooksCol.classList.toggle('open', G.notesDrawerOpen);
@@ -409,14 +409,18 @@ export function renderNotes(){
       };
     });
   });
-  document.getElementById('newNotebookBtn').onclick = () => {
+  const addNotebook = () => {
     const catId = G.activeCategoryFilter || G.state.categories[0].id;
     const nb = { id: uid('nb'), name: 'Novo caderno', categoryId: catId, createdAt: Date.now() };
     G.state.notebooks.push(nb);
     expandedNotebookIds.add(nb.id);
+    if(desktop) NOTAS_UI.notebookFilter = nb.id;
     markDirty();
     renderNotes();
   };
+  document.getElementById('newNotebookBtn').onclick = addNotebook;
+  const newNbRow = document.getElementById('newNotebookRow');
+  if(newNbRow) newNbRow.onclick = addNotebook;
 }
 
 

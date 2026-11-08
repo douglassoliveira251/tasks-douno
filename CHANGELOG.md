@@ -1,3 +1,9 @@
+## [3.12.1] - 2026-11-08 13:30
+
+### Changed
+
+- Notas (computador largo): coluna de cadernos como no modelo — sem o botão redondo "+" (o "+ Novo caderno" fica no fim da lista e já seleciona o caderno criado) e o cabeçalho por espaço só aparece com cadernos em mais de um espaço.
+
 ## [3.12.0] - 2026-11-08 13:00
 
 ### Changed
