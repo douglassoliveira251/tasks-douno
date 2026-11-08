@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.14.3', date:'08/11/2026', title:'Topo de Tarefas igual ao de Notas no celular', text:'No celular, o topo de Tarefas ficou igual ao de Notas: nome da página e números na mesma linha, compacto, com o botão Nova tarefa ao lado e os filtros logo abaixo.' },
   { version:'3.14.2', date:'08/11/2026', title:'Nova tarefa no topo, no celular', text:'No celular, o botão Nova tarefa saiu de baixo e foi para o topo, na linha do título, como nas Notas. Os filtros ficam logo abaixo e os menus de Agrupar por, Prioridade e Tags abrem por cima da lista.' },
   { version:'3.14.1', date:'08/11/2026', title:'Filtros de Tarefas no celular em chips azuis', text:'No celular, os filtros que já existiam (Agrupar por, Prioridade, Tags, Projetos e Concluídas) agora aparecem como chips: Agrupar por sempre em azul e os demais ficam azuis quando estão ativos. Os chips Todas, Hoje, Atrasadas e Favoritas da versão anterior foram removidos.' },
   { version:'3.14.0', date:'08/11/2026', title:'Tarefas e Notas mais fáceis no celular', text:'No celular, Tarefas ganhou chips de visão (Todas, Hoje, Atrasadas, Favoritas) e o botão Nova tarefa ficou flutuante, sempre à vista; a troca Lista/Kanban saiu. Nas Notas, os chips de cadernos ganharam ícones, o título Cadernos e o botão Novo caderno, e o caderno escolhido pode ser renomeado ou excluído ali. A estrela de favorito agora aparece sempre, em cinza, nas duas listas.' },

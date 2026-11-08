@@ -1,3 +1,9 @@
+## [3.14.3] - 2026-11-08 18:30
+
+### Changed
+
+- Celular: topo de Tarefas no mesmo padrão do de Notas (nome da página e números numa linha só, fonte menor, linha divisória), com "Nova tarefa" ao lado e os chips de filtro abaixo. O computador não muda.
+
 ## [3.14.2] - 2026-11-08 18:00
 
 ### Changed

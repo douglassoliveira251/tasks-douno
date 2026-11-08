@@ -3916,3 +3916,13 @@
     body[data-view="tasks"] .group-mode-select-wrap .tp-status-dropdown, body[data-view="tasks"] .topbar-filters .tag-filter-popover{position:fixed; top:152px; bottom:auto; max-height:50vh; overflow-y:auto; z-index:60;}
     body[data-view="tasks"] .topbar-filters .tag-filter-popover{left:12px; right:12px; min-width:0;}
   }
+
+  /* v3.14.3: celular — topo de Tarefas igual ao de Notas (nome da página e números na mesma linha, compacto); desktop não muda */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{padding:8px 14px; gap:6px 10px; border-bottom:1px solid var(--border); background:var(--surface);}
+    body[data-view="tasks"] .topbar-title-text{flex-direction:row; align-items:baseline; gap:10px; flex-wrap:nowrap;}
+    body[data-view="tasks"] .topbar-title .view-title{font-size:13.5px; font-weight:700; letter-spacing:0; line-height:1.2;}
+    body[data-view="tasks"] .topbar-title .page-header-stats{font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; gap:0;}
+    body[data-view="tasks"] .topbar-title .page-header-stat{font-size:12.5px;}
+    body[data-view="tasks"] .topbar-title .page-header-stat:nth-child(3){display:none;}
+  }
