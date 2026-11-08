@@ -1,3 +1,9 @@
+## [3.7.1] - 2026-11-08 04:30
+
+### Changed
+
+- Linha de tarefa sem o espaço, status só em texto (sem fundo cinza) e ícone de comentários antes da data.
+
 ## [3.7.0] - 2026-11-08 04:00
 
 ### Changed

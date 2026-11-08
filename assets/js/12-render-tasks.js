@@ -484,11 +484,10 @@ export function renderTaskRow(t){
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
-      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
     </div>
     <div class="task-row-right">
-      ${cat_ ? `<span class="task-space-chip"><i class="dot" style="background:${cat_.color || 'var(--ink-faint)'}"></i>${escapeHtml(cat_.name)}</span>` : ''}
+      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : '<span class="task-cmt-ph"></span>'}
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
       <span class="task-status-label">${stLabel_}</span>
       ${statusPill || '<span class="task-pill-ph"></span>'}
