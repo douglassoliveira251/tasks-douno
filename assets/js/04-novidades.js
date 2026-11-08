@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.9.2', date:'08/11/2026', title:'Detalhe da tarefa no projeto, no mesmo tamanho', text:'O detalhe da tarefa aberto dentro de um projeto agora tem o mesmo tamanho e a mesma posição do painel da tela de Tarefas, e o conteúdo do projeto não é reduzido.' },
   { version:'3.9.1', date:'08/11/2026', title:'Correção do detalhe da tarefa nos projetos', text:'Ao abrir uma tarefa dentro de um projeto, o detalhe voltou a aparecer sobreposto, no canto direito, em vez de cair no fim da página. Ele mantém os campos novos e compactos.' },
   { version:'3.9.0', date:'08/11/2026', title:'Detalhe da tarefa renovado', text:'O detalhe da tarefa agora fica encaixado ao lado da lista (em telas largas), com campos menores e mais claros, prioridade colorida e tudo mais compacto.' },
   { version:'3.8.1', date:'08/11/2026', title:'Topo igual em todas as páginas', text:'Visão geral, Tarefas, Notas, Projetos e Calendário agora têm o mesmo topo: sem a linha divisória, com título, subtítulo e botões na mesma posição e no mesmo tamanho.' },

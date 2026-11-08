@@ -3607,6 +3607,12 @@
     }
     .tasks-layout .task-panel .tp-top-flag{height:3px; margin:-12px -18px 12px;}
     .task-panel{font-size:12px;}
+    /* fora da tela de Tarefas (ex.: Projetos): mesmo tamanho e mesma posição do painel encaixado (390px, abaixo do topo), sobreposto, sem mexer no conteúdo da página */
+    body:not([data-view="tasks"]) .task-panel{
+      width:390px; max-width:calc(100vw - 32px); padding:12px 18px 24px;
+      top:144px; right:0; bottom:0; border:0; border-left:1px solid var(--border); border-radius:0; box-shadow:-8px 0 24px rgba(15,23,42,.10);
+    }
+    body:not([data-view="tasks"]) .task-panel .tp-top-flag{height:3px; margin:-12px -18px 12px; border-radius:0;}
     .task-panel .tp-name-input{font-size:16px; font-weight:700; height:28px; line-height:28px; letter-spacing:-.01em;}
     .task-panel .tp-created-at{font-size:10.5px; color:var(--ink-faint);}
     .task-panel .tp-label, .task-panel .tp-label-row > span:first-child{font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#94A3B8; margin-bottom:4px;}

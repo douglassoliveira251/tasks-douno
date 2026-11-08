@@ -1,3 +1,9 @@
+## [3.9.2] - 2026-11-08 10:30
+
+### Changed
+
+- Detalhe da tarefa aberto fora da tela de Tarefas (ex.: Projetos): mesmo tamanho (390 px) e mesma posição do painel encaixado de Tarefas, sobreposto; o conteúdo da página não é reduzido.
+
 ## [3.9.1] - 2026-11-08 10:00
 
 ### Fixed
