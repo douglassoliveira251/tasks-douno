@@ -89,3 +89,25 @@ test('Resumo do dia aparece na coluna da direita sem tarefa aberta e some quando
   await expect(page.locator('.task-panel')).toBeVisible();
   await expect(page.locator('.day-summary')).toHaveCount(0);
 });
+
+test('celular: detalhe da tarefa em tela cheia com Voltar e barra Comentar / Concluir', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id;
+    state.tasks = [{ id: 'm1', title: 'Tarefa mobile', done: false, status: 'nao_iniciado', priority: 'media', dueDate: todayStr(), dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }];
+    render();
+  });
+  await page.locator('.task-row[data-id="m1"] .task-title').click();
+  const panel = page.locator('.task-panel');
+  await expect(panel).toBeVisible();
+  // a barra de cima e o menu de baixo continuam visíveis (nada do painel por cima deles)
+  const topo = await page.evaluate(() => !!document.elementFromPoint(100, 24).closest('.topnav'));
+  const baixo = await page.evaluate(() => !!document.elementFromPoint(195, 780).closest('.nav'));
+  expect(topo).toBe(true);
+  expect(baixo).toBe(true);
+  await page.locator('#tpMobileDone').click();
+  expect(await page.evaluate(() => state.tasks.find(t => t.id === 'm1').done)).toBe(true);
+  await page.locator('#tpMobileBack').click();
+  await expect(page.locator('.task-panel')).toHaveCount(0);
+});

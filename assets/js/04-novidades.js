@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.11.0', date:'08/11/2026', title:'Tarefas no celular renovadas', text:'No celular a lista ficou em linhas compactas e o detalhe da tarefa abre em tela cheia, com "Tarefas" para voltar e uma barra fixa embaixo com Comentar e Concluir tarefa. O menu de cima e o de baixo continuam visíveis. O seletor de espaço ficou centralizado na barra de cima.' },
   { version:'3.10.0', date:'08/11/2026', title:'Resumo do dia em Tarefas', text:'Em telas largas, a coluna da direita da tela de Tarefas agora fica aberta mesmo sem tarefa selecionada, mostrando o resumo do dia: andamento, abertas, vencidas, feitas hoje, retomadas, prioridades, próximas tarefas e agenda de hoje.' },
   { version:'3.9.2', date:'08/11/2026', title:'Detalhe da tarefa no projeto, no mesmo tamanho', text:'O detalhe da tarefa aberto dentro de um projeto agora tem o mesmo tamanho e a mesma posição do painel da tela de Tarefas, e o conteúdo do projeto não é reduzido.' },
   { version:'3.9.1', date:'08/11/2026', title:'Correção do detalhe da tarefa nos projetos', text:'Ao abrir uma tarefa dentro de um projeto, o detalhe voltou a aparecer sobreposto, no canto direito, em vez de cair no fim da página. Ele mantém os campos novos e compactos.' },

@@ -48,6 +48,7 @@ export function taskPanelHtml(task){
   else if(isToday && !task.done) topBarClass = 'today';
 
   return `
+    <div class="tp-mobile-back"><button type="button" id="tpMobileBack">${icon('caret-left')}<span>Tarefas</span></button></div>
     <div class="tp-top-flag ${topBarClass}"></div>
 
     <div class="tp-field">
@@ -193,5 +194,9 @@ export function taskPanelHtml(task){
       </div>
       <div id="tpCommentList" style="margin-top:12px;"></div>
     </div>
+    ${G.creatingNewTask ? '' : `<div class="tp-mobile-actions">
+      <button type="button" class="tp-mact-sec" id="tpMobileComment">${icon('chat-circle')}<span>Comentar</span></button>
+      <button type="button" class="tp-mact-pri${task.done ? ' done' : ''}" id="tpMobileDone">${icon('check')}<span>${task.done ? 'Reabrir tarefa' : 'Concluir tarefa'}</span></button>
+    </div>`}
   `;
 }

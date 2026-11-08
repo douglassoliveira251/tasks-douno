@@ -1,3 +1,10 @@
+## [3.11.0] - 2026-11-08 12:00
+
+### Changed
+
+- Celular: lista de tarefas em linhas compactas (sem cartões arredondados) e detalhe da tarefa em tela cheia entre a barra de cima e o menu de baixo, com botão "‹ Tarefas" para voltar e barra fixa com "Comentar" e "Concluir tarefa" (ou "Reabrir"). Campos do detalhe no visual compacto, em duas colunas.
+- Celular: o seletor de espaço fica centralizado na barra de cima (nome comprido com reticências).
+
 ## [3.10.0] - 2026-11-08 11:00
 
 ### Added

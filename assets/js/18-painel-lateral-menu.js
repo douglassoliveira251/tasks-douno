@@ -32,6 +32,12 @@ export function bindTpMenu(panel, task){
   const tpMenuBtn = document.getElementById('tpMenuBtn');
   const tpMobileCloseBtn = document.getElementById('tpMobileClose');
   if(tpMobileCloseBtn) tpMobileCloseBtn.onclick = () => closeTaskPanel();
+  const tpMobileBack = document.getElementById('tpMobileBack');
+  if(tpMobileBack) tpMobileBack.onclick = () => closeTaskPanel();
+  const tpMobileComment = document.getElementById('tpMobileComment');
+  if(tpMobileComment) tpMobileComment.onclick = () => { const ta = document.getElementById('tpNewComment'); if(ta){ ta.scrollIntoView({ block: 'center' }); ta.focus(); } };
+  const tpMobileDone = document.getElementById('tpMobileDone');
+  if(tpMobileDone) tpMobileDone.onclick = () => { const c = document.getElementById('tpDoneCheck'); if(c) c.click(); };
   let menuAnchor = tpMenuBtn; // o menu abre no botão ⋮ ou, ao trocar projeto/etapa, no chip do projeto
   function placeMenu(portal, btn){
     const r = btn.getBoundingClientRect();

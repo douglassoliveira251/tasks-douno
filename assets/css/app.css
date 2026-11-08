@@ -3595,7 +3595,7 @@
   /* v3.9: detalhe da tarefa encaixado ao lado da lista, compacto e no visual do modelo aprovado (computador largo) */
   :root{--tpf:#F1F4F9;}
   [data-theme="dark"]{--tpf:var(--surface-2);}
-  @media (min-width:1100px){
+  @media (min-width:1100px), (max-width:768px){
     body[data-view="tasks"] #tasksView:has(.task-panel){padding-right:0;}
     .tasks-layout{gap:0;}
     .tasks-layout .tasks-list-col{padding-right:20px;}
@@ -3682,4 +3682,50 @@
     .ds-ev{display:flex; align-items:center; gap:9px; width:100%; height:34px; padding:0 10px; background:var(--tpf); border:0; border-radius:6px; margin-bottom:4px; text-align:left; cursor:pointer; color:var(--ink); font-size:12px;}
     .ds-ev .t{color:var(--ink-soft); font-size:11px; width:48px; flex:none;} .ds-ev b{font-weight:600;}
     .ds-empty{font-size:11.5px; color:var(--ink-faint); padding:4px 0;}
+  }
+
+  /* v3.11: celular — lista em linhas (opção 1) e detalhe em tela cheia com barra de ação (opção 3) */
+  .tp-mobile-back, .tp-mobile-actions{display:none;}
+  @media (max-width:768px){
+    body[data-view="tasks"] .task-row{border-radius:0; box-shadow:none; border-width:0 0 1px 0; border-bottom-color:var(--border); background:transparent; padding-left:10px; border-left-width:3px;}
+    body[data-view="tasks"] .task-row.selected{background:var(--surface-2); box-shadow:none;}
+    body[data-view="tasks"] .bucket-body, body[data-view="tasks"] .task-list{gap:0;}
+    /* detalhe em tela cheia, entre a barra de cima e o menu de baixo */
+    body[data-view] .task-panel, body[data-view] .tasks-layout .task-panel{
+      position:fixed !important; top:48px !important; left:0 !important; right:0 !important; bottom:calc(58px + env(safe-area-inset-bottom, 0px)) !important; width:auto !important; max-width:none !important; height:calc(100vh - 106px - env(safe-area-inset-bottom, 0px)) !important; height:calc(100dvh - 106px - env(safe-area-inset-bottom, 0px)) !important;
+      border:0; border-radius:0; box-shadow:none; z-index:44; background:var(--surface); padding:0 14px calc(76px + 8px); overflow-y:auto; margin:0;
+    }
+    body[data-view] .task-panel .tp-top-flag, body[data-view] .tasks-layout .task-panel .tp-top-flag{display:none;}
+    .tp-mobile-back{display:flex; position:sticky; top:0; z-index:2; margin:0 -14px 10px; padding:0 8px; height:42px; align-items:center; background:var(--surface); border-bottom:1px solid var(--border);}
+    .tp-mobile-back button{display:flex; align-items:center; gap:4px; border:0; background:none; font:inherit; font-size:13px; font-weight:700; color:var(--primary); padding:6px 6px;}
+    .tp-mobile-back svg{width:16px; height:16px;}
+    .task-panel .tp-mobile-close{display:none;}
+    body[data-view] .task-panel .tp-dates{grid-template-columns:1fr 1fr;}
+    .tp-mobile-actions{
+      display:flex; gap:8px; position:fixed; left:0; right:0; bottom:calc(58px + env(safe-area-inset-bottom, 0px)); z-index:46;
+      padding:10px 12px; background:var(--surface); border-top:1px solid var(--border); box-shadow:0 -6px 16px rgba(15,23,42,.06);
+    }
+    .tp-mobile-actions button{display:flex; align-items:center; justify-content:center; gap:7px; height:40px; border-radius:10px; font:inherit; font-size:13px; font-weight:700; cursor:pointer;}
+    .tp-mobile-actions svg{width:16px; height:16px;}
+    .tp-mact-sec{flex:1; background:var(--surface); border:1px solid var(--border); color:var(--ink);}
+    .tp-mact-pri{flex:1.4; background:#2B7A55; border:0; color:#fff;}
+    .tp-mact-pri.done{background:var(--surface-2); color:var(--ink); border:1px solid var(--border);}
+  }
+
+  @media (max-width:768px){
+    body[data-view="tasks"] #tasksView{padding-left:10px; padding-right:10px;}
+    body[data-view="tasks"] .task-row{grid-template-columns:auto minmax(0,1fr) auto auto; column-gap:6px; row-gap:0; align-items:center; min-height:48px;}
+    body[data-view="tasks"] .task-row .task-check{grid-column:1; grid-row:1; align-self:center;}
+    body[data-view="tasks"] .task-row-left{grid-column:2; grid-row:1;}
+    body[data-view="tasks"] .task-row-right .task-pin-btn{grid-column:3; grid-row:1; width:24px; height:24px;}
+    body[data-view="tasks"] .task-row-right .task-menu-wrap{grid-column:4; grid-row:1;}
+    body[data-view="tasks"] .task-row-right .task-pin-btn:not(.on){opacity:.35;}
+  }
+
+  /* celular: seletor de espaço centralizado na barra de cima */
+  @media (max-width:768px){
+    .tn-right .space-selector-wrap{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); margin:0; padding:0; border:none; z-index:2;}
+    .tn-right #spaceSelectorBtn{width:124px; max-width:124px; justify-content:center; padding:0 8px 0 10px; display:flex;}
+    .tn-right #spaceSelectorBtn .space-selector-name{max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+    .tn-right .space-selector-dropdown{left:50%; right:auto; transform:translateX(-50%); min-width:200px;}
   }
