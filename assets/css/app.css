@@ -4100,3 +4100,8 @@
   /* prioridade no detalhe da tarefa: todos os botões (ativo ou não) com a mesma altura e dentro da caixa */
   .task-panel .tp-priority-group{box-sizing:border-box; height:34px; padding:3px; gap:3px; align-items:stretch;}
   .task-panel .tp-priority-btn{box-sizing:border-box; flex:1 1 0; min-width:0; height:100%; padding:0; border-width:0; display:flex; align-items:center; justify-content:center; line-height:1;}
+
+  /* Resumo do dia: mesma largura, mesma posição e mesma altura do detalhe da tarefa, para um tomar o lugar do outro */
+  @media (min-width:1100px){
+    .day-summary{width:468px; margin-top:-10px; height:calc(100vh - 150px); box-sizing:border-box;}
+  }
