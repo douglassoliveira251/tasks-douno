@@ -3957,3 +3957,11 @@
   @media (max-width:768px){
     body[data-view="tasks"] .topbar, body[data-view="notes"] .topbar{border-bottom:0; background:transparent; padding:14px 14px 14px;}
   }
+
+  /* v3.14.9: celular — filtros 20px mais longe do nome da página; grupos de tarefas mais perto dos filtros */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{row-gap:32px; padding-bottom:6px;}
+    body[data-view="tasks"] #tasksView{padding-top:0;}
+    body[data-view="tasks"] #tasksView .bucket:first-child .bucket-header{margin-top:4px;}
+    body[data-view="tasks"] .group-mode-select-wrap .tp-status-dropdown, body[data-view="tasks"] .topbar-filters .tag-filter-popover{top:172px;}
+  }

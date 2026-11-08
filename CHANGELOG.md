@@ -1,3 +1,6 @@
+## [3.14.9] - 2026-11-08 21:30
+- Celular: em Tarefas, filtros 20px mais abaixo do nome da página e grupos mais perto dos filtros.
+
 ## [3.14.8] - 2026-11-08 21:00
 
 ### Changed

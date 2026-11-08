@@ -76,7 +76,7 @@ test.describe('Cabeçalho das páginas no celular', () => {
     expect(nav.width).toBeGreaterThan(380);
     await expect(page.locator('.nav-item[data-view="notes"] .nav-label')).toBeVisible();
     const topbar = await page.locator('.topbar').boundingBox();
-    expect(topbar.height).toBeLessThan(110);
+    expect(topbar.height).toBeLessThan(130);
     const chip = await page.locator('#spaceSelectorBtn').boundingBox();
     expect(chip.x + chip.width).toBeLessThanOrEqual(390);
     expect(chip.y).toBeLessThan(60); // o espaço fica na barra do topo
