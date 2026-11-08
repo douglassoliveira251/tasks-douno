@@ -549,12 +549,49 @@ function buildMobileNotesList(matches, noteOrderOf, spaceNotebooks){
   wrap.className = 'notes-mlist';
   const base = G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter) && matches(n));
   if(NOTAS_UI.notebookFilter !== 'all' && !spaceNotebooks.some(nb => nb.id === NOTAS_UI.notebookFilter)) NOTAS_UI.notebookFilter = 'all';
-  const chip = (id, label, n) => `<button type="button" class="chipf${NOTAS_UI.notebookFilter === id ? ' on' : ''}" data-nbf="${id}">${escapeHtml(label)} <span class="n">${n}</span></button>`;
+  const chip = (id, label, n) => `<button type="button" class="chipf${NOTAS_UI.notebookFilter === id ? ' on' : ''}" data-nbf="${id}">${icon(id === 'all' ? 'note' : 'book')}${escapeHtml(label)} <span class="n">${n}</span></button>`;
   const chips = document.createElement('div');
-  chips.className = 'notes-mchips';
+  chips.className = 'notes-mchips m-chips';
   chips.innerHTML = chip('all', 'Todas', base.length) + spaceNotebooks.map(nb => chip(nb.id, nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome', base.filter(n => n.notebookId === nb.id).length)).join('');
   chips.querySelectorAll('[data-nbf]').forEach(b => { b.onclick = () => { NOTAS_UI.notebookFilter = b.dataset.nbf; renderNotes(); }; });
+  const cap = document.createElement('div');
+  cap.className = 'm-cap';
+  cap.innerHTML = `<span>Cadernos</span><button type="button" id="mNewNotebook">${icon('plus')}Novo caderno</button>`;
+  wrap.appendChild(cap);
   wrap.appendChild(chips);
+  const newBtn = cap.querySelector('#mNewNotebook');
+  newBtn.onclick = () => {
+    const name = window.prompt('Nome do novo caderno', 'Novo caderno');
+    if(name === null) return;
+    const nb = { id: uid('nb'), name: (name || '').trim() || 'Novo caderno', categoryId: G.activeCategoryFilter || G.state.categories[0].id, createdAt: Date.now() };
+    G.state.notebooks.push(nb);
+    NOTAS_UI.notebookFilter = nb.id;
+    markDirty();
+    renderNotes();
+  };
+  const curNb = NOTAS_UI.notebookFilter !== 'all' ? spaceNotebooks.find(x => x.id === NOTAS_UI.notebookFilter) : null;
+  if(curNb){
+    const row = document.createElement('div');
+    row.className = 'm-nbmanage';
+    row.innerHTML = `<span>${icon('book')}<b>${escapeHtml(curNb.name && curNb.name.trim() ? curNb.name : 'Caderno sem nome')}</b></span><button type="button" data-act="rename">Renomear</button><button type="button" data-act="delete" class="danger">Excluir</button>`;
+    row.querySelector('[data-act=rename]').onclick = () => {
+      const v = window.prompt('Novo nome do caderno', curNb.name || '');
+      if(v === null || !v.trim()) return;
+      curNb.name = v.trim();
+      markDirty();
+      renderNotes();
+    };
+    row.querySelector('[data-act=delete]').onclick = (e) => {
+      openConfirmPortal(e.currentTarget, `Excluir o caderno "${curNb.name}"? As notas dele ficarão sem caderno.`, () => {
+        G.state.notes.forEach(n => { if(n.notebookId === curNb.id) n.notebookId = null; });
+        G.state.notebooks = G.state.notebooks.filter(x => x.id !== curNb.id);
+        NOTAS_UI.notebookFilter = 'all';
+        markDirty();
+        renderNotes();
+      });
+    };
+    wrap.appendChild(row);
+  }
   wrap.appendChild(buildNotesListCol(matches, noteOrderOf, false));
   return wrap;
 }

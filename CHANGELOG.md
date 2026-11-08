@@ -1,3 +1,11 @@
+## [3.14.0] - 2026-11-08 17:00
+
+### Changed
+
+- Celular, Tarefas: chips de visão no padrão de Notas (Todas, Hoje, Atrasadas, Favoritas, com contador) que filtram a lista; "Nova tarefa" vira botão flutuante, sempre à vista; troca Lista/Kanban escondida.
+- Celular, Notas: chips de cadernos com ícone, rótulo "Cadernos" com "+ Novo caderno" sempre visível e, com um caderno escolhido, "Renomear" e "Excluir".
+- Celular: estrela de favorito sempre visível (cinza quando não é favorita) nas listas de notas e de tarefas.
+
 ## [3.13.1] - 2026-11-08 16:00
 
 ### Fixed

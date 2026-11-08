@@ -3841,3 +3841,41 @@
   @media (max-width:768px){
     #notesView:has(.notes-layout.m-list){overflow-y:auto !important; overflow-x:hidden !important; -webkit-overflow-scrolling:touch; padding-bottom:84px !important;}
   }
+
+  /* v3.14: celular — chips no padrão de filtro (Tarefas e Notas), estrela sempre visível, "Nova tarefa" em destaque */
+  .m-chips, .m-cap, .m-nbmanage{display:none;}
+  @media (max-width:768px){
+    .m-chips{display:flex; gap:6px; padding:2px 0 8px; overflow-x:auto; scrollbar-width:none;}
+    .m-chips::-webkit-scrollbar{display:none;}
+    .m-chips .chipf{flex:none; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); font-size:12.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap; font-family:inherit; cursor:pointer;}
+    .m-chips .chipf svg{width:14px; height:14px; flex:none; color:var(--ink-faint);}
+    .m-chips .chipf .n{font-size:10.5px; padding:0 6px; border-radius:99px; background:var(--surface-2); color:var(--ink-soft); font-weight:700;}
+    .m-chips .chipf.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+    .m-chips .chipf.on svg{color:#fff;}
+    .m-chips .chipf.on .n{background:rgba(255,255,255,.22); color:#fff;}
+    .m-chips .chipf.add{border-style:dashed; color:var(--primary); background:transparent; box-shadow:none;}
+    .m-chips .chipf.add svg{color:var(--primary);}
+    .m-cap{display:block; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#94A3B8; padding:2px 2px 4px;}
+    .m-nbmanage{display:flex; align-items:center; gap:10px; padding:2px 2px 8px; font-size:12px; color:var(--ink-soft);}
+    .m-nbmanage span{display:flex; align-items:center; gap:6px; flex:1; min-width:0;}
+    .m-nbmanage svg{width:14px; height:14px; flex:none;}
+    .m-nbmanage b{color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .m-nbmanage button{border:0; background:none; font:inherit; font-size:12px; font-weight:700; color:var(--primary); padding:4px 2px;}
+    .m-nbmanage button.danger{color:var(--danger);}
+    /* estrela de favorito sempre visível (não há hover no celular) */
+    body[data-view="tasks"] .task-row-right .task-pin-btn:not(.on){opacity:1; color:var(--ink-faint);}
+    .notes-list-item .nb-note-pin-btn{opacity:1;}
+    .notes-list-item .nb-note-pin-btn:not(.pinned){color:var(--ink-faint);}
+    /* tarefas: sem a troca Lista/Kanban e "Nova tarefa" sempre à vista (botão flutuante) */
+    body[data-view="tasks"] .view-mode-toggle{display:none;}
+    body[data-view="tasks"] .tn-new{position:fixed; right:16px; bottom:calc(58px + 14px + env(safe-area-inset-bottom, 0px)); z-index:46; order:0;}
+    body[data-view="tasks"] .tn-new-btn{width:auto; height:48px; padding:0 18px; border-radius:14px; box-shadow:0 8px 20px rgba(47,95,158,.45); font-size:14px;}
+    body[data-view="tasks"] .tn-new-split{display:none;}
+    body[data-view="tasks"]:has(.task-panel) .tn-new{display:none;}
+    body[data-view="tasks"] .m-chips{padding-top:6px;}
+  }
+  @media (max-width:768px){
+    .m-cap{display:flex; align-items:center; justify-content:space-between;}
+    .m-cap button{display:inline-flex; align-items:center; gap:4px; border:0; background:none; font:inherit; font-size:12px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--primary); padding:2px 0;}
+    .m-cap button svg{width:14px; height:14px;}
+  }

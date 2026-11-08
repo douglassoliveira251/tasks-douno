@@ -111,3 +111,24 @@ test('celular: detalhe da tarefa em tela cheia com Voltar e barra Comentar / Con
   await page.locator('#tpMobileBack').click();
   await expect(page.locator('.task-panel')).toHaveCount(0);
 });
+
+test('celular: chips de visão filtram a lista, Nova tarefa fica à vista e a troca Lista/Kanban some', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, d, extra = {}) => Object.assign({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: d, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    state.tasks = [t('a', today), t('b', addDaysStr(today, -2)), t('c', addDaysStr(today, 5), { pinned: true })];
+    render();
+  });
+  await expect(page.locator('.task-row')).toHaveCount(3);
+  await page.locator('[data-qv="hoje"]').click();
+  await expect(page.locator('.task-row')).toHaveCount(1);
+  await page.locator('[data-qv="atrasadas"]').click();
+  await expect(page.locator('.task-row .task-title')).toHaveText(['Tb']);
+  await page.locator('[data-qv="favoritas"]').click();
+  await expect(page.locator('.task-row .task-title')).toHaveText(['Tc']);
+  await expect(page.locator('.view-mode-toggle')).toBeHidden();
+  await expect(page.locator('#newBtn')).toBeInViewport(); // sem rolar para o fim
+  await expect(page.locator('.task-pin-btn').first()).toBeVisible(); // estrela visível sem hover
+});

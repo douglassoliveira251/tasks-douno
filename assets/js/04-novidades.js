@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.14.0', date:'08/11/2026', title:'Tarefas e Notas mais fáceis no celular', text:'No celular, Tarefas ganhou chips de visão (Todas, Hoje, Atrasadas, Favoritas) e o botão Nova tarefa ficou flutuante, sempre à vista; a troca Lista/Kanban saiu. Nas Notas, os chips de cadernos ganharam ícones, o título Cadernos e o botão Novo caderno, e o caderno escolhido pode ser renomeado ou excluído ali. A estrela de favorito agora aparece sempre, em cinza, nas duas listas.' },
   { version:'3.13.1', date:'08/11/2026', title:'Rolagem da lista de notas no celular', text:'Corrigido: no celular a lista de notas não rolava quando havia mais notas do que cabiam na tela. Agora dá para arrastar para cima e para baixo.' },
   { version:'3.13.0', date:'08/11/2026', title:'Notas no celular renovadas', text:'No celular, as Notas abrem numa lista com chips de cadernos e prévia de cada nota. Ao tocar numa nota, ela abre em tela cheia, com "‹ Notas" para voltar e a barra de formatação fixa acima do menu de baixo. A gaveta de cadernos saiu.' },
   { version:'3.12.3', date:'08/11/2026', title:'Estrela de favorito só com contorno', text:'Nas listas de notas e de tarefas, a estrela de favorito agora é só contorno: grossa e âmbar quando favorita, e cinza ao passar o mouse quando não é.' },

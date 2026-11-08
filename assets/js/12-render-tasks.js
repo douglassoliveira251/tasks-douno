@@ -88,6 +88,12 @@ function computeTaskGroupsUnpinned(pinnedOut){
   if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
   if(FILTROS.activeProjectFilters.length) pool = pool.filter(t => FILTROS.activeProjectFilters.includes(t.projectId || 'personal'));
   pool = pool.filter(t => !t.done);
+  if(window.matchMedia('(max-width:768px)').matches && FILTROS.quickView !== 'all'){
+    const hoje = todayStr();
+    if(FILTROS.quickView === 'hoje') pool = pool.filter(t => t.dueDate === hoje);
+    else if(FILTROS.quickView === 'atrasadas') pool = pool.filter(t => isOverdue(t.dueDate, t.done));
+    else if(FILTROS.quickView === 'favoritas') pool = pool.filter(t => t.pinned);
+  }
   pinnedOut.push(...pool.filter(t => t.pinned));
   pool = pool.filter(t => !t.pinned);
 
@@ -480,6 +486,16 @@ export function renderTasks(){
     listCol.appendChild(bucket);
   }
 
+  if(window.matchMedia('(max-width:768px)').matches){
+    const todayS_ = todayStr();
+    const open_ = G.state.tasks.filter(t => !t.done && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+    const counts_ = { all: open_.length, hoje: open_.filter(t => t.dueDate === todayS_).length, atrasadas: open_.filter(t => isOverdue(t.dueDate, t.done)).length, favoritas: open_.filter(t => t.pinned).length };
+    const chips_ = document.createElement('div');
+    chips_.className = 'm-chips';
+    chips_.innerHTML = [['all', 'Todas', 'list'], ['hoje', 'Hoje', 'calendar-blank'], ['atrasadas', 'Atrasadas', 'flag'], ['favoritas', 'Favoritas', 'star']].map(([k, l, ic_]) => `<button type="button" class="chipf${FILTROS.quickView === k ? ' on' : ''}" data-qv="${k}">${icon(ic_)}${l} <span class="n">${counts_[k]}</span></button>`).join('');
+    chips_.querySelectorAll('[data-qv]').forEach(b => { b.onclick = () => { FILTROS.quickView = b.dataset.qv; render(); }; });
+    listCol.appendChild(chips_);
+  }
   groups.forEach(group => buildBucket(group, false));
 
   if(G.state.showCompletedTasks){
