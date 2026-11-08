@@ -3591,3 +3591,56 @@
     body.view-dashboard .topbar-filters{margin-bottom:0;}
     .topbar-filters{align-items:center;}
   }
+
+  /* v3.9: detalhe da tarefa encaixado ao lado da lista, compacto e no visual do modelo aprovado (computador largo) */
+  :root{--tpf:#F1F4F9;}
+  [data-theme="dark"]{--tpf:var(--surface-2);}
+  @media (min-width:1100px){
+    body[data-view="tasks"] #tasksView:has(.task-panel){padding-right:0;}
+    .tasks-layout{gap:0;}
+    .tasks-layout .tasks-list-col{padding-right:20px;}
+    .task-panel{
+      position:sticky; top:0; right:auto; bottom:auto; align-self:flex-start; flex:none; width:390px; max-width:none;
+      height:calc(100vh - 160px); margin-left:0; z-index:1;
+      border:0; border-left:1px solid var(--border); border-radius:0; box-shadow:none; background:var(--surface); padding:12px 18px 24px;
+      font-size:12px;
+    }
+    .task-panel .tp-top-flag{height:3px; margin:-12px -18px 12px;}
+    .task-panel .tp-name-input{font-size:16px; font-weight:700; height:28px; line-height:28px; letter-spacing:-.01em;}
+    .task-panel .tp-created-at{font-size:10.5px; color:var(--ink-faint);}
+    .task-panel .tp-label, .task-panel .tp-label-row > span:first-child{font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#94A3B8; margin-bottom:4px;}
+    .task-panel .tp-field{margin-bottom:10px;}
+    .tp-dates{gap:8px 10px; margin-bottom:10px;}
+    /* campos: cinza claro, 30px, cantos de 6px */
+    .tp-box, .tp-follow-box{background:transparent; padding:0; border-radius:0;}
+    .tp-follow-box .tp-label{color:#94A3B8;}
+    .tp-follow-trigger, .tp-follow-box .tp-follow-add{background:var(--tpf); height:30px; border-radius:6px; padding:0 10px; font-size:12px; font-weight:600; color:var(--ink);}
+    .tp-box .tp-row2{background:var(--tpf); height:30px; border-radius:6px; padding:0 8px; align-items:center; gap:4px;}
+    .tp-box .tp-row2 .tp-input{font-size:12px; font-weight:600; padding:0; height:auto; letter-spacing:-.02em;}
+    .tp-box .tp-row2 .tp-time-input{flex:0 0 62px;}
+    .tp-box input[type="date"]::-webkit-calendar-picker-indicator, .tp-box input[type="time"]::-webkit-calendar-picker-indicator{margin:0 0 0 2px; padding:0; width:12px;}
+    .task-panel .tp-status-trigger{background:var(--tpf); border:0; border-radius:6px; height:30px; padding:0 10px; font-size:12px; font-weight:600;}
+    .task-panel .tp-select, .task-panel .tp-input, .task-panel .tp-textarea{background:var(--tpf); border:1px solid transparent; border-radius:6px; padding:7px 10px; font-size:12px;}
+    .task-panel #tpDesc{min-height:64px; font-weight:500;}
+    /* prioridade: texto colorido; a escolhida enche com a cor */
+    .task-panel .tp-priority-group{background:var(--tpf); border-radius:6px; padding:2px; gap:2px; height:30px;}
+    .task-panel .tp-priority-btn{border-radius:5px; padding:0; font-size:11.5px; font-weight:700; background:transparent; border-color:transparent;}
+    .task-panel .tp-priority-btn:nth-child(1){color:#2E90FA;} .task-panel .tp-priority-btn:nth-child(2){color:#12B76A;}
+    .task-panel .tp-priority-btn:nth-child(3){color:#F79009;} .task-panel .tp-priority-btn:nth-child(4){color:#E11D48;}
+    .task-panel .tp-priority-btn.active{color:#fff;}
+    .task-panel .tp-priority-btn.active:nth-child(1){background:#2E90FA;} .task-panel .tp-priority-btn.active:nth-child(2){background:#12B76A;}
+    .task-panel .tp-priority-btn.active:nth-child(3){background:#F79009;} .task-panel .tp-priority-btn.active:nth-child(4){background:#E11D48;}
+    /* espaço e tags */
+    .task-panel .tp-space-chip{font-size:12px; padding:3px 10px;}
+    /* subtarefas */
+    .task-panel .tp-subtask-header-row .tp-label{color:#64748B; font-weight:800;}
+    .task-panel .tp-subtask-progress-bar{height:3px;}
+    .task-panel .tp-subtask-row{min-height:26px; font-size:12px;}
+    .task-panel .tp-subtask-title{font-size:12px;}
+    .task-panel .tp-add-inline input{font-size:12px;}
+    .task-panel .btn.small{height:28px; font-size:11.5px; border-radius:6px;}
+    .tp-dates .tp-label, .tp-dates .tp-label-row{height:14px; line-height:14px; margin-bottom:4px; display:flex; align-items:center;}
+    .tp-start-link{line-height:1; font-size:10.5px;}
+    .tp-follow-box > .tp-label{margin-bottom:4px;} .tp-follow-trigger{margin:0; display:flex; align-items:center;}
+    .tp-follow{gap:0;} .tp-follow-trigger, [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
+  }

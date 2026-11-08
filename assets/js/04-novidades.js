@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.9.0', date:'08/11/2026', title:'Detalhe da tarefa renovado', text:'O detalhe da tarefa agora fica encaixado ao lado da lista (em telas largas), com campos menores e mais claros, prioridade colorida e tudo mais compacto.' },
   { version:'3.8.1', date:'08/11/2026', title:'Topo igual em todas as páginas', text:'Visão geral, Tarefas, Notas, Projetos e Calendário agora têm o mesmo topo: sem a linha divisória, com título, subtítulo e botões na mesma posição e no mesmo tamanho.' },
   { version:'3.8.0', date:'08/11/2026', title:'Novo na linha dos filtros', text:'Em Tarefas, o botão Nova tarefa foi para a direita do seletor Lista/Kanban. Na Visão geral, o Período virou um filtro igual aos de Tarefas e o Novo item ficou ao lado dele. O seletor de espaço ganhou um destaque azul ao passar o mouse.' },
   { version:'3.7.5', date:'08/11/2026', title:'Status das tarefas mais limpo', text:'No cartão Status das tarefas da Visão geral, o rótulo agora é só "Concluídas", sem o período entre parênteses (ele já está no filtro).' },

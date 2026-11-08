@@ -1,3 +1,9 @@
+## [3.9.0] - 2026-11-08 09:00
+
+### Changed
+
+- Detalhe da tarefa (computador largo, a partir de 1100 px): painel encaixado ao lado da lista (390 px, sem flutuar), com campos cinza claros de 30 px, rótulos pequenos, prioridade colorida e textos de 12 px. Em telas menores continua sobreposto como antes.
+
 ## [3.8.1] - 2026-11-08 08:00
 
 ### Changed
