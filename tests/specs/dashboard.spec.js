@@ -118,7 +118,7 @@ test('Resumo: filtro de período muda o rótulo e as conclusões do painel', asy
   await page.locator('#periodSelectorBtn').click();
   await page.locator('[data-period="90"]').click();
   await expect(page.locator('#periodSelectorName')).toHaveText('Últimos 90 dias');
-  await expect(page.locator('.dv-legend')).toContainText('Concluídas (90d)');
+  await expect(page.locator('.dv-legend')).toContainText('Concluídas');
   await expect(page.locator('.dv-legend div', { hasText: 'Concluídas' }).locator('b')).toHaveText('3');
   await page.locator('#periodSelectorBtn').click();
   await page.locator('[data-period="semana"]').click();

@@ -1,3 +1,9 @@
+## [3.7.5] - 2026-11-08 06:30
+
+### Changed
+
+- Visão geral: no cartão Status das tarefas, "Concluídas (no mês)" virou só "Concluídas" (o período já aparece no filtro).
+
 ## [3.7.4] - 2026-11-08 06:00
 
 ### Changed

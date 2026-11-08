@@ -131,7 +131,7 @@ export function renderDashboard(){
     { label: 'Em andamento', n: stProg, color: 'var(--primary)' },
     { label: 'Não iniciadas', n: stPend, color: 'var(--dv-pend)' },
     { label: 'Atrasadas', n: stOver, color: 'var(--danger)' },
-    { label: `Concluídas (${perDef.short})`, n: stDone, color: 'var(--ok)' },
+    { label: 'Concluídas', n: stDone, color: 'var(--ok)' },
   ];
   const stTotal = stBuckets.reduce((s, b) => s + b.n, 0);
   const donut = (() => {

@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.7.5', date:'08/11/2026', title:'Status das tarefas mais limpo', text:'No cartão Status das tarefas da Visão geral, o rótulo agora é só "Concluídas", sem o período entre parênteses (ele já está no filtro).' },
   { version:'3.7.4', date:'08/11/2026', title:'Filtros por espaço e seletor de espaço maior', text:'Os filtros de Projetos, Prioridade e Tags da lista de tarefas agora mostram só o que existe no espaço escolhido. O seletor de espaço ficou maior e de largura fixa (nomes compridos ganham reticências) e, no painel da tarefa, o "+ início" foi para o canto direito.' },
   { version:'3.7.3', date:'08/11/2026', title:'Comentários junto ao status', text:'O ícone de comentários da tarefa agora fica à direita, logo antes do status.' },
   { version:'3.7.2', date:'08/11/2026', title:'Filtro de projetos e prazo ao lado do nome', text:'Em Tarefas, o filtro de projetos agora é um botão Projetos, como Tags e Prioridade, e você marca um ou mais (ou Sem projeto). A data e a hora do prazo ficam logo depois do nome da tarefa. No painel da tarefa o campo agora é só Prazo.' },
