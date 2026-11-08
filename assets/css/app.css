@@ -3733,7 +3733,7 @@
   /* v3.12: Notas no computador largo — cadernos | lista de notas | editor, filtros no topo (padrão de Tarefas) */
   .notes-list-col, .nb-all-row{display:none;}
   .notes-filters{display:none;}
-  @media (min-width:1100px){
+  @media (min-width:769px){
     .notes-filters{display:flex; align-items:center; gap:8px;}
     .notes-filters .nf-k{font-style:normal; color:#94A3B8; font-weight:500;}
     .notes-filters .tag-filter-btn{height:32px; border-radius:10px; box-shadow:var(--shadow-sm); font-weight:600;}
@@ -3767,7 +3767,7 @@
 
   /* v3.12.1: cadernos exatamente como o modelo (sem o botão redondo "+", "+ Novo caderno" no fim da lista) */
   .nb-new-row{display:none;}
-  @media (min-width:1100px){
+  @media (min-width:769px){
     .notes-layout .notebook-new-btn-top{display:none;}
     .notes-layout .nb-new-row{display:flex; align-items:center; width:100%; margin-top:8px; border:0; background:transparent; color:var(--primary); cursor:pointer; text-align:left;}
     .notes-layout .nb-new-row:hover{background:var(--surface-2);}
@@ -3967,14 +3967,18 @@
   }
 
   /* v3.14.10: Notas no computador — cadernos mais estreitos, lista de notas mais larga; contagens alinhadas (o botão ⋮ aparece sobre o número ao passar o mouse) */
-  @media (min-width:1100px){
-    .notes-layout .notebooks-col{width:220px !important;}
+  @media (min-width:769px){
+    .notes-layout .notebooks-col{width:200px !important;}
     .notes-layout .notebooks-col-resize-handle{display:none;}
-    .notes-list-col{width:420px;}
+    .notes-list-col{width:300px;}
     body[data-view="notes"] #notesView{padding-top:10px !important;}
     .notes-layout .notebook-row{position:relative;}
     .notes-layout .notebook-row .notebook-count{margin-left:auto;}
     .notes-layout .notebook-row .notebook-menu-btn{position:absolute; right:4px; top:50%; transform:translateY(-50%); opacity:0; background:var(--surface); box-shadow:var(--shadow-sm);}
     .notes-layout .notebook-row:hover .notebook-menu-btn, .notes-layout .notebook-menu-btn:focus-visible{opacity:1;}
     .notes-layout .notebook-row:hover .notebook-count{visibility:hidden;}
+  }
+  @media (min-width:1100px){
+    .notes-layout .notebooks-col{width:220px !important;}
+    .notes-list-col{width:420px;}
   }

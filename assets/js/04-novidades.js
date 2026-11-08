@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.14.11', date:'09/11/2026', title:'Notas com o visual novo também em telas médias', text:'Em tablets e no modo desktop do celular, Notas agora usa o mesmo layout novo: cadernos, lista com resumo e editor, com os filtros no topo.' },
   { version:'3.14.10', date:'08/11/2026', title:'Notas: filtros sem o seletor de espaço', text:'Nos filtros de Notas no computador, o seletor de Espaço foi removido; a troca de espaço continua no menu do topo. Também: cadernos mais estreitos, lista de notas mais larga e números dos cadernos alinhados.' },
   { version:'3.14.9', date:'08/11/2026', title:'Tarefas no celular: filtros e grupos reposicionados', text:'No celular, os filtros ficaram um pouco mais abaixo do nome da página e os grupos de tarefas subiram, mais perto dos filtros.' },
   { version:'3.14.8', date:'08/11/2026', title:'Tarefas e Notas com o mesmo topo no celular', text:'No celular, o topo de Tarefas e o de Notas ficaram idênticos: sem a linha divisória, com o mesmo fundo, espaçamento e posição do título e do botão.' },

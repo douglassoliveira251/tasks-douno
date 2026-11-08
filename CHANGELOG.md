@@ -1,3 +1,6 @@
+## [3.14.11] - 2026-11-09 08:00
+- Notas: o layout novo (cadernos | lista | editor, filtros no topo) passa a valer a partir de 769 px, inclusive no modo desktop do celular.
+
 ## [3.14.10] - 2026-11-08 22:00
 - Notas: removido o seletor de Espaço dos filtros (a troca fica no menu do topo).
 - Notas (computador): cadernos mais estreitos, lista de notas mais larga (420 px), área da nota 14 px mais acima e contagens dos cadernos alinhadas com a de "Todas as notas".

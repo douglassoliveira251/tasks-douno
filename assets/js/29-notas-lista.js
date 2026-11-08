@@ -60,8 +60,8 @@ export function renderNotes(){
 
   const notebooksCol = document.createElement('div');
   notebooksCol.className = 'notebooks-col';
-  const desktop = window.matchMedia('(min-width:1100px)').matches; // no computador largo: cadernos | lista de notas | editor
-  notebooksCol.style.width = (desktop ? 220 : (G.state.notebooksColWidth || 260)) + 'px';
+  const desktop = window.matchMedia('(min-width:769px)').matches; // computador e tablet/modo desktop do celular: cadernos | lista de notas | editor
+  notebooksCol.style.width = (desktop ? (window.matchMedia('(min-width:1100px)').matches ? 220 : 200) : (G.state.notebooksColWidth || 260)) + 'px';
   function noteOrderOf(n){ return n.noteOrder!=null ? n.noteOrder : (n.createdAt||0); }
   function notebookGroupHtml(nb){
     const nbNotes = G.state.notes.filter(n => n.notebookId === nb.id && !n.archived && matches(n))
