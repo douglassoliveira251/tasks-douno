@@ -3868,10 +3868,7 @@
     .notes-list-item .nb-note-pin-btn:not(.pinned){color:var(--ink-faint);}
     /* tarefas: sem a troca Lista/Kanban e "Nova tarefa" sempre à vista (botão flutuante) */
     body[data-view="tasks"] .view-mode-toggle{display:none;}
-    body[data-view="tasks"] .tn-new{position:fixed; right:16px; bottom:calc(58px + 14px + env(safe-area-inset-bottom, 0px)); z-index:46; order:0;}
-    body[data-view="tasks"] .tn-new-btn{width:auto; height:48px; padding:0 18px; border-radius:14px; box-shadow:0 8px 20px rgba(47,95,158,.45); font-size:14px;}
     body[data-view="tasks"] .tn-new-split{display:none;}
-    body[data-view="tasks"]:has(.task-panel) .tn-new{display:none;}
     body[data-view="tasks"] .m-chips{padding-top:6px;}
   }
   @media (max-width:768px){
@@ -3899,4 +3896,23 @@
     body[data-view="tasks"] .topbar-filters .completed-toggle .completed-toggle-track{display:none;}
     body[data-view="tasks"] .topbar-filters .completed-toggle:has(input:checked){background:var(--primary); border-color:var(--primary); color:#fff;}
     body[data-view="tasks"] .topbar-filters .completed-toggle span:first-child{display:inline;}
+  }
+
+  /* v3.14.2: celular — "Nova tarefa" no topo, na linha do título (como em Notas); filtros em chips logo abaixo */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:6px 10px;}
+    body[data-view="tasks"] .topbar-title{grid-column:1; grid-row:1; flex:none;}
+    body[data-view="tasks"] .topbar-filters{display:contents;}
+    body[data-view="tasks"] .tn-new{grid-column:2; grid-row:1; position:static; order:0;}
+    body[data-view="tasks"] .tn-new-btn{width:auto; height:30px; padding:0 12px; border-radius:10px; font-size:12.5px; box-shadow:0 3px 10px rgba(47,95,158,.35);}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar{grid-column:1 / -1; grid-row:2; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; min-width:0; padding-bottom:2px;}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar::-webkit-scrollbar{display:none;}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar > *{flex:none;}
+    body[data-view="tasks"] .topbar-filters .group-mode-bar{justify-content:flex-start;}
+    body[data-view="tasks"] .topbar-title .page-header-stats{white-space:nowrap; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; display:block;}
+    body[data-view="tasks"] .topbar-title-text{min-width:0;}
+    body[data-view="tasks"] .topbar-title{min-width:0; overflow:hidden;}
+    body[data-view="tasks"] .group-mode-select-wrap .tp-status-dropdown{position:fixed; left:12px; right:auto; min-width:200px; z-index:60;}
+    body[data-view="tasks"] .group-mode-select-wrap .tp-status-dropdown, body[data-view="tasks"] .topbar-filters .tag-filter-popover{position:fixed; top:152px; bottom:auto; max-height:50vh; overflow-y:auto; z-index:60;}
+    body[data-view="tasks"] .topbar-filters .tag-filter-popover{left:12px; right:12px; min-width:0;}
   }

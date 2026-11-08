@@ -125,6 +125,8 @@ test('celular: filtros existentes em chips, Nova tarefa à vista, sem Lista/Kanb
   await expect(page.locator('.group-mode-trigger')).toBeVisible();
   expect(await page.locator('.group-mode-trigger').evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgb(255, 255, 255)'); // Agrupar em azul
   await expect(page.locator('.view-mode-toggle')).toBeHidden();
-  await expect(page.locator('#newBtn')).toBeInViewport(); // sem rolar para o fim
+  const nb = await page.locator('#newBtn').boundingBox();
+  expect(nb.y).toBeLessThan(110); // no topo, na linha do título (como em Notas)
+  expect(nb.x + nb.width).toBeLessThanOrEqual(390);
   await expect(page.locator('.task-pin-btn').first()).toBeVisible(); // estrela visível sem hover
 });

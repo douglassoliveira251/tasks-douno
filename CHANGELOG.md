@@ -1,3 +1,9 @@
+## [3.14.2] - 2026-11-08 18:00
+
+### Changed
+
+- Celular, Tarefas: o botão flutuante "Nova tarefa" saiu; o botão fica no topo, na linha do título (como em Notas), com os chips de filtro logo abaixo. Menus de Agrupar por / Prioridade / Tags abrem abaixo dos chips, por cima da lista; resumo do título numa linha só.
+
 ## [3.14.1] - 2026-11-08 17:30
 
 ### Changed
