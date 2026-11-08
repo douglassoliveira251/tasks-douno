@@ -198,7 +198,9 @@ export function openProjectMenu(anchor, p){
   menu.className = 'report-menu';
   menu.id = 'reportMenu';
   const ic = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const mob = window.matchMedia('(max-width:768px)').matches;
   menu.innerHTML = `
+    ${mob ? `<button type="button" id="prjMenuStage">${ic('<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>')}<span><b>Nova etapa</b><small>Adicionar uma etapa ao projeto</small></span></button>` : ''}
     <button type="button" id="prjEdit">${ic('<path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13 7l4 4"/>')}<span><b>Editar projeto</b><small>Nome, ícone, cor, espaço e datas</small></span></button>
     <div class="report-sep"></div>
     <div class="report-head">Relatório</div>
@@ -210,6 +212,8 @@ export function openProjectMenu(anchor, p){
   menu.style.top = Math.round(r.bottom + 6) + 'px';
   menu.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + 'px';
   menu.onclick = (e) => e.stopPropagation();
+  const ms = menu.querySelector('#prjMenuStage');
+  if(ms) ms.onclick = () => { closeReportMenu(); const b = document.getElementById('prjAddStage'); if(b) b.click(); };
   menu.querySelector('#prjEdit').onclick = () => { closeReportMenu(); openProjectEditor(p); };
   menu.querySelector('[data-report="csv"]').onclick = () => { closeReportMenu(); downloadProjectCsv(p); };
   menu.querySelector('[data-report="print"]').onclick = () => { closeReportMenu(); exportProjectReport(p); };

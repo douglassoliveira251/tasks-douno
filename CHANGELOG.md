@@ -1,3 +1,6 @@
+## [3.17.0] - 2026-11-09 15:00
+- Projeto no celular: cabeçalho de duas linhas, seletor Etapas / Linha do tempo / Lista, etapas em cartões com as tarefas dentro, botão flutuante de tarefa e Nova etapa no menu ⋮.
+
 ## [3.16.0] - 2026-11-09 12:00
 - Projeto aberto: cabeçalho enxuto no lugar do topo, linha do tempo à esquerda e resumo (indicadores, próximas tarefas, descrição) numa coluna à direita, com botão "Voltar" claro; detalhe da tarefa 30% mais largo (468 px) e 10 px mais acima, e a coluna do resumo do projeto com a mesma largura.
 

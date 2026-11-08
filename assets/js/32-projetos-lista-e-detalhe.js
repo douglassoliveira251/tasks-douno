@@ -201,6 +201,8 @@ export function renderProjectDetail(view, p){
   const chips = projectChipsHtml(st) || `<span class="proj-chip">${st.pct > 0 ? 'Em andamento' : 'Não iniciado'}</span>`;
   const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
   const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
+  const isMobileP = window.matchMedia('(max-width:768px)').matches;
+  const tabNow = (G.projectTab === 'etapas' && !isMobileP) ? 'timeline' : (G.projectTab || 'timeline');
   const kp = (v, of, l, color) => `<div class="pd-kp"><small>${l}</small><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b></div>`;
   const daysLeft = (p.endDate || st.end) ? Math.round((new Date((p.endDate || st.end) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
   view.innerHTML = `
@@ -218,10 +220,13 @@ export function renderProjectDetail(view, p){
             <div><small>entrega</small><b class="ph-end">${endTxt}</b>${slip ? ` <i style="color:var(--danger); font-style:normal; font-weight:700; font-size:11.5px;">${slip}</i>` : ''}</div>
           </div>
         </div>
+        <div class="pd-msub">${chips}<span>${st.pct}% · ${phTasks.filter(t => t.done).length}/${phTasks.length} tarefas${nLateT ? ` · <b style="color:var(--danger)">${nLateT}</b> ${nLateT === 1 ? 'atrasada' : 'atrasadas'}` : ''}</span></div>
+        <div class="pd-mbar"><i style="width:${st.pct}%"></i></div>
         <span class="prj-actions">
           <span class="pd-tabs">
-            <button type="button" class="proj-tab ${G.projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
-            <button type="button" class="proj-tab ${G.projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+            <button type="button" class="proj-tab pd-tab-etapas ${tabNow === 'etapas' ? 'on' : ''}" data-tab="etapas">Etapas</button>
+            <button type="button" class="proj-tab ${tabNow === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+            <button type="button" class="proj-tab ${tabNow === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
           </span>
           <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
           <button type="button" class="prj-act pri" id="prjAddTask">${icon('plus')}Nova tarefa</button>
@@ -350,7 +355,24 @@ export function renderProjectDetail(view, p){
     return;
   }
 
-  if(G.projectTab === 'lista'){
+  if(tabNow === 'etapas'){
+    const groups = stages.map(sg => ({ sg, tks: sortByStart(stageTasks(p, sg)) }));
+    const loose = sortByStart(phTasks.filter(t => !t.stageId || !stages.some(x => x.id === t.stageId)));
+    const taskRow = t => {
+      const late = !t.done && t.dueDate && t.dueDate < today;
+      const isToday = !t.done && t.dueDate === today;
+      return `<div class="pe-task" data-task-id="${t.id}"><i class="pe-cb ${t.done ? 'done' : ''}"></i><span class="pe-tt ${t.done ? 'done' : ''}">${escapeHtml(t.title || 'Sem título')}</span><small class="${late ? 'late' : isToday ? 'today' : ''}">${t.dueDate ? (isToday ? 'Hoje' : fmtDate(t.dueDate)) : ''}</small></div>`;
+    };
+    body.innerHTML = '<div class="pe-list">' + groups.map(({ sg, tks }) => {
+      const pct = stagePercent(p, sg), state_ = stageState(p, sg);
+      return `<div class="pe-card" data-id="${sg.id}"><div class="pe-head"><div class="pe-hl"><b>${escapeHtml(sg.name)}</b><span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]}</span><span class="pe-pct">${pct}%</span></div><div class="proj-bar"><i style="width:${pct}%"></i></div></div>${tks.map(taskRow).join('')}</div>`;
+    }).join('') + (loose.length ? `<div class="pe-card"><div class="pe-head"><div class="pe-hl"><b>Sem etapa</b></div></div>${loose.map(taskRow).join('')}</div>` : '') + '</div>';
+    body.querySelectorAll('.pe-task').forEach(el => { el.onclick = () => { G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); }; });
+    body.querySelectorAll('.pe-head').forEach(h => { h.onclick = () => h.parentElement.classList.toggle('closed'); });
+    return;
+  }
+
+  if(tabNow === 'lista'){
     body.innerHTML = '<div class="tpl-list">' + stages.map(sg => {
       const pct = stagePercent(p, sg), state_ = stageState(p, sg), n = stageTasks(p, sg);
       return `<div class="tpl-card" data-id="${sg.id}" style="cursor:pointer;">

@@ -4105,3 +4105,41 @@
   @media (min-width:1100px){
     .day-summary{width:468px; margin-top:-10px; height:calc(100vh - 150px); box-sizing:border-box;}
   }
+
+  /* v3.17.0: projeto no celular — cabeçalho de duas linhas, seletor Etapas / Linha do tempo / Lista, etapas em cartões e botão flutuante de tarefa */
+  .pd-msub, .pd-mbar, .pd-tab-etapas{display:none;}
+  .pe-list{display:flex; flex-direction:column; gap:10px;}
+  .pe-card{border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden;}
+  .pe-head{padding:11px 13px; cursor:pointer;}
+  .pe-hl{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .pe-hl b{font-size:14px;}
+  .pe-pct{margin-left:auto; font-size:12px; font-weight:800;}
+  .pe-card .proj-bar{height:5px;}
+  .pe-task{display:flex; align-items:center; gap:10px; padding:11px 13px; border-top:1px solid var(--border); font-size:13px; cursor:pointer;}
+  .pe-task:active{background:var(--surface-2);}
+  .pe-cb{width:18px; height:18px; border-radius:50%; border:1.5px solid #CBD5E1; flex:none;}
+  .pe-cb.done{background:#2B7A55; border-color:#2B7A55;}
+  .pe-tt{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pe-tt.done{text-decoration:line-through; color:var(--ink-faint);}
+  .pe-task small{font-size:11px; color:var(--ink-faint); white-space:nowrap;}
+  .pe-task small.late{color:var(--danger); font-weight:700;} .pe-task small.today{color:#C77700; font-weight:700;}
+  .pe-card.closed .pe-task{display:none;}
+  @media (max-width:768px){
+    .pd-head.prj-head{padding:10px 0 4px; margin:0;}
+    .pd-head .ph{display:grid; grid-template-columns:auto minmax(0,1fr) auto; grid-template-areas:"back name more" "sub sub sub" "bar bar bar" "seg seg seg"; gap:8px 10px; align-items:center;}
+    .pd-head .pd-back{grid-area:back;}
+    .pd-tile, .pd-head .ph-st, .pd-head .pd-ttl .proj-chip, #prjAddStage{display:none !important;}
+    .pd-head .ph-name{grid-area:name; display:block;}
+    .pd-head .prj-title{font-size:18px;}
+    .pd-head .prj-actions{display:contents;}
+    .pd-head #prjMore{grid-area:more;}
+    .pd-msub{grid-area:sub; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft);}
+    .pd-msub .proj-chip{font-size:11px;}
+    .pd-mbar{grid-area:bar; display:block; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden;}
+    .pd-mbar i{display:block; height:100%; background:var(--primary); border-radius:3px;}
+    .pd-tabs{grid-area:seg; display:flex; gap:2px; background:var(--surface-2); border-radius:10px; padding:3px; margin-top:2px;}
+    .pd-head .pd-tabs .proj-tab, .pd-head .pd-tabs .pd-tab-etapas{display:flex; flex:1; justify-content:center; height:30px; padding:0; border:0; box-shadow:none; background:transparent; border-radius:8px; font-size:12px;}
+    .pd-head .pd-tabs .proj-tab.on{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.1);}
+    .pd-head #prjAddTask{position:fixed; right:16px; bottom:calc(74px + env(safe-area-inset-bottom, 0px)); z-index:40; height:46px; padding:0 18px; border-radius:23px; font-size:13px; font-weight:700; box-shadow:0 6px 16px rgba(47,95,158,.4);}
+    .pd-head #prjAddTask svg{width:15px; height:15px;}
+  }

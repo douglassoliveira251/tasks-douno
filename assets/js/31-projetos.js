@@ -10,7 +10,7 @@ import { GANTT } from './estado-ui.js';
 G.activeProjectId = null;
 G.projectTab = 'timeline';
 GANTT.ganttFit = false, G.ganttZoom = 'fit', G.ganttFilter = 'all', GANTT.ganttScroll = 0, GANTT.ganttCenterToday = true, GANTT.ganttLastProject = null;
-export function defaultProjectTab(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 'lista' : 'timeline'; }
+export function defaultProjectTab(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches ? 'etapas' : 'timeline'; }
 G.selectedStageId = null;
 
 /* Ícones do projeto: conjunto do Lucide (https://lucide.dev, licença ISC), embutido no arquivo. */
