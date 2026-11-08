@@ -1,3 +1,6 @@
+## [3.16.0] - 2026-11-09 12:00
+- Projeto aberto: cabeçalho enxuto no lugar do topo, linha do tempo à esquerda e resumo (indicadores, próximas tarefas, descrição) numa coluna à direita, com botão "Voltar" claro; detalhe da tarefa 30% mais largo (520 px) e 10 px mais acima, e a coluna do resumo do projeto com a mesma largura.
+
 ## [3.15.0] - 2026-11-09 10:00
 - Projetos: lista enxuta com filtros Status e Ordenar no topo e resumo do projeto encaixado à direita (clique seleciona, duplo clique ou "Abrir projeto" abre); no celular, toque abre o projeto.
 

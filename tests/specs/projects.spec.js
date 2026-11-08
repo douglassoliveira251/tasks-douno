@@ -209,7 +209,7 @@ test('etapa: resumo lateral, progresso com subtarefas e + cria etapa', async ({ 
   await page.locator('#stgSideBack').click();
   await expect(page.locator('#prjSideEdit')).toBeVisible();
   // + cria etapa quando há projeto aberto
-  await novoItem(page, 'stage');
+  await page.locator('#prjAddStage').click();
   await expect(page.locator('#stgName')).toBeVisible();
   await page.locator('#stgCancel').click();
 });
@@ -324,7 +324,7 @@ test('projeto: ícone e cor, descrição breve e tarefas da etapa em ordem de in
   await expect(page.locator('#prjColorPop')).toBeHidden();
   await page.locator('#prjSave').click();
   expect(await page.evaluate(() => { const p = projectById('p1'); return [p.icon, p.color]; })).toEqual(['rocket', '#E5484D']);
-  await expect(page.locator('.prj-head .ig2 svg')).toBeVisible();
+  await expect(page.locator('.prj-head .pd-tile svg')).toBeVisible();
   // descrição breve direto no topo
   await page.locator('#prjDescAdd, #prjDescText').first().click();
   await page.locator('#prjDescInline').fill('Casa de dois pavimentos');
@@ -481,9 +481,10 @@ test('topo do projeto: números em linha e resumo ao lado na altura do topo', as
   const st = page.locator('.ph-st');
   await expect(st).toContainText('1/3');
   await expect(st).toContainText('atrasada');
-  const [head, side] = await Promise.all([page.locator('.prj-head').boundingBox(), page.locator('.proj-side').boundingBox()]);
-  expect(Math.abs(head.y - side.y)).toBeLessThan(2);
-  expect(side.x).toBeGreaterThan(head.x + head.width);
+  const [head, body, side] = await Promise.all([page.locator('.prj-head').boundingBox(), page.locator('#prjBody').boundingBox(), page.locator('.proj-side').boundingBox()]);
+  expect(side.y).toBeGreaterThanOrEqual(head.y + head.height - 2); // resumo começa abaixo do cabeçalho
+  expect(Math.abs(body.y - side.y)).toBeLessThan(12);
+  expect(side.x).toBeGreaterThan(body.x + body.width);
 });
 
 test('filtros da lista só oferecem projetos, prioridades e tags do espaço escolhido', async ({ page }) => {
@@ -513,6 +514,6 @@ test('detalhe da tarefa aberto a partir do projeto fica sobreposto (não cai par
   const box = await page.locator('.task-panel').boundingBox();
   expect(box.y).toBeGreaterThan(100); // abaixo do topo da página, como o painel encaixado de Tarefas
   expect(box.y).toBeLessThan(200);
-  expect(Math.round(box.width)).toBe(390);
+  expect(Math.round(box.width)).toBe(520);
   expect(box.x).toBeGreaterThan(900);
 });

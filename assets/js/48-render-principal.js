@@ -62,6 +62,7 @@ export function render(){
   document.body.classList.toggle('notes-focus', G.notesFocusMode && G.currentView === 'notes');
   document.body.classList.toggle('view-dashboard', G.currentView === 'dashboard');
   document.body.dataset.view = G.currentView;
+  document.body.dataset.proj = (G.currentView === 'projects' && G.activeProjectId) ? 'open' : '';
   if(G.currentView !== 'tasks') document.querySelectorAll('#topbarFilters .group-mode-bar, #topbarFilters .view-mode-toggle').forEach(el => el.remove());
   if(G.currentView !== 'notes') document.querySelectorAll('#topbarFilters .notes-filters').forEach(el => el.remove());
   if(G.currentView !== 'projects' || G.activeProjectId) document.querySelectorAll('#topbarFilters .proj-filters').forEach(el => el.remove());

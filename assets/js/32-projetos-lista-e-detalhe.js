@@ -201,36 +201,36 @@ export function renderProjectDetail(view, p){
   const chips = projectChipsHtml(st) || `<span class="proj-chip">${st.pct > 0 ? 'Em andamento' : 'Não iniciado'}</span>`;
   const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
   const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
+  const kp = (v, of, l, color) => `<div class="pd-kp"><small>${l}</small><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b></div>`;
+  const daysLeft = (p.endDate || st.end) ? Math.round((new Date((p.endDate || st.end) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
   view.innerHTML = `
-    <div class="proj-split">
-    <div class="proj-col">
-    <div class="prj-head" style="--pc:${projectColor(p)}">
+    <div class="prj-head pd-head" style="--pc:${projectColor(p)}">
       <div class="ph">
-        <div class="ig2" style="--pp:${st.pct}"><i><b>${projectIconSvg(p.icon || 'briefcase')}</b></i><em>${st.pct}%</em></div>
+        <button type="button" class="prj-circle-btn pd-back" id="prjBack" title="Voltar para a lista de projetos" aria-label="Voltar para a lista de projetos">${icon('caret-left')}<span>Voltar</span></button>
+        <span class="pd-tile">${projectIconSvg(p.icon || 'briefcase')}</span>
         <div class="ph-name">
-          <button type="button" class="prj-circle-btn" id="prjBack" title="Voltar para os projetos" aria-label="Voltar para os projetos">${icon('caret-left')}</button>
-          <b class="prj-title">${escapeHtml(p.name)}</b>
-          ${chips}
+          <div class="pd-ttl"><b class="prj-title">${escapeHtml(p.name)}</b>${chips}</div>
+          <div class="ph-st">
+            ${stat(st.done, st.total, 'etapas')}
+            ${stat(phTasks.filter(t => t.done).length, phTasks.length, 'tarefas')}
+            ${stat(nLateT, null, nLateT === 1 ? 'atrasada' : 'atrasadas', nLateT ? 'var(--danger)' : '')}
+            ${stat(nSoonT, null, 'em 3 dias', nSoonT ? '#C77700' : '')}
+            <div><small>entrega</small><b class="ph-end">${endTxt}</b>${slip ? ` <i style="color:var(--danger); font-style:normal; font-weight:700; font-size:11.5px;">${slip}</i>` : ''}</div>
+          </div>
         </div>
         <span class="prj-actions">
-        <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
-        <button type="button" class="prj-act pri" id="prjAddTask">${icon('plus')}Nova tarefa</button>
-        <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
-      </span>
-        <div class="ph-st">
-          ${stat(st.done, st.total, 'etapas')}
-          ${stat(phTasks.filter(t => t.done).length, phTasks.length, 'tarefas')}
-          ${stat(nLateT, null, nLateT === 1 ? 'atrasada' : 'atrasadas', nLateT ? 'var(--danger)' : '')}
-          ${stat(nSoonT, null, 'em 3 dias', nSoonT ? '#C77700' : '')}
-          <div><b class="ph-end">${endTxt}</b><small>entrega${slip ? ` <i style="color:var(--danger); font-style:normal; font-weight:700;">${slip}</i>` : ''}</small></div>
-        </div>
-        <div class="proj-desc-row" id="prjDescRow"></div>
-      </div>
-      <div class="proj-tabs">
-        <button type="button" class="proj-tab ${G.projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
-        <button type="button" class="proj-tab ${G.projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+          <span class="pd-tabs">
+            <button type="button" class="proj-tab ${G.projectTab === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+            <button type="button" class="proj-tab ${G.projectTab === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
+          </span>
+          <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
+          <button type="button" class="prj-act pri" id="prjAddTask">${icon('plus')}Nova tarefa</button>
+          <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
+        </span>
       </div>
     </div>
+    <div class="proj-split">
+    <div class="proj-col">
     <div id="prjBody" style="min-width:0;"></div>
     </div>
       <aside class="proj-side ${selStage ? '' : 'is-resumo'}">
@@ -242,6 +242,12 @@ export function renderProjectDetail(view, p){
             <div class="proj-side-sub">Entrega prevista ${p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—')}${slip ? ` <span style="color:var(--danger); font-weight:700;">${slip}</span>` : ''}</div></div>
         </div>
         <div class="proj-side-sub" style="margin:2px 0 0;">Próxima entrega: <b style="color:var(--ink);">${nextLabel}</b></div>
+        <div class="pd-kps">
+          ${kp(phTasks.filter(t => t.done).length, phTasks.length, 'Tarefas feitas')}
+          ${kp(nLateT, null, 'Atrasadas', nLateT ? 'var(--danger)' : '')}
+          ${kp(nSoonT, null, 'Vencem em 3 dias', nSoonT ? '#C77700' : '')}
+          ${kp(daysLeft == null ? '—' : daysLeft, null, 'Dias para entrega', daysLeft != null && daysLeft < 0 ? 'var(--danger)' : '')}
+        </div>
         <div class="proj-side-more">
         <div class="proj-side-label" style="margin-top:14px;">Próximas tarefas</div>
         ${(() => {
@@ -252,6 +258,8 @@ export function renderProjectDetail(view, p){
             return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.dueDate && t.dueDate < today ? 'late' : ''}"></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>${sg ? escapeHtml(sg.name) + ' · ' : ''}${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}</small></div></div>`;
           }).join('');
         })()}
+        <div class="proj-side-label" style="margin-top:14px;">Descrição</div>
+        <div class="proj-desc-row" id="prjDescRow"></div>
         <button type="button" class="proj-side-btn" id="prjSideEdit">Editar projeto</button>
         </div>`}
       </aside>
@@ -263,7 +271,7 @@ export function renderProjectDetail(view, p){
     renderTaskPanel(tpanel);
   }
   /* Descrição: texto corrido (sem caixa), até 2 linhas com "Ver mais"; clicar nela edita no lugar. */
-  const descRow = view.querySelector('#prjDescRow');
+  const descRow = view.querySelector('#prjDescRow') || document.createElement('div');
   function renderProjectDesc(editing){
     if(editing){
       descRow.innerHTML = '<textarea id="prjDescInline" class="proj-desc-input" rows="2" maxlength="600" placeholder="Breve descrição do projeto"></textarea>';
