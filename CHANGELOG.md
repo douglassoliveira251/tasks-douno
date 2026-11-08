@@ -1,3 +1,10 @@
+## [3.14.7] - 2026-11-08 20:30
+
+### Changed
+
+- Celular, Tarefas: mais espaço antes e depois do título de cada grupo (Favoritos, Vencida, Vence hoje...).
+- Celular, Notas: sem a linha divisória entre o título da página e os filtros.
+
 ## [3.14.6] - 2026-11-08 20:00
 
 ### Changed

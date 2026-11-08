@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.14.7', date:'08/11/2026', title:'Ajustes de espaço no celular', text:'No celular, os títulos dos grupos de Tarefas (Favoritos, Vencida, Vence hoje...) ganharam mais espaço, e as Notas ficaram sem a linha entre o título da página e os filtros.' },
   { version:'3.14.6', date:'08/11/2026', title:'Topos mais enxutos no celular', text:'No celular, a Visão geral ganhou saudação e data menores (sem a frase de apoio) e as Notas ficaram com o mesmo espaço entre o título e o conteúdo que as Tarefas.' },
   { version:'3.14.5', date:'08/11/2026', title:'Mais espaço no topo de Tarefas, no celular', text:'No celular, o nome da página em Tarefas ficou com mais espaço em relação aos filtros e à lista de tarefas.' },
   { version:'3.14.4', date:'08/11/2026', title:'Mais respiro no topo, no celular', text:'No celular, o nome da página em Tarefas e Notas ganhou um pouco mais de espaço acima, igual nas duas telas.' },
