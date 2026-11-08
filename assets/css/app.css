@@ -3879,3 +3879,24 @@
     .m-cap button{display:inline-flex; align-items:center; gap:4px; border:0; background:none; font:inherit; font-size:12px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--primary); padding:2px 0;}
     .m-cap button svg{width:14px; height:14px;}
   }
+
+  /* v3.14.1: celular — filtros existentes de Tarefas (Agrupar, Prioridade, Tags, Projetos, Concluídas) no padrão azul dos chips */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar-filters .group-mode-bar{gap:6px;}
+    body[data-view="tasks"] .topbar-filters .tp-status-trigger.group-mode-trigger,
+    body[data-view="tasks"] .topbar-filters .tag-filter-btn,
+    body[data-view="tasks"] .topbar-filters .completed-toggle{
+      display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:999px; flex:none; white-space:nowrap;
+      background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    }
+    body[data-view="tasks"] .topbar-filters .tp-status-trigger.group-mode-trigger{background:var(--primary); border-color:var(--primary); color:#fff;}
+    body[data-view="tasks"] .topbar-filters .group-mode-trigger .tp-status-trigger-label::before{color:rgba(255,255,255,.75);}
+    body[data-view="tasks"] .topbar-filters .group-mode-trigger .tp-status-trigger-label, body[data-view="tasks"] .topbar-filters .group-mode-trigger svg{color:#fff;}
+    body[data-view="tasks"] .topbar-filters .tag-filter-btn.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+    body[data-view="tasks"] .topbar-filters .tag-filter-btn svg{width:14px; height:14px; color:var(--ink-faint);}
+    body[data-view="tasks"] .topbar-filters .tag-filter-btn.on svg{color:#fff;}
+    /* Concluídas: o interruptor vira um chip que fica azul quando ligado */
+    body[data-view="tasks"] .topbar-filters .completed-toggle .completed-toggle-track{display:none;}
+    body[data-view="tasks"] .topbar-filters .completed-toggle:has(input:checked){background:var(--primary); border-color:var(--primary); color:#fff;}
+    body[data-view="tasks"] .topbar-filters .completed-toggle span:first-child{display:inline;}
+  }

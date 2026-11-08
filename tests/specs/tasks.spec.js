@@ -112,7 +112,7 @@ test('celular: detalhe da tarefa em tela cheia com Voltar e barra Comentar / Con
   await expect(page.locator('.task-panel')).toHaveCount(0);
 });
 
-test('celular: chips de visão filtram a lista, Nova tarefa fica à vista e a troca Lista/Kanban some', async ({ page }) => {
+test('celular: filtros existentes em chips, Nova tarefa à vista, sem Lista/Kanban e estrela visível', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await gotoApp(page, { view: 'tasks' });
   await page.evaluate(() => {
@@ -121,13 +121,9 @@ test('celular: chips de visão filtram a lista, Nova tarefa fica à vista e a tr
     state.tasks = [t('a', today), t('b', addDaysStr(today, -2)), t('c', addDaysStr(today, 5), { pinned: true })];
     render();
   });
-  await expect(page.locator('.task-row')).toHaveCount(3);
-  await page.locator('[data-qv="hoje"]').click();
-  await expect(page.locator('.task-row')).toHaveCount(1);
-  await page.locator('[data-qv="atrasadas"]').click();
-  await expect(page.locator('.task-row .task-title')).toHaveText(['Tb']);
-  await page.locator('[data-qv="favoritas"]').click();
-  await expect(page.locator('.task-row .task-title')).toHaveText(['Tc']);
+  await expect(page.locator('[data-qv]')).toHaveCount(0); // sem os chips rápidos
+  await expect(page.locator('.group-mode-trigger')).toBeVisible();
+  expect(await page.locator('.group-mode-trigger').evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgb(255, 255, 255)'); // Agrupar em azul
   await expect(page.locator('.view-mode-toggle')).toBeHidden();
   await expect(page.locator('#newBtn')).toBeInViewport(); // sem rolar para o fim
   await expect(page.locator('.task-pin-btn').first()).toBeVisible(); // estrela visível sem hover

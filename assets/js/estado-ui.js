@@ -8,7 +8,6 @@ export const FILTROS = {
   criticalityFilterPopoverOpen: undefined,
   tagFilterPopoverOpen: undefined,
   activeProjectFilters: undefined,
-  quickView: 'all', // celular: all | hoje | atrasadas | favoritas
   projectFilterPopoverOpen: undefined,
   tagsPopoverOpen: undefined,
 };

@@ -1,3 +1,9 @@
+## [3.14.1] - 2026-11-08 17:30
+
+### Changed
+
+- Celular, Tarefas: os filtros existentes (Agrupar por, Prioridade, Tags, Projetos e Concluídas) passam para o padrão de chips do novo layout — "Agrupar por" em azul e os demais azuis quando ativos. Os chips Todas/Hoje/Atrasadas/Favoritas criados na 3.14.0 foram removidos (o agrupamento já separa vencidas, hoje e próximos).
+
 ## [3.14.0] - 2026-11-08 17:00
 
 ### Changed
