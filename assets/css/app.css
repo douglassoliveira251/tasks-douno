@@ -4074,7 +4074,7 @@
   .proj-side .proj-desc-row{margin:4px 0 0; max-width:none;}
   .proj-side .proj-desc-text{font-size:12.5px; line-height:1.5;}
   @media (min-width:1101px){
-    .proj-split{grid-template-columns:minmax(0,1fr) 520px; gap:0;}
+    .proj-split{grid-template-columns:minmax(0,1fr) 468px; gap:0;}
     .proj-col{padding-right:20px;}
     .proj-side{background:transparent; border:0; border-left:1px solid var(--border); border-radius:0; padding:4px 0 0 20px;}
   }
@@ -4091,8 +4091,8 @@
   .pd-head .prj-circle-btn.pd-back svg{width:15px; height:15px;}
   /* detalhe da tarefa: 30% mais largo e 10 px mais acima */
   @media (min-width:1100px){
-    .tasks-layout .task-panel{width:520px; margin-top:-10px; height:calc(100vh - 150px);}
-    body:not([data-view="tasks"]) .task-panel{width:520px; top:50px;}
+    .tasks-layout .task-panel{width:468px; margin-top:-10px; height:calc(100vh - 150px);}
+    body:not([data-view="tasks"]) .task-panel{width:468px; top:50px;}
   }
   /* resumo do projeto: mesma largura e mesma borda esquerda do detalhe da tarefa (vai até a borda da tela) */
   @media (min-width:1101px){ body[data-proj="open"] .proj-split{margin-right:-44px;} body[data-proj="open"] .proj-side{padding-right:44px;} }

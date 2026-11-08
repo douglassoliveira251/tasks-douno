@@ -514,6 +514,6 @@ test('detalhe da tarefa aberto a partir do projeto fica sobreposto (não cai par
   const box = await page.locator('.task-panel').boundingBox();
   expect(box.y).toBeGreaterThan(40); // logo abaixo da barra do menu
   expect(box.y).toBeLessThan(80);
-  expect(Math.round(box.width)).toBe(520);
+  expect(Math.round(box.width)).toBe(468);
   expect(box.x).toBeGreaterThan(900);
 });
