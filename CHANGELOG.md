@@ -1,3 +1,9 @@
+## [3.13.0] - 2026-11-08 15:30
+
+### Changed
+
+- Notas no celular: abre numa lista com chips de cadernos (Todas, um por caderno) e notas com título, prévia, caderno e data; favoritas primeiro. A nota abre em tela cheia entre a barra de cima e o menu de baixo, com "‹ Notas" para voltar e a barra de formatação fixa embaixo. A gaveta de cadernos e o modo foco do celular saíram (o computador não muda).
+
 ## [3.12.3] - 2026-11-08 14:30
 
 ### Changed

@@ -44,7 +44,8 @@ export function renderNotes(){
   lastRenderedNoteSpaceKey = noteSpaceKey();
 
   // restaurar última nota aberta deste espaço, se ainda não houver nota/edição ativa
-  if(!G.activeNoteId && !NOTAS_UI.creatingNewNote){
+  const mobileNow = window.matchMedia('(max-width:768px)').matches;
+  if(!mobileNow && !G.activeNoteId && !NOTAS_UI.creatingNewNote){
     const lastId = G.state.lastActiveNoteBySpace[noteSpaceKey()];
     if(lastId){
       const n = G.state.notes.find(x => x.id === lastId && !x.archived && (!G.activeCategoryFilter || x.categoryId === G.activeCategoryFilter));
@@ -187,7 +188,24 @@ export function renderNotes(){
   layout.appendChild(mbar);
   layout.appendChild(notebooksCol);
   layout.appendChild(drawerBackdrop);
-  if(desktop) layout.appendChild(buildNotesListCol(matches, noteOrderOf));
+  if(desktop) layout.appendChild(buildNotesListCol(matches, noteOrderOf, true));
+  const editingNow = !!(activeNote || NOTAS_UI.creatingNewNote);
+  if(mobileNow){
+    layout.classList.add(editingNow ? 'm-editing' : 'm-list');
+    if(!editingNow) layout.appendChild(buildMobileNotesList(matches, noteOrderOf, spaceNotebooks));
+    else {
+      const back = document.createElement('div');
+      back.className = 'notes-mback';
+      back.innerHTML = `<button type="button" id="notesMobileBack">${icon('caret-left')}<span>Notas</span></button>`;
+      back.querySelector('button').onclick = () => {
+        if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
+        G.activeNoteId = null;
+        NOTAS_UI.creatingNewNote = false;
+        renderNotes();
+      };
+      detailCol.prepend(back);
+    }
+  }
   layout.appendChild(detailCol);
   view.appendChild(layout);
   if(titleWasFocused){
@@ -445,7 +463,7 @@ function scopedNotes(matches){
     && matches(n));
 }
 
-function buildNotesListCol(matches, noteOrderOf){
+function buildNotesListCol(matches, noteOrderOf, withFilters){
   const tagIds = NOTAS_UI.tagFilter;
   let list = scopedNotes(matches);
   if(tagIds.length) list = list.filter(n => (n.tagIds || []).some(id => tagIds.includes(id)));
@@ -477,7 +495,7 @@ function buildNotesListCol(matches, noteOrderOf){
       renderNotes();
     });
   });
-  renderNotesFilters();
+  if(withFilters) renderNotesFilters();
   return col;
 }
 
@@ -524,3 +542,19 @@ function renderNotesFilters(){
   wrap.querySelectorAll('input[name="notesSpace"]').forEach(r => r.addEventListener('change', () => selectSpace(r.value || null)));
 }
 document.addEventListener('click', () => { document.querySelectorAll('.notes-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });
+
+/* ---------- Celular: chips de cadernos + lista com prévia; a nota abre em tela cheia ---------- */
+function buildMobileNotesList(matches, noteOrderOf, spaceNotebooks){
+  const wrap = document.createElement('div');
+  wrap.className = 'notes-mlist';
+  const base = G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter) && matches(n));
+  if(NOTAS_UI.notebookFilter !== 'all' && !spaceNotebooks.some(nb => nb.id === NOTAS_UI.notebookFilter)) NOTAS_UI.notebookFilter = 'all';
+  const chip = (id, label, n) => `<button type="button" class="chipf${NOTAS_UI.notebookFilter === id ? ' on' : ''}" data-nbf="${id}">${escapeHtml(label)} <span class="n">${n}</span></button>`;
+  const chips = document.createElement('div');
+  chips.className = 'notes-mchips';
+  chips.innerHTML = chip('all', 'Todas', base.length) + spaceNotebooks.map(nb => chip(nb.id, nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome', base.filter(n => n.notebookId === nb.id).length)).join('');
+  chips.querySelectorAll('[data-nbf]').forEach(b => { b.onclick = () => { NOTAS_UI.notebookFilter = b.dataset.nbf; renderNotes(); }; });
+  wrap.appendChild(chips);
+  wrap.appendChild(buildNotesListCol(matches, noteOrderOf, false));
+  return wrap;
+}

@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.13.0', date:'08/11/2026', title:'Notas no celular renovadas', text:'No celular, as Notas abrem numa lista com chips de cadernos e prévia de cada nota. Ao tocar numa nota, ela abre em tela cheia, com "‹ Notas" para voltar e a barra de formatação fixa acima do menu de baixo. A gaveta de cadernos saiu.' },
   { version:'3.12.3', date:'08/11/2026', title:'Estrela de favorito só com contorno', text:'Nas listas de notas e de tarefas, a estrela de favorito agora é só contorno: grossa e âmbar quando favorita, e cinza ao passar o mouse quando não é.' },
   { version:'3.12.2', date:'08/11/2026', title:'Ações da nota e filtros das Notas', text:'Na nota, duplicar, favoritar e baixar viraram ícones soltos, com um divisor antes do Excluir. Nos filtros do topo das Notas, Ordenar e Espaço ganharam os ícones do modelo e o espaço aparece como "Espaço: Todos".' },
   { version:'3.12.1', date:'08/11/2026', title:'Cadernos mais limpos', text:'Na lista de cadernos das Notas saiu o botão redondo com "+": agora o "+ Novo caderno" fica no fim da lista. O cabeçalho por espaço só aparece quando há cadernos em mais de um espaço.' },

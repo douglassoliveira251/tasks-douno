@@ -29,54 +29,30 @@ test.describe('Notas no celular', () => {
     await page.setViewportSize({ width: 390, height: 800 });
     await gotoApp(page, { view: 'notes' });
     await page.evaluate(seed);
+    await page.evaluate(() => { activeNoteId = null; render(); }); // abre na lista, sem nota aberta
   });
 
-  test('a nota ocupa a largura toda e os cadernos ficam numa gaveta fechada', async ({ page }) => {
+  test('abre na lista: chips de cadernos e notas com prévia, sem gaveta', async ({ page }) => {
+    await expect(page.locator('.notes-mchips')).toBeVisible();
+    await expect(page.locator('.notes-list-item')).toHaveCount(2);
     await expect(page.locator('.notebooks-col')).toBeHidden();
-    const note = await page.locator('.note-detail-col').boundingBox();
-    expect(note.width).toBeGreaterThan(320);
-    expect(note.height).toBeGreaterThan(400);
-    await expect(page.locator('#notesDrawerBtn')).toContainText('Reuniões');
-    await expect(page.locator('#notesDrawerBtn')).toContainText('Alinhamento semanal');
+    await expect(page.locator('.note-detail-col')).toBeHidden();
+    await page.locator('.notes-mchips [data-nbf="nb2"]').click();
+    await expect(page.locator('.notes-list-item')).toHaveCount(1);
+    await expect(page.locator('.notes-list-item')).toContainText('Redesenho do app');
   });
 
-  test('gaveta abre pelo botão, troca de nota e fecha sozinha', async ({ page }) => {
-    await page.locator('#notesDrawerBtn').click();
-    await expect(page.locator('.notebooks-col')).toBeVisible();
-
-    await page.locator('.notebook-note-item', { hasText: 'Redesenho do app' }).click();
-    await expect(page.locator('.notebooks-col')).toBeHidden();
-    await expect(page.locator('#notesDrawerBtn')).toContainText('Projetos');
-    await expect(page.locator('#notesDrawerBtn')).toContainText('Redesenho do app');
-  });
-
-  test('gaveta fecha ao tocar fora e pelo botão de fechar', async ({ page }) => {
-    await page.locator('#notesDrawerBtn').click();
-    await expect(page.locator('.notebooks-col')).toBeVisible();
-    await page.locator('#notebooksColCloseBtn').click();
-    await expect(page.locator('.notebooks-col')).toBeHidden();
-
-    await page.locator('#notesDrawerBtn').click();
-    await page.locator('.notes-drawer-backdrop').click({ position: { x: 195, y: 40 } });
-    await expect(page.locator('.notebooks-col')).toBeHidden();
-  });
-
-  test('abrir/fechar um caderno não fecha a gaveta', async ({ page }) => {
-    await page.locator('#notesDrawerBtn').click();
-    await page.locator('.notebook-row', { hasText: 'Projetos' }).click();
-    await expect(page.locator('.notebooks-col')).toBeVisible();
-  });
-
-  test('modo foco esconde o cabeçalho e dá mais espaço à nota', async ({ page }) => {
-    const before = await page.locator('.note-detail-col').boundingBox();
-    await page.locator('#notesFocusBtn').click();
-    await expect(page.locator('#topbarTitle')).toBeHidden();
-    await expect(page.locator('.topbar')).toBeHidden();
-    const after = await page.locator('.note-detail-col').boundingBox();
-    expect(after.height).toBeGreaterThan(before.height + 40);
-
-    await page.locator('#notesFocusBtn').click();
-    await expect(page.locator('#topbarTitle')).toBeVisible();
+  test('tocar numa nota abre em tela cheia, com Voltar e a barra do editor acima do menu de baixo', async ({ page }) => {
+    await page.locator('.notes-list-item', { hasText: 'Alinhamento semanal' }).click();
+    await expect(page.locator('.note-detail-col')).toBeVisible();
+    await expect(page.locator('.notes-mlist')).toHaveCount(0);
+    const topo = await page.evaluate(() => !!document.elementFromPoint(100, 24).closest('.topnav'));
+    const baixo = await page.evaluate(() => !!document.elementFromPoint(195, 785).closest('.nav'));
+    expect(topo).toBe(true);
+    expect(baixo).toBe(true);
+    await page.locator('#notesMobileBack').click();
+    await expect(page.locator('.notes-list-item')).toHaveCount(2);
+    expect(await page.evaluate(() => activeNoteId)).toBeNull();
   });
 });
 

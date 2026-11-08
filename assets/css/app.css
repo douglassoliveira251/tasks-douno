@@ -3792,3 +3792,47 @@
   .task-pin-btn:not(.on), .notes-list-item .nb-note-pin-btn:not(.pinned){color:var(--ink-faint);}
   .notes-list-item:hover .nb-note-pin-btn:not(.pinned){opacity:1;}
   .notes-list-item .nb-note-pin-btn svg{width:17px; height:17px;}
+
+  /* v3.13: Notas no celular — chips de cadernos + lista com prévia; nota em tela cheia com Voltar e barra de formatação fixa */
+  .notes-mback{display:none;}
+  @media (max-width:768px){
+    .notes-layout.m-list > .notes-mbar, .notes-layout.m-list > .notebooks-col, .notes-layout.m-list > .note-detail-col,
+    .notes-layout.m-editing > .notes-mbar, .notes-layout.m-editing > .notebooks-col, .notes-layout.m-editing > .notes-drawer-backdrop{display:none;}
+    .notes-layout.m-list{display:block; height:auto;}
+    .notes-mchips{display:flex; gap:6px; padding:2px 0 8px; overflow-x:auto; scrollbar-width:none;}
+    .notes-mchips::-webkit-scrollbar{display:none;}
+    .notes-mchips .chipf{flex:none; height:30px;}
+    .notes-mlist .notes-list-col{display:block; border:0; width:auto; height:auto; overflow:visible;}
+    .notes-list-item{padding:10px 2px; border-bottom:1px solid var(--border); cursor:pointer;}
+    .notes-list-item .nli-top{display:flex; align-items:center; gap:6px;}
+    .notes-list-item .nli-top b{flex:1; min-width:0; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .notes-list-item .nb-note-pin-btn{flex:none; width:26px; height:26px; color:var(--ink-faint);}
+    .notes-list-item .nb-note-pin-btn.pinned{color:#F5A524;}
+    .notes-list-item .nb-note-pin-btn svg{width:17px; height:17px;}
+    .notes-list-item p{font-size:12px; color:var(--ink-soft); margin:3px 0 4px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+    .notes-list-item small{font-size:10.5px; color:var(--ink-faint);}
+    .notes-list-empty{padding:16px 2px; font-size:12px; color:var(--ink-faint);}
+    /* nota em tela cheia entre a barra de cima e o menu de baixo */
+    .notes-layout.m-editing{display:block; height:auto;}
+    .notes-layout.m-editing > .note-detail-col{
+      position:fixed !important; top:48px !important; left:0 !important; right:0 !important; width:auto !important;
+      height:calc(100vh - 106px - env(safe-area-inset-bottom, 0px)) !important; height:calc(100dvh - 106px - env(safe-area-inset-bottom, 0px)) !important;
+      z-index:44; background:var(--surface); border:0; border-radius:0; box-shadow:none; overflow-y:auto; padding:0 14px 70px !important;
+    }
+    .notes-mback{display:flex; position:sticky; top:0; z-index:2; margin:0 -14px 8px; padding:0 8px; height:42px; align-items:center; background:var(--surface); border-bottom:1px solid var(--border);}
+    .notes-mback button{display:flex; align-items:center; gap:4px; border:0; background:none; font:inherit; font-size:13px; font-weight:700; color:var(--primary); padding:6px;}
+    .notes-mback svg{width:16px; height:16px;}
+    .notes-layout.m-editing .note-toolbar-row{
+      position:fixed; left:0; right:0; top:calc(100vh - 104px - env(safe-area-inset-bottom, 0px)); top:calc(100dvh - 104px - env(safe-area-inset-bottom, 0px)); bottom:auto; height:46px; box-sizing:border-box; z-index:46; margin:0; padding:6px 8px; align-items:center;
+      background:var(--surface); border-top:1px solid var(--border); overflow-x:auto; flex-wrap:nowrap;
+    }
+    .notes-layout.m-editing .note-toolbar-row .note-meta-row, .notes-layout.m-editing .note-toolbar-row .note-toolbar-sep{display:none;}
+    .notes-layout.m-editing .note-toolbar-row .rt-toolbar{flex:none;}
+  }
+
+  @media (max-width:768px){
+    .notes-mchips .chipf{display:inline-flex; align-items:center; gap:6px; padding:0 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:12.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap; font-family:inherit;}
+    .notes-mchips .chipf .n{font-size:10.5px; padding:0 6px; border-radius:99px; background:var(--surface-2); color:var(--ink-soft); font-weight:700;}
+    .notes-mchips .chipf.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+    .notes-mchips .chipf.on .n{background:rgba(255,255,255,.22); color:#fff;}
+  }
