@@ -1,3 +1,9 @@
+## [3.12.0] - 2026-11-08 13:00
+
+### Changed
+
+- Notas (a partir de 1100 px): três colunas — cadernos (270 px, com "Todas as notas" e contadores), lista de notas com título, prévia, caderno e data (favoritas primeiro) e o editor. Filtros no topo no padrão de Tarefas: Ordenar (Atualização, Criação, Título, Manual), Tags (várias) e Espaço. Em telas menores e no celular continua o fluxo anterior (cadernos com as notas dentro).
+
 ## [3.11.0] - 2026-11-08 12:00
 
 ### Changed

@@ -106,3 +106,24 @@ test.describe('Cabeçalho das páginas no celular', () => {
     expect(chip.y).toBeLessThan(60); // o espaço fica na barra do topo
   });
 });
+
+test.describe('Notas no computador largo', () => {
+  test('cadernos | lista de notas com prévia | editor, com filtros no topo', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 820 });
+    await gotoApp(page, { view: 'notes' });
+    await page.evaluate(seed);
+    await expect(page.locator('.notes-list-col .notes-list-item')).toHaveCount(2);
+    await expect(page.locator('.notes-filters')).toBeVisible();
+    await page.locator('.notebook-row[data-nb-id="nb2"]').click();
+    await expect(page.locator('.notes-list-col .notes-list-item')).toHaveCount(1);
+    await expect(page.locator('.notes-list-col')).toContainText('Redesenho do app');
+    await page.locator('#nbAllRow').click();
+    await expect(page.locator('.notes-list-col .notes-list-item')).toHaveCount(2);
+    await page.locator('.notes-list-item', { hasText: 'Redesenho do app' }).click();
+    expect(await page.evaluate(() => activeNoteId)).toBe('n2');
+    await page.locator('.notes-filters [data-pop="sort"]').click();
+    await page.locator('input[name="notesSort"][value="title"]').check();
+    const titulos = await page.locator('.notes-list-item .nli-top b').allTextContents();
+    expect(titulos).toEqual(['Alinhamento semanal', 'Redesenho do app']);
+  });
+});

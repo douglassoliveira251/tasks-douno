@@ -9,6 +9,7 @@ import { stripHtml } from './23-texto-rico-utilitarios.js';
 import { buildNoteComposer } from './24-render-notes.js';
 import { icon } from './icones.js';
 import { NOTAS_UI } from './estado-ui.js';
+import { selectSpace } from './11-render-sidebar.js';
 
 export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
 let lastRenderedNoteSpaceKey = null;
@@ -52,12 +53,14 @@ export function renderNotes(){
   }
   if(G.activeNoteId) G.state.lastActiveNoteBySpace[noteSpaceKey()] = G.activeNoteId;
 
+  if(NOTAS_UI.notebookFilter !== 'all' && !spaceNotebooks.some(nb => nb.id === NOTAS_UI.notebookFilter)) NOTAS_UI.notebookFilter = 'all';
   const layout = document.createElement('div');
   layout.className = 'notes-layout';
 
   const notebooksCol = document.createElement('div');
   notebooksCol.className = 'notebooks-col';
-  notebooksCol.style.width = (G.state.notebooksColWidth || 260) + 'px';
+  const desktop = window.matchMedia('(min-width:1100px)').matches; // no computador largo: cadernos | lista de notas | editor
+  notebooksCol.style.width = (desktop ? Math.max(G.state.notebooksColWidth || 270, 240) : (G.state.notebooksColWidth || 260)) + 'px';
   function noteOrderOf(n){ return n.noteOrder!=null ? n.noteOrder : (n.createdAt||0); }
   function notebookGroupHtml(nb){
     const nbNotes = G.state.notes.filter(n => n.notebookId === nb.id && !n.archived && matches(n))
@@ -65,7 +68,7 @@ export function renderNotes(){
     const expanded = expandedNotebookIds.has(nb.id);
     return `
       <div class="notebook-group">
-        <div class="notebook-row" data-nb-id="${nb.id}" draggable="true">
+        <div class="notebook-row${desktop && NOTAS_UI.notebookFilter === nb.id ? ' on' : ''}" data-nb-id="${nb.id}" draggable="true">
           ${icon('caret-right', 'regular', ' class="notebook-chevron ${expanded?\'expanded\':\'\'}"')}
           ${icon('book', 'regular', ' class="notebook-icon"')}
           <span class="notebook-name">${escapeHtml(nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome')}</span>
@@ -102,7 +105,7 @@ export function renderNotes(){
         ${icon('x')}
       </button>
     </div>
-    <div class="notebooks-list">${nbHtml}</div>
+    <div class="notebooks-list">${desktop ? `<div class="notebook-row nb-all-row${NOTAS_UI.notebookFilter === 'all' ? ' on' : ''}" id="nbAllRow">${icon('note')}<span class="notebook-name">Todas as notas</span><span class="notebook-count">${G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter) && matches(n)).length}</span></div>` : ''}${nbHtml}</div>
     <div class="notebooks-col-resize-handle" id="notebooksColResizeHandle" title="Arrastar para redimensionar"></div>
   `;
   notebooksCol.classList.toggle('open', G.notesDrawerOpen);
@@ -184,6 +187,7 @@ export function renderNotes(){
   layout.appendChild(mbar);
   layout.appendChild(notebooksCol);
   layout.appendChild(drawerBackdrop);
+  if(desktop) layout.appendChild(buildNotesListCol(matches, noteOrderOf));
   layout.appendChild(detailCol);
   view.appendChild(layout);
   if(titleWasFocused){
@@ -204,10 +208,14 @@ export function renderNotes(){
     renderNotes();
   }
 
-  notebooksCol.querySelectorAll('.notebook-row').forEach(row => {
+  const allRow = notebooksCol.querySelector('#nbAllRow');
+  if(allRow) allRow.onclick = () => { NOTAS_UI.notebookFilter = 'all'; renderNotes(); };
+  notebooksCol.querySelectorAll('.notebook-row[data-nb-id]').forEach(row => {
     row.addEventListener('click', (e) => {
       if(e.target.closest('.notebook-menu-btn')) return;
       const id = row.dataset.nbId;
+      if(!id) return;
+      if(desktop){ NOTAS_UI.notebookFilter = id; renderNotes(); return; }
       if(expandedNotebookIds.has(id)) expandedNotebookIds.delete(id);
       else expandedNotebookIds.add(id);
       renderNotes();
@@ -267,7 +275,7 @@ export function renderNotes(){
       }
     });
   });
-  notebooksCol.querySelectorAll('.notebook-note-item[data-note-id]').forEach(item => {
+  layout.querySelectorAll('.notebook-note-item[data-note-id], .notes-list-item[data-note-id]').forEach(item => {
     item.addEventListener('click', () => selectNote(item.dataset.noteId));
     item.addEventListener('dragstart', (e) => {
       e.stopPropagation();
@@ -315,7 +323,7 @@ export function renderNotes(){
       renderNotes();
     });
   });
-  notebooksCol.querySelectorAll('.nb-note-pin-btn[data-pin-note-id]').forEach(pin => {
+  layout.querySelectorAll('.nb-note-pin-btn[data-pin-note-id]').forEach(pin => {
     pin.addEventListener('click', (e) => {
       e.stopPropagation();
       const n = G.state.notes.find(x => x.id === pin.dataset.pinNoteId);
@@ -411,3 +419,104 @@ export function renderNotes(){
   };
 }
 
+
+/* ---------- Computador largo: coluna com a lista de notas (prévia) e filtros no topo da página ---------- */
+const SORTS = [['updated', 'Atualização'], ['created', 'Criação'], ['title', 'Título'], ['manual', 'Manual']];
+
+function fmtNoteWhen(ts){
+  if(!ts) return '';
+  const d = new Date(ts), now = new Date();
+  const same = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if(same(d, now)) return 'hoje ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if(same(d, y)) return 'ontem';
+  return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function scopedNotes(matches){
+  const nbf = NOTAS_UI.notebookFilter;
+  return G.state.notes.filter(n => !n.archived
+    && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter)
+    && (nbf === 'all' || n.notebookId === nbf)
+    && matches(n));
+}
+
+function buildNotesListCol(matches, noteOrderOf){
+  const tagIds = NOTAS_UI.tagFilter;
+  let list = scopedNotes(matches);
+  if(tagIds.length) list = list.filter(n => (n.tagIds || []).some(id => tagIds.includes(id)));
+  const by = NOTAS_UI.sort;
+  const cmp = {
+    updated: (a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0),
+    created: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+    title: (a, b) => (a.title || '').localeCompare(b.title || '', 'pt-BR'),
+    manual: (a, b) => noteOrderOf(a) - noteOrderOf(b),
+  }[by] || (() => 0);
+  list = list.slice().sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || cmp(a, b));
+  const nbName = id => { const nb = G.state.notebooks.find(x => x.id === id); return nb ? (nb.name && nb.name.trim() ? nb.name : 'Caderno sem nome') : 'Sem caderno'; };
+  const col = document.createElement('div');
+  col.className = 'notes-list-col';
+  col.innerHTML = list.length ? list.map(n => `
+    <div class="notes-list-item${n.id === G.activeNoteId ? ' on' : ''}" data-note-id="${n.id}" draggable="true">
+      <div class="nli-top"><b>${escapeHtml(n.title || 'Sem título')}</b><button type="button" class="nb-note-pin-btn ${n.pinned ? 'pinned' : ''}" data-pin-note-id="${n.id}" title="${n.pinned ? 'Tirar dos favoritos' : 'Favoritar'}">${pinIconSvg(n.pinned)}</button></div>
+      <p>${escapeHtml(stripHtml((n.body || '').replace(/<\/(div|p|li|h[1-6])>|<br\s*\/?>/gi, '$& ')).replace(/\s+/g, ' ').trim().slice(0, 160))}</p>
+      <small>${escapeHtml(nbName(n.notebookId))} · ${fmtNoteWhen(n.updatedAt || n.createdAt)}</small>
+    </div>`).join('') : '<div class="notes-list-empty">Nenhuma nota aqui.</div>';
+  col.querySelectorAll('.notes-list-item').forEach(it => {
+    it.addEventListener('click', (e) => {
+      if(e.target.closest('.nb-note-pin-btn')) return;
+      if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
+      G.activeNoteId = it.dataset.noteId;
+      NOTAS_UI.creatingNewNote = false;
+      G.state.lastActiveNoteBySpace[noteSpaceKey()] = it.dataset.noteId;
+      markDirty();
+      renderNotes();
+    });
+  });
+  renderNotesFilters();
+  return col;
+}
+
+/* Filtros no topo (mesmo padrão de Tarefas): Ordenar, Tags e Espaço */
+function renderNotesFilters(){
+  const host = document.getElementById('topbarFilters');
+  if(!host) return;
+  host.querySelectorAll('.notes-filters').forEach(el => el.remove());
+  const usedTagIds = new Set();
+  G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter)).forEach(n => (n.tagIds || []).forEach(id => usedTagIds.add(id)));
+  const tags = G.state.tags.filter(t => usedTagIds.has(t.id));
+  NOTAS_UI.tagFilter = NOTAS_UI.tagFilter.filter(id => usedTagIds.has(id));
+  const curSort = (SORTS.find(x => x[0] === NOTAS_UI.sort) || SORTS[0])[1];
+  const curSpace = G.activeCategoryFilter ? ((G.state.categories.find(c => c.id === G.activeCategoryFilter) || {}).name || 'Espaço') : 'Todos';
+  const wrap = document.createElement('div');
+  wrap.className = 'notes-filters';
+  wrap.innerHTML = `
+    <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="sort">${icon('sliders-horizontal')}<span><i class="nf-k">Ordenar:</i> <b>${curSort}</b></span>${icon('caret-down')}</button>
+      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${SORTS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="notesSort" value="${k}" ${NOTAS_UI.sort === k ? 'checked' : ''}>${l}</label>`).join('')}</div></div>
+    <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="tags">${icon('tag')}<span>Tags${NOTAS_UI.tagFilter.length ? ' · ' + NOTAS_UI.tagFilter.length : ''}</span></button>
+      <div class="tag-filter-popover" data-popover="tags" style="display:none;">${tags.length ? tags.map(t => `<label class="tag-filter-row"><input type="checkbox" data-tag="${t.id}" ${NOTAS_UI.tagFilter.includes(t.id) ? 'checked' : ''}><span class="cat-swatch" style="background:${t.color}"></span>${escapeHtml(t.name)}</label>`).join('') : '<div style="font-size:12px;color:var(--ink-faint);padding:4px 2px;">Nenhuma tag em uso nas notas</div>'}
+        <button type="button" class="filter-clear-btn" data-clear="tags" ${NOTAS_UI.tagFilter.length ? '' : 'disabled'}>Limpar filtro</button></div></div>
+    <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="space">${icon('folder')}<span>${escapeHtml(curSpace)}</span></button>
+      <div class="tag-filter-popover" data-popover="space" style="display:none;"><label class="tag-filter-row"><input type="radio" name="notesSpace" value="" ${!G.activeCategoryFilter ? 'checked' : ''}>Todos os espaços</label>${G.state.categories.map(c => `<label class="tag-filter-row"><input type="radio" name="notesSpace" value="${c.id}" ${G.activeCategoryFilter === c.id ? 'checked' : ''}><span class="cat-swatch" style="background:${c.color}"></span>${escapeHtml(c.name)}</label>`).join('')}</div></div>`;
+  host.prepend(wrap);
+  wrap.querySelectorAll('[data-pop]').forEach(b => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      const pop = wrap.querySelector(`[data-popover="${b.dataset.pop}"]`);
+      const open = pop.style.display === 'block';
+      wrap.querySelectorAll('[data-popover]').forEach(p => { p.style.display = 'none'; });
+      pop.style.display = open ? 'none' : 'block';
+    };
+  });
+  wrap.querySelectorAll('[data-popover]').forEach(p => p.addEventListener('click', e => e.stopPropagation()));
+  wrap.querySelectorAll('input[name="notesSort"]').forEach(r => r.addEventListener('change', () => { NOTAS_UI.sort = r.value; renderNotes(); }));
+  wrap.querySelectorAll('input[data-tag]').forEach(c => c.addEventListener('change', () => {
+    const id = c.dataset.tag;
+    NOTAS_UI.tagFilter = c.checked ? NOTAS_UI.tagFilter.concat(id) : NOTAS_UI.tagFilter.filter(x => x !== id);
+    renderNotes();
+  }));
+  const clr = wrap.querySelector('[data-clear="tags"]');
+  if(clr) clr.onclick = () => { NOTAS_UI.tagFilter = []; renderNotes(); };
+  wrap.querySelectorAll('input[name="notesSpace"]').forEach(r => r.addEventListener('change', () => selectSpace(r.value || null)));
+}
+document.addEventListener('click', () => { document.querySelectorAll('.notes-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });

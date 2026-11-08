@@ -20,6 +20,9 @@ export const NOTAS_UI = {
   pendingNotePrefillTaskId: undefined,
   currentNoteComposerCommit: undefined,
   creatingNewNote: undefined,
+  sort: 'updated', // updated | created | title | manual
+  tagFilter: [],
+  notebookFilter: 'all', // 'all' ou id do caderno (computador largo)
 };
 
 /* Painel da tarefa: seletores abertos e rascunhos de comentário. */
