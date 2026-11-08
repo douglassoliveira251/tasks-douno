@@ -7,6 +7,8 @@ export const FILTROS = {
   activeCriticalityFilters: undefined,
   criticalityFilterPopoverOpen: undefined,
   tagFilterPopoverOpen: undefined,
+  activeProjectFilters: undefined,
+  projectFilterPopoverOpen: undefined,
   tagsPopoverOpen: undefined,
 };
 

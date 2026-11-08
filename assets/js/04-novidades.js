@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.7.2', date:'08/11/2026', title:'Filtro de projetos e prazo ao lado do nome', text:'Em Tarefas, o filtro de projetos agora é um botão Projetos, como Tags e Prioridade, e você marca um ou mais (ou Sem projeto). A data e a hora do prazo ficam logo depois do nome da tarefa. No painel da tarefa o campo agora é só Prazo.' },
   { version:'3.7.1', date:'08/11/2026', title:'Lista de tarefas mais limpa', text:'A linha da tarefa não mostra mais o espaço, o status voltou a ser só texto, sem fundo cinza, e o ícone de comentários agora fica antes da data.' },
   { version:'3.7.0', date:'08/11/2026', title:'Favoritos e lista de tarefas renovada', text:'O alfinete virou uma estrela: passe o mouse na tarefa e clique na estrela à direita para favoritar. As favoritas ficam no grupo Favoritos, no topo. Cada tarefa agora ocupa uma linha só, com espaço, prazo, status e situação alinhados à direita.' },
   { version:'3.6.5', date:'08/11/2026', title:'Mesmas margens em todas as páginas', text:'A Visão geral e as demais páginas ganharam as mesmas margens laterais e o mesmo respiro no topo que a tela de Tarefas.' },

@@ -103,15 +103,17 @@ test.describe('Projetos', () => {
     await expect(page.locator('.task-proj-pill')).toHaveCount(1); // só 1 pendente de projeto (as outras estão concluídas)
     await expect(page.locator('.task-proj-pill').first()).toContainText('Construção da casa > Estrutura');
 
-    await page.locator('#taskProjectFilter').selectOption('personal');
+    await page.locator('#projFilterBtn').click();
+    await page.locator('#projFilterPopover input[data-proj="personal"]').check();
     await expect(page.locator('.task-row')).toHaveCount(1);
     await expect(page.locator('.task-row')).toContainText('Pagar fatura');
 
-    await page.locator('#taskProjectFilter').selectOption('p1');
+    await page.locator('#projFilterPopover input[data-proj="personal"]').uncheck();
+    await page.locator('#projFilterPopover input[data-proj="p1"]').check();
     await expect(page.locator('.task-row')).toHaveCount(1);
 
     // vincular a tarefa pessoal a uma etapa pelo painel
-    await page.locator('#taskProjectFilter').selectOption('all');
+    await page.locator('#projFilterClearBtn').click();
     await page.locator('.task-row', { hasText: 'Pagar fatura' }).locator('.task-title').click();
     await expect(page.locator('#tpProject')).toHaveCount(0); // sem seletor fixo
     await page.locator('#tpMenuBtn').click();

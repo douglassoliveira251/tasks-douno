@@ -91,7 +91,7 @@ export function taskPanelHtml(task){
         </div>
       </div>
       <div class="tp-box tp-due-box">
-        <label class="tp-label tp-label-row"><span>Prazo (entrega)</span>
+        <label class="tp-label tp-label-row"><span>Prazo</span>
           <button type="button" class="tp-start-link" id="tpStartLink" title="Início da tarefa (opcional)">${task.startDate ? 'início ' + fmtDate(task.startDate) : '+ início'}</button></label>
         ${(() => { const es = effectiveStart(task); return `<div class="tp-start-pop" id="tpStartPop" ${PAINEL_TAREFA.tpStartOpen ? '' : 'hidden'}>
           <div class="tp-start-k">Início da tarefa</div>

@@ -40,7 +40,6 @@ export const G = {
   startCloudSession: undefined,
   state: undefined,
   taskGroupMode: undefined,
-  taskProjectFilter: undefined,
   tempAvatarData: undefined,
   writeStateToCloud: undefined,
 };

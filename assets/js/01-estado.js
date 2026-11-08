@@ -34,7 +34,8 @@ G.activeCategoryFilter = null;
 G.dashboardSpace = null;
 export function currentSpaceFilter(){ return G.currentView === 'dashboard' ? G.dashboardSpace : G.activeCategoryFilter; }
 FILTROS.activeTagFilters = [];
-G.taskProjectFilter = 'all'; // all | personal | project | <id do projeto>
+FILTROS.activeProjectFilters = []; // ids de projeto e/ou 'personal' (tarefas sem projeto)
+FILTROS.projectFilterPopoverOpen = false;
 FILTROS.activeCriticalityFilters = [];
 FILTROS.criticalityFilterPopoverOpen = false;
 G.activeNoteId = null;

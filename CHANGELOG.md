@@ -1,3 +1,11 @@
+## [3.7.2] - 2026-11-08 05:00
+
+### Changed
+
+- Filtro de projetos da lista de tarefas virou o botão "Projetos" (seleção de um ou mais projetos, mais "Sem projeto"), no estilo de Tags e Prioridade; entra também no "Limpar filtros".
+- Data e hora do prazo logo depois do nome da tarefa (com o ícone de comentários antes da data).
+- Painel da tarefa: "Prazo (entrega)" virou só "Prazo".
+
 ## [3.7.1] - 2026-11-08 04:30
 
 ### Changed

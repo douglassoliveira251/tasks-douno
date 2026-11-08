@@ -155,6 +155,9 @@ document.addEventListener('click', () => {
   if(FILTROS.tagFilterPopoverOpen){ FILTROS.tagFilterPopoverOpen = false; render(); }
 });
 document.addEventListener('click', () => {
+  if(FILTROS.projectFilterPopoverOpen){ FILTROS.projectFilterPopoverOpen = false; render(); }
+});
+document.addEventListener('click', () => {
   if(FILTROS.criticalityFilterPopoverOpen){ FILTROS.criticalityFilterPopoverOpen = false; render(); }
 });
 window.addEventListener('scroll', closeColorPortal, true);

@@ -85,9 +85,7 @@ function computeTaskGroupsUnpinned(pinnedOut){
   if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
   if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
-  if(G.taskProjectFilter === 'personal') pool = pool.filter(t => !t.projectId);
-  else if(G.taskProjectFilter === 'project') pool = pool.filter(t => !!t.projectId);
-  else if(G.taskProjectFilter !== 'all') pool = pool.filter(t => t.projectId === G.taskProjectFilter);
+  if(FILTROS.activeProjectFilters.length) pool = pool.filter(t => FILTROS.activeProjectFilters.includes(t.projectId || 'personal'));
   pool = pool.filter(t => !t.done);
   pinnedOut.push(...pool.filter(t => t.pinned));
   pool = pool.filter(t => !t.pinned);
@@ -161,6 +159,7 @@ export function computeCompletedGroup(){
   if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
   if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
+  if(FILTROS.activeProjectFilters.length) pool = pool.filter(t => FILTROS.activeProjectFilters.includes(t.projectId || 'personal'));
   pool.sort((a,b) => (b.updatedAt||b.createdAt||0) - (a.updatedAt||a.createdAt||0));
   return { key:'concluidas', label:'Concluídas', color:'var(--ink-faint)', tasks: pool };
 }
@@ -267,19 +266,32 @@ export function renderTasks(){
         <button type="button" class="filter-clear-btn" id="tagFilterClearBtn" ${FILTROS.activeTagFilters.length?'':'disabled'}>Limpar filtro</button>
       </div>
     </div>
-    ${(FILTROS.activeTagFilters.length || FILTROS.activeCriticalityFilters.length) ? `
+    ${(FILTROS.activeTagFilters.length || FILTROS.activeCriticalityFilters.length || FILTROS.activeProjectFilters.length) ? `
     <button type="button" class="filter-clear-all-btn" id="clearAllFiltersBtn" title="Limpar todos os filtros">
       ${icon('x')}
       Limpar filtros
     </button>
     ` : ''}
     ${(G.state.projects || []).length ? `
-    <select class="tp-select" id="taskProjectFilter" style="width:auto; padding:6px 28px 6px 10px; font-size:12.5px;" title="Filtrar por projeto">
-      <option value="all" ${G.taskProjectFilter==='all'?'selected':''}>Todas as tarefas</option>
-      <option value="personal" ${G.taskProjectFilter==='personal'?'selected':''}>Só pessoais</option>
-      <option value="project" ${G.taskProjectFilter==='project'?'selected':''}>Só de projetos</option>
-      ${G.state.projects.map(p => `<option value="${p.id}" ${G.taskProjectFilter===p.id?'selected':''}>${escapeHtml(p.name || 'Projeto')}</option>`).join('')}
-    </select>` : ''}
+    <div class="tag-filter-control">
+      <button type="button" class="tag-filter-btn" id="projFilterBtn">
+        ${icon('kanban')}
+        <span id="projFilterLabel">Projetos${FILTROS.activeProjectFilters.length ? ' · ' + FILTROS.activeProjectFilters.length : ''}</span>
+      </button>
+      <div class="tag-filter-popover" id="projFilterPopover" style="display:${FILTROS.projectFilterPopoverOpen?'block':'none'};">
+        <label class="tag-filter-row">
+          <input type="checkbox" data-proj="personal" ${FILTROS.activeProjectFilters.includes('personal')?'checked':''}>
+          Sem projeto
+        </label>
+        ${G.state.projects.map(p => `
+          <label class="tag-filter-row">
+            <input type="checkbox" data-proj="${p.id}" ${FILTROS.activeProjectFilters.includes(p.id)?'checked':''}>
+            ${escapeHtml(p.name || 'Projeto')}
+          </label>
+        `).join('')}
+        <button type="button" class="filter-clear-btn" id="projFilterClearBtn" ${FILTROS.activeProjectFilters.length?'':'disabled'}>Limpar filtro</button>
+      </div>
+    </div>` : ''}
     <span class="group-bar-div first"></span>
     <span class="group-bar-div"></span>
     <label class="completed-toggle">
@@ -289,11 +301,14 @@ export function renderTasks(){
     </label>
   `;
   const groupModeTrigger = groupBar.querySelector('#groupModeTrigger');
+  const projFilterBtn = groupBar.querySelector('#projFilterBtn');
+  const projFilterPopoverEl = groupBar.querySelector('#projFilterPopover');
   const groupModeDropdown = groupBar.querySelector('#groupModeDropdown');
   function closeOtherTaskFilterPopovers(exceptEl){
     if(groupModeDropdown !== exceptEl) groupModeDropdown.style.display = 'none';
     if(critFilterPopoverEl !== exceptEl) { FILTROS.criticalityFilterPopoverOpen = false; critFilterPopoverEl.style.display = 'none'; }
     if(tagFilterPopoverEl !== exceptEl) { FILTROS.tagFilterPopoverOpen = false; tagFilterPopoverEl.style.display = 'none'; }
+    if(projFilterPopoverEl && projFilterPopoverEl !== exceptEl) { FILTROS.projectFilterPopoverOpen = false; projFilterPopoverEl.style.display = 'none'; }
   }
   groupModeTrigger.onclick = (e) => {
     e.stopPropagation();
@@ -369,14 +384,34 @@ export function renderTasks(){
     clearAllFiltersBtn.addEventListener('click', () => {
       FILTROS.activeTagFilters = [];
       FILTROS.activeCriticalityFilters = [];
+      FILTROS.activeProjectFilters = [];
+      FILTROS.projectFilterPopoverOpen = false;
       FILTROS.tagFilterPopoverOpen = false;
       FILTROS.criticalityFilterPopoverOpen = false;
       render();
     });
   }
 
-  const projFilterEl = groupBar.querySelector('#taskProjectFilter');
-  if(projFilterEl) projFilterEl.addEventListener('change', e => { G.taskProjectFilter = e.target.value; render(); });
+  if(projFilterBtn){
+    projFilterBtn.onclick = (e) => {
+      e.stopPropagation();
+      const willOpen = !FILTROS.projectFilterPopoverOpen;
+      closeOtherTaskFilterPopovers(projFilterPopoverEl);
+      FILTROS.projectFilterPopoverOpen = willOpen;
+      projFilterPopoverEl.style.display = willOpen ? 'block' : 'none';
+    };
+    projFilterPopoverEl.addEventListener('click', e => e.stopPropagation());
+    projFilterPopoverEl.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', e => {
+        const id = e.target.dataset.proj;
+        if(e.target.checked){ if(!FILTROS.activeProjectFilters.includes(id)) FILTROS.activeProjectFilters.push(id); }
+        else { FILTROS.activeProjectFilters = FILTROS.activeProjectFilters.filter(x => x !== id); }
+        render();
+      });
+    });
+    const projClear = groupBar.querySelector('#projFilterClearBtn');
+    if(projClear) projClear.addEventListener('click', e => { e.stopPropagation(); FILTROS.activeProjectFilters = []; render(); });
+  }
   groupBar.querySelector('#showCompletedToggle').addEventListener('change', e => {
     G.state.showCompletedTasks = e.target.checked;
     markDirty();
@@ -480,6 +515,8 @@ export function renderTaskRow(t){
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
+      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : ''}
+      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
       ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
@@ -487,8 +524,6 @@ export function renderTaskRow(t){
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
     </div>
     <div class="task-row-right">
-      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : '<span class="task-cmt-ph"></span>'}
-      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
       <span class="task-status-label">${stLabel_}</span>
       ${statusPill || '<span class="task-pill-ph"></span>'}
       ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'fill' : 'regular')}</button>`}
