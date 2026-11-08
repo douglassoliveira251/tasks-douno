@@ -1,3 +1,9 @@
+## [3.9.1] - 2026-11-08 10:00
+
+### Fixed
+
+- Detalhe da tarefa aberto fora da tela de Tarefas (por exemplo, a partir de um projeto) aparecia no fim da página por causa do painel encaixado da 3.9.0. Agora só a tela de Tarefas usa o painel encaixado; nas outras o detalhe fica sobreposto, com os campos novos e compactos.
+
 ## [3.9.0] - 2026-11-08 09:00
 
 ### Changed

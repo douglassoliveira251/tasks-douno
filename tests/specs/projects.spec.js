@@ -499,3 +499,14 @@ test('filtros da lista só oferecem projetos, prioridades e tags do espaço esco
   await page.locator('#critFilterBtn').click();
   await expect(page.locator('#critFilterPopover input[data-crit]')).toHaveCount(1); // só "alta" existe neste espaço
 });
+
+test('detalhe da tarefa aberto a partir do projeto fica sobreposto (não cai para o fim da página)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate((src) => { eval('(' + src + ')')(); activeProjectId = 'p1'; currentView = 'projects'; render(); openTaskPanel('c'); }, seed.toString());
+  await expect(page.locator('.task-panel')).toBeVisible();
+  expect(await page.locator('.task-panel').evaluate(el => getComputedStyle(el).position)).toBe('fixed');
+  const box = await page.locator('.task-panel').boundingBox();
+  expect(box.y).toBeLessThan(40); // no topo da tela, ao lado direito
+  expect(box.x).toBeGreaterThan(900);
+});
