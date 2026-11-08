@@ -3937,3 +3937,11 @@
     body[data-view="tasks"] .topbar{row-gap:12px; padding-bottom:14px;}
     body[data-view="tasks"] #tasksView{padding-top:24px;}
   }
+
+  /* v3.14.6: celular — Notas com o mesmo respiro de Tarefas; Visão geral com título e subtítulo menores */
+  @media (max-width:768px){
+    body[data-view="notes"] .topbar{padding-bottom:14px;}
+    body.view-dashboard .topbar-title .view-title{font-size:17px; letter-spacing:-.2px;}
+    body.view-dashboard .topbar-title .view-subtitle{font-size:11.5px; line-height:1.35;}
+    body.view-dashboard .topbar{padding-top:10px; padding-bottom:4px;}
+  }

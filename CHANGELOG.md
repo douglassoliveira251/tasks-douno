@@ -1,3 +1,10 @@
+## [3.14.6] - 2026-11-08 20:00
+
+### Changed
+
+- Celular, Visão geral: saudação (17 px) e subtítulo (11,5 px) menores; no celular o subtítulo mostra só a data. O computador não muda.
+- Celular, Notas: mesmo espaço entre o título e o conteúdo que em Tarefas.
+
 ## [3.14.5] - 2026-11-08 19:30
 
 ### Changed
