@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.14.4', date:'08/11/2026', title:'Mais respiro no topo, no celular', text:'No celular, o nome da página em Tarefas e Notas ganhou um pouco mais de espaço acima, igual nas duas telas.' },
   { version:'3.14.3', date:'08/11/2026', title:'Topo de Tarefas igual ao de Notas no celular', text:'No celular, o topo de Tarefas ficou igual ao de Notas: nome da página e números na mesma linha, compacto, com o botão Nova tarefa ao lado e os filtros logo abaixo.' },
   { version:'3.14.2', date:'08/11/2026', title:'Nova tarefa no topo, no celular', text:'No celular, o botão Nova tarefa saiu de baixo e foi para o topo, na linha do título, como nas Notas. Os filtros ficam logo abaixo e os menus de Agrupar por, Prioridade e Tags abrem por cima da lista.' },
   { version:'3.14.1', date:'08/11/2026', title:'Filtros de Tarefas no celular em chips azuis', text:'No celular, os filtros que já existiam (Agrupar por, Prioridade, Tags, Projetos e Concluídas) agora aparecem como chips: Agrupar por sempre em azul e os demais ficam azuis quando estão ativos. Os chips Todas, Hoje, Atrasadas e Favoritas da versão anterior foram removidos.' },

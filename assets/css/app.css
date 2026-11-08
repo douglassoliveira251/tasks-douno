@@ -3926,3 +3926,8 @@
     body[data-view="tasks"] .topbar-title .page-header-stat{font-size:12.5px;}
     body[data-view="tasks"] .topbar-title .page-header-stat:nth-child(3){display:none;}
   }
+
+  /* v3.14.4: celular — um pouco mais de espaço acima do nome da página, igual em Tarefas e Notas */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar, body[data-view="notes"] .topbar{padding-top:14px; padding-bottom:10px;}
+  }

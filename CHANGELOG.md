@@ -1,3 +1,9 @@
+## [3.14.4] - 2026-11-08 19:00
+
+### Changed
+
+- Celular: mais espaço acima do nome da página em Tarefas e Notas (padding de topo de 14 px nas duas).
+
 ## [3.14.3] - 2026-11-08 18:30
 
 ### Changed
