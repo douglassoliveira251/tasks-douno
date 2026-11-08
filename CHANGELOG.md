@@ -1,3 +1,9 @@
+## [3.14.8] - 2026-11-08 21:00
+
+### Changed
+
+- Celular: topo de Tarefas e de Notas idênticos — sem linha divisória, fundo transparente e o mesmo espaçamento (14 px) acima e abaixo; título e botão na mesma posição.
+
 ## [3.14.7] - 2026-11-08 20:30
 
 ### Changed

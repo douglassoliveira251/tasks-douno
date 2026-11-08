@@ -3952,3 +3952,8 @@
     body[data-view="tasks"] .bucket-header{margin-top:14px; margin-bottom:14px;}
     body[data-view="notes"] .topbar{border-bottom:0; background:transparent;}
   }
+
+  /* v3.14.8: celular — topo de Tarefas e de Notas idênticos (sem linha divisória, mesmo fundo e mesmo espaçamento) */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar, body[data-view="notes"] .topbar{border-bottom:0; background:transparent; padding:14px 14px 14px;}
+  }
