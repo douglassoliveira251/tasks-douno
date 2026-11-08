@@ -61,6 +61,7 @@ const ICONES = {
   'squares-four': ['regular'],
   'stack': ['regular'],
   'star': ['regular', 'fill'],
+  'rows': ['regular'],
   'sun': ['regular'],
   'tag': ['regular'],
   'text-align-center': ['regular'],

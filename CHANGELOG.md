@@ -1,3 +1,10 @@
+## [3.12.2] - 2026-11-08 14:00
+
+### Changed
+
+- Nota aberta: ações (duplicar, favoritar, baixar) em ícones soltos, sem a caixa cinza, com divisor antes do Excluir em vermelho; a estrela fica dourada quando favorita.
+- Filtros das Notas: ícones do modelo em Ordenar e Espaço e rótulo "Espaço: <nome>".
+
 ## [3.12.1] - 2026-11-08 13:30
 
 ### Changed

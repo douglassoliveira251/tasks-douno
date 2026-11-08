@@ -3777,3 +3777,12 @@
     .notes-layout .notebook-menu-btn{opacity:0;}
     .notes-layout .notebook-row:hover .notebook-menu-btn{opacity:1;}
   }
+
+  /* v3.12.2: ações da nota (opção A) — ícones soltos, divisor antes de Excluir */
+  .notes-layout .note-header-actions{background:transparent; border-radius:0; padding:0; gap:2px;}
+  .notes-layout .note-header-icon-btn{width:32px; height:32px; border-radius:8px; color:var(--ink-soft);}
+  .notes-layout .note-header-icon-btn:hover{background:var(--surface-2); color:var(--ink);}
+  .notes-layout #composerPinBtn.pinned, .notes-layout #composerPinBtn[title="Desafixar"]{color:#F5A524;}
+  .notes-layout .note-header-icon-btn.danger{color:var(--danger); margin-left:12px; position:relative;}
+  .notes-layout .note-header-icon-btn.danger::before{content:''; position:absolute; left:-7px; top:7px; bottom:7px; width:1px; background:var(--border);}
+  .notes-layout .note-header-icon-btn.danger:hover{background:var(--danger-light);}
