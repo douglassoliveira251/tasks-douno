@@ -3931,3 +3931,9 @@
   @media (max-width:768px){
     body[data-view="tasks"] .topbar, body[data-view="notes"] .topbar{padding-top:14px; padding-bottom:10px;}
   }
+
+  /* v3.14.5: celular — mais ar entre o nome da página e os filtros, e entre os filtros e a lista de tarefas */
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{row-gap:12px; padding-bottom:14px;}
+    body[data-view="tasks"] #tasksView{padding-top:24px;}
+  }

@@ -1,3 +1,9 @@
+## [3.14.5] - 2026-11-08 19:30
+
+### Changed
+
+- Celular, Tarefas: mais espaço entre o nome da página e os chips de filtro (12 px) e entre o topo e o início da lista (24 px, igual a Notas).
+
 ## [3.14.4] - 2026-11-08 19:00
 
 ### Changed
