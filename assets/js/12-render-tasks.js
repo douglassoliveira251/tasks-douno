@@ -204,6 +204,18 @@ export function renderTasks(){
     { key:'tags', label:'Tags', icon:icon('tag') },
     { key:'grupos', label:'Espaço', icon:icon('folder') }
   ];
+  /* os filtros só oferecem o que existe no espaço escolhido (e o que sobrou de outro espaço é descartado) */
+  const spaceTasks_ = G.state.tasks.filter(t => !t.done && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+  const spaceProjects_ = (G.state.projects || []).filter(p => !G.activeCategoryFilter || p.categoryId === G.activeCategoryFilter);
+  const spacePriorities_ = PRIORITY_CONFIG.filter(p => spaceTasks_.some(t => (t.priority || 'media') === p.key));
+  const spaceTagIds_ = new Set(); spaceTasks_.forEach(t => (t.tagIds || []).forEach(id => spaceTagIds_.add(id)));
+  const prunedP_ = FILTROS.activeProjectFilters.filter(id => id === 'personal' || spaceProjects_.some(p => p.id === id));
+  const prunedC_ = FILTROS.activeCriticalityFilters.filter(k => spacePriorities_.some(p => p.key === k));
+  const prunedT_ = FILTROS.activeTagFilters.filter(id => spaceTagIds_.has(id));
+  if(prunedP_.length !== FILTROS.activeProjectFilters.length || prunedC_.length !== FILTROS.activeCriticalityFilters.length || prunedT_.length !== FILTROS.activeTagFilters.length){
+    FILTROS.activeProjectFilters = prunedP_; FILTROS.activeCriticalityFilters = prunedC_; FILTROS.activeTagFilters = prunedT_;
+    render(); return;
+  }
   const currentGroupOpt = GROUP_MODE_OPTIONS.find(o => o.key === G.taskGroupMode) || GROUP_MODE_OPTIONS[0];
 
   const groupBar = document.createElement('div');
@@ -232,13 +244,13 @@ export function renderTasks(){
         <span id="critFilterLabel">Prioridade</span>
       </button>
       <div class="tag-filter-popover" id="critFilterPopover" style="display:${FILTROS.criticalityFilterPopoverOpen?'block':'none'};">
-        ${PRIORITY_CONFIG.map(p => `
+        ${spacePriorities_.length ? spacePriorities_.map(p => `
           <label class="tag-filter-row">
             <input type="checkbox" data-crit="${p.key}" ${FILTROS.activeCriticalityFilters.includes(p.key)?'checked':''}>
             <span class="cat-swatch" style="background:${p.color}"></span>
             ${p.label}
           </label>
-        `).join('')}
+        `).join('') : '<div style="font-size:12px;color:var(--ink-faint); padding:4px 2px;">Nenhuma tarefa neste espaço</div>'}
         <button type="button" class="filter-clear-btn" id="critFilterClearBtn" ${FILTROS.activeCriticalityFilters.length?'':'disabled'}>Limpar filtro</button>
       </div>
     </div>
@@ -272,7 +284,7 @@ export function renderTasks(){
       Limpar filtros
     </button>
     ` : ''}
-    ${(G.state.projects || []).length ? `
+    ${spaceProjects_.length ? `
     <div class="tag-filter-control">
       <button type="button" class="tag-filter-btn" id="projFilterBtn">
         ${icon('kanban')}
@@ -283,7 +295,7 @@ export function renderTasks(){
           <input type="checkbox" data-proj="personal" ${FILTROS.activeProjectFilters.includes('personal')?'checked':''}>
           Sem projeto
         </label>
-        ${G.state.projects.map(p => `
+        ${spaceProjects_.map(p => `
           <label class="tag-filter-row">
             <input type="checkbox" data-proj="${p.id}" ${FILTROS.activeProjectFilters.includes(p.id)?'checked':''}>
             ${escapeHtml(p.name || 'Projeto')}
@@ -450,7 +462,6 @@ export function renderTasks(){
       <div class="bucket-header">
         <span class="bucket-chevron">${icon('caret-down')}</span>
         ${(!isCompletedGroup && (G.taskGroupMode === 'grupos' || G.taskGroupMode === 'prioridade')) ? `<span class="cat-swatch" style="background:${group.color}"></span>` : ''}
-        ${group.key === 'fixadas' ? `<span class="bucket-star">${icon('star', 'fill')}</span>` : ''}
         <span class="bucket-title">${escapeHtml(group.label)}</span>
         <span class="bucket-count">${group.tasks.length}</span>
       </div>

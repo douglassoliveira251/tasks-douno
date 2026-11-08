@@ -481,3 +481,21 @@ test('topo do projeto: números em linha e resumo ao lado na altura do topo', as
   expect(Math.abs(head.y - side.y)).toBeLessThan(2);
   expect(side.x).toBeGreaterThan(head.x + head.width);
 });
+
+test('filtros da lista só oferecem projetos, prioridades e tags do espaço escolhido', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const [a, b] = [state.categories[0].id, 'cat-extra'];
+    if (!state.categories.find(c => c.id === b)) state.categories.push({ id: b, name: 'Outro', color: '#8B5CF6' });
+    const t = (id, cat, pr) => ({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: pr, dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 });
+    state.projects = [{ id: 'pa', name: 'Proj A', categoryId: a, stages: [], createdAt: 1 }, { id: 'pb', name: 'Proj B', categoryId: b, stages: [], createdAt: 2 }];
+    state.tasks = [t('1', a, 'alta'), t('2', b, 'baixa')];
+    activeCategoryFilter = a; currentView = 'tasks'; render();
+  });
+  await page.locator('#projFilterBtn').click();
+  await expect(page.locator('#projFilterPopover input[data-proj]')).toHaveCount(2); // Sem projeto + Proj A
+  await expect(page.locator('#projFilterPopover')).not.toContainText('Proj B');
+  await page.locator('#critFilterBtn').click();
+  await expect(page.locator('#critFilterPopover input[data-crit]')).toHaveCount(1); // só "alta" existe neste espaço
+});

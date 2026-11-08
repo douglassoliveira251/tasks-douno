@@ -1,3 +1,13 @@
+## [3.7.4] - 2026-11-08 06:00
+
+### Changed
+
+- Filtros da lista de tarefas (Projetos, Prioridade, Tags) só oferecem o que existe no espaço selecionado; filtros que sobram de outro espaço são descartados ao trocar.
+- Seletor de espaço do topo maior e de largura fixa, com reticências quando o nome é grande.
+- Painel da tarefa: "+ início" no extremo direito do bloco Prazo.
+- Busca recolhida com a caixa exata do ícone (o fundo ao passar o mouse não invade mais o sino); ícones do canto alinhados.
+- Grupo "Favoritos" sem o ícone de estrela no título (a estrela fica só nas tarefas).
+
 ## [3.7.3] - 2026-11-08 05:30
 
 ### Changed
