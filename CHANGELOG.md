@@ -1,3 +1,7 @@
+## [3.14.10] - 2026-11-08 22:00
+- Notas: removido o seletor de Espaço dos filtros (a troca fica no menu do topo).
+- Notas (computador): cadernos mais estreitos, lista de notas mais larga (420 px), área da nota 14 px mais acima e contagens dos cadernos alinhadas com a de "Todas as notas".
+
 ## [3.14.9] - 2026-11-08 21:30
 - Celular: em Tarefas, filtros 20px mais abaixo do nome da página e grupos mais perto dos filtros.
 

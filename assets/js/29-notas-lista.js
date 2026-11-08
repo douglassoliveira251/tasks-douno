@@ -61,7 +61,7 @@ export function renderNotes(){
   const notebooksCol = document.createElement('div');
   notebooksCol.className = 'notebooks-col';
   const desktop = window.matchMedia('(min-width:1100px)').matches; // no computador largo: cadernos | lista de notas | editor
-  notebooksCol.style.width = (desktop ? Math.max(G.state.notebooksColWidth || 270, 240) : (G.state.notebooksColWidth || 260)) + 'px';
+  notebooksCol.style.width = (desktop ? 220 : (G.state.notebooksColWidth || 260)) + 'px';
   function noteOrderOf(n){ return n.noteOrder!=null ? n.noteOrder : (n.createdAt||0); }
   function notebookGroupHtml(nb){
     const nbNotes = G.state.notes.filter(n => n.notebookId === nb.id && !n.archived && matches(n))
@@ -499,7 +499,7 @@ function buildNotesListCol(matches, noteOrderOf, withFilters){
   return col;
 }
 
-/* Filtros no topo (mesmo padrão de Tarefas): Ordenar, Tags e Espaço */
+/* Filtros no topo (mesmo padrão de Tarefas): Ordenar e Tags */
 function renderNotesFilters(){
   const host = document.getElementById('topbarFilters');
   if(!host) return;
@@ -509,7 +509,6 @@ function renderNotesFilters(){
   const tags = G.state.tags.filter(t => usedTagIds.has(t.id));
   NOTAS_UI.tagFilter = NOTAS_UI.tagFilter.filter(id => usedTagIds.has(id));
   const curSort = (SORTS.find(x => x[0] === NOTAS_UI.sort) || SORTS[0])[1];
-  const curSpace = G.activeCategoryFilter ? ((G.state.categories.find(c => c.id === G.activeCategoryFilter) || {}).name || 'Espaço') : 'Todos';
   const wrap = document.createElement('div');
   wrap.className = 'notes-filters';
   wrap.innerHTML = `
@@ -517,9 +516,7 @@ function renderNotesFilters(){
       <div class="tag-filter-popover" data-popover="sort" style="display:none;">${SORTS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="notesSort" value="${k}" ${NOTAS_UI.sort === k ? 'checked' : ''}>${l}</label>`).join('')}</div></div>
     <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="tags">${icon('tag')}<span>Tags${NOTAS_UI.tagFilter.length ? ' · ' + NOTAS_UI.tagFilter.length : ''}</span></button>
       <div class="tag-filter-popover" data-popover="tags" style="display:none;">${tags.length ? tags.map(t => `<label class="tag-filter-row"><input type="checkbox" data-tag="${t.id}" ${NOTAS_UI.tagFilter.includes(t.id) ? 'checked' : ''}><span class="cat-swatch" style="background:${t.color}"></span>${escapeHtml(t.name)}</label>`).join('') : '<div style="font-size:12px;color:var(--ink-faint);padding:4px 2px;">Nenhuma tag em uso nas notas</div>'}
-        <button type="button" class="filter-clear-btn" data-clear="tags" ${NOTAS_UI.tagFilter.length ? '' : 'disabled'}>Limpar filtro</button></div></div>
-    <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="space">${icon('kanban')}<span><i class="nf-k">Espaço:</i> <b>${escapeHtml(curSpace)}</b></span>${icon('caret-down')}</button>
-      <div class="tag-filter-popover" data-popover="space" style="display:none;"><label class="tag-filter-row"><input type="radio" name="notesSpace" value="" ${!G.activeCategoryFilter ? 'checked' : ''}>Todos os espaços</label>${G.state.categories.map(c => `<label class="tag-filter-row"><input type="radio" name="notesSpace" value="${c.id}" ${G.activeCategoryFilter === c.id ? 'checked' : ''}><span class="cat-swatch" style="background:${c.color}"></span>${escapeHtml(c.name)}</label>`).join('')}</div></div>`;
+        <button type="button" class="filter-clear-btn" data-clear="tags" ${NOTAS_UI.tagFilter.length ? '' : 'disabled'}>Limpar filtro</button></div></div>`;
   host.prepend(wrap);
   wrap.querySelectorAll('[data-pop]').forEach(b => {
     b.onclick = (e) => {
@@ -539,7 +536,6 @@ function renderNotesFilters(){
   }));
   const clr = wrap.querySelector('[data-clear="tags"]');
   if(clr) clr.onclick = () => { NOTAS_UI.tagFilter = []; renderNotes(); };
-  wrap.querySelectorAll('input[name="notesSpace"]').forEach(r => r.addEventListener('change', () => selectSpace(r.value || null)));
 }
 document.addEventListener('click', () => { document.querySelectorAll('.notes-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });
 

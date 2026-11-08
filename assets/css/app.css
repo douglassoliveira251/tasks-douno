@@ -3965,3 +3965,16 @@
     body[data-view="tasks"] #tasksView .bucket:first-child .bucket-header{margin-top:4px;}
     body[data-view="tasks"] .group-mode-select-wrap .tp-status-dropdown, body[data-view="tasks"] .topbar-filters .tag-filter-popover{top:172px;}
   }
+
+  /* v3.14.10: Notas no computador — cadernos mais estreitos, lista de notas mais larga; contagens alinhadas (o botão ⋮ aparece sobre o número ao passar o mouse) */
+  @media (min-width:1100px){
+    .notes-layout .notebooks-col{width:220px !important;}
+    .notes-layout .notebooks-col-resize-handle{display:none;}
+    .notes-list-col{width:420px;}
+    body[data-view="notes"] #notesView{padding-top:10px !important;}
+    .notes-layout .notebook-row{position:relative;}
+    .notes-layout .notebook-row .notebook-count{margin-left:auto;}
+    .notes-layout .notebook-row .notebook-menu-btn{position:absolute; right:4px; top:50%; transform:translateY(-50%); opacity:0; background:var(--surface); box-shadow:var(--shadow-sm);}
+    .notes-layout .notebook-row:hover .notebook-menu-btn, .notes-layout .notebook-menu-btn:focus-visible{opacity:1;}
+    .notes-layout .notebook-row:hover .notebook-count{visibility:hidden;}
+  }
