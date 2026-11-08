@@ -462,7 +462,7 @@ function buildNotesListCol(matches, noteOrderOf){
   col.className = 'notes-list-col';
   col.innerHTML = list.length ? list.map(n => `
     <div class="notes-list-item${n.id === G.activeNoteId ? ' on' : ''}" data-note-id="${n.id}" draggable="true">
-      <div class="nli-top"><b>${escapeHtml(n.title || 'Sem título')}</b><button type="button" class="nb-note-pin-btn ${n.pinned ? 'pinned' : ''}" data-pin-note-id="${n.id}" title="${n.pinned ? 'Tirar dos favoritos' : 'Favoritar'}">${pinIconSvg(n.pinned)}</button></div>
+      <div class="nli-top"><b>${escapeHtml(n.title || 'Sem título')}</b><button type="button" class="nb-note-pin-btn ${n.pinned ? 'pinned' : ''}" data-pin-note-id="${n.id}" title="${n.pinned ? 'Tirar dos favoritos' : 'Favoritar'}">${icon('star', n.pinned ? 'bold' : 'regular')}</button></div>
       <p>${escapeHtml(stripHtml((n.body || '').replace(/<\/(div|p|li|h[1-6])>|<br\s*\/?>/gi, '$& ')).replace(/\s+/g, ' ').trim().slice(0, 160))}</p>
       <small>${escapeHtml(nbName(n.notebookId))} · ${fmtNoteWhen(n.updatedAt || n.createdAt)}</small>
     </div>`).join('') : '<div class="notes-list-empty">Nenhuma nota aqui.</div>';

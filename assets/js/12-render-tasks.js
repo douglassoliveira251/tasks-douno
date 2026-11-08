@@ -540,7 +540,7 @@ export function renderTaskRow(t){
       ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : '<span class="task-cmt-ph"></span>'}
       <span class="task-status-label">${stLabel_}</span>
       ${statusPill || '<span class="task-pill-ph"></span>'}
-      ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'fill' : 'regular')}</button>`}
+      ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'bold' : 'regular')}</button>`}
       <div class="task-menu-wrap">
         <button class="task-menu-btn">${icon('dots-three-vertical')}</button>
       </div>

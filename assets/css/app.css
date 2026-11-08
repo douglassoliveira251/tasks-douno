@@ -3786,3 +3786,9 @@
   .notes-layout .note-header-icon-btn.danger{color:var(--danger); margin-left:12px; position:relative;}
   .notes-layout .note-header-icon-btn.danger::before{content:''; position:absolute; left:-7px; top:7px; bottom:7px; width:1px; background:var(--border);}
   .notes-layout .note-header-icon-btn.danger:hover{background:var(--danger-light);}
+
+  /* v3.12.3: estrela das listas só com contorno — grossa e âmbar quando favorita; cinza ao passar o mouse quando não é */
+  .task-pin-btn.on svg, .notes-list-item .nb-note-pin-btn.pinned svg{color:#F5A524;}
+  .task-pin-btn:not(.on), .notes-list-item .nb-note-pin-btn:not(.pinned){color:var(--ink-faint);}
+  .notes-list-item:hover .nb-note-pin-btn:not(.pinned){opacity:1;}
+  .notes-list-item .nb-note-pin-btn svg{width:17px; height:17px;}

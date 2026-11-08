@@ -1,3 +1,9 @@
+## [3.12.3] - 2026-11-08 14:30
+
+### Changed
+
+- Estrela de favorito das listas de notas e de tarefas sem preenchimento: contorno grosso âmbar quando favorita; contorno cinza ao passar o mouse quando não é.
+
 ## [3.12.2] - 2026-11-08 14:00
 
 ### Changed

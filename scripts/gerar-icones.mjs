@@ -60,7 +60,7 @@ const ICONES = {
   'sparkle': ['regular'],
   'squares-four': ['regular'],
   'stack': ['regular'],
-  'star': ['regular', 'fill'],
+  'star': ['regular', 'fill', 'bold'],
   'rows': ['regular'],
   'sun': ['regular'],
   'tag': ['regular'],
