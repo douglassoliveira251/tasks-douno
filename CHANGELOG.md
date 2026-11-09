@@ -1,3 +1,6 @@
+## [3.18.6] - 2026-11-09 11:00
+- Detalhe da tarefa: correção do ajuste anterior; com lista longa o painel ficava travado pelo sticky. Agora sobe 24 px de verdade e segue fixo na rolagem.
+
 ## [3.18.5] - 2026-11-09 10:00
 - Detalhe da tarefa (tela de Tarefas): painel 25 px mais acima (altura ajustada para manter a base).
 
