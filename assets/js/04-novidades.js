@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.18.5', date:'09/11/2026', title:'Detalhe da tarefa mais acima', text:'O painel de detalhe da tarefa subiu um pouco na tela, ganhando mais espaço para o conteúdo.' },
   { version:'3.18.4', date:'09/11/2026', title:'Limpeza interna', text:'Removemos código e estilos que não eram mais usados, deixando o sistema mais leve. Nada muda no uso.' },
   { version:'3.18.3', date:'08/11/2026', title:'Tags e templates por espaço', text:'Em Configurações, Tags e Templates ganharam um seletor de espaço no topo, e cada template mostra o selo do espaço. A tarefa selecionada na lista agora fica com fundo azul claro, sem borda.' },
   { version:'3.18.2', date:'08/11/2026', title:'Dados e integrações num só lugar', text:'Em Configurações, o backup/arquivo e as integrações (Outlook e link de assinatura) agora ficam juntos no menu "Dados e integrações".' },

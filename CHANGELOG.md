@@ -1,3 +1,6 @@
+## [3.18.5] - 2026-11-09 10:00
+- Detalhe da tarefa (tela de Tarefas): painel 25 px mais acima (altura ajustada para manter a base).
+
 ## [3.18.4] - 2026-11-09 09:00
 - Limpeza de código morto: 16 funções/constantes sem uso, importações não usadas e cerca de 300 regras de CSS de telas que não existem mais (painel antigo, cartões de projeto, resumo antigo). Sem mudança visível.
 
