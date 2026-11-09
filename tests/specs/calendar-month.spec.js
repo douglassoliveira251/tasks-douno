@@ -87,4 +87,24 @@ test.describe('Calendário — Agenda e coluna esquerda', () => {
       await expect(page.locator('.cal-shell > .cal-side .cal-mini')).toBeVisible();
     }
   });
+
+  test('título "Calendário" e espaços com check: mais de um calendário ao mesmo tempo', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoApp(page, { view: 'calendar' });
+    await page.evaluate(() => {
+      const t = todayStr();
+      state.categories = [{ id: 'c1', name: 'Geral', color: '#2F5F9E' }, { id: 'c2', name: 'Pessoal', color: '#C77700' }];
+      const ev = (id, cat) => ({ id, title: 'Ev ' + id, date: addDaysStr(t, 1), endDate: addDaysStr(t, 1), startTime: '09:00', endTime: '10:00', categoryId: cat, tagIds: [], description: '', attendees: [], recurrence: 'none', recurrenceInterval: 1, createdAt: 1, updatedAt: 1 });
+      state.events = [ev('a', 'c1'), ev('b', 'c2')]; state.tasks = [];
+      calendarView = 'agenda'; calendarFocusDate = t; render();
+    });
+    await expect(page.locator('.cal-period-label')).toHaveText('Calendário');
+    await expect(page.locator('.cal-sub-period')).not.toBeEmpty();
+    await expect(page.locator('.cal-sp input:checked')).toHaveCount(2);
+    await expect(page.locator('.cal-ag-item:not(.hol)')).toHaveCount(2);
+    await page.locator('.cal-sp', { hasText: 'Pessoal' }).click();
+    await expect(page.locator('.cal-ag-item:not(.hol)')).toHaveCount(1);
+    await page.locator('.cal-sp', { hasText: 'Pessoal' }).click();
+    await expect(page.locator('.cal-ag-item:not(.hol)')).toHaveCount(2);
+  });
 });

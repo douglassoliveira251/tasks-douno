@@ -49,6 +49,7 @@ export function taskPanelHtml(task){
 
   return `
     <div class="tp-mobile-back"><button type="button" id="tpMobileBack">${icon('caret-left')}<span>Tarefas</span></button></div>
+    <div class="tp-sticky-head">
     <div class="tp-top-flag ${topBarClass}"></div>
 
     <div class="tp-field">
@@ -61,6 +62,7 @@ export function taskPanelHtml(task){
       </div>
       ${(!G.creatingNewTask || (task.projectId && projectById(task.projectId))) ? `<div class="tp-created-line">${!G.creatingNewTask ? `<span class="tp-created-at">Criada em ${fmtUpdatedAt(task.createdAt)}</span>` : ''}${task.projectId && projectById(task.projectId) ? `<button type="button" class="tp-proj-chip" id="tpProjChip" aria-haspopup="menu" title="${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}">${icon('list')}<span class="tp-proj-chip-t">${escapeHtml(projectById(task.projectId).name)}${(projectById(task.projectId).stages.find(x => x.id === task.stageId) || {}).name ? ' · ' + escapeHtml(projectById(task.projectId).stages.find(x => x.id === task.stageId).name) : ''}</span></button>` : ''}</div>` : ''}
       ${task.done ? `<div class="tp-done-banner" id="tpDoneBanner">${icon('check')}Tarefa concluída</div>` : ''}
+    </div>
     </div>
 
     <div class="tp-field tp-space-line" style="position:relative;">

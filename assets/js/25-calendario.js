@@ -6,8 +6,13 @@ export const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 export const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 export const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
+/* Espaços marcados na coluna do calendário (G.calSpaces); sem marcação própria, segue o espaço escolhido no menu */
+export function calSpaceOk(catId){
+  if(Array.isArray(G.calSpaces)) return G.calSpaces.includes(catId);
+  return !G.activeCategoryFilter || catId === G.activeCategoryFilter;
+}
 export function eventsInScope(){
-  return G.state.events.filter(ev => !G.activeCategoryFilter || ev.categoryId === G.activeCategoryFilter);
+  return G.state.events.filter(ev => calSpaceOk(ev.categoryId));
 }
 /* Uma agenda recorrente é salva uma vez só (na data de início). As ocorrências são
    calculadas na hora: a partir de ev.date, a cada N dias/semanas/meses/anos, até

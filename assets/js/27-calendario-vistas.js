@@ -2,8 +2,7 @@ import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { isMobileViewport } from './01-estado.js';
 import { catById, dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
-import { MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, eventsInScope, getEventsForDate, startOfWeekStr } from './25-calendario.js';
-import { selectSpace } from './11-render-sidebar.js';
+import { calSpaceOk, MONTH_LABELS, WEEKDAY_LABELS, addDaysStr, eventColor, eventPrimaryTagName, eventsInScope, getEventsForDate, startOfWeekStr } from './25-calendario.js';
 import { openEventComposer } from './28-calendario-eventos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
@@ -32,8 +31,8 @@ export function renderCalendar(){
   const todayCount = getEventsForDate(todayStr()).length, totalEv = eventsInScope().length;
   header.innerHTML = `
     <div class="cal-head-title">
-      <div class="cal-period-label">${periodLabel}</div>
-      <div class="cal-head-sub"><b>${todayCount}</b> ${todayCount === 1 ? 'agenda hoje' : 'agendas hoje'} · <b>${totalEv}</b> ${totalEv === 1 ? 'agenda no total' : 'agendas no total'}</div>
+      <div class="cal-period-label">Calendário</div>
+      <div class="cal-head-sub"><span class="cal-sub-period">${periodLabel}</span><span class="cal-sub-stats"> · <b>${todayCount}</b> ${todayCount === 1 ? 'agenda hoje' : 'agendas hoje'} · <b>${totalEv}</b> ${totalEv === 1 ? 'agenda no total' : 'agendas no total'}</span></div>
     </div>
     <div class="cal-head-tools">
       <div class="cal-view-toggle">
@@ -169,7 +168,7 @@ export function renderCalendarMonth(body){
   /* painel do dia selecionado */
   const sd = new Date(G.calSelectedDate + 'T00:00:00');
   const dayEvents = getEventsForDate(G.calSelectedDate).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
-  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === G.calSelectedDate && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
+  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === G.calSelectedDate && calSpaceOk(t.categoryId));
   const nEv = dayEvents.length, nTk = dayTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
@@ -286,12 +285,18 @@ export function buildCalSidebar(){
   info.className = 'cal-side-info';
   info.innerHTML = `
     <div class="cal-side-label">Espaços</div>
-    <button type="button" class="cal-sp${!G.activeCategoryFilter ? ' on' : ''}" data-space=""><i style="background:var(--ink-faint)"></i><span>Todos</span><small>${G.state.events.length}</small></button>
-    ${cats.map(c => `<button type="button" class="cal-sp${G.activeCategoryFilter === c.id ? ' on' : ''}" data-space="${c.id}"><i style="background:${c.color || 'var(--primary)'}"></i><span>${escapeHtml(c.name)}</span><small>${evIn(c.id)}</small></button>`).join('')}
+    ${cats.map(c => `<label class="cal-sp"><input type="checkbox" data-space="${c.id}" ${calSpaceOk(c.id) ? 'checked' : ''}><span class="bx" style="--c:${c.color || 'var(--primary)'}"></span><span>${escapeHtml(c.name)}</span><small>${evIn(c.id)}</small></label>`).join('')}
     <div class="cal-side-label" style="margin-top:16px">Mostrar</div>
     <label class="cal-chk"><input type="checkbox" id="sideHol" ${G.state.showHolidays !== false ? 'checked' : ''}><span class="bx"></span>Feriados</label>
     <label class="cal-chk"><input type="checkbox" id="sideTask" ${G.state.showCalTasks !== false ? 'checked' : ''}><span class="bx"></span>Tarefas com prazo</label>`;
-  info.querySelectorAll('[data-space]').forEach(b => { b.onclick = () => selectSpace(b.dataset.space || null); });
+  info.querySelectorAll('input[data-space]').forEach(inp => {
+    inp.onchange = () => {
+      let cur = Array.isArray(G.calSpaces) ? G.calSpaces.slice() : cats.filter(c => calSpaceOk(c.id)).map(c => c.id);
+      cur = inp.checked ? cur.concat(inp.dataset.space) : cur.filter(x => x !== inp.dataset.space);
+      G.calSpaces = cur;
+      render();
+    };
+  });
   info.querySelector('#sideHol').onchange = e => { G.state.showHolidays = e.target.checked; markDirty(); render(); };
   info.querySelector('#sideTask').onchange = e => { G.state.showCalTasks = e.target.checked; markDirty(); render(); };
   const agenda = info;
@@ -570,8 +575,8 @@ export function renderCalendarDay(body){
   layout.appendChild(card);
 
   /* lateral: resumo do dia, dia inteiro, tarefas */
-  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === dateStr && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter));
-  const lateTasks = (isToday && G.state.showCalTasks !== false) ? G.state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
+  const dayTasks = G.state.showCalTasks === false ? [] : G.state.tasks.filter(t => !t.done && t.dueDate === dateStr && calSpaceOk(t.categoryId));
+  const lateTasks = (isToday && G.state.showCalTasks !== false) ? G.state.tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayS && calSpaceOk(t.categoryId)) : [];
   const nEv = all.length, nTk = dayTasks.length + lateTasks.length;
   const summary = (nEv + nTk === 0) ? 'Nada marcado para este dia'
     : [nEv ? nEv + (nEv === 1 ? ' agenda' : ' agendas') : '', nTk ? nTk + (nTk === 1 ? ' tarefa' : ' tarefas') : ''].filter(Boolean).join(' · ');
@@ -617,7 +622,7 @@ export function renderCalendarAgenda(body){
     const d = new Date(ds + 'T00:00:00');
     const hol = holidayOn(ds);
     const evs = getEventsForDate(ds).slice().sort((x, y) => (x.startTime || '') < (y.startTime || '') ? -1 : 1);
-    const tks = showTasks ? G.state.tasks.filter(t => !t.done && t.dueDate === ds && (!G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter)) : [];
+    const tks = showTasks ? G.state.tasks.filter(t => !t.done && t.dueDate === ds && calSpaceOk(t.categoryId)) : [];
     if(!hol && !evs.length && !tks.length) continue;
     any = true;
     const isToday = ds === todayS;

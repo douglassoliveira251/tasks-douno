@@ -11,6 +11,7 @@ export const G = {
   calSelectedDate: undefined,
   calendarFocusDate: undefined,
   calendarView: undefined,
+  calSpaces: null,
   cloudSession: undefined,
   cloudWriteFailed: undefined,
   creatingNewTask: undefined,

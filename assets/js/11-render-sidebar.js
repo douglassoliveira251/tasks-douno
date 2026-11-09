@@ -10,6 +10,7 @@ export function closeCatCollapsedPopover(){
 }
 export function selectSpace(catId){
   G.activeCategoryFilter = catId || null;
+  G.calSpaces = null;
   if(G.activeCategoryFilter && G.state.categoryGroupModes[G.activeCategoryFilter]) G.taskGroupMode = G.state.categoryGroupModes[G.activeCategoryFilter];
   if(!isMobileViewport() && G.activeCategoryFilter && G.state.categoryCalendarViews[G.activeCategoryFilter]) G.calendarView = G.state.categoryCalendarViews[G.activeCategoryFilter];
   clearSearchTerm();

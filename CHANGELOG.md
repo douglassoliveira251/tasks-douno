@@ -1,3 +1,7 @@
+## [3.18.1] - 2026-11-08 21:40
+- Calendário: título "Calendário" com o período embaixo; espaços com caixa de seleção para ver vários ao mesmo tempo.
+- Detalhe da tarefa: indicador de cor 3 px mais grosso e topo (título e criada em) fixo na rolagem.
+
 ## [3.18.0] - 2026-11-08 20:00
 - Calendário: nova visão Agenda; coluna esquerda com mini calendário, espaços e opções Mostrar em todas as visões; topo em uma linha com Novo evento; estrela de favorita do painel da tarefa só com contorno.
 
