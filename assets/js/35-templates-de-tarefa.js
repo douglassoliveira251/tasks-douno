@@ -93,10 +93,6 @@ export function followUpLabel(t){
   if(st === 'vencida') return 'Retomar desde ' + fmtDate(t.followUpDate);
   return 'Retomar ' + fmtDate(t.followUpDate);
 }
-export function applyTemplateFromPanel(id){
-  const tpl = (G.state.taskTemplates || []).find(x => x.id === id);
-  if(tpl) createTaskFromTemplate(tpl);
-}
 export function createTaskFromTemplate(tpl){
   const spaces = templateSpaces(tpl);
   const catId = (G.activeCategoryFilter && spaces.includes(G.activeCategoryFilter)) ? G.activeCategoryFilter

@@ -1,4 +1,3 @@
-import { G } from './globais.js';
 import { dateToStr, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
 import { PRIORITY_CONFIG } from './12-render-tasks.js';
 import { MONTH_LABELS } from './25-calendario.js';

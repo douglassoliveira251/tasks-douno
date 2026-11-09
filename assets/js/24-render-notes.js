@@ -314,7 +314,4 @@ export function openNoteComposer(existingNote, prefillTaskId){
 export function closeNoteComposer(){
   if(NOTAS_UI.currentNoteComposerCommit) NOTAS_UI.currentNoteComposerCommit();
 }
-export function hideNoteComposerOverlay(){
-  closeNoteComposer();
-}
 

@@ -21,11 +21,6 @@ export function projectIconSvg(name){
   const inner = PROJECT_ICONS[name] || PROJECT_ICONS.briefcase;
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
 }
-/* círculo com o ícone, na cor do projeto */
-export function projectBadgeHtml(p, size){
-  const c = projectColor(p);
-  return `<span class="prj-badge" style="--pc:${c}; width:${size}px; height:${size}px;">${projectIconSvg(p.icon || 'briefcase')}</span>`;
-}
 /* tarefas de uma etapa em ordem de início: quem começa antes sobe; sem datas vai para o fim */
 export function taskStartKey(t){ return (t.startDate || t.dueDate || '9999-99-99'); }
 export function sortByStart(list){

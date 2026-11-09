@@ -27,8 +27,6 @@ G.calendarView = 'month'; // 'month' | 'week' | 'day'
 G.calendarFocusDate = todayStr();
 /* Celular (tela estreita): o calendário abre na visão Dia, sem mexer na escolha feita no computador. */
 export const isMobileViewport = () => !!(window.matchMedia && window.matchMedia('(max-width:768px)').matches);
-export let activeEventId = null;
-export let creatingNewEvent = false;
 G.activeCategoryFilter = null;
 /* Filtro de espaço só do Resumo: sempre começa em "Todos" e não mexe no espaço das demais telas */
 G.dashboardSpace = null;

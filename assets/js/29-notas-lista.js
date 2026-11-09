@@ -9,7 +9,7 @@ import { stripHtml } from './23-texto-rico-utilitarios.js';
 import { buildNoteComposer } from './24-render-notes.js';
 import { icon } from './icones.js';
 import { NOTAS_UI } from './estado-ui.js';
-import { selectSpace } from './11-render-sidebar.js';
+
 
 export function noteSpaceKey(){ return G.activeCategoryFilter || '_all'; }
 let lastRenderedNoteSpaceKey = null;

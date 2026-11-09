@@ -22,24 +22,6 @@ export function projectChipsHtml(status){
     + (status.total && status.done === status.total ? '<span class="proj-chip ok">Concluído</span>' : '');
 }
 
-/* mini linha do tempo da lista: uma barrinha por etapa, na escala do projeto, com a marca de hoje */
-export function miniTimelineHtml(p){
-  const stages = (p.stages || []).filter(sg => sg.start || sg.end);
-  if(!stages.length) return '<span class="mini-tl-empty">—</span>';
-  const today = todayStr();
-  const ds = [];
-  stages.forEach(sg => { ds.push(sg.start || sg.end, sg.end || sg.start); });
-  ds.push(today);
-  ds.sort();
-  const t0 = new Date(ds[0] + 'T00:00:00').getTime(), t1 = new Date(ds[ds.length - 1] + 'T00:00:00').getTime();
-  const span = Math.max(t1 - t0, 86400000);
-  const pos = d => (new Date(d + 'T00:00:00').getTime() - t0) / span * 100;
-  return '<div class="mini-tl">' + stages.map(sg => {
-    const a = pos(sg.start || sg.end), b = pos(sg.end || sg.start);
-    const cls = { concluida:'d', andamento:'c', atrasada:'l', nao_iniciada:'' }[stageState(p, sg)];
-    return `<i class="${cls}" title="${escapeHtml(sg.name)}" style="left:${a}%; width:${Math.max(b - a, 2.5)}%"></i>`;
-  }).join('') + `<u style="left:${Math.min(Math.max(pos(today), 0), 100)}%"></u></div>`;
-}
 
 export let projectCollapsedStages = new Set();
 G.projectListFilter = 'all';

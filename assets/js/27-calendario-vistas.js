@@ -233,7 +233,6 @@ export function holidayOn(dateStr){
   return h;
 }
 
-export const CAL_HOUR_HEIGHT = 48;
 export function timeToMinutes(t){
   if(!t) return null;
   const [h,m] = t.split(':').map(Number);

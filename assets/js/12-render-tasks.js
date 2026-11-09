@@ -6,7 +6,7 @@ import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
 import { projectById } from './31-projetos.js';
-import { followUpLabel, followUpState, openTemplatePickMenu } from './35-templates-de-tarefa.js';
+import { followUpLabel, followUpState } from './35-templates-de-tarefa.js';
 import { groupModeKey, render } from './48-render-principal.js';
 import { FILTROS } from './estado-ui.js';
 import { buildDaySummary } from './55-resumo-do-dia.js';
@@ -165,15 +165,6 @@ export function computeCompletedGroup(){
   return { key:'concluidas', label:'Concluídas', color:'var(--ink-faint)', tasks: pool };
 }
 
-export function quickAddDueDateFor(key){
-  if(!key) return todayStr();
-  const { todayS, tomorrowS, endOfWeekS } = periodBoundaries();
-  if(key === 'hoje') return todayS;
-  if(key === 'amanha') return tomorrowS;
-  if(key === 'semana') return endOfWeekS;
-  if(key === 'vencido' || key === 'sem_prazo') return todayS;
-  return todayS;
-}
 
 /* Dentro de cada grupo: pendentes antes das concluídas, depois por data e,
    no mesmo dia, pela hora (da menor para a maior; sem hora vai por último). */

@@ -1,4 +1,3 @@
-import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';

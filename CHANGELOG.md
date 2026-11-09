@@ -1,3 +1,6 @@
+## [3.18.4] - 2026-11-09 09:00
+- Limpeza de código morto: 16 funções/constantes sem uso, importações não usadas e cerca de 300 regras de CSS de telas que não existem mais (painel antigo, cartões de projeto, resumo antigo). Sem mudança visível.
+
 ## [3.18.3] - 2026-11-08 23:40
 - Tags e Templates: seletor de espaço no topo com contagem; selo do espaço em cada template.
 - Tarefas: tarefa selecionada com fundo azul claro (como a nota), sem borda.

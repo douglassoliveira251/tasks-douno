@@ -1,5 +1,4 @@
-import { dateToStr, escapeHtml, todayStr } from './10-helpers.js';
-import { addDaysStr } from './25-calendario.js';
+import { escapeHtml } from './10-helpers.js';
 import { icon } from './icones.js';
 
 export function fmtUpdatedAt(ts){
@@ -8,50 +7,8 @@ export function fmtUpdatedAt(ts){
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 }
 
-export function fmtActivityTime(ts){
-  if(!ts) return '';
-  const d = new Date(ts);
-  const timeStr = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-  const dStr = dateToStr(d);
-  const todayS = todayStr();
-  const yestS = addDaysStr(todayS, -1);
-  if(dStr === todayS) return `Hoje, ${timeStr}`;
-  if(dStr === yestS) return `Ontem, ${timeStr}`;
-  return `${d.toLocaleDateString('pt-BR')}, ${timeStr}`;
-}
 
-export function tintSolid(hex, amount){
-  const h = hex.replace('#','');
-  const r = parseInt(h.substring(0,2),16);
-  const g = parseInt(h.substring(2,4),16);
-  const b = parseInt(h.substring(4,6),16);
-  const mix = (c) => Math.round(c + (255 - c) * (1 - amount));
-  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
-}
 
-export const PASTE_ALLOWED_TAGS = ['B','STRONG','I','EM','U','H1','H2','H3','UL','OL','LI','BR','P','DIV'];
-export function sanitizePastedHtml(html){
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
-  function clean(node){
-    Array.from(node.childNodes).forEach(child => {
-      if(child.nodeType === 1){
-        clean(child);
-        if(!PASTE_ALLOWED_TAGS.includes(child.tagName)){
-          const parent = child.parentNode;
-          while(child.firstChild) parent.insertBefore(child.firstChild, child);
-          parent.removeChild(child);
-        } else {
-          Array.from(child.attributes).forEach(attr => child.removeAttribute(attr.name));
-        }
-      } else if(child.nodeType !== 3){
-        child.parentNode.removeChild(child);
-      }
-    });
-  }
-  clean(temp);
-  return temp.innerHTML;
-}
 
 export function attachFormattedPaste(targetEl){
   targetEl.addEventListener('paste', (e) => {

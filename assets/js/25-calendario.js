@@ -50,15 +50,6 @@ export function eventOccursOn(ev, dateStr){
 export function eventsOnDate(list, dateStr){
   return list.filter(ev => eventOccursOn(ev, dateStr)).sort((a,b) => (a.startTime||'00:00').localeCompare(b.startTime||'00:00'));
 }
-// próximas ocorrências a partir de fromStr, nos próximos "days" dias; cada item é a agenda com .date da ocorrência
-export function upcomingEventOccurrences(list, fromStr, days){
-  const out = [];
-  for(let i = 0; i <= days; i++){
-    const d = addDaysStr(fromStr, i);
-    eventsOnDate(list, d).forEach(ev => out.push({ ...ev, date: d }));
-  }
-  return out;
-}
 export function getEventsForDate(dateStr){
   return eventsOnDate(eventsInScope(), dateStr);
 }

@@ -19,26 +19,6 @@ export function fmtDate(d){
   const [y,m,day] = d.split('-');
   return `${day}/${m}/${y.slice(2)}`;
 }
-export function fmtFriendlyDate(d){
-  if(!d) return '';
-  const todayS = todayStr();
-  if(d === todayS) return 'Hoje';
-  if(d === addDaysStr(todayS, 1)) return 'Amanhã';
-  const [y,m,day] = d.split('-');
-  return `${day}/${m}/${y}`;
-}
-export function fmtEditedLabel(ts){
-  if(!ts) return '';
-  const d = new Date(ts);
-  const timeStr = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-  const dStr = dateToStr(d);
-  const todayS = todayStr();
-  const yestS = addDaysStr(todayS, -1);
-  if(dStr === todayS) return `hoje, ${timeStr}`;
-  if(dStr === yestS) return `ontem, ${timeStr}`;
-  const [y,m,day] = dStr.split('-');
-  return `em ${day}/${m}/${y}`;
-}
 export function isOverdue(d, done){
   if(!d || done) return false;
   return new Date(d + 'T23:59:59') < new Date();

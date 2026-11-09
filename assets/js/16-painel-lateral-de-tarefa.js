@@ -217,7 +217,6 @@ export function getOrCreateActiveTask(){
 }
 
 export const RECURRENCE_LABELS = { none:'Não repete', daily:'Diariamente', weekly:'Semanalmente', monthly:'Mensalmente', yearly:'Anualmente' };
-export const RECURRENCE_UNIT_SINGULAR = { daily:'dia', weekly:'semana', monthly:'mês', yearly:'ano' };
 export const RECURRENCE_UNIT_PLURAL = { daily:'dias', weekly:'semanas', monthly:'meses', yearly:'anos' };
 
 export function recurrenceSummaryLabel(task){
