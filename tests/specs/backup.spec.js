@@ -10,7 +10,7 @@ test.describe('Backup (modo nuvem)', () => {
       window.__cloudWrites = 0;
       writeStateToCloud = async () => { window.__cloudWrites++; };
       state.tasks = [];
-      settingsTab = 'arquivo';
+      settingsTab = 'dados';
       render();
     });
 
@@ -39,7 +39,7 @@ test.describe('Backup (modo nuvem)', () => {
     await page.evaluate(() => {
       cloudSession = { user: { id: 'fake-id', email: 'teste@teste.com' } };
       state.tasks = [{ id: 'keep', title: 'Mantida', done: false, status: 'nao_iniciado', categoryId: state.categories[0].id, tagIds: [], subtasks: [], comments: [], attachments: [] }];
-      settingsTab = 'arquivo';
+      settingsTab = 'dados';
       render();
     });
 

@@ -145,10 +145,7 @@ export async function regenerateIcsToken(){
 }
 export function renderIntegrationsPanel(panel){
   panel.innerHTML = `
-    <h3 class="settings-section-title">Integrações</h3>
-    <p class="settings-section-desc">Leve suas agendas do DOUNO Tasks para outros calendários.</p>
-
-    <h3 class="settings-section-title" style="margin-top:24px;">Outlook (Microsoft)</h3>
+    <h3 class="settings-section-title">Outlook (Microsoft)</h3>
     <p class="settings-section-desc">Conecte sua conta Microsoft pessoal para que as agendas do DOUNO Tasks virem eventos de verdade no seu Outlook — editáveis, com categoria, e que você pode encaminhar. Só nessa direção (DOUNO Tasks → Outlook).</p>
     <div id="outlookStatusRow" style="display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap;"></div>
     <p id="outlookHint" style="font-size:12px; margin-top:8px;"></p>

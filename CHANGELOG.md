@@ -1,3 +1,7 @@
+## [3.18.2] - 2026-11-08 23:10
+- Configurações: Arquivo/Backup e Integrações unificados no menu "Dados e integrações".
+- Calendário: a seleção de espaços marcados é mantida ao trocar de espaço no menu.
+
 ## [3.18.1] - 2026-11-08 21:40
 - Calendário: título "Calendário" com o período embaixo; espaços com caixa de seleção para ver vários ao mesmo tempo.
 - Detalhe da tarefa: indicador de cor 3 px mais grosso e topo (título e criada em) fixo na rolagem.

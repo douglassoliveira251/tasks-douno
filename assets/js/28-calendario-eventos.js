@@ -311,7 +311,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     const connected = !!(G.outlookStatusCache && G.outlookStatusCache.connected);
     d.textContent = connected
       ? 'Ao salvar, o Outlook envia o convite aos convidados e avisa quando a agenda mudar ou for excluída.'
-      : 'Conecte o Outlook em Configurações → Integrações para o convite ser enviado.';
+      : 'Conecte o Outlook em Configurações → Dados e integrações para o convite ser enviado.';
   }
   refreshInviteDesc();
   renderEvTagsSelected(); // as tags já existentes passam a poder ser removidas com um clique

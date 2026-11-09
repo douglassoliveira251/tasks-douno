@@ -40,11 +40,10 @@ export const SETTINGS_NAV_ICONS = {
   personalizacao: icon('sun'),
   categorias: icon('folder'),
   tags: icon('tag'),
-  arquivo: icon('file'),
-  integracoes: icon('calendar-blank'),
   templates: icon('layout'),
+  dados: icon('file'),
 };
-export const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', templates:'Templates', arquivo:'Arquivo', integracoes:'Integrações' };
+export const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', templates:'Templates', dados:'Dados e integrações' };
 /* Agrupa o conteúdo do painel em cartões, um por assunto (cada título/cabeçalho abre um cartão novo).
    Os elementos são movidos, não recriados, então os eventos continuam valendo. */
 export function cardifySettingsPanel(panel){
@@ -66,6 +65,7 @@ export function cardifySettingsPanel(panel){
   });
 }
 export function renderSettingsView(){
+  if(G.settingsTab === 'arquivo' || G.settingsTab === 'integracoes') G.settingsTab = 'dados';
   const view = document.getElementById('settingsView');
   view.innerHTML = `
     <div class="settings-layout">
@@ -85,9 +85,14 @@ export function renderSettingsView(){
   if(G.settingsTab === 'categorias') renderCategoriesPanel(panel);
   else if(G.settingsTab === 'tags') renderTagsPanel(panel);
   else if(G.settingsTab === 'templates') renderTemplatesPanel(panel);
-  else if(G.settingsTab === 'arquivo') renderFilePanel(panel);
+  else if(G.settingsTab === 'dados'){
+    // backup/arquivo e integrações no mesmo lugar: cada um desenha no seu bloco e depois os cartões sobem para o painel
+    panel.innerHTML = '<div id="dadosBackup"></div><div id="dadosInteg"></div>';
+    const a = panel.querySelector('#dadosBackup'), b = panel.querySelector('#dadosInteg');
+    renderFilePanel(a); renderIntegrationsPanel(b);
+    [a, b].forEach(w => { while(w.firstChild) panel.insertBefore(w.firstChild, w); w.remove(); });
+  }
   else if(G.settingsTab === 'personalizacao') renderPersonalizationPanel(panel);
-  else if(G.settingsTab === 'integracoes') renderIntegrationsPanel(panel);
   else renderProfilePanel(panel);
   // sempre que o painel for redesenhado (ex.: ao adicionar um espaço), reagrupa em cartões
   cardifySettingsPanel(panel);

@@ -233,7 +233,7 @@ export function bindOnboardingCard(view){
     if(k === 'tarefa'){ G.currentView = 'tasks'; openNewTaskPanel(); return; }
     if(k === 'espacos'){ G.settingsTab = 'categorias'; G.currentView = 'settings'; }
     else if(k === 'fixar'){ G.currentView = 'tasks'; }
-    else if(k === 'outlook'){ G.settingsTab = 'integracoes'; G.currentView = 'settings'; }
+    else if(k === 'outlook'){ G.settingsTab = 'dados'; G.currentView = 'settings'; }
     render();
   });
 }
