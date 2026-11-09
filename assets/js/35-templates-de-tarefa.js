@@ -337,18 +337,26 @@ export function openTemplateEditor(existing, prefill){
 
 export function renderTemplatesPanel(panel){
   const list = G.state.taskTemplates || [];
-  const spacesLabel = tp => { const sp = templateSpaces(tp); return sp.length ? sp.map(id => catById(id).name).join(', ') : 'Todos os espaços'; };
+  const f0 = G.templateSpaceFilter && catById(G.templateSpaceFilter) ? G.templateSpaceFilter : '';
+  G.templateSpaceFilter = f0;
+  const all = G.state.taskTemplates || [];
+  const shown = f0 ? all.filter(tp => { const sp = templateSpaces(tp); return !sp.length || sp.includes(f0); }) : all;
+  const cntIn = id => all.filter(tp => { const sp = templateSpaces(tp); return !sp.length || sp.includes(id); }).length;
+  const chip = (id, label, color, n) => `<button type="button" class="set-chip${f0 === id ? ' on' : ''}" data-f="${id}">${color ? `<i style="background:${color}"></i>` : ''}${label}<small>${n}</small></button>`;
+  const spaceBadges = tp => { const sp = templateSpaces(tp); return sp.length ? sp.map(id => { const c = catById(id); return `<span class="tpl-sp-badge" style="--c:${c.color || 'var(--primary)'}">${escapeHtml(c.name)}</span>`; }).join('') : '<span class="tpl-sp-badge all">Todos os espaços</span>'; };
   panel.innerHTML = `
     <h3 class="settings-section-title">Templates de tarefa</h3>
     <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
+    <div class="set-chips">${chip('', 'Todos', '', all.length)}${G.state.categories.map(c => chip(c.id, escapeHtml(c.name), c.color || 'var(--primary)', cntIn(c.id))).join('')}</div>
     <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
     <div class="tpl-list">
-      ${list.length ? list.map(tp => `
+      ${shown.length ? shown.map(tp => `
         <div class="tpl-card" data-id="${tp.id}">
           <div class="tpl-card-main">
             <div class="tpl-card-name">${escapeHtml(tp.name || 'Sem nome')}</div>
-            <div class="tpl-card-meta">${escapeHtml(spacesLabel(tp))} · ${(tp.subtasks||[]).length} subtarefa(s) · ${(tp.events||[]).length} agenda(s)${tp.recurrence && tp.recurrence !== 'none' ? ' · ' + RECURRENCE_LABELS[tp.recurrence].toLowerCase() : ''}</div>
+            <div class="tpl-card-meta">${(tp.subtasks||[]).length} subtarefa(s) · ${(tp.events||[]).length} agenda(s)${tp.recurrence && tp.recurrence !== 'none' ? ' · ' + RECURRENCE_LABELS[tp.recurrence].toLowerCase() : ''}</div>
           </div>
+          <div class="tpl-card-spaces">${spaceBadges(tp)}</div>
           <div class="tpl-card-actions">
             <button type="button" class="btn ghost small" data-act="edit">Editar</button>
             <button type="button" class="btn ghost small" data-act="dup">Duplicar</button>
@@ -356,6 +364,7 @@ export function renderTemplatesPanel(panel){
           </div>
         </div>`).join('') : '<p class="settings-section-desc" style="margin-top:8px;">Nenhum template ainda.</p>'}
     </div>`;
+  panel.querySelectorAll('.set-chip').forEach(b => { b.onclick = () => { G.templateSpaceFilter = b.dataset.f; renderTemplatesPanel(panel); }; });
   panel.querySelector('#tplNewBtn').onclick = () => openTemplateEditor(null);
   panel.querySelectorAll('.tpl-card').forEach(card => {
     const tpl = G.state.taskTemplates.find(x => x.id === card.dataset.id);

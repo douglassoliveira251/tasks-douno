@@ -4231,3 +4231,22 @@
     .cal-head-sub .cal-sub-stats{display:none;}
     .cal-head-title .cal-period-label{font-size:18px;}
   }
+
+  /* v3.18.3: tarefa selecionada com fundo azul claro (igual à nota selecionada), sem borda de destaque */
+  body .task-row.selected, body[data-view="tasks"] .task-row.selected{background:color-mix(in srgb, var(--primary) 10%, var(--surface)); border-top-color:var(--border); border-right-color:var(--border); border-bottom-color:var(--border); box-shadow:none;}
+  body .task-row.selected:hover{background:color-mix(in srgb, var(--primary) 14%, var(--surface));}
+  body .task-row.selected.pri-baixa{border-left-color:var(--priority-baixa);}
+  body .task-row.selected.pri-media{border-left-color:var(--priority-media);}
+  body .task-row.selected.pri-alta{border-left-color:var(--priority-alta);}
+  body .task-row.selected.pri-critica{border-left-color:var(--priority-critica);}
+
+  /* v3.18.3: seletor de espaço em Tags e Templates (modelo A) e selos de espaço nos templates */
+  .set-chips{display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 12px;}
+  .set-chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:5px 11px; font:inherit; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .set-chip i{width:8px; height:8px; border-radius:3px;}
+  .set-chip small{opacity:.7; font-weight:600;}
+  .set-chip:hover{background:var(--surface-2);}
+  .set-chip.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .tpl-card-spaces{display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto;}
+  .tpl-sp-badge{font-size:11px; font-weight:700; border-radius:6px; padding:3px 8px; color:var(--c); background:color-mix(in srgb, var(--c) 14%, var(--surface)); white-space:nowrap;}
+  .tpl-sp-badge.all{--c:var(--ink-soft);}

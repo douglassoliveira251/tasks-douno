@@ -1,3 +1,7 @@
+## [3.18.3] - 2026-11-08 23:40
+- Tags e Templates: seletor de espaço no topo com contagem; selo do espaço em cada template.
+- Tarefas: tarefa selecionada com fundo azul claro (como a nota), sem borda.
+
 ## [3.18.2] - 2026-11-08 23:10
 - Configurações: Arquivo/Backup e Integrações unificados no menu "Dados e integrações".
 - Calendário: a seleção de espaços marcados é mantida ao trocar de espaço no menu.

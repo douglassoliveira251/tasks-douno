@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.18.3', date:'08/11/2026', title:'Tags e templates por espaço', text:'Em Configurações, Tags e Templates ganharam um seletor de espaço no topo, e cada template mostra o selo do espaço. A tarefa selecionada na lista agora fica com fundo azul claro, sem borda.' },
   { version:'3.18.2', date:'08/11/2026', title:'Dados e integrações num só lugar', text:'Em Configurações, o backup/arquivo e as integrações (Outlook e link de assinatura) agora ficam juntos no menu "Dados e integrações".' },
   { version:'3.18.1', date:'08/11/2026', title:'Calendário com vários espaços e tarefa com topo fixo', text:'No calendário, o título voltou a ser "Calendário", com o período embaixo, e cada espaço ganhou uma caixa de seleção para ver mais de um calendário ao mesmo tempo. No detalhe da tarefa, o indicador de cor ficou mais grosso e o topo (título e data de criação) fica fixo enquanto o restante rola.' },
   { version:'3.18.0', date:'08/11/2026', title:'Calendário com Agenda e coluna lateral', text:'O calendário ganhou a visão Agenda (lista dos próximos 30 dias com agendas, tarefas com prazo e feriados) ao lado de Dia, Semana e Mês. Todas as visões têm agora, à esquerda, o mini calendário, os espaços e as opções Mostrar (feriados e tarefas com prazo). O topo ficou numa linha só, com o botão Novo evento.' },

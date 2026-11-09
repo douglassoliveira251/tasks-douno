@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { DEFAULT_COLORS } from './01-estado.js';
 import { markDirty } from './08-persistencia.js';
-import { escapeHtml, uid } from './10-helpers.js';
+import { catById, escapeHtml, uid } from './10-helpers.js';
 import { openConfirmPortal } from './13-portais-de-tarefa.js';
 import { icon } from './icones.js';
 
@@ -128,6 +128,7 @@ export function renderTagsPanel(panel){
         </select>
       </div>
     </div>
+    <div class="set-chips" id="tagSpaceChips"></div>
     <div id="tagRows"></div>
     <button class="btn ghost small" id="addTagBtn" style="margin-top:10px;">+ Adicionar tag</button>
   `;
@@ -139,7 +140,8 @@ export function renderTagsPanel(panel){
   renderTagRows();
   document.getElementById('addTagBtn').onclick = () => {
     const color = DEFAULT_COLORS[G.state.tags.length % DEFAULT_COLORS.length];
-    const newTag = { id: uid('tag'), name: 'Nova tag', color, categoryId: null };
+    const f = G.tagSpaceFilter;
+    const newTag = { id: uid('tag'), name: 'Nova tag', color, categoryId: (f && f !== '__geral' && catById(f)) ? f : null };
     G.state.tags.push(newTag);
     markDirty();
     renderTagRows(newTag.id);
@@ -150,11 +152,21 @@ export function renderTagRows(focusId){
   const rows = document.getElementById('tagRows');
   if(!rows) return;
   rows.innerHTML = '';
+  /* seletor de espaço: Todos, Gerais (sem espaço) e um chip por espaço, com a contagem de tags */
+  const f0 = G.tagSpaceFilter && (G.tagSpaceFilter === '__geral' || catById(G.tagSpaceFilter)) ? G.tagSpaceFilter : '';
+  G.tagSpaceFilter = f0;
+  const chipsEl = document.getElementById('tagSpaceChips');
+  if(chipsEl){
+    const cnt = id => G.state.tags.filter(t => id === '__geral' ? !t.categoryId : t.categoryId === id).length;
+    const chip = (id, label, color, n) => `<button type="button" class="set-chip${f0 === id ? ' on' : ''}" data-f="${id}">${color ? `<i style="background:${color}"></i>` : ''}${label}<small>${n}</small></button>`;
+    chipsEl.innerHTML = chip('', 'Todos', '', G.state.tags.length) + chip('__geral', 'Gerais', 'var(--ink-faint)', cnt('__geral')) + G.state.categories.map(c => chip(c.id, escapeHtml(c.name), c.color || 'var(--primary)', cnt(c.id))).join('');
+    chipsEl.querySelectorAll('.set-chip').forEach(b => { b.onclick = () => { G.tagSpaceFilter = b.dataset.f; renderTagRows(); }; });
+  }
   if(G.state.tags.length === 0){
     rows.innerHTML = `<p style="font-size:12.5px; color:var(--ink-faint);">Nenhuma tag criada ainda. Você também pode criar tags direto no painel de uma tarefa.</p>`;
   }
   const catOptions = `<option value="">Geral (todas)</option>` + G.state.categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
-  const ordered = getOrderedTags();
+  const ordered = getOrderedTags().filter(t => !f0 || (f0 === '__geral' ? !t.categoryId : t.categoryId === f0));
   const isCustom = G.state.tagOrder === 'custom';
   ordered.forEach((tag, idx) => {
     const row = document.createElement('div');
