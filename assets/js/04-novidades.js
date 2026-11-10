@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.29.0', date:'10/11/2026', title:'Configurações mais organizadas e tags com paleta', text:'O menu de Configurações agora tem grupos (Conta, Organização e Sistema) e mostra a quantidade de espaços, tags e templates. Nas Tags, você escolhe o espaço numa lista no topo e muda a cor de cada tag por uma paleta de cores.' },
   { version:'3.28.0', date:'10/11/2026', title:'Visão geral mais compacta no celular', text:'No celular, a Visão geral ficou mais compacta: os quatro indicadores numa linha só, o cartão Hoje menor e menos espaço entre os cartões.' },
   { version:'3.27.0', date:'10/11/2026', title:'Só alertas de vencida nas tarefas', text:'Na lista de tarefas, o alerta "Hoje" (do prazo e da retomada) foi removido. Ficam só os alertas "Vencida": relógio para o prazo e sino para a retomada.' },
   { version:'3.26.0', date:'10/11/2026', title:'Celular mais compacto em todas as telas', text:'No celular, o topo, a Visão geral, as Notas, o Calendário e a pesquisa ficaram mais compactos: controles mais baixos, menos margem, o Calendário sem o título repetido e a pesquisa sem a legenda de teclas.' },

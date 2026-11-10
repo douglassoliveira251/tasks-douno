@@ -1,3 +1,7 @@
+## [3.29.0] - 2026-11-10 23:59
+- Configurações: menu em grupos (Conta, Organização, Sistema) com contagem de espaços, tags e templates.
+- Tags: seletor de espaço no topo, paleta de cores no lugar do seletor nativo, tag com prévia e quantidade de tarefas.
+
 ## [3.28.0] - 2026-11-10 23:59
 - Celular: Visão geral mais compacta (indicadores em uma linha, cartão Hoje menor, menos espaço entre cartões).
 

@@ -44,6 +44,17 @@ export const SETTINGS_NAV_ICONS = {
   dados: icon('file'),
 };
 export const SETTINGS_NAV_LABELS = { perfil:'Perfil', personalizacao:'Personalização', categorias:'Espaços', tags:'Tags', templates:'Templates', dados:'Dados e integrações' };
+export const SETTINGS_NAV_GROUPS = [
+  { title: 'Conta', keys: ['perfil', 'personalizacao'] },
+  { title: 'Organização', keys: ['categorias', 'tags', 'templates'] },
+  { title: 'Sistema', keys: ['dados'] },
+];
+function settingsNavCount(key){
+  if(key === 'categorias') return G.state.categories.length;
+  if(key === 'tags') return G.state.tags.length;
+  if(key === 'templates') return (G.state.taskTemplates || []).length;
+  return null;
+}
 /* Agrupa o conteúdo do painel em cartões, um por assunto (cada título/cabeçalho abre um cartão novo).
    Os elementos são movidos, não recriados, então os eventos continuam valendo. */
 export function cardifySettingsPanel(panel){
@@ -70,8 +81,12 @@ export function renderSettingsView(){
   view.innerHTML = `
     <div class="settings-layout">
       <div class="settings-nav">
-        ${Object.keys(SETTINGS_NAV_LABELS).map(key => `
-          <button class="settings-nav-item" data-tab="${key}">${SETTINGS_NAV_ICONS[key]}${SETTINGS_NAV_LABELS[key]}</button>
+        ${SETTINGS_NAV_GROUPS.map(g => `
+          <div class="settings-gt">${g.title}</div>
+          ${g.keys.map(key => {
+            const n = settingsNavCount(key);
+            return `<button class="settings-nav-item" data-tab="${key}">${SETTINGS_NAV_ICONS[key]}${SETTINGS_NAV_LABELS[key]}${n === null ? '' : `<span class="settings-nav-count">${n}</span>`}</button>`;
+          }).join('')}
         `).join('')}
       </div>
       <div class="settings-panel" id="settingsPanel"></div>
