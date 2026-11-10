@@ -3885,3 +3885,13 @@
   .tpl-card-spaces{display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto;}
   .tpl-sp-badge{font-size:11px; font-weight:700; border-radius:6px; padding:3px 8px; color:var(--c); background:color-mix(in srgb, var(--c) 14%, var(--surface)); white-space:nowrap;}
   .tpl-sp-badge.all{--c:var(--ink-soft);}
+
+  /* v3.21.0: linha da tarefa em duas linhas (computador): título em cima; prazo, subtarefas, tags, projeto e demais informações embaixo */
+  @media (min-width:769px){
+    body[data-view="tasks"] .task-row{padding-top:11px; padding-bottom:11px; min-height:62px; align-items:center;}
+    body[data-view="tasks"] .task-row-left{flex-wrap:wrap; row-gap:4px; column-gap:10px; align-items:center;}
+    body[data-view="tasks"] .task-row-left .task-title{flex:0 0 100%; order:-1; min-width:0; font-size:14.5px; font-weight:600;}
+    body[data-view="tasks"] .task-row-left > *:not(.task-title){font-size:11.5px;}
+    body[data-view="tasks"] .task-row-left .task-proj-pill{order:5; flex:0 1 auto; max-width:230px; margin-right:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    body[data-view="tasks"] .task-row-left .task-cal-badge{margin-left:0;}
+  }

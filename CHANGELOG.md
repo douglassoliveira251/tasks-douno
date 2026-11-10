@@ -1,3 +1,6 @@
+## [3.21.0] - 2026-11-10 16:00
+- Tarefas (computador): linha em duas linhas, com o título em cima e as informações embaixo (prazo, subtarefas, tags, projeto, recorrência).
+
 ## [3.20.0] - 2026-11-10 14:00
 - Pesquisa: novo layout por seções (Tarefas, Agenda, Notas), cada tipo com suas informações; chips Agendas passadas/Concluídas no topo; link "Ver na lista"; legenda de teclas; destaque do termo legível no tema escuro.
 
