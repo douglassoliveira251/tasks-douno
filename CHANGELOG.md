@@ -1,3 +1,7 @@
+## [3.32.2] - 2026-11-10 23:59
+- Correção: tag criada/adicionada pelo painel da tarefa (e da agenda) aparecia com a cor antiga até salvar; agora já nasce no estilo certo.
+- Correção: a confirmação de exclusão ficava fora da tela ou não fechava; agora se mantém na tela e fecha ao clicar/tocar fora ou com Esc.
+
 ## [3.32.1] - 2026-11-10 23:59
 - Celular: cartão de template com nome inteiro e botões em linha própria.
 

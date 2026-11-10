@@ -112,7 +112,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
             <span class="group-current-chip" id="evGroupChip"></span>
           </div>
           <div class="tp-tags-selected" id="evTagsSelected">
-            ${(ev.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}">${escapeHtml(tg.name)}</span>`).join('')}
+            ${(ev.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="--tg:${escapeHtml(tg.color)}">${escapeHtml(tg.name)}</span>`).join('')}
             <button type="button" class="tp-tags-add-btn" id="evTagsToggleBtn">+ Tag</button>
           </div>
           <span class="ev-space-hint">As tags definem a cor da agenda.</span>
@@ -227,7 +227,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     (ev.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
       const chip = document.createElement('span');
       chip.className = 'tp-tag-chip active';
-      chip.style.background = tg.color;
+      chip.style.setProperty('--tg', tg.color);
       chip.textContent = tg.name;
       chip.title = 'Clique para remover';
       chip.onclick = (e) => {

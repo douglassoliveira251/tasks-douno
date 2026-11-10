@@ -139,7 +139,7 @@ export function bindTpPriorityAndTags(panel, task){
     (task.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).forEach(tg => {
       const chip = document.createElement('span');
       chip.className = 'tp-tag-chip active';
-      chip.style.background = tg.color;
+      chip.style.setProperty('--tg', tg.color);
       chip.textContent = tg.name;
       chip.title = 'Clique para remover';
       chip.dataset.tagId = tg.id;

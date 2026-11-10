@@ -202,3 +202,52 @@ test.describe('Reordenar arrastando', () => {
     await expect(page.locator('.tp-subtask-title')).toHaveText(['B', 'C', 'A', 'D']);
   });
 });
+
+test.describe('Correções', () => {
+  test('tag criada pelo painel da tarefa já nasce no estilo suave, igual ao de depois de salvar', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      state.tags = [];
+      state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: 1 }];
+      render(); openTaskPanel('t1');
+    });
+    await page.locator('#tpTagsToggleBtn').click();
+    await page.locator('.tags-picker-portal input').first().fill('Nova tag');
+    await page.locator('[data-create]').click();
+    const chip = page.locator('#tpTagsSelected .tp-tag-chip.active').first();
+    await expect(chip).toHaveText('Nova tag');
+    const dyn = await chip.evaluate(el => ({ bg: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color, inline: el.style.background }));
+    expect(dyn.inline).toBe('');
+    // redesenho completo do painel (como ao salvar): mesma aparência
+    await page.evaluate(() => { render(); openTaskPanel('t1'); });
+    const after = await page.locator('#tpTagsSelected .tp-tag-chip.active').first().evaluate(el => ({ bg: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
+    expect(dyn.bg).toBe(after.bg);
+    expect(dyn.color).toBe(after.color);
+  });
+
+  test('confirmação de exclusão fica dentro da tela, fecha ao clicar fora e com Esc', async ({ page }) => {
+    for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 800 }]) {
+      await page.setViewportSize(vp);
+      await gotoApp(page, { view: 'settings' });
+      await page.evaluate(() => {
+        state.categories = [{ id: 'c1', name: 'Trabalho', color: '#4A6FA5' }, { id: 'c2', name: 'Pessoal', color: '#9B5DE5' }];
+        settingsTab = 'categorias'; currentView = 'settings'; render();
+      });
+      await page.locator('.cat-del').last().click();
+      const portal = page.locator('#confirmActionPortal');
+      await expect(portal).toBeVisible();
+      const b = await portal.boundingBox();
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
+      expect(b.y + b.height).toBeLessThanOrEqual(vp.height);
+      await page.locator('h1, .settings-nav').first().click({ position: { x: 5, y: 5 }, force: true });
+      await expect(portal).toBeHidden();
+      await page.locator('.cat-del').last().click();
+      await expect(portal).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(portal).toBeHidden();
+    }
+  });
+});

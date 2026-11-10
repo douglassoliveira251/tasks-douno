@@ -114,20 +114,27 @@ export function openConfirmPortal(anchorBtn, message, onConfirm, confirmLabel){
     </div>
   `;
   portal.classList.add('show');
+  /* posição: usa o tamanho real e nunca sai da tela (nem por baixo, nem pelos lados) */
   const rect = anchorBtn.getBoundingClientRect();
-  const h = portal.offsetHeight || 100;
+  const w = portal.offsetWidth || 220, h = portal.offsetHeight || 100;
   let top = rect.bottom + 6;
-  if(top + h > window.innerHeight) top = Math.max(8, rect.top - h - 6);
+  if(top + h > window.innerHeight - 8) top = rect.top - h - 6;
+  top = Math.max(8, Math.min(window.innerHeight - h - 8, top));
+  let left = rect.right - w;
+  left = Math.max(8, Math.min(window.innerWidth - w - 8, left));
   portal.style.top = Math.round(top) + 'px';
-  let left = rect.right - 220;
-  if(left < 8) left = 8;
-  if(left + 220 > window.innerWidth) left = window.innerWidth - 228;
   portal.style.left = Math.round(left) + 'px';
   portal.onclick = e => e.stopPropagation();
   portal.querySelector('#confirmActionCancel').onclick = () => closeConfirmPortal();
   portal.querySelector('#confirmActionOk').onclick = () => { closeConfirmPortal(); onConfirm(); };
+  portal.querySelector('#confirmActionCancel').focus();
 }
+/* fecha ao clicar/tocar fora (mesmo em áreas que bloqueiam o clique), com Esc ou ao redimensionar */
+document.addEventListener('mousedown', closeConfirmPortal, true);
+document.addEventListener('touchstart', closeConfirmPortal, true);
 document.addEventListener('click', closeConfirmPortal);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeConfirmPortal(); }, true);
+window.addEventListener('resize', () => closeConfirmPortal());
 window.addEventListener('scroll', closeConfirmPortal, true);
 
 export function ensureColorPortal(){
