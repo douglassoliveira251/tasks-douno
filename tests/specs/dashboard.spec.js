@@ -44,11 +44,13 @@ test.describe('Resumo', () => {
     expect(await page.evaluate(() => [currentView, activeProjectId])).toEqual(['projects', 'p1']);
   });
 
-  test('modo escuro usa a paleta azul-petróleo', async ({ page }) => {
+  test('modo escuro usa a paleta grafite com azul escuro', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(() => { state.theme = 'dark'; document.documentElement.setAttribute('data-theme', 'dark'); });
     const bg = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
-    expect(bg).toBe('#0A141D');
+    expect(bg).toBe('#14161A');
+    const pri = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim());
+    expect(pri).toBe('#234C9C');
   });
 });
 
