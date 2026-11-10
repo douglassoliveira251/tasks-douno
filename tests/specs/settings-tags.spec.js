@@ -68,3 +68,43 @@ test.describe('Configurações', () => {
     await expect(page.locator('.tag-row-settings')).toHaveCount(2);
   });
 });
+
+test.describe('Configurações · Espaços', () => {
+  const seedCat = () => {
+    state.categories = [{ id: 'c1', name: 'Trabalho', color: '#4A6FA5' }, { id: 'c2', name: 'Pessoal', color: '#9B5DE5' }];
+    const t = (id, c) => ({ id, title: id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', categoryId: c, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 });
+    state.tasks = [t('a', 'c1'), t('b', 'c1')];
+    state.events = [{ id: 'e1', title: 'Ev', date: todayStr(), endDate: todayStr(), startTime: '10:00', endTime: '11:00', allDay: false, categoryId: 'c1', tagIds: [], recurrence: 'none', recurrenceInterval: 1, linkedTaskId: null, description: '', createdAt: 1 }];
+    state.notes = [];
+    state.projects = [{ id: 'p1', name: 'P', categoryId: 'c1', createdAt: 1, stages: [] }];
+    state.defaultCategoryFilter = null;
+    settingsTab = 'categorias'; currentView = 'settings'; render();
+  };
+  test('lista com uso por tipo, paleta e estrela', async ({ page }) => {
+    await gotoApp(page, { view: 'settings' });
+    await page.evaluate(seedCat);
+    await expect(page.locator('.cat-row-settings').first().locator('.cat-row-use')).toHaveText('2 tarefas · 1 agenda · 1 projeto');
+    await expect(page.locator('.cat-row-settings').nth(1).locator('.cat-row-use')).toHaveText('Sem uso');
+    await expect(page.locator('input[type=color]')).toHaveCount(0);
+    await page.locator('.cat-row-settings').nth(1).locator('.tag-swatch').click();
+    await expect(page.locator('.tag-pal-title')).toHaveText('Cor do espaço');
+    await page.locator('.tag-pal-dot[data-c="#E11D48"]').click();
+    expect(await page.evaluate(() => state.categories[1].color)).toBe('#E11D48');
+    await page.locator('.cat-row-settings').nth(1).locator('.cat-star').click();
+    expect(await page.evaluate(() => state.defaultCategoryFilter)).toBe('c2');
+    await expect(page.locator('.cat-star.active')).toHaveCount(1);
+  });
+  test('adicionar pelo topo e remover move agendas e projetos', async ({ page }) => {
+    await gotoApp(page, { view: 'settings' });
+    await page.evaluate(seedCat);
+    await page.locator('#catNewName').fill('Estudos');
+    await page.locator('#addCatBtn').click();
+    await expect(page.locator('.cat-row-settings')).toHaveCount(3);
+    await page.locator('.cat-row-settings').first().locator('.cat-del').click();
+    await page.locator('#confirmActionOk').click();
+    const r = await page.evaluate(() => ({ ev: state.events[0].categoryId, pj: state.projects[0].categoryId, n: state.categories.length }));
+    expect(r.n).toBe(2);
+    expect(r.ev).toBe('c2');
+    expect(r.pj).toBe('c2');
+  });
+});

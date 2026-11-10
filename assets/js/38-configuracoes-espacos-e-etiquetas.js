@@ -16,33 +16,63 @@ export function renderCategoriesPanel(panel){
     <div class="settings-section-header-row">
       <div class="settings-header-text">
         <h3 class="settings-section-title">Espaços</h3>
-        <p class="settings-section-desc">Organize tarefas e notas por espaço. Clique na estrela para definir o espaço padrão ao abrir o sistema.</p>
-      </div>
-      <div class="settings-order-control">
-        <span class="settings-order-label">Ordenar por:</span>
-        <select class="tp-select settings-order-select" id="catOrderSelect">
-          <option value="creation" ${G.state.categoryOrder==='creation'?'selected':''}>Criação</option>
-          <option value="alphabetical" ${G.state.categoryOrder==='alphabetical'?'selected':''}>Alfabética</option>
-          <option value="custom" ${G.state.categoryOrder==='custom'?'selected':''}>Personalizada</option>
-        </select>
+        <p class="settings-section-desc">Organize tarefas, agendas, notas e projetos por espaço. A estrela define o espaço aberto ao entrar no sistema.</p>
       </div>
     </div>
+    <div class="tag-add-row">
+      <button type="button" class="tag-swatch" id="catNewColor" title="Escolher cor" aria-label="Escolher cor do novo espaço"></button>
+      <input type="text" class="tp-input" id="catNewName" placeholder="Novo espaço…" maxlength="40">
+      <button type="button" class="btn primary" id="addCatBtn">+ Adicionar</button>
+    </div>
     <div id="catRows"></div>
-    <button class="btn ghost small" id="addCatBtn" style="margin-top:10px;">+ Adicionar espaço</button>
+    <div class="tag-order-row">
+      <span class="settings-order-label">Ordenar por:</span>
+      <select class="tp-select settings-order-select" id="catOrderSelect">
+        <option value="creation" ${G.state.categoryOrder==='creation'?'selected':''}>Criação</option>
+        <option value="alphabetical" ${G.state.categoryOrder==='alphabetical'?'selected':''}>Alfabética</option>
+        <option value="custom" ${G.state.categoryOrder==='custom'?'selected':''}>Personalizada</option>
+      </select>
+    </div>
   `;
   document.getElementById('catOrderSelect').addEventListener('change', e => {
     G.state.categoryOrder = e.target.value;
     markDirty();
     renderCatRows();
   });
-  renderCatRows();
-  document.getElementById('addCatBtn').onclick = () => {
-    const color = DEFAULT_COLORS[G.state.categories.length % DEFAULT_COLORS.length];
-    const newCat = { id: uid('cat'), name: 'Novo espaço', color };
-    G.state.categories.push(newCat);
+  let newColor = DEFAULT_COLORS[G.state.categories.length % DEFAULT_COLORS.length];
+  const swNew = document.getElementById('catNewColor');
+  swNew.style.background = newColor;
+  swNew.onclick = () => openTagColorPalette(swNew, newColor, c => { newColor = c; swNew.style.background = c; }, 'Cor do espaço');
+  const nameNew = document.getElementById('catNewName');
+  const addCat = () => {
+    const name = nameNew.value.trim();
+    if(!name){ nameNew.focus(); return; }
+    G.state.categories.push({ id: uid('cat'), name, color: newColor });
     markDirty();
-    renderCatRows(newCat.id);
+    renderCategoriesPanel(panel);
+    document.getElementById('catNewName').focus();
   };
+  document.getElementById('addCatBtn').onclick = addCat;
+  nameNew.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addCat(); } });
+  renderCatRows();
+}
+
+/* Quantidade de itens de cada tipo em um espaço, para a linha e para o aviso ao remover. */
+function spaceUsage(catId){
+  const st = G.state;
+  const n = {
+    tarefas: st.tasks.filter(t => t.categoryId === catId).length,
+    agendas: (st.events || []).filter(e => e.categoryId === catId).length,
+    notas: st.notes.filter(x => x.categoryId === catId).length,
+    projetos: (st.projects || []).filter(p => p.categoryId === catId).length,
+  };
+  const parts = [];
+  const add = (q, um, mais) => { if(q) parts.push(q + ' ' + (q === 1 ? um : mais)); };
+  add(n.tarefas, 'tarefa', 'tarefas');
+  add(n.agendas, 'agenda', 'agendas');
+  add(n.notas, 'nota', 'notas');
+  add(n.projetos, 'projeto', 'projetos');
+  return { n, total: n.tarefas + n.agendas + n.notas + n.projetos, text: parts.join(' · ') };
 }
 
 export function renderCatRows(focusId){
@@ -52,17 +82,20 @@ export function renderCatRows(focusId){
   const ordered = getOrderedCategories();
   const isCustom = G.state.categoryOrder === 'custom';
   ordered.forEach((cat, idx) => {
+    const use = spaceUsage(cat.id);
+    const isDef = G.state.defaultCategoryFilter === cat.id;
     const row = document.createElement('div');
-    row.className = 'cat-row';
+    row.className = 'tag-row-settings cat-row-settings';
     row.innerHTML = `
-      <button type="button" class="fav-star-btn ${G.state.defaultCategoryFilter===cat.id?'active':''}" title="Definir como espaço padrão">${icon('star')}</button>
-      <input type="color" value="${cat.color}">
-      <input type="text" value="${escapeHtml(cat.name)}">
+      <button type="button" class="tag-swatch round" title="Mudar a cor" aria-label="Mudar a cor de ${escapeHtml(cat.name)}" style="background:${escapeHtml(cat.color)}"></button>
+      <input type="text" class="tag-name-input" value="${escapeHtml(cat.name)}" maxlength="40" aria-label="Nome do espaço">
+      <span class="tag-row-use cat-row-use">${use.total === 0 ? 'Sem uso' : use.text}</span>
       ${isCustom ? `
         <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima">${icon('caret-up')}</button>
         <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo">${icon('caret-down')}</button>
       ` : ''}
-      <button title="Remover">${icon('trash')}</button>
+      <button type="button" class="tag-del cat-star${isDef ? ' active' : ''}" title="${isDef ? 'Espaço padrão' : 'Definir como espaço padrão'}" aria-label="Definir como espaço padrão" aria-pressed="${isDef}">${icon('star', isDef ? 'fill' : 'regular')}</button>
+      <button type="button" class="tag-del cat-del" title="Remover" aria-label="Remover espaço">${icon('trash')}</button>
     `;
     if(isCustom){
       row.querySelectorAll('.reorder-btn').forEach(btn => {
@@ -77,22 +110,28 @@ export function renderCatRows(focusId){
         };
       });
     }
-    row.querySelector('.fav-star-btn').onclick = () => {
+    row.querySelector('.cat-star').onclick = () => {
       G.state.defaultCategoryFilter = G.state.defaultCategoryFilter === cat.id ? null : cat.id;
       markDirty();
       renderCatRows();
     };
-    row.querySelector('input[type=color]').oninput = e => { cat.color = e.target.value; markDirty(); renderCatRows(); };
-    const nameInput = row.querySelector('input[type=text]');
-    nameInput.addEventListener('blur', e => { cat.name = e.target.value.trim() || cat.name; markDirty(); });
+    const sw = row.querySelector('.tag-swatch');
+    sw.onclick = () => openTagColorPalette(sw, cat.color, c => { cat.color = c; markDirty(); renderCatRows(); }, 'Cor do espaço');
+    const nameInput = row.querySelector('.tag-name-input');
+    nameInput.addEventListener('blur', e => { cat.name = e.target.value.trim() || cat.name; markDirty(); renderCatRows(); });
     nameInput.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); e.target.blur(); } });
-    row.querySelector('button[title="Remover"]').onclick = (e) => {
+    row.querySelector('.cat-del').onclick = (e) => {
       e.stopPropagation();
       if(G.state.categories.length === 1){ alert('Mantenha ao menos um espaço.'); return; }
-      openConfirmPortal(e.currentTarget, `Remover "${cat.name}"? Tarefas e notas desse espaço serão movidas para o primeiro espaço disponível.`, () => {
+      const msg = use.total > 0
+        ? `Remover "${cat.name}"? ${use.text} deste espaço serão movidos para o primeiro espaço disponível.`
+        : `Remover "${cat.name}"?`;
+      openConfirmPortal(e.currentTarget, msg, () => {
         const fallback = G.state.categories.find(c => c.id !== cat.id);
         G.state.tasks.forEach(t => { if(t.categoryId === cat.id) t.categoryId = fallback.id; });
         G.state.notes.forEach(n => { if(n.categoryId === cat.id) n.categoryId = fallback.id; });
+        (G.state.events || []).forEach(ev => { if(ev.categoryId === cat.id) ev.categoryId = fallback.id; });
+        (G.state.projects || []).forEach(p => { if(p.categoryId === cat.id) p.categoryId = fallback.id; });
         G.state.categories = G.state.categories.filter(c => c.id !== cat.id);
         if(G.activeCategoryFilter === cat.id) G.activeCategoryFilter = null;
         if(G.dashboardSpace === cat.id) G.dashboardSpace = null;
@@ -116,14 +155,14 @@ export function getOrderedTags(){
 export const TAG_PALETTE = ['#2F5F9E','#4A6FA5','#3D8B8B','#2F6F5E','#6FA34B','#E2A83D','#F2994A','#C0453A','#E11D48','#B5838D','#9B5DE5','#6C5CE7','#475569','#0F172A','#14B8A6','#0EA5E9'];
 
 /* Abre a paleta embaixo do botão de cor; chama onPick(cor) ao escolher. */
-export function openTagColorPalette(anchor, current, onPick){
+export function openTagColorPalette(anchor, current, onPick, title = 'Cor da tag'){
   document.querySelectorAll('.tag-pal-pop').forEach(p => p.remove());
   const pop = document.createElement('div');
   pop.className = 'tag-pal-pop';
   pop.setAttribute('role', 'dialog');
-  pop.setAttribute('aria-label', 'Cor da tag');
+  pop.setAttribute('aria-label', title);
   const cur = String(current || '').toLowerCase();
-  pop.innerHTML = `<div class="tag-pal-title">Cor da tag</div><div class="tag-pal-grid">${TAG_PALETTE.map(c => {
+  pop.innerHTML = `<div class="tag-pal-title">${title}</div><div class="tag-pal-grid">${TAG_PALETTE.map(c => {
     const on = c.toLowerCase() === cur;
     return `<button type="button" class="tag-pal-dot${on ? ' sel' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}">${on ? icon('check') : ''}</button>`;
   }).join('')}</div>`;
@@ -145,7 +184,7 @@ export function renderTagsPanel(panel){
     <div class="settings-section-header-row">
       <div class="settings-header-text">
         <h3 class="settings-section-title">Tags</h3>
-        <p class="settings-section-desc">Cores e nomes para marcar tarefas.</p>
+        <p class="settings-section-desc">Tags coloridas para organizar tarefas, agendas e notas. Escolha o espaço para ver e editar as tags dele.</p>
       </div>
       <div class="tag-space-pick">
         <div class="tag-space-lbl">Espaço</div>

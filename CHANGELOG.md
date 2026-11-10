@@ -1,3 +1,7 @@
+## [3.30.0] - 2026-11-10 23:59
+- Configurações: Espaços com paleta de cores, contagem de tarefas, agendas, notas e projetos, e adição pelo topo (mesmo estilo das Tags).
+- Remover espaço agora move também as agendas e os projetos; textos de apoio das Tags e dos Espaços atualizados.
+
 ## [3.29.0] - 2026-11-10 23:59
 - Configurações: menu em grupos (Conta, Organização, Sistema) com contagem de espaços, tags e templates.
 - Tags: seletor de espaço no topo, paleta de cores no lugar do seletor nativo, tag com prévia e quantidade de tarefas.

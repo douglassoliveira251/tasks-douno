@@ -4064,3 +4064,12 @@
     .tag-space-pick{min-width:0; width:100%;}
     .settings-card .settings-section-header-row:has(.tag-space-pick){flex-direction:column;}
   }
+
+  /* ===== v3.30.0 — Espaços no mesmo estilo das Tags ===== */
+  .cat-row-use{min-width:0; max-width:46%; white-space:normal; text-align:right;}
+  .cat-star.active{color:var(--accent);}
+  .cat-star.active:hover{background:var(--accent-light); color:var(--accent);}
+  .cat-star svg{width:16px; height:16px;}
+  @media (max-width:768px){
+    .cat-row-use{display:none;}
+  }
