@@ -1,3 +1,6 @@
+## [3.22.0] - 2026-11-10 18:00
+- Tarefas: "Sem data" com ícone de calendário; comentários antes do ícone de recorrência; subtarefas só com a porcentagem; tags com fundo cheio e contraste automático (também no detalhe da tarefa).
+
 ## [3.21.0] - 2026-11-10 16:00
 - Tarefas (computador): linha em duas linhas, com o título em cima e as informações embaixo (prazo, subtarefas, tags, projeto, recorrência).
 

@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { icon } from './icones.js';
-import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, togglePinned, completeRecurring, todayStr } from './10-helpers.js';
+import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, readableInk, togglePinned, completeRecurring, todayStr } from './10-helpers.js';
 import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
@@ -520,15 +520,15 @@ export function renderTaskRow(t){
     <div class="task-row-left">
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
       <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
-      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : ''}
+      ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : `<span class="task-cal-badge nodate">${icon('calendar-blank')}Sem data</span>`}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
-      ${subtasks.length ? `<span class="task-subtask-badge">${subDone}/${subtasks.length}</span>` : ''}
-      ${tags.length ? `<span class="task-tag-pill" style="background:${tags[0].color}22; color:${tags[0].color};"><span class="dot" style="background:${tags[0].color}"></span>${escapeHtml(tags[0].name)}</span>` : ''}
+      ${subtasks.length ? `<span class="task-subtask-badge" title="${subDone} de ${subtasks.length} subtarefas concluídas">${Math.round(100 * subDone / subtasks.length)}%</span>` : ''}
+      ${tags.length ? `<span class="task-tag-pill${readableInk(tags[0].color) !== '#FFFFFF' ? ' ink-dark' : ''}" style="background:${tags[0].color}; color:${readableInk(tags[0].color)};">${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
+      ${commentCount ? `<span class="task-comment-badge" title="${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}">${icon('chat-circle')}${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
     </div>
     <div class="task-row-right">
-      ${commentCount ? `<span class="task-comment-badge">${icon('chat-circle')}${commentCount}</span>` : '<span class="task-cmt-ph"></span>'}
       <span class="task-status-label">${stLabel_}</span>
       ${statusPill || '<span class="task-pill-ph"></span>'}
       ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'bold' : 'regular')}</button>`}

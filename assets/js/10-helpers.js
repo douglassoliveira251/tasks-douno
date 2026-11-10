@@ -13,6 +13,15 @@ export function togglePinned(t){
   t.pinned = !t.pinned;
   if(t.pinned && G.state.onboarding) G.state.onboarding.pinned = true; // marca o passo "fixar" do cartão Comece por aqui
 }
+/* cor da letra para um fundo: escura em fundo claro, branca em fundo escuro (contraste alto) */
+export function readableInk(hex){
+  let h = String(hex || '').replace('#', '');
+  if(h.length === 3) h = h.split('').map(c => c + c).join('');
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) return '#FFFFFF';
+  const n = parseInt(h, 16);
+  const lin = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return (0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]) > 0.4 ? '#1E293B' : '#FFFFFF';
+}
 export function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 export function fmtDate(d){
   if(!d) return '';

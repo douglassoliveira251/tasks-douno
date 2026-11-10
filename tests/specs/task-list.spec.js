@@ -51,4 +51,32 @@ test.describe('Lista de tarefas', () => {
     await expect(row.locator('.task-recurrence-icon')).toBeVisible();
     await expect(row.locator('.task-status-pill')).toBeVisible();
   });
+  test('linha: "Sem data", comentários antes da recorrência, subtarefas em % e tags com contraste', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      state.tags = [{ id: 'g1', name: 'Escura', color: '#2F5F9E', categoryId: '' }, { id: 'g2', name: 'Clara', color: '#F2C94C', categoryId: '' }];
+      state.tasks = [
+        { id: 'a', title: 'Sem prazo', done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', categoryId: cat, tagIds: ['g1', 'g2'], recurrence: 'weekly', recurrenceInterval: 1,
+          subtasks: [{ id: 's1', title: 'a', done: true }, { id: 's2', title: 'b', done: false }, { id: 's3', title: 'c', done: false }, { id: 's4', title: 'd', done: false }],
+          comments: [{ id: 'c1', text: 'x', createdAt: 1 }, { id: 'c2', text: 'y', createdAt: 1 }], attachments: [], description: '', createdAt: 1 },
+        { id: 'b', title: 'Tag clara', done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', categoryId: cat, tagIds: ['g2'], subtasks: [], comments: [], attachments: [], description: '', createdAt: 2 },
+      ];
+      render();
+    });
+    const row = page.locator('.task-row[data-id="a"]');
+    await expect(row.locator('.task-cal-badge.nodate')).toContainText('Sem data');
+    await expect(row.locator('.task-subtask-badge')).toHaveText('25%');
+    const kids = await row.locator('.task-row-left').evaluate(el => [...el.children].map(c => c.className.split(' ')[0]));
+    expect(kids.indexOf('task-comment-badge')).toBeGreaterThan(-1);
+    expect(kids.indexOf('task-comment-badge')).toBeLessThan(kids.indexOf('task-recurrence-icon'));
+    await expect(row.locator('.task-row-right .task-comment-badge')).toHaveCount(0);
+    await expect(row.locator('.task-tag-pill')).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(row.locator('.task-tag-pill')).toHaveCSS('background-color', 'rgb(47, 95, 158)');
+    await expect(page.locator('.task-row[data-id="b"] .task-tag-pill')).toHaveCSS('color', 'rgb(30, 41, 59)');
+    await row.locator('.task-title').click();
+    await expect(page.locator('.tp-tag-chip.active').first()).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.tp-tag-chip.active').nth(1)).toHaveCSS('color', 'rgb(30, 41, 59)');
+  });
 });
