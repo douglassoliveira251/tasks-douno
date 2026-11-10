@@ -1,3 +1,6 @@
+## [3.28.0] - 2026-11-10 23:59
+- Celular: Visão geral mais compacta (indicadores em uma linha, cartão Hoje menor, menos espaço entre cartões).
+
 ## [3.27.0] - 2026-11-10 23:59
 - Tarefas: removido o alerta "Hoje" (prazo e retomada); ficam só os alertas "Vencida" (relógio no prazo, sino na retomada).
 

@@ -3997,3 +3997,23 @@
     .sr-title{font-size:13px !important;}
     .sr-meta, .sr-snip{font-size:10.5px !important;}
   }
+
+  /* v3.28.0: Visão geral no celular, mais compacta: indicadores numa linha só, cartão Hoje menor e menos espaço entre cartões */
+  @media (max-width:768px){
+    .dv{gap:8px;}
+    .dv-card{padding:10px 12px !important;}
+    .dv-card h3{font-size:12.5px !important;}
+    .dv-hero{padding:10px 12px !important;}
+    .dv-big b{font-size:28px !important;}
+    .dv-big span{font-size:12px !important;}
+    .dv-ring{width:48px !important; height:48px !important;}
+    .dv-ring b{font-size:11px !important;}
+    .dv-kgrid{grid-template-columns:repeat(4, minmax(0, 1fr)) !important; gap:6px !important;}
+    .dv-kt{flex-direction:column !important; align-items:flex-start !important; gap:2px !important; padding:8px 9px !important; border-radius:10px !important;}
+    .dv-kt .ki{display:none !important;}
+    .dv-kt b{font-size:18px !important;}
+    .dv-kt small{font-size:10.5px !important; line-height:1.15;}
+    .dv-al{padding:8px 0 !important;}
+    .dv-al b{font-size:12.5px !important;}
+    .dv-tr{padding-top:6px !important; padding-bottom:6px !important;}
+  }
