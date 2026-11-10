@@ -1,3 +1,7 @@
+## [3.36.0] - 2026-11-10 23:59
+- Configurações: menu lateral com cantos mais quadrados (itens 4px, caixa 8px).
+- Modo escuro: hover do menu só muda a cor da fonte e do ícone para branco, sem fundo.
+
 ## [3.35.1] - 2026-11-10 23:59
 - Tarefa (computador): a barra colorida da prioridade no detalhe encosta no topo do painel, sem a folga de 12px acima.
 

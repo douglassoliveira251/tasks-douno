@@ -4172,9 +4172,9 @@
   [data-theme="dark"] .task-row:hover{background:#21242A;}
   [data-theme="dark"] .task-row.selected{background:#272A30; border-top-color:#3A3E45; border-right-color:#3A3E45; border-bottom-color:#3A3E45; box-shadow:none;}
   [data-theme="dark"] .task-panel{background:var(--surface); border-left:1px solid var(--border);}
-  /* só o menu tem hover/ativo azulado; o resto fica em cinza */
-  [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .settings-nav-item:hover{background:color-mix(in srgb, var(--primary) 32%, transparent); color:var(--primary-dark);}
-  [data-theme="dark"] .nav-item:hover svg, [data-theme="dark"] .settings-nav-item:hover svg{color:var(--primary-dark);}
+  /* menu: hover só muda a cor da fonte e do ícone (branco); o item ativo mantém o azul */
+  [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .settings-nav-item:hover{background:transparent; color:#FFFFFF;}
+  [data-theme="dark"] .nav-item:hover svg, [data-theme="dark"] .settings-nav-item:hover svg{color:#FFFFFF;}
   [data-theme="dark"] .settings-nav-item.active{background:color-mix(in srgb, var(--primary) 38%, transparent); color:var(--primary-dark);}
   [data-theme="dark"] .nav-item{border-radius:10px;}
   [data-theme="dark"] .tp-header-icon-btn:hover, [data-theme="dark"] .proj-side-btn:hover{background:var(--surface-2); color:var(--ink);}
@@ -4209,3 +4209,7 @@
     .tasks-layout .task-panel{padding-top:0;}
     .tasks-layout .task-panel .tp-sticky-head{margin-top:0; top:0;}
   }
+
+  /* ===== v3.36.0 — Configurações: menu lateral mais quadrado ===== */
+  .settings-nav{border-radius:8px;}
+  .settings-nav-item{border-radius:4px;}

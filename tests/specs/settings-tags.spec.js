@@ -355,3 +355,24 @@ test('detalhe da tarefa (computador): a barra de prioridade encosta no topo do p
     expect(Math.abs(d)).toBeLessThanOrEqual(1);
   }
 });
+
+test('modo escuro: hover do menu só muda a cor (sem fundo); menu de Configurações mais quadrado', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'settings' });
+  await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'dark'); settingsTab = 'tags'; render(); });
+  const it = page.locator('.settings-nav-item[data-tab="templates"]');
+  const before = await it.evaluate(el => getComputedStyle(el).color);
+  await it.hover();
+  await page.waitForTimeout(400); // espera a transição de cor
+  const after = await it.evaluate(el => ({ c: getComputedStyle(el).color, bg: getComputedStyle(el).backgroundColor, r: getComputedStyle(el).borderRadius }));
+  expect(after.c).toBe('rgb(255, 255, 255)');
+  expect(after.c).not.toBe(before);
+  expect(after.bg).toBe('rgba(0, 0, 0, 0)');
+  expect(parseFloat(after.r)).toBeLessThanOrEqual(4);
+  expect(parseFloat(await page.locator('.settings-nav').evaluate(el => getComputedStyle(el).borderTopLeftRadius))).toBeLessThanOrEqual(8);
+  await page.getByText('Notas', { exact: true }).first().hover();
+  await page.waitForTimeout(400);
+  const top = await page.evaluate(() => { const b = [...document.querySelectorAll('.nav-item')].find(x => x.dataset.view === 'notes'); const cs = getComputedStyle(b); return { c: cs.color, bg: cs.backgroundColor }; });
+  expect(top.c).toBe('rgb(255, 255, 255)');
+  expect(top.bg).toBe('rgba(0, 0, 0, 0)');
+});
