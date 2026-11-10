@@ -341,12 +341,14 @@ export function renderTemplatesPanel(panel){
   const shown = f0 ? all.filter(tp => { const sp = templateSpaces(tp); return !sp.length || sp.includes(f0); }) : all;
   const spaceBadges = tp => { const sp = templateSpaces(tp); return sp.length ? sp.map(id => { const c = catById(id); return `<span class="tpl-sp-badge" style="--c:${c.color || 'var(--primary)'}">${escapeHtml(c.name)}</span>`; }).join('') : '<span class="tpl-sp-badge all">Todos os espaços</span>'; };
   panel.innerHTML = `
-    <h3 class="settings-section-title">Templates de tarefa</h3>
-    <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
-    <div class="tpl-top">
+    <div class="settings-section-header-row">
+      <div class="settings-header-text">
+        <h3 class="settings-section-title">Templates de tarefa</h3>
+        <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
+      </div>
       <div class="tag-space-pick"><div class="tag-space-lbl">Espaço</div><div id="tplSpaceHost"></div></div>
-      <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
     </div>
+    <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
     <div class="tpl-list">
       ${shown.length ? shown.map(tp => `
         <div class="tpl-card" data-id="${tp.id}">

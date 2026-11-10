@@ -1,3 +1,7 @@
+## [3.32.0] - 2026-11-10 23:59
+- Espaços, Tags e subtarefas: reordenar arrastando pelo ícone de seis pontos (mouse, toque e teclado), no lugar das setas; ao arrastar, a ordem passa a Personalizada. Subtarefas concluídas ficam no fim e não são arrastadas.
+- Templates: seletor de espaço no topo, à direita, como nas Tags.
+
 ## [3.31.0] - 2026-11-10 23:59
 - Configurações: seletor de espaço com lista própria (cor + nome, sem numeração) nas Tags e nos Templates; "Gerais" no lugar de "Gerais (todos os espaços)".
 

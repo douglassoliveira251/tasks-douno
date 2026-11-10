@@ -3,6 +3,7 @@ import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
 import { icon } from './icones.js';
+import { gripHtml, makeSortable } from './56-arrastar-ordem.js';
 import { PAINEL_TAREFA } from './estado-ui.js';
 
 /* Recorrência e subtarefas. */
@@ -18,14 +19,14 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
   };
 
   const subtaskList = document.getElementById('tpSubtaskList');
-  (task.subtasks||[]).forEach((st, idx) => {
+  (task.subtasks||[]).forEach(st => {
     const row = document.createElement('div');
     row.className = 'tp-subtask-row' + (st.done ? ' done' : '');
+    row.dataset.id = st.id;
     row.innerHTML = `
+      ${st.done ? '<span class="drag-grip-spacer"></span>' : gripHtml('Arrastar para reordenar a subtarefa')}
       <div class="task-check ${st.done?'done':''}">${icon('check')}</div>
       <span class="tp-subtask-title" contenteditable="true" spellcheck="false">${escapeHtml(st.title)}</span>
-      <button type="button" class="tp-subtask-move" data-dir="up" ${idx===0?'disabled':''}>${icon('caret-up')}</button>
-      <button type="button" class="tp-subtask-move" data-dir="down" ${idx===(task.subtasks.length-1)?'disabled':''}>${icon('caret-down')}</button>
       <button type="button" class="tp-subtask-del">${icon('trash')}</button>
     `;
     row.querySelector('.task-check').onclick = () => {
@@ -45,16 +46,6 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
       else if(sub) titleEl.textContent = sub.title;
     });
     titleEl.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); titleEl.blur(); } });
-    row.querySelectorAll('.tp-subtask-move').forEach(btn => {
-      btn.onclick = () => {
-        const t = getOrCreateActiveTask(); if(!t) return;
-        const i = t.subtasks.findIndex(s => s.id === st.id);
-        const j = btn.dataset.dir === 'up' ? i - 1 : i + 1;
-        if(j < 0 || j >= t.subtasks.length) return;
-        [t.subtasks[i], t.subtasks[j]] = [t.subtasks[j], t.subtasks[i]];
-        markDirty();
-      };
-    });
     row.querySelector('.tp-subtask-del').onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
       t.subtasks = t.subtasks.filter(s => s.id !== st.id);
@@ -62,6 +53,14 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
     };
     subtaskList.appendChild(row);
   });
+  /* só as pendentes se arrastam; as concluídas ficam no fim, como estão */
+  makeSortable(subtaskList, { rowSel: '.tp-subtask-row', onReorder: ids => {
+    const t = getOrCreateActiveTask(); if(!t) return;
+    const map = new Map(t.subtasks.filter(x => !x.done).map(x => [x.id, x]));
+    let k = 0;
+    t.subtasks = t.subtasks.map(x => x.done ? x : (map.get(ids[k++]) || x));
+    markDirty();
+  } });
   document.getElementById('tpNewSubtask').addEventListener('keydown', e => {
     if(e.key === 'Enter' && e.target.value.trim()){
       const t = getOrCreateActiveTask(); if(!t) return;

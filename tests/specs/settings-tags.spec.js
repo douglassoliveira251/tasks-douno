@@ -129,3 +129,76 @@ test('templates: mesmo seletor de espaço, sem numeração', async ({ page }) =>
   await expect(page.locator('#tplSpaceHost .sp-combo-text')).toHaveText('Pessoal');
   await expect(page.locator('.tpl-card')).toContainText('Só pessoal');
 });
+
+async function dragGrip(page, from, to) {
+  const a = await from.boundingBox(), b = await to.boundingBox();
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(a.x + a.width / 2, (a.y + b.y) / 2 + 4, { steps: 4 });
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2 + (b.y < a.y ? -6 : 6), { steps: 6 });
+  await page.mouse.up();
+}
+
+test.describe('Reordenar arrastando', () => {
+  test('espaços: arrastar muda a ordem e passa para Personalizada; sem setas', async ({ page }) => {
+    await gotoApp(page, { view: 'settings' });
+    await page.evaluate(() => {
+      state.categories = [{ id: 'c1', name: 'Alfa', color: '#4A6FA5' }, { id: 'c2', name: 'Beta', color: '#9B5DE5' }, { id: 'c3', name: 'Gama', color: '#2F6F5E' }];
+      state.categoryOrder = 'creation'; settingsTab = 'categorias'; currentView = 'settings'; render();
+    });
+    await expect(page.locator('.reorder-btn')).toHaveCount(0);
+    const grips = page.locator('.cat-row-settings .drag-grip');
+    await dragGrip(page, grips.nth(0), grips.nth(2));
+    expect(await page.evaluate(() => state.categories.map(c => c.id))).toEqual(['c2', 'c3', 'c1']);
+    expect(await page.evaluate(() => state.categoryOrder)).toBe('custom');
+    await expect(page.locator('#catOrderSelect')).toHaveValue('custom');
+    await expect(page.locator('.cat-row-settings .tag-name-input').first()).toHaveValue('Beta');
+  });
+
+  test('espaços: teclado (seta para baixo na alça) move uma posição', async ({ page }) => {
+    await gotoApp(page, { view: 'settings' });
+    await page.evaluate(() => {
+      state.categories = [{ id: 'c1', name: 'Alfa', color: '#4A6FA5' }, { id: 'c2', name: 'Beta', color: '#9B5DE5' }];
+      state.categoryOrder = 'creation'; settingsTab = 'categorias'; currentView = 'settings'; render();
+    });
+    await page.locator('.cat-row-settings .drag-grip').first().focus();
+    await page.keyboard.press('ArrowDown');
+    expect(await page.evaluate(() => state.categories.map(c => c.id))).toEqual(['c2', 'c1']);
+  });
+
+  test('tags: arrasta só dentro do espaço e mantém as tags dos outros espaços', async ({ page }) => {
+    await gotoApp(page, { view: 'settings' });
+    await page.evaluate(() => {
+      state.categories = [{ id: 'c1', name: 'Trabalho', color: '#4A6FA5' }, { id: 'c2', name: 'Pessoal', color: '#9B5DE5' }];
+      state.tags = [
+        { id: 'a', name: 'A', color: '#2F5F9E', categoryId: 'c1' }, { id: 'x', name: 'X', color: '#2F5F9E', categoryId: 'c2' },
+        { id: 'b', name: 'B', color: '#2F5F9E', categoryId: 'c1' }, { id: 'c', name: 'C', color: '#2F5F9E', categoryId: 'c1' },
+      ];
+      state.tagOrder = 'creation'; activeCategoryFilter = null; tagSpaceFilter = ''; settingsTab = 'tags'; currentView = 'settings'; render();
+    });
+    const grips = page.locator('.tag-row-settings .drag-grip');
+    await dragGrip(page, grips.nth(2), grips.nth(0));
+    const ids = await page.evaluate(() => state.tags.map(t => t.id));
+    expect(ids).toEqual(['c', 'x', 'a', 'b']);
+    expect(await page.evaluate(() => state.tagOrder)).toBe('custom');
+  });
+
+  test('subtarefas: só as pendentes têm alça; arrastar reordena e concluídas ficam no fim', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      state.tasks = [{ id: 't1', title: 'Tarefa', categoryId: state.categories[0].id, done: false, status: 'nao_iniciado', dueDate: null, dueTime: null,
+        startDate: todayStr(), followUpDate: todayStr(), priority: 'media', description: '', tagIds: [], recurrence: 'none',
+        subtasks: [{ id: 'a', title: 'A', done: false }, { id: 'b', title: 'B', done: false }, { id: 'c', title: 'C', done: false }, { id: 'd', title: 'D', done: true }],
+        comments: [], attachments: [], createdAt: Date.now() }];
+      render(); openTaskPanel('t1');
+    });
+    await expect(page.locator('.tp-subtask-row .drag-grip')).toHaveCount(3);
+    await expect(page.locator('.tp-subtask-row.done .drag-grip')).toHaveCount(0);
+    await expect(page.locator('.tp-subtask-move')).toHaveCount(0);
+    const grips = page.locator('.tp-subtask-row .drag-grip');
+    await dragGrip(page, grips.nth(0), grips.nth(2));
+    expect(await page.evaluate(() => state.tasks[0].subtasks.map(s => s.id))).toEqual(['b', 'c', 'a', 'd']);
+    await expect(page.locator('.tp-subtask-title')).toHaveText(['B', 'C', 'A', 'D']);
+  });
+});

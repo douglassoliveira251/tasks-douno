@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.32.0', date:'10/11/2026', title:'Reordenar arrastando', text:'Nos Espaços, nas Tags e nas subtarefas da tarefa, agora é só arrastar pelo ícone de seis pontos para mudar a ordem, no lugar das setas. As subtarefas concluídas continuam no fim e não são arrastadas.' },
   { version:'3.31.0', date:'10/11/2026', title:'Seletor de espaço mais limpo', text:'Em Configurações, o seletor de espaço das Tags ganhou um visual novo, só com o nome e a cor de cada espaço, sem números. Os Templates agora usam o mesmo seletor.' },
   { version:'3.30.0', date:'10/11/2026', title:'Espaços no mesmo estilo das Tags', text:'Em Configurações, os Espaços ganharam a paleta de cores e mostram quantas tarefas, agendas, notas e projetos cada um tem. Ao remover um espaço, agendas e projetos também são movidos para outro espaço.' },
   { version:'3.29.0', date:'10/11/2026', title:'Configurações mais organizadas e tags com paleta', text:'O menu de Configurações agora tem grupos (Conta, Organização e Sistema) e mostra a quantidade de espaços, tags e templates. Nas Tags, você escolhe o espaço numa lista no topo e muda a cor de cada tag por uma paleta de cores.' },

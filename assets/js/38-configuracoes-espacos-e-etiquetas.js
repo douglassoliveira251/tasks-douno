@@ -4,6 +4,7 @@ import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, uid } from './10-helpers.js';
 import { openConfirmPortal } from './13-portais-de-tarefa.js';
 import { icon } from './icones.js';
+import { gripHtml, makeSortable } from './56-arrastar-ordem.js';
 
 export function getOrderedCategories(){
   const list = G.state.categories.slice();
@@ -80,36 +81,20 @@ export function renderCatRows(focusId){
   if(!rows) return;
   rows.innerHTML = '';
   const ordered = getOrderedCategories();
-  const isCustom = G.state.categoryOrder === 'custom';
   ordered.forEach((cat, idx) => {
     const use = spaceUsage(cat.id);
     const isDef = G.state.defaultCategoryFilter === cat.id;
     const row = document.createElement('div');
     row.className = 'tag-row-settings cat-row-settings';
+    row.dataset.id = cat.id;
     row.innerHTML = `
+      ${gripHtml('Arrastar para reordenar o espaço')}
       <button type="button" class="tag-swatch round" title="Mudar a cor" aria-label="Mudar a cor de ${escapeHtml(cat.name)}" style="background:${escapeHtml(cat.color)}"></button>
       <input type="text" class="tag-name-input" value="${escapeHtml(cat.name)}" maxlength="40" aria-label="Nome do espaço">
       <span class="tag-row-use cat-row-use">${use.total === 0 ? 'Sem uso' : use.text}</span>
-      ${isCustom ? `
-        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima">${icon('caret-up')}</button>
-        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo">${icon('caret-down')}</button>
-      ` : ''}
       <button type="button" class="tag-del cat-star${isDef ? ' active' : ''}" title="${isDef ? 'Espaço padrão' : 'Definir como espaço padrão'}" aria-label="Definir como espaço padrão" aria-pressed="${isDef}">${icon('star', isDef ? 'fill' : 'regular')}</button>
       <button type="button" class="tag-del cat-del" title="Remover" aria-label="Remover espaço">${icon('trash')}</button>
     `;
-    if(isCustom){
-      row.querySelectorAll('.reorder-btn').forEach(btn => {
-        btn.onclick = () => {
-          const realIdx = G.state.categories.findIndex(c => c.id === cat.id);
-          const dir = btn.dataset.dir === 'up' ? -1 : 1;
-          const swapIdx = realIdx + dir;
-          if(swapIdx < 0 || swapIdx >= G.state.categories.length) return;
-          [G.state.categories[realIdx], G.state.categories[swapIdx]] = [G.state.categories[swapIdx], G.state.categories[realIdx]];
-          markDirty();
-          renderCatRows();
-        };
-      });
-    }
     row.querySelector('.cat-star').onclick = () => {
       G.state.defaultCategoryFilter = G.state.defaultCategoryFilter === cat.id ? null : cat.id;
       markDirty();
@@ -143,6 +128,14 @@ export function renderCatRows(focusId){
     rows.appendChild(row);
     if(cat.id === focusId){ nameInput.focus(); nameInput.select(); }
   });
+  makeSortable(rows, { rowSel: '.cat-row-settings', onReorder: ids => {
+    const map = new Map(G.state.categories.map(c => [c.id, c]));
+    G.state.categories = ids.map(id => map.get(id)).filter(Boolean);
+    G.state.categoryOrder = 'custom';
+    const sel = document.getElementById('catOrderSelect'); if(sel) sel.value = 'custom';
+    markDirty();
+    renderCatRows();
+  } });
 }
 
 /* Seletor de espaço (lista suspensa própria): bolinha de cor + nome, sem números.
@@ -306,7 +299,6 @@ export function renderTagRows(focusId){
   rows.innerHTML = '';
   const f0 = G.tagSpaceFilter;
   const ordered = getOrderedTags().filter(t => f0 === '__geral' ? !t.categoryId : t.categoryId === f0);
-  const isCustom = G.state.tagOrder === 'custom';
   if(ordered.length === 0){
     rows.innerHTML = `<p class="tag-empty">Nenhuma tag neste espaço ainda. Crie a primeira acima — ou direto no painel de uma tarefa.</p>`;
     return;
@@ -315,30 +307,15 @@ export function renderTagRows(focusId){
     const usedIn = G.state.tasks.filter(t => (t.tagIds||[]).includes(tag.id)).length;
     const row = document.createElement('div');
     row.className = 'tag-row-settings';
+    row.dataset.id = tag.id;
     row.innerHTML = `
+      ${gripHtml('Arrastar para reordenar a tag')}
       <button type="button" class="tag-swatch round" title="Mudar a cor" aria-label="Mudar a cor de ${escapeHtml(tag.name)}" style="background:${escapeHtml(tag.color)}"></button>
       <input type="text" class="tag-name-input" value="${escapeHtml(tag.name)}" maxlength="40" aria-label="Nome da tag">
       <span class="task-tag-pill tag-row-preview" style="--tg:${escapeHtml(tag.color)}">${escapeHtml(tag.name)}</span>
       <span class="tag-row-use">${usedIn === 0 ? 'Sem uso' : usedIn + (usedIn === 1 ? ' tarefa' : ' tarefas')}</span>
-      ${isCustom ? `
-        <button type="button" class="reorder-btn" data-dir="up" ${idx===0?'disabled':''} title="Mover para cima">${icon('caret-up')}</button>
-        <button type="button" class="reorder-btn" data-dir="down" ${idx===ordered.length-1?'disabled':''} title="Mover para baixo">${icon('caret-down')}</button>
-      ` : ''}
       <button type="button" class="tag-del" title="Remover" aria-label="Remover tag">${icon('trash')}</button>
     `;
-    if(isCustom){
-      row.querySelectorAll('.reorder-btn').forEach(btn => {
-        btn.onclick = () => {
-          const realIdx = G.state.tags.findIndex(t => t.id === tag.id);
-          const dir = btn.dataset.dir === 'up' ? -1 : 1;
-          const swapIdx = realIdx + dir;
-          if(swapIdx < 0 || swapIdx >= G.state.tags.length) return;
-          [G.state.tags[realIdx], G.state.tags[swapIdx]] = [G.state.tags[swapIdx], G.state.tags[realIdx]];
-          markDirty();
-          renderTagRows();
-        };
-      });
-    }
     const sw = row.querySelector('.tag-swatch');
     sw.onclick = () => openTagColorPalette(sw, tag.color, c => { tag.color = c; markDirty(); renderTagRows(); });
     const nameInput = row.querySelector('.tag-name-input');
@@ -360,4 +337,16 @@ export function renderTagRows(focusId){
     rows.appendChild(row);
     if(tag.id === focusId){ nameInput.focus(); nameInput.select(); }
   });
+  makeSortable(rows, { rowSel: '.tag-row-settings', onReorder: ids => {
+    /* a lista visível é só do espaço escolhido: as tags dele entram nos mesmos lugares da lista completa */
+    const full = getOrderedTags();
+    const map = new Map(full.map(t => [t.id, t]));
+    const vis = new Set(ids);
+    let k = 0;
+    G.state.tags = full.map(t => vis.has(t.id) ? map.get(ids[k++]) : t);
+    G.state.tagOrder = 'custom';
+    const sel = document.getElementById('tagOrderSelect'); if(sel) sel.value = 'custom';
+    markDirty();
+    renderTagRows();
+  } });
 }
