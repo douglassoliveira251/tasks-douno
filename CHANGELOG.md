@@ -1,3 +1,6 @@
+## [3.23.2] - 2026-11-10 23:00
+- Tarefas: subtarefas com anel de progresso + contador (sem barra e sem porcentagem).
+
 ## [3.23.1] - 2026-11-10 22:00
 - Tarefas: subtarefas com contador + barra de progresso + porcentagem no fim (no celular, só o contador).
 
