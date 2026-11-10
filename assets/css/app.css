@@ -3902,3 +3902,8 @@
   .task-row-left .task-comment-badge{margin:0;}
   [data-theme="dark"] .task-tag-pill:not(.ink-dark){filter:brightness(.62) saturate(.6);}
   [data-theme="dark"] .tp-tag-chip.ink-dark{filter:none;}
+
+  /* v3.23.0: projeto aberto (computador): sem a escolha Etapas/Linha do tempo/Lista (a Linha do tempo é a visão); botão Editar no topo; descrição no topo do Resumo */
+  .proj-side-desc{margin-bottom:12px;}
+  @media (min-width:769px){ .pd-head .pd-tabs{display:none;} }
+  @media (max-width:768px){ #prjEditTop{display:none;} }

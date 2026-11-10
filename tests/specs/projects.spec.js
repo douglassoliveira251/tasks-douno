@@ -74,8 +74,11 @@ test.describe('Projetos', () => {
     await expect(page.locator('.gantt-bar.concluida')).toHaveCount(1);
     await expect(page.locator('.gantt-today')).toBeVisible();
 
-    await page.locator('.proj-tab[data-tab="lista"]').click();
-    await expect(page.locator('.tpl-card')).toHaveCount(3);
+    // computador: só a Linha do tempo (sem a escolha Etapas/Linha do tempo/Lista) e o Editar no topo
+    await expect(page.locator('.pd-head .pd-tabs')).toBeHidden();
+    await expect(page.locator('#prjEditTop')).toBeVisible();
+    await page.locator('#prjEditTop').click();
+    await expect(page.locator('#prjClose')).toBeVisible();
   });
 
   test('criar projeto e etapa pelos formulários', async ({ page }) => {
@@ -201,13 +204,14 @@ test('etapa: resumo lateral, progresso com subtarefas e + cria etapa', async ({ 
   }, seed.toString());
   // progresso: tarefa b concluída (100%) + c com 1/2 subtarefas (50%) => etapa 75%
   expect(await page.evaluate(() => { const p = projectById('p1'); return stagePercent(p, p.stages[1]); })).toBe(75);
-  // sem seleção: resumo geral com Editar projeto
-  await expect(page.locator('#prjSideEdit')).toBeVisible();
+  // sem seleção: resumo geral; Editar fica no topo e a descrição no começo do Resumo
+  await expect(page.locator('#prjEditTop')).toBeVisible();
+  expect(await page.evaluate(() => { const a = document.querySelector('.proj-side'); const d = a.querySelector('#prjDescRow'), r = a.querySelector('.proj-side-top'); return !!(d.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING); })).toBe(true);
   await page.locator('.gantt-row[data-id="s2"]').click();
   await expect(page.locator('#stgSideNewTask')).toBeVisible();
   await expect(page.locator('#stgSideEdit')).toBeVisible();
   await page.locator('#stgSideBack').click();
-  await expect(page.locator('#prjSideEdit')).toBeVisible();
+  await expect(page.locator('#prjEditTop')).toBeVisible();
   // + cria etapa quando há projeto aberto
   await page.locator('#prjAddStage').click();
   await expect(page.locator('#stgName')).toBeVisible();

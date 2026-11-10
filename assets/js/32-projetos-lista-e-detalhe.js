@@ -184,7 +184,7 @@ export function renderProjectDetail(view, p){
   const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
   const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
   const isMobileP = window.matchMedia('(max-width:768px)').matches;
-  const tabNow = (G.projectTab === 'etapas' && !isMobileP) ? 'timeline' : (G.projectTab || 'timeline');
+  const tabNow = !isMobileP ? 'timeline' : (G.projectTab || 'timeline');
   const kp = (v, of, l, color) => `<div class="pd-kp"><small>${l}</small><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b></div>`;
   const daysLeft = (p.endDate || st.end) ? Math.round((new Date((p.endDate || st.end) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
   view.innerHTML = `
@@ -210,6 +210,7 @@ export function renderProjectDetail(view, p){
             <button type="button" class="proj-tab ${tabNow === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
             <button type="button" class="proj-tab ${tabNow === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
           </span>
+          <button type="button" class="prj-act" id="prjEditTop">${icon('pencil-simple')}Editar</button>
           <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
           <button type="button" class="prj-act pri" id="prjAddTask">${icon('plus')}Nova tarefa</button>
           <button type="button" class="prj-circle-btn" id="prjMore" title="Mais ações" aria-label="Mais ações" aria-haspopup="menu">${icon('dots-three-vertical')}</button>
@@ -223,6 +224,10 @@ export function renderProjectDetail(view, p){
       <aside class="proj-side ${selStage ? '' : 'is-resumo'}">
         ${selStage ? stageSideHtml : `
         <div class="proj-side-label">Resumo</div>
+        <div class="proj-side-desc">
+          <div class="proj-side-label" style="margin-top:0;">Descrição</div>
+          <div class="proj-desc-row" id="prjDescRow"></div>
+        </div>
         <div class="proj-side-top">
           <div class="proj-ring" style="--p:${st.pct}"><b>${st.pct}%</b></div>
           <div><b>${st.done} de ${st.total} etapa${st.total === 1 ? '' : 's'}</b>
@@ -245,9 +250,6 @@ export function renderProjectDetail(view, p){
             return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.dueDate && t.dueDate < today ? 'late' : ''}"></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>${sg ? escapeHtml(sg.name) + ' · ' : ''}${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}</small></div></div>`;
           }).join('');
         })()}
-        <div class="proj-side-label" style="margin-top:14px;">Descrição</div>
-        <div class="proj-desc-row" id="prjDescRow"></div>
-        <button type="button" class="proj-side-btn" id="prjSideEdit">Editar projeto</button>
         </div>`}
       </aside>
     </div>`;
@@ -309,8 +311,8 @@ export function renderProjectDetail(view, p){
     G.activeTaskId = t.id; G.creatingNewTask = false;
     markDirty();
   };
-  const prjSideEdit = view.querySelector('#prjSideEdit');
-  if(prjSideEdit) prjSideEdit.onclick = () => openProjectEditor(p);
+  const prjEditTop = view.querySelector('#prjEditTop');
+  if(prjEditTop) prjEditTop.onclick = () => openProjectEditor(p);
   view.querySelectorAll('.proj-side-task').forEach(el => {
     el.onclick = () => { G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); };
   });

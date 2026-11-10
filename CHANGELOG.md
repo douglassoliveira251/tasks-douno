@@ -1,3 +1,6 @@
+## [3.23.0] - 2026-11-10 21:00
+- Projeto (computador): Linha do tempo como visão fixa (sem Etapas/Linha do tempo/Lista); botão Editar com ícone no topo; descrição no começo do Resumo; removido o "Editar projeto" do fim do Resumo. No celular as visões continuam.
+
 ## [3.22.2] - 2026-11-10 20:00
 - Pesquisa: não filtra mais a lista de Tarefas (resultados só no painel da pesquisa); removido o link "Ver na lista".
 - Tarefas: contador de subtarefas volta a "feitas/total" (a porcentagem fica na dica ao passar o mouse).
