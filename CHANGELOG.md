@@ -1,3 +1,6 @@
+## [3.22.1] - 2026-11-10 19:00
+- Tarefas: nome do projeto elástico na linha (usa o espaço disponível e encurta só quando necessário).
+
 ## [3.22.0] - 2026-11-10 18:00
 - Tarefas: "Sem data" com ícone de calendário; comentários antes do ícone de recorrência; subtarefas só com a porcentagem; tags com fundo cheio e contraste automático (também no detalhe da tarefa).
 

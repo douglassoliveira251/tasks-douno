@@ -68,7 +68,7 @@ test.describe('Lista de tarefas', () => {
     const row = page.locator('.task-row[data-id="a"]');
     await expect(row.locator('.task-cal-badge.nodate')).toContainText('Sem data');
     await expect(row.locator('.task-subtask-badge')).toHaveText('25%');
-    const kids = await row.locator('.task-row-left').evaluate(el => [...el.children].map(c => c.className.split(' ')[0]));
+    const kids = await row.locator('.task-meta').evaluate(el => [...el.children].map(c => c.className.split(' ')[0]));
     expect(kids.indexOf('task-comment-badge')).toBeGreaterThan(-1);
     expect(kids.indexOf('task-comment-badge')).toBeLessThan(kids.indexOf('task-recurrence-icon'));
     await expect(row.locator('.task-row-right .task-comment-badge')).toHaveCount(0);
@@ -78,5 +78,26 @@ test.describe('Lista de tarefas', () => {
     await row.locator('.task-title').click();
     await expect(page.locator('.tp-tag-chip.active').first()).toHaveCSS('color', 'rgb(255, 255, 255)');
     await expect(page.locator('.tp-tag-chip.active').nth(1)).toHaveCSS('color', 'rgb(30, 41, 59)');
+  });
+  test('nome do projeto usa o espaço livre da linha e encurta só quando falta lugar', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      state.projects = [{ id: 'p1', name: 'Programa de redução de custos 2026', categoryId: cat, createdAt: 1, stages: [{ id: 's1', name: 'Levantamento inicial' }] }];
+      const mk = (id, extra) => ({ id, title: 'Tarefa ' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1, projectId: 'p1', stageId: 's1', ...extra });
+      state.tasks = [mk('a'), mk('b', { tagIds: ['g1'], subtasks: [{ id: 's', title: 'x', done: false }], recurrence: 'weekly', recurrenceInterval: 1, comments: [{ id: 'c', text: 'x', createdAt: 1 }] })];
+      state.tags = [{ id: 'g1', name: 'FinOps', color: '#2F5F9E', categoryId: '' }];
+      render();
+    });
+    const wide = await page.locator('.task-row[data-id="a"] .task-proj-pill').boundingBox();
+    expect(wide.width).toBeGreaterThan(300); // passou do limite antigo de 230px
+    const full = await page.locator('.task-row[data-id="a"] .task-proj-pill').evaluate(el => el.scrollWidth <= el.clientWidth);
+    expect(full).toBe(true); // nome inteiro, sem corte
+    await page.setViewportSize({ width: 1100, height: 900 });
+    const narrow = await page.locator('.task-row[data-id="b"] .task-proj-pill').boundingBox();
+    const cut = await page.locator('.task-row[data-id="b"] .task-proj-pill').evaluate(el => el.scrollWidth > el.clientWidth);
+    expect(cut).toBe(true); // com a linha cheia e a tela menor, encurta
+    expect(narrow.width).toBeGreaterThanOrEqual(48);
   });
 });

@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.22.1', date:'10/11/2026', title:'Nome do projeto na linha da tarefa', text:'Na lista de tarefas, o nome do projeto agora usa todo o espaço que sobrar na linha e só é encurtado quando faltar lugar.' },
   { version:'3.22.0', date:'10/11/2026', title:'Linha de tarefa mais completa', text:'Tarefas sem prazo mostram o ícone de calendário com "Sem data"; o contador de comentários agora fica antes do ícone de recorrência; as subtarefas mostram só a porcentagem de conclusão; e as tags têm fundo cheio com letra de alto contraste, igual ao detalhe da tarefa.' },
   { version:'3.21.0', date:'10/11/2026', title:'Lista de tarefas em duas linhas', text:'No computador, cada tarefa agora mostra o título em cima e, embaixo, o prazo, as subtarefas, as tags, o projeto e os demais detalhes. Status, Vencida/Hoje, favorito e menu continuam à direita.' },
   { version:'3.20.0', date:'10/11/2026', title:'Pesquisa com o visual novo', text:'O resultado da pesquisa agora vem separado em Tarefas, Agenda e Notas, com as informações de cada tipo: status, atraso, subtarefas e tags nas tarefas; horário, convidados e recorrência nas agendas; trecho, caderno e tags nas notas. Os botões Agendas passadas e Concluídas ficam no topo.' },
