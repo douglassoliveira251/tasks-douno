@@ -1,3 +1,6 @@
+## [3.32.1] - 2026-11-10 23:59
+- Celular: cartão de template com nome inteiro e botões em linha própria.
+
 ## [3.32.0] - 2026-11-10 23:59
 - Espaços, Tags e subtarefas: reordenar arrastando pelo ícone de seis pontos (mouse, toque e teclado), no lugar das setas; ao arrastar, a ordem passa a Personalizada. Subtarefas concluídas ficam no fim e não são arrastadas.
 - Templates: seletor de espaço no topo, à direita, como nas Tags.

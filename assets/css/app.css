@@ -4086,3 +4086,11 @@
   .tag-row-settings.dragging, .tp-subtask-row.dragging{background:var(--surface); box-shadow:0 8px 24px rgba(27,33,48,.16); border-radius:12px; position:relative; z-index:2; opacity:.96;}
   .sorting{user-select:none; -webkit-user-select:none;}
   .sorting .drag-grip{cursor:grabbing;}
+
+  /* ===== v3.32.1 — cartão de template legível no celular ===== */
+  @media (max-width:768px){
+    .tpl-card{flex-wrap:wrap; gap:8px 10px;}
+    .tpl-card-main{flex:1 1 100%;}
+    .tpl-card-spaces{margin-left:0; justify-content:flex-start; flex:1 1 auto;}
+    .tpl-card-actions{margin-left:auto;}
+  }
