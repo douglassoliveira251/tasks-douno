@@ -145,6 +145,63 @@ export function renderCatRows(focusId){
   });
 }
 
+/* Seletor de espaço (lista suspensa própria): bolinha de cor + nome, sem números.
+   options: [{ id, label, color }]. Chama onChange(id) ao escolher. */
+export function mountSpaceCombo(host, { value, options, onChange, label = 'Espaço' }){
+  const cur = options.find(o => o.id === value) || options[0];
+  const dot = c => `<i class="sp-dot" style="background:${escapeHtml(c || 'var(--ink-faint)')}"></i>`;
+  host.innerHTML = `
+    <div class="sp-combo">
+      <button type="button" class="sp-combo-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="${escapeHtml(label)}">
+        ${dot(cur && cur.color)}<span class="sp-combo-text">${escapeHtml(cur ? cur.label : '')}</span>${icon('caret-down')}
+      </button>
+    </div>`;
+  const btn = host.querySelector('.sp-combo-btn');
+  let list = null, idx = 0;
+  const close = () => {
+    if(!list) return;
+    list.remove(); list = null;
+    btn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('mousedown', onDoc, true);
+    window.removeEventListener('resize', close);
+  };
+  const onDoc = e => { if(list && !list.contains(e.target) && !btn.contains(e.target)) close(); };
+  const pick = id => { close(); if(id !== (cur && cur.id)) onChange(id); };
+  const paintActive = () => list.querySelectorAll('.sp-opt').forEach((el, i) => el.classList.toggle('kb', i === idx));
+  const open = () => {
+    if(list) return;
+    list = document.createElement('div');
+    list.className = 'sp-list';
+    list.setAttribute('role', 'listbox');
+    list.innerHTML = options.map(o => `<button type="button" role="option" class="sp-opt${cur && o.id === cur.id ? ' sel' : ''}" aria-selected="${!!cur && o.id === cur.id}" data-id="${escapeHtml(o.id)}">${dot(o.color)}<span>${escapeHtml(o.label)}</span>${cur && o.id === cur.id ? icon('check') : ''}</button>`).join('');
+    document.body.appendChild(list);
+    const r = btn.getBoundingClientRect();
+    list.style.minWidth = r.width + 'px';
+    const h = list.offsetHeight;
+    const below = window.innerHeight - r.bottom;
+    list.style.left = Math.max(8, Math.min(window.innerWidth - list.offsetWidth - 8, r.left)) + 'px';
+    list.style.top = (below < h + 12 && r.top > below ? r.top - h - 6 : r.bottom + 6) + 'px';
+    btn.setAttribute('aria-expanded', 'true');
+    idx = Math.max(0, options.findIndex(o => cur && o.id === cur.id));
+    paintActive();
+    list.querySelectorAll('.sp-opt').forEach(el => { el.onclick = () => pick(el.dataset.id); });
+    document.addEventListener('mousedown', onDoc, true);
+    window.addEventListener('resize', close);
+  };
+  btn.onclick = () => (list ? close() : open());
+  btn.addEventListener('keydown', e => {
+    if(e.key === 'Escape'){ if(list){ e.stopPropagation(); close(); } return; }
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(!list){ open(); return; }
+      idx = (idx + (e.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+      paintActive();
+    } else if((e.key === 'Enter' || e.key === ' ') && list){
+      e.preventDefault(); pick(options[idx].id);
+    }
+  });
+}
+
 export function getOrderedTags(){
   const list = G.state.tags.slice();
   if(G.state.tagOrder === 'alphabetical') list.sort((a,b) => a.name.localeCompare(b.name));
@@ -188,7 +245,7 @@ export function renderTagsPanel(panel){
       </div>
       <div class="tag-space-pick">
         <div class="tag-space-lbl">Espaço</div>
-        <div class="tag-space-combo"><i id="tagSpaceDot"></i><select class="tp-select" id="tagSpaceSelect" aria-label="Espaço das tags"></select></div>
+        <div id="tagSpaceHost"></div>
       </div>
     </div>
     <div class="tag-add-row">
@@ -211,14 +268,12 @@ export function renderTagsPanel(panel){
   if(!G.tagSpaceFilter || !valid(G.tagSpaceFilter)){
     G.tagSpaceFilter = (G.activeCategoryFilter && valid(G.activeCategoryFilter)) ? G.activeCategoryFilter : (G.state.categories[0] ? G.state.categories[0].id : '__geral');
   }
-  const sel = document.getElementById('tagSpaceSelect');
-  const cnt = id => G.state.tags.filter(t => id === '__geral' ? !t.categoryId : t.categoryId === id).length;
-  sel.innerHTML = G.state.categories.map(c => `<option value="${c.id}">${escapeHtml(c.name)} · ${cnt(c.id)}</option>`).join('')
-    + `<option value="__geral">Gerais (todos os espaços) · ${cnt('__geral')}</option>`;
-  sel.value = G.tagSpaceFilter;
-  const dotCat = G.tagSpaceFilter === '__geral' ? null : catById(G.tagSpaceFilter);
-  document.getElementById('tagSpaceDot').style.background = dotCat ? (dotCat.color || 'var(--primary)') : 'var(--ink-faint)';
-  sel.addEventListener('change', e => { G.tagSpaceFilter = e.target.value; renderTagsPanel(panel); });
+  mountSpaceCombo(document.getElementById('tagSpaceHost'), {
+    value: G.tagSpaceFilter,
+    label: 'Espaço das tags',
+    options: G.state.categories.map(c => ({ id: c.id, label: c.name, color: c.color || 'var(--primary)' })).concat([{ id: '__geral', label: 'Gerais', color: '' }]),
+    onChange: id => { G.tagSpaceFilter = id; renderTagsPanel(panel); },
+  });
 
   let newColor = TAG_PALETTE[G.state.tags.length % TAG_PALETTE.length];
   const swNew = document.getElementById('tagNewColor');

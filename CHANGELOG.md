@@ -1,3 +1,6 @@
+## [3.31.0] - 2026-11-10 23:59
+- Configurações: seletor de espaço com lista própria (cor + nome, sem numeração) nas Tags e nos Templates; "Gerais" no lugar de "Gerais (todos os espaços)".
+
 ## [3.30.0] - 2026-11-10 23:59
 - Configurações: Espaços com paleta de cores, contagem de tarefas, agendas, notas e projetos, e adição pelo topo (mesmo estilo das Tags).
 - Remover espaço agora move também as agendas e os projetos; textos de apoio das Tags e dos Espaços atualizados.

@@ -9,6 +9,7 @@ import { addDaysStr } from './25-calendario.js';
 import { addOneHourToTime } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
+import { mountSpaceCombo } from './38-configuracoes-espacos-e-etiquetas.js';
 import { icon } from './icones.js';
 import { PAINEL_TAREFA } from './estado-ui.js';
 
@@ -333,18 +334,19 @@ export function openTemplateEditor(existing, prefill){
 
 export function renderTemplatesPanel(panel){
   const list = G.state.taskTemplates || [];
-  const f0 = G.templateSpaceFilter && catById(G.templateSpaceFilter) ? G.templateSpaceFilter : '';
+  const f0 = G.templateSpaceFilter && catById(G.templateSpaceFilter) ? G.templateSpaceFilter
+    : ((G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : (G.state.categories[0] ? G.state.categories[0].id : ''));
   G.templateSpaceFilter = f0;
   const all = G.state.taskTemplates || [];
   const shown = f0 ? all.filter(tp => { const sp = templateSpaces(tp); return !sp.length || sp.includes(f0); }) : all;
-  const cntIn = id => all.filter(tp => { const sp = templateSpaces(tp); return !sp.length || sp.includes(id); }).length;
-  const chip = (id, label, color, n) => `<button type="button" class="set-chip${f0 === id ? ' on' : ''}" data-f="${id}">${color ? `<i style="background:${color}"></i>` : ''}${label}<small>${n}</small></button>`;
   const spaceBadges = tp => { const sp = templateSpaces(tp); return sp.length ? sp.map(id => { const c = catById(id); return `<span class="tpl-sp-badge" style="--c:${c.color || 'var(--primary)'}">${escapeHtml(c.name)}</span>`; }).join('') : '<span class="tpl-sp-badge all">Todos os espaços</span>'; };
   panel.innerHTML = `
     <h3 class="settings-section-title">Templates de tarefa</h3>
     <p class="settings-section-desc">Modelos para criar tarefas já preenchidas: descrição, prioridade, tags, repetição, subtarefas e agendas. Use pelo botão "Template" na lista de Tarefas.</p>
-    <div class="set-chips">${chip('', 'Todos', '', all.length)}${G.state.categories.map(c => chip(c.id, escapeHtml(c.name), c.color || 'var(--primary)', cntIn(c.id))).join('')}</div>
-    <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
+    <div class="tpl-top">
+      <div class="tag-space-pick"><div class="tag-space-lbl">Espaço</div><div id="tplSpaceHost"></div></div>
+      <button type="button" class="btn small" id="tplNewBtn">+ Novo template</button>
+    </div>
     <div class="tpl-list">
       ${shown.length ? shown.map(tp => `
         <div class="tpl-card" data-id="${tp.id}">
@@ -360,7 +362,12 @@ export function renderTemplatesPanel(panel){
           </div>
         </div>`).join('') : '<p class="settings-section-desc" style="margin-top:8px;">Nenhum template ainda.</p>'}
     </div>`;
-  panel.querySelectorAll('.set-chip').forEach(b => { b.onclick = () => { G.templateSpaceFilter = b.dataset.f; renderTemplatesPanel(panel); }; });
+  mountSpaceCombo(panel.querySelector('#tplSpaceHost'), {
+    value: f0,
+    label: 'Espaço dos templates',
+    options: G.state.categories.map(c => ({ id: c.id, label: c.name, color: c.color || 'var(--primary)' })),
+    onChange: id => { G.templateSpaceFilter = id; renderTemplatesPanel(panel); },
+  });
   panel.querySelector('#tplNewBtn').onclick = () => openTemplateEditor(null);
   panel.querySelectorAll('.tpl-card').forEach(card => {
     const tpl = G.state.taskTemplates.find(x => x.id === card.dataset.id);

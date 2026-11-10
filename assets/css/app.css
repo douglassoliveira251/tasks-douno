@@ -4073,3 +4073,23 @@
   @media (max-width:768px){
     .cat-row-use{display:none;}
   }
+
+  /* ===== v3.31.0 — seletor de espaço (lista suspensa própria) ===== */
+  .sp-combo-btn{display:flex; align-items:center; gap:10px; width:100%; min-width:230px; height:42px; padding:0 12px 0 14px; border:1px solid transparent; border-radius:12px; background:var(--surface-2); color:var(--ink); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left;}
+  .sp-combo-btn:hover{background:color-mix(in srgb, var(--surface-2) 70%, var(--border));}
+  .sp-combo-btn:focus-visible, .sp-combo-btn[aria-expanded="true"]{outline:none; border-color:var(--primary);}
+  .sp-combo-text{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sp-combo-btn > svg{width:14px; height:14px; color:var(--ink-faint); flex:none;}
+  .sp-dot{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block;}
+  .sp-list{position:fixed; z-index:9999; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:0 12px 32px rgba(27,33,48,.18); padding:6px; max-height:min(320px, 60vh); overflow:auto;}
+  .sp-opt{display:flex; align-items:center; gap:10px; width:100%; padding:9px 10px; border:none; background:transparent; border-radius:9px; font:inherit; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; text-align:left;}
+  .sp-opt span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sp-opt svg{width:14px; height:14px; color:var(--primary); flex:none;}
+  .sp-opt:hover, .sp-opt.kb{background:var(--surface-2);}
+  .sp-opt.sel{font-weight:700; color:var(--primary);}
+  .tpl-top{display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin:4px 0 12px; flex-wrap:wrap;}
+  .tpl-top .tag-space-pick{min-width:230px;}
+  @media (max-width:768px){
+    .tpl-top .tag-space-pick{flex:1; min-width:0;}
+    .sp-combo-btn{min-width:0;}
+  }

@@ -29,14 +29,17 @@ test.describe('Configurações', () => {
   test('tags: combo de espaço filtra, sem texto explicativo e sem cor personalizada', async ({ page }) => {
     await gotoApp(page, { view: 'settings' });
     await page.evaluate(seed);
-    await expect(page.locator('#tagSpaceSelect')).toHaveValue('c1');
+    await expect(page.locator('#tagSpaceHost .sp-combo-text')).toHaveText('Trabalho');
     await expect(page.locator('.tag-row-settings')).toHaveCount(2);
     await expect(page.locator('#settingsPanel')).not.toContainText('Você está editando');
     await expect(page.locator('.tag-row-settings').first().locator('.tag-row-use')).toHaveText('1 tarefa');
-    await page.locator('#tagSpaceSelect').selectOption('__geral');
+    await page.locator('#tagSpaceHost .sp-combo-btn').click();
+    await expect(page.locator('.sp-opt')).toHaveText(['Trabalho', 'Pessoal', 'Gerais']);
+    await page.locator('.sp-opt', { hasText: 'Gerais' }).click();
     await expect(page.locator('.tag-row-settings')).toHaveCount(1);
     await expect(page.locator('.tag-name-input')).toHaveValue('Urgente');
-    await page.locator('#tagSpaceSelect').selectOption('c2');
+    await page.locator('#tagSpaceHost .sp-combo-btn').click();
+    await page.locator('.sp-opt', { hasText: 'Pessoal' }).click();
     await expect(page.locator('.tag-name-input')).toHaveValue('Casa');
     await expect(page.locator('input[type=color]')).toHaveCount(0);
   });
@@ -57,7 +60,8 @@ test.describe('Configurações', () => {
   test('tags: adiciona no espaço escolhido com a cor da paleta', async ({ page }) => {
     await gotoApp(page, { view: 'settings' });
     await page.evaluate(seed);
-    await page.locator('#tagSpaceSelect').selectOption('c2');
+    await page.locator('#tagSpaceHost .sp-combo-btn').click();
+    await page.locator('.sp-opt', { hasText: 'Pessoal' }).click();
     await page.locator('#tagNewColor').click();
     await page.locator('.tag-pal-dot[data-c="#0EA5E9"]').click();
     await page.locator('#tagNewName').fill('Saúde');
@@ -107,4 +111,21 @@ test.describe('Configurações · Espaços', () => {
     expect(r.ev).toBe('c2');
     expect(r.pj).toBe('c2');
   });
+});
+
+test('templates: mesmo seletor de espaço, sem numeração', async ({ page }) => {
+  await gotoApp(page, { view: 'settings' });
+  await page.evaluate(() => {
+    state.categories = [{ id: 'c1', name: 'Trabalho', color: '#4A6FA5' }, { id: 'c2', name: 'Pessoal', color: '#9B5DE5' }];
+    state.taskTemplates = [{ id: 'x', name: 'Só trabalho', categoryIds: ['c1'], subtasks: [], events: [] }, { id: 'y', name: 'Só pessoal', categoryIds: ['c2'], subtasks: [], events: [] }];
+    activeCategoryFilter = null; templateSpaceFilter = ''; settingsTab = 'templates'; currentView = 'settings'; render();
+  });
+  await expect(page.locator('#tplSpaceHost .sp-combo-text')).toHaveText('Trabalho');
+  await expect(page.locator('.tpl-card')).toHaveCount(1);
+  await page.locator('#tplSpaceHost .sp-combo-btn').click();
+  await expect(page.locator('.sp-opt')).toHaveText(['Trabalho', 'Pessoal']);
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#tplSpaceHost .sp-combo-text')).toHaveText('Pessoal');
+  await expect(page.locator('.tpl-card')).toContainText('Só pessoal');
 });
