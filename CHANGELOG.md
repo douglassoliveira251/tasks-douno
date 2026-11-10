@@ -1,3 +1,6 @@
+## [3.24.0] - 2026-11-10 23:50
+- Tarefas: status ao lado do título; alertas de prazo com relógio (Vencida/Hoje, cor cheia) e de retomada com sino (Vencida/Hoje, cor invertida); retomada futura continua como etiqueta.
+
 ## [3.23.2] - 2026-11-10 23:00
 - Tarefas: subtarefas com anel de progresso + contador (sem barra e sem porcentagem).
 

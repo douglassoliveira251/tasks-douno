@@ -503,9 +503,12 @@ export function renderTaskRow(t){
   const subtasks = t.subtasks || [];
   const subDone = subtasks.filter(s=>s.done).length;
 
-  let statusPill = '';
-  if(overdue) statusPill = `<span class="task-status-pill overdue">Vencida</span>`;
-  else if(isToday && !t.done) statusPill = `<span class="task-status-pill today">Hoje</span>`;
+  const fuSt = followUpState(t);
+  let alertsHtml = '';
+  if(fuSt === 'vencida') alertsHtml += `<span class="task-alert task-alert-ret over" title="Retomada vencida (${fmtDate(t.followUpDate)})">${icon('bell')}Vencida</span>`;
+  else if(fuSt === 'hoje') alertsHtml += `<span class="task-alert task-alert-ret today" title="Retomar hoje">${icon('bell')}Hoje</span>`;
+  if(overdue) alertsHtml += `<span class="task-alert task-status-pill overdue" title="Prazo vencido">${icon('clock')}Vencida</span>`;
+  else if(isToday && !t.done) alertsHtml += `<span class="task-alert task-status-pill today" title="Vence hoje">${icon('clock')}Hoje</span>`;
 
   const cat_ = (G.state.categories || []).find(c => c.id === t.categoryId);
   const stLabel_ = (STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label;
@@ -514,10 +517,10 @@ export function renderTaskRow(t){
       ${icon('check')}
     </div>
     <div class="task-row-left">
-      <span class="task-title">${escapeHtml(t.title || 'Sem título')}</span>
+      <div class="task-title-line"><span class="task-title">${escapeHtml(t.title || 'Sem título')}</span><span class="task-status-label">${stLabel_}</span></div>
       <div class="task-meta">
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : `<span class="task-cal-badge nodate">${icon('calendar-blank')}Sem data</span>`}
-      ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
+      ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ === 'futura' ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? (() => { const pc = Math.round(100 * subDone / subtasks.length); return `<span class="task-subtask-badge task-prog" title="${subDone} de ${subtasks.length} subtarefas concluídas (${pc}%)"><span class="task-prog-ring" style="--p:${pc}"></span><b>${subDone}/${subtasks.length}</b></span>`; })() : ''}
       ${tags.length ? `<span class="task-tag-pill${readableInk(tags[0].color) !== '#FFFFFF' ? ' ink-dark' : ''}" style="background:${tags[0].color}; color:${readableInk(tags[0].color)};">${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
@@ -527,8 +530,7 @@ export function renderTaskRow(t){
       </div>
     </div>
     <div class="task-row-right">
-      <span class="task-status-label">${stLabel_}</span>
-      ${statusPill || '<span class="task-pill-ph"></span>'}
+      <div class="task-alerts">${alertsHtml}</div>
       ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'bold' : 'regular')}</button>`}
       <div class="task-menu-wrap">
         <button class="task-menu-btn">${icon('dots-three-vertical')}</button>

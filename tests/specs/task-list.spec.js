@@ -102,4 +102,27 @@ test.describe('Lista de tarefas', () => {
     expect(cut).toBe(true); // com a linha cheia e a tela menor, encurta
     expect(narrow.width).toBeGreaterThanOrEqual(48);
   });
+  test('alertas: relógio no prazo, sino na retomada, nomes Vencida/Hoje; status ao lado do título', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const t = todayStr(), cat = state.categories[0].id;
+      const mk = (id, due, fu, st) => ({ id, title: 'Tarefa ' + id, done: false, status: st, priority: 'media', dueDate: due, dueTime: '', followUpDate: fu, categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 });
+      state.tasks = [mk('a', addDaysStr(t, -2), addDaysStr(t, -1), 'em_andamento'), mk('b', t, t, 'nao_iniciado')];
+      render();
+    });
+    const a = page.locator('.task-row[data-id="a"]'), b = page.locator('.task-row[data-id="b"]');
+    await expect(a.locator('.task-alert-ret.over')).toHaveText('Vencida');
+    await expect(a.locator('.task-alert-ret.over svg')).toHaveCount(1); // sino
+    await expect(a.locator('.task-status-pill.overdue')).toHaveText('Vencida');
+    await expect(a.locator('.task-status-pill.overdue svg')).toHaveCount(1); // relógio
+    await expect(b.locator('.task-alert-ret.today')).toHaveText('Hoje');
+    await expect(b.locator('.task-status-pill.today')).toHaveText('Hoje');
+    // sino antes do relógio
+    const order = await b.locator('.task-alerts').evaluate(el => [...el.children].map(c => c.classList.contains('task-alert-ret') ? 'ret' : 'prazo'));
+    expect(order).toEqual(['ret', 'prazo']);
+    // status ao lado do título (mesma linha) e fora da coluna da direita
+    await expect(a.locator('.task-title-line .task-status-label')).toHaveText('Em andamento');
+    await expect(a.locator('.task-row-right .task-status-label')).toHaveCount(0);
+  });
 });
