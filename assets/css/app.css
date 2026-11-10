@@ -4203,3 +4203,9 @@
   /* Biblioteca: item de menu já criado, desativado por enquanto (ver ROADMAP.md) */
   .nav-item.nav-soon, .nav-item.nav-soon:hover, [data-theme="dark"] .nav-item.nav-soon:hover{opacity:.45; cursor:not-allowed; background:transparent !important; color:var(--ink-soft) !important;}
   .nav-item.nav-soon:hover svg, [data-theme="dark"] .nav-item.nav-soon:hover svg{color:var(--ink-soft) !important;}
+
+  /* v3.35.1: no computador, a barra colorida da prioridade encosta no topo do painel de edição (sem a folga de 12px acima) */
+  @media (min-width:769px){
+    .tasks-layout .task-panel{padding-top:0;}
+    .tasks-layout .task-panel .tp-sticky-head{margin-top:0; top:0;}
+  }

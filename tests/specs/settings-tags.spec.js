@@ -341,3 +341,17 @@ test('menu: Biblioteca existe com ícone de livros, desativada e sem abrir tela'
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(vp.width);
   }
 });
+
+test('detalhe da tarefa (computador): a barra de prioridade encosta no topo do painel', async ({ page }) => {
+  for (const vp of [{ width: 1440, height: 800 }, { width: 1100, height: 700 }]) {
+    await page.setViewportSize(vp);
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: 1 }];
+      currentView = 'tasks'; render(); openTaskPanel('t1');
+    });
+    const d = await page.evaluate(() => document.querySelector('.tp-top-flag').getBoundingClientRect().top - document.querySelector('.task-panel').getBoundingClientRect().top);
+    expect(Math.abs(d)).toBeLessThanOrEqual(1);
+  }
+});

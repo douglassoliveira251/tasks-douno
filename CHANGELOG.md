@@ -1,3 +1,6 @@
+## [3.35.1] - 2026-11-10 23:59
+- Tarefa (computador): a barra colorida da prioridade no detalhe encosta no topo do painel, sem a folga de 12px acima.
+
 ## [3.35.0] - 2026-11-10 23:59
 - Calendário: os espaços marcados na coluna lateral ficam salvos (com os dados) até você desmarcar; espaço novo entra marcado.
 - Tarefas: barra de prioridade mais larga (6px no computador, 5px no celular).
