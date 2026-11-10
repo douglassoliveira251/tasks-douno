@@ -1,3 +1,7 @@
+## [3.33.0] - 2026-11-10 23:59
+- Detalhe da tarefa: ícones de duplicar e excluir depois do favorito (excluir pede confirmação, com aviso de que não pode ser desfeito).
+- Barra de progresso das subtarefas mais grossa (9px) e em verde claro.
+
 ## [3.32.2] - 2026-11-10 23:59
 - Correção: tag criada/adicionada pelo painel da tarefa (e da agenda) aparecia com a cor antiga até salvar; agora já nasce no estilo certo.
 - Correção: a confirmação de exclusão ficava fora da tela ou não fechava; agora se mantém na tela e fecha ao clicar/tocar fora ou com Esc.

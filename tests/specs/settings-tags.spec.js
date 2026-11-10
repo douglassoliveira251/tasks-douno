@@ -251,3 +251,32 @@ test.describe('Correções', () => {
     }
   });
 });
+
+test.describe('Detalhe da tarefa: duplicar, excluir e progresso', () => {
+  const seedT = () => {
+    const cat = state.categories[0].id;
+    state.tasks = [{ id: 't1', title: 'Relatório', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', description: '', tagIds: [], recurrence: 'none',
+      subtasks: [{ id: 'a', title: 'A', done: true }, { id: 'b', title: 'B', done: false }], comments: [], attachments: [], createdAt: 1 }];
+    currentView = 'tasks'; render(); openTaskPanel('t1');
+  };
+  for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+    test(`ícones depois do favorito, excluir com confirmação e barra mais grossa (${vp.width}px)`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await gotoApp(page, { view: 'tasks' });
+      await page.evaluate(seedT);
+      const order = await page.locator('.tp-name-row').first().evaluate(el => [...el.querySelectorAll('button')].map(b => b.id).filter(Boolean));
+      expect(order.slice(order.indexOf('tpPinBtn'))).toEqual(['tpPinBtn', 'tpDupBtn', 'tpDelBtn', 'tpMenuBtn']);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(vp.width);
+      expect(await page.locator('.tp-subtask-progress-bar').evaluate(el => el.getBoundingClientRect().height)).toBe(9);
+      await page.locator('#tpDupBtn').click();
+      expect(await page.evaluate(() => state.tasks.map(t => t.title))).toEqual(['Relatório', 'Relatório (cópia)']);
+      await page.locator('#tpDelBtn').click();
+      const portal = page.locator('#confirmActionPortal');
+      await expect(portal).toContainText('não pode ser desfeita');
+      const b = await portal.boundingBox();
+      expect(b.x).toBeGreaterThanOrEqual(0); expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
+      await page.locator('#confirmActionOk').click();
+      expect(await page.evaluate(() => state.tasks.map(t => t.title))).toEqual(['Relatório']);
+    });
+  }
+});

@@ -1267,11 +1267,11 @@
   .tp-subtask-del svg{width:12px; height:12px;}
 
   .tp-subtask-progress-bar{
-    width:100%; height:6px; border-radius:20px; background:var(--surface-2);
+    width:100%; height:9px; border-radius:20px; background:var(--surface-2);
     overflow:hidden; margin-bottom:4px;
   }
   .tp-subtask-progress-fill{
-    height:100%; background:var(--primary); border-radius:20px; transition:width .2s ease;
+    height:100%; background:var(--progress-ok); border-radius:20px; transition:width .2s ease;
   }
   .tp-subtask-header-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .tp-subtask-progress-pct{
@@ -3254,7 +3254,7 @@
     .task-panel .tp-space-chip{font-size:12px; padding:3px 10px;}
     /* subtarefas */
     .task-panel .tp-subtask-header-row .tp-label{color:#64748B; font-weight:800;}
-    .task-panel .tp-subtask-progress-bar{height:3px;}
+    .task-panel .tp-subtask-progress-bar{height:9px;}
     .task-panel .tp-subtask-row{min-height:26px; font-size:12px;}
     .task-panel .tp-subtask-title{font-size:12px;}
     .task-panel .tp-add-inline input{font-size:12px;}
@@ -4094,3 +4094,9 @@
     .tpl-card-spaces{margin-left:0; justify-content:flex-start; flex:1 1 auto;}
     .tpl-card-actions{margin-left:auto;}
   }
+
+  /* ===== v3.33.0 — barra de progresso das subtarefas mais grossa, em verde claro ===== */
+  :root{--progress-ok:#4CB782;}
+  [data-theme="dark"]{--progress-ok:#3FA874;}
+  .tp-subtask-progress-bar{margin-bottom:6px;}
+  .task-panel .tp-name-input{min-width:0;}

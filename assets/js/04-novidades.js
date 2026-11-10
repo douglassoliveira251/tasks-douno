@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.33.0', date:'10/11/2026', title:'Duplicar e excluir direto na tarefa', text:'No detalhe da tarefa, depois da estrela, agora há ícones para duplicar e para excluir, com confirmação. A barra de progresso das subtarefas ficou um pouco mais grossa e em verde claro.' },
   { version:'3.32.2', date:'10/11/2026', title:'Correções em tags e confirmação de exclusão', text:'A tag que você acaba de criar na tarefa já aparece com a cor certa, sem esperar salvar. A confirmação de exclusão agora fica sempre dentro da tela e fecha ao clicar fora ou apertar Esc.' },
   { version:'3.32.1', date:'10/11/2026', title:'Templates legíveis no celular', text:'No celular, o cartão de cada template agora mostra o nome inteiro e deixa o selo do espaço e os botões Editar, Duplicar e Excluir numa linha abaixo.' },
   { version:'3.32.0', date:'10/11/2026', title:'Reordenar arrastando', text:'Nos Espaços, nas Tags e nas subtarefas da tarefa, agora é só arrastar pelo ícone de seis pontos para mudar a ordem, no lugar das setas. As subtarefas concluídas continuam no fim e não são arrastadas.' },

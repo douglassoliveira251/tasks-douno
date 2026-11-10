@@ -26,6 +26,18 @@ export function bindTpMenu(panel, task){
     openTaskPanel(copy.id);
   }
 
+  function deleteThisTask(anchor){
+    openConfirmPortal(anchor, 'Excluir esta tarefa? Essa ação não pode ser desfeita.', () => {
+      G.state.tasks = G.state.tasks.filter(x => x.id !== task.id);
+      G.activeTaskId = null;
+      markDirty();
+    });
+  }
+  const tpDupBtn = document.getElementById('tpDupBtn');
+  if(tpDupBtn) tpDupBtn.onclick = (e) => { e.stopPropagation(); duplicateThisTask(); };
+  const tpDelBtn = document.getElementById('tpDelBtn');
+  if(tpDelBtn) tpDelBtn.onclick = (e) => { e.stopPropagation(); deleteThisTask(tpDelBtn); };
+
   /* Menu "⋮" do painel: Template (usar, salvar, gerenciar) + ações da tarefa. */
   const ICO_PROJ = icon('kanban');
   const ICO_TPL = icon('layout');
@@ -79,11 +91,7 @@ export function bindTpMenu(panel, task){
     });
     on('del', () => {
       closeAllTaskMenus();
-      openConfirmPortal(tpMenuBtn, 'Excluir esta tarefa?', () => {
-        G.state.tasks = G.state.tasks.filter(x => x.id !== task.id);
-        G.activeTaskId = null;
-        markDirty();
-      });
+      deleteThisTask(tpMenuBtn);
     });
   }
   function linkTaskTo(projectId, stageId){
