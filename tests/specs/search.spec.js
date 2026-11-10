@@ -13,19 +13,21 @@ const seed = () => {
 };
 
 test.describe('Pesquisa', () => {
-  test('resultados com abas, contexto e termo destacado', async ({ page }) => {
+  test('resultados por seção (Tarefas, Agenda, Notas) com informação de cada tipo e termo destacado', async ({ page }) => {
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(seed);
     await page.locator('#searchInput').fill('relatório');
 
     await expect(page.locator('.sr-row')).toHaveCount(3);
     await expect(page.locator('.sr-mark').first()).toHaveText('relatório');
-    await expect(page.locator('.sr-tab.on')).toContainText('Tudo');
-    await expect(page.locator('.sr-tab', { hasText: 'Tarefas' })).toContainText('1');
-    await expect(page.locator('.sr-row').first()).toContainText('Em andamento');
-
-    await page.locator('.sr-tab', { hasText: 'Notas' }).click();
-    await expect(page.locator('.sr-row')).toHaveCount(1);
+    await expect(page.locator('.sr-head')).toContainText('3 resultados');
+    await expect(page.locator('.sr-sec')).toHaveText(['Tarefas · 1Ver na lista ›', 'Agenda · 1', 'Notas · 1']);
+    // tarefa: status, subtarefas/prazo; agenda: horário com duração; nota: trecho e caderno
+    await expect(page.locator('.sr-row[data-kind="tasks"]')).toContainText('Em andamento');
+    await expect(page.locator('.sr-row[data-kind="tasks"] .sr-when')).toContainText('Hoje');
+    await expect(page.locator('.sr-row[data-kind="calendar"] .sr-meta')).toContainText('15:00 – 16:00 (1h)');
+    await expect(page.locator('.sr-row[data-kind="notes"] .sr-snip')).toContainText('Preparar o relatório da semana');
+    await expect(page.locator('.sr-row[data-kind="notes"] .sr-meta')).toContainText('Sem caderno');
     await expect(page.locator('.sr-ic.n')).toHaveCount(1);
   });
 
@@ -48,7 +50,8 @@ test.describe('Pesquisa', () => {
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(seed);
     await page.locator('#searchInput').fill('relatório');
-    await page.keyboard.press('ArrowDown'); // segunda linha: nota
+    await page.keyboard.press('ArrowDown'); // segunda linha: agenda
+    await page.keyboard.press('ArrowDown'); // terceira linha: nota
     await page.keyboard.press('Enter');
     await expect(page.locator('#searchResultsDropdown')).toBeHidden();
     expect(await page.evaluate(() => currentView)).toBe('notes');
@@ -72,7 +75,7 @@ test.describe('Pesquisa', () => {
     await expect(page.locator('#srToggleDone')).toHaveAttribute('aria-pressed', 'false');
     await page.locator('#srToggleDone').click();
     await expect(page.locator('.sr-row.done')).toHaveCount(1);
-    await expect(page.locator('.sr-sec')).toHaveText('Concluídas');
+    await expect(page.locator('.sr-sec', { hasText: 'Concluídas' })).toContainText('Concluídas · 1');
     await expect(page.locator('#srToggleDone')).toHaveAttribute('aria-pressed', 'true');
     await page.locator('#srToggleDone').click();
     await expect(page.locator('.sr-row.done')).toHaveCount(0);
@@ -89,12 +92,12 @@ test.describe('Pesquisa', () => {
     });
     await page.locator('#searchInput').fill('reunião');
     await expect(page.locator('.sr-row')).toHaveCount(3); // futura, hoje e a recorrente
-    await expect(page.locator('.sr-tab.on')).toContainText('3');
+    await expect(page.locator('.sr-head')).toContainText('3 resultados');
     await expect(page.locator('#srTogglePast')).toContainText('Agendas passadas');
     await expect(page.locator('#srTogglePast i')).toHaveText('2');
     await page.locator('#srTogglePast').click();
     await expect(page.locator('.sr-row')).toHaveCount(5);
-    await expect(page.locator('.sr-sec')).toHaveText('Agendas passadas');
+    await expect(page.locator('.sr-sec', { hasText: 'Agendas passadas' })).toContainText('Agendas passadas · 2');
     await expect(page.locator('.sr-row.past').first()).toContainText('Reunião velha'); // mais recente primeiro
     await expect(page.locator('#srToggleDone')).toHaveCount(0);
     await page.locator('#srTogglePast').click();

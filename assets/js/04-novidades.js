@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.20.0', date:'10/11/2026', title:'Pesquisa com o visual novo', text:'O resultado da pesquisa agora vem separado em Tarefas, Agenda e Notas, com as informações de cada tipo: status, atraso, subtarefas e tags nas tarefas; horário, convidados e recorrência nas agendas; trecho, caderno e tags nas notas. Os botões Agendas passadas e Concluídas ficam no topo.' },
   { version:'3.19.1', date:'10/11/2026', title:'Pesquisa mantém o filtro e espaço mais compacto', text:'Ao clicar numa tarefa no resultado da pesquisa, a lista de Tarefas continua filtrada pelo termo e a tarefa aberta aparece selecionada. O seletor de espaço no topo ficou 20% mais estreito.' },
   { version:'3.19.0', date:'10/11/2026', title:'Pesquisa sem agendas passadas', text:'Na pesquisa, as agendas que já passaram ficam ocultas. Use o botão "Agendas passadas" (ao lado de "Concluídas", abaixo das abas) para vê-las no fim da lista.' },
   { version:'3.18.6', date:'09/11/2026', title:'Detalhe da tarefa mais acima (correção)', text:'Corrigido: com a lista de tarefas longa, o painel de detalhe não subia. Agora ele fica mais acima e continua fixo ao rolar a lista.' },

@@ -1,3 +1,6 @@
+## [3.20.0] - 2026-11-10 14:00
+- Pesquisa: novo layout por seções (Tarefas, Agenda, Notas), cada tipo com suas informações; chips Agendas passadas/Concluídas no topo; link "Ver na lista"; legenda de teclas; destaque do termo legível no tema escuro.
+
 ## [3.19.1] - 2026-11-10 11:00
 - Pesquisa: ao abrir uma tarefa pelo resultado, o termo permanece e a lista de Tarefas fica filtrada, com a tarefa selecionada.
 - Topo: seletor de espaço 20% mais estreito (170→136 px; 140→112 px em telas médias).
