@@ -100,4 +100,16 @@ test.describe('Pesquisa', () => {
     await page.locator('#srTogglePast').click();
     await expect(page.locator('.sr-row')).toHaveCount(3);
   });
+  test('clicar numa tarefa do resultado abre o detalhe e mantém a lista filtrada pelo termo', async ({ page }) => {
+    await gotoApp(page, { view: 'dashboard' });
+    await page.evaluate(seed);
+    await page.locator('#searchInput').fill('relatório');
+    await page.locator('.sr-row[data-kind="tasks"]').first().click();
+    await expect(page.locator('#searchInput')).toHaveValue('relatório');
+    await expect(page.locator('#tasksView .task-row')).toHaveCount(1);
+    await expect(page.locator('#tasksView .task-row.selected')).toContainText('Enviar relatório mensal');
+    await expect(page.locator('.task-panel')).toBeVisible();
+    await page.locator('#searchClearBtn').click();
+    await expect(page.locator('#tasksView .task-row')).toHaveCount(2);
+  });
 });

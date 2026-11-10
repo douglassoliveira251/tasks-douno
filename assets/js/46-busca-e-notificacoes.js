@@ -160,9 +160,11 @@ export function renderSearchResultsDropdown(){
   function openResult(row){
     const kind = row.dataset.kind;
     const id = row.dataset.id;
-    clearSearchTerm();
+    /* tarefa: mantém o termo na busca, assim a lista de Tarefas fica filtrada e a tarefa aberta aparece selecionada nela */
+    if(kind !== 'tasks') clearSearchTerm();
     closeSearchResultsDropdown();
     if(kind === 'tasks'){
+      searchShowDone = false; searchShowPast = false;
       G.currentView = 'tasks'; G.activeTaskId = id; G.creatingNewTask = false; render();
     } else if(kind === 'notes'){
       G.currentView = 'notes'; render();

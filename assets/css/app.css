@@ -3176,14 +3176,14 @@
 
   @media (max-width:768px){ .task-cmt-ph{display:none;} }
 
-  /* v3.7.4: início da tarefa no extremo direito; seletor de espaço maior e fixo */
+  /* v3.7.4: início da tarefa no extremo direito; seletor de espaço fixo (largura reduzida em 20% na v3.19.1: 170→136, 140→112) */
   .tp-due-box .tp-label-row{display:flex; width:100%;}
   .tp-due-box .tp-start-link{margin-left:auto;}
   @media (min-width:769px){
-    #spaceSelectorBtn{width:170px; display:grid; grid-template-columns:auto minmax(0,1fr) auto;}
+    #spaceSelectorBtn{width:136px; display:grid; grid-template-columns:auto minmax(0,1fr) auto;}
     #spaceSelectorBtn .space-selector-name{max-width:none; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   }
-  @media (min-width:769px) and (max-width:1180px){ #spaceSelectorBtn{width:140px;} }
+  @media (min-width:769px) and (max-width:1180px){ #spaceSelectorBtn{width:112px;} }
   /* busca recolhida: o campo tem exatamente a caixa do ícone (36px), sem invadir o sino ao passar o mouse */
   .search-wrap input{box-sizing:border-box; min-width:0;}
 

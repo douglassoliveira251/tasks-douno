@@ -1,3 +1,7 @@
+## [3.19.1] - 2026-11-10 11:00
+- Pesquisa: ao abrir uma tarefa pelo resultado, o termo permanece e a lista de Tarefas fica filtrada, com a tarefa selecionada.
+- Topo: seletor de espaço 20% mais estreito (170→136 px; 140→112 px em telas médias).
+
 ## [3.19.0] - 2026-11-10 09:00
 - Pesquisa: agendas anteriores a hoje ficam ocultas; chips "Agendas passadas" e "Concluídas" abaixo das abas mostram cada grupo no fim da lista. Agenda de hoje e repetições ativas continuam aparecendo.
 
