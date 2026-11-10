@@ -68,12 +68,36 @@ test.describe('Pesquisa', () => {
     await page.locator('#searchInput').fill('relatório');
     await expect(page.locator('.sr-row')).toHaveCount(3);
     await expect(page.locator('.sr-row.done')).toHaveCount(0);
-    await expect(page.locator('#srToggleDone')).toContainText('Mostrar concluídas (1)');
+    await expect(page.locator('#srToggleDone')).toContainText('Concluídas');
+    await expect(page.locator('#srToggleDone')).toHaveAttribute('aria-pressed', 'false');
     await page.locator('#srToggleDone').click();
     await expect(page.locator('.sr-row.done')).toHaveCount(1);
     await expect(page.locator('.sr-sec')).toHaveText('Concluídas');
-    await expect(page.locator('#srToggleDone')).toContainText('Ocultar concluídas');
+    await expect(page.locator('#srToggleDone')).toHaveAttribute('aria-pressed', 'true');
     await page.locator('#srToggleDone').click();
     await expect(page.locator('.sr-row.done')).toHaveCount(0);
+  });
+  test('agendas passadas ficam ocultas; chip "Agendas passadas" as mostra no fim, e a de hoje continua visível', async ({ page }) => {
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const t = todayStr(), cat = state.categories[0].id;
+      const ev = (id, title, d, extra = {}) => ({ id, title, date: d, endDate: d, startTime: '10:00', endTime: '', allDay: false, categoryId: cat, tagIds: [], recurrence: 'none', recurrenceInterval: 1, description: '', createdAt: 1, ...extra });
+      state.tasks = []; state.notes = [];
+      state.events = [ev('f1', 'Reunião futura', addDaysStr(t, 3)), ev('f2', 'Reunião de hoje', t), ev('p1', 'Reunião velha', addDaysStr(t, -10)), ev('p2', 'Reunião mais velha', addDaysStr(t, -40)),
+        ev('r1', 'Reunião semanal', addDaysStr(t, -90), { recurrence: 'weekly' })];
+      currentView = 'tasks'; render();
+    });
+    await page.locator('#searchInput').fill('reunião');
+    await expect(page.locator('.sr-row')).toHaveCount(3); // futura, hoje e a recorrente
+    await expect(page.locator('.sr-tab.on')).toContainText('3');
+    await expect(page.locator('#srTogglePast')).toContainText('Agendas passadas');
+    await expect(page.locator('#srTogglePast i')).toHaveText('2');
+    await page.locator('#srTogglePast').click();
+    await expect(page.locator('.sr-row')).toHaveCount(5);
+    await expect(page.locator('.sr-sec')).toHaveText('Agendas passadas');
+    await expect(page.locator('.sr-row.past').first()).toContainText('Reunião velha'); // mais recente primeiro
+    await expect(page.locator('#srToggleDone')).toHaveCount(0);
+    await page.locator('#srTogglePast').click();
+    await expect(page.locator('.sr-row')).toHaveCount(3);
   });
 });

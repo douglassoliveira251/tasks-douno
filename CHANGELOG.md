@@ -1,3 +1,6 @@
+## [3.19.0] - 2026-11-10 09:00
+- Pesquisa: agendas anteriores a hoje ficam ocultas; chips "Agendas passadas" e "Concluídas" abaixo das abas mostram cada grupo no fim da lista. Agenda de hoje e repetições ativas continuam aparecendo.
+
 ## [3.18.6] - 2026-11-09 11:00
 - Detalhe da tarefa: correção do ajuste anterior; com lista longa o painel ficava travado pelo sticky. Agora sobe 24 px de verdade e segue fixo na rolagem.
 

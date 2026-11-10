@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.19.0', date:'10/11/2026', title:'Pesquisa sem agendas passadas', text:'Na pesquisa, as agendas que já passaram ficam ocultas. Use o botão "Agendas passadas" (ao lado de "Concluídas", abaixo das abas) para vê-las no fim da lista.' },
   { version:'3.18.6', date:'09/11/2026', title:'Detalhe da tarefa mais acima (correção)', text:'Corrigido: com a lista de tarefas longa, o painel de detalhe não subia. Agora ele fica mais acima e continua fixo ao rolar a lista.' },
   { version:'3.18.5', date:'09/11/2026', title:'Detalhe da tarefa mais acima', text:'O painel de detalhe da tarefa subiu um pouco na tela, ganhando mais espaço para o conteúdo.' },
   { version:'3.18.4', date:'09/11/2026', title:'Limpeza interna', text:'Removemos código e estilos que não eram mais usados, deixando o sistema mais leve. Nada muda no uso.' },

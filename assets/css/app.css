@@ -324,7 +324,7 @@
   .sr-row{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:11px; cursor:pointer;}
   .sr-row.on, .sr-row:hover{background:var(--surface-2);}
   .sr-ic{width:28px; height:28px; border-radius:9px; background:var(--surface-2); color:var(--ink-soft); display:grid; place-items:center; flex:none;}
-  .search-wrap .sr-ic svg, .search-wrap .sr-toggle svg{position:static; left:auto; top:auto; transform:none; width:16px; height:16px; pointer-events:none;}
+  .search-wrap .sr-ic svg{position:static; left:auto; top:auto; transform:none; width:16px; height:16px; pointer-events:none;}
   .sr-row.on .sr-ic, .sr-row:hover .sr-ic{background:var(--surface);}
   .sr-main{display:flex; flex-direction:column; gap:1px; min-width:0; flex:1;}
   .sr-title{font-size:14px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -337,7 +337,12 @@
   .sr-row.done .sr-date{color:var(--ink-faint); font-weight:500;}
   .sr-mark{background:#FFE8A3; color:inherit; border-radius:3px; padding:0 1px;}
   .sr-foot{display:flex; justify-content:space-between; align-items:center; gap:14px; padding:8px 10px 2px; margin-top:4px; border-top:1px solid var(--border); font-size:11px; color:var(--ink-faint);}
-  .sr-toggle{display:inline-flex; align-items:center; gap:6px; color:var(--primary); font-weight:700; font-size:12px; cursor:pointer;}
+  .sr-chips{display:flex; gap:6px; padding:2px 2px 8px; flex-wrap:wrap;}
+  .sr-chip{border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); font:inherit; font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px; display:inline-flex; gap:5px; align-items:center; cursor:pointer;}
+  .sr-chip i{font-style:normal; opacity:.7;}
+  .sr-chip:hover{background:var(--surface-2);}
+  .sr-chip.on{background:var(--primary-light); border-color:var(--primary); color:var(--primary);}
+  .sr-row.past .sr-title, .sr-row.past .sr-date{color:var(--ink-faint);}
   .sr-hint{margin-left:auto;}
   .sr-foot kbd{font-family:inherit; border:1px solid var(--border); border-bottom-width:2px; border-radius:5px; padding:0 5px; background:var(--surface); font-size:10.5px;}
   .search-results-group-label{

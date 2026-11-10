@@ -9,7 +9,7 @@ import { openEventComposer } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
-let searchShowDone;
+let searchShowDone, searchShowPast;
 
 export function updateSearchClearBtnVisibility(){
   const input = document.getElementById('searchInput');
@@ -18,6 +18,7 @@ export function updateSearchClearBtnVisibility(){
 }
 export function clearSearchTerm(){
   G.searchTerm = '';
+  searchShowDone = false; searchShowPast = false;
   const input = document.getElementById('searchInput');
   if(input) input.value = '';
   updateSearchClearBtnVisibility();
@@ -25,18 +26,24 @@ export function clearSearchTerm(){
 let searchTab = 'all';
 let searchActiveIdx = 0;
 searchShowDone = false; // busca: concluídas ficam ocultas até o usuário pedir
+searchShowPast = false; // busca: agendas que já passaram também ficam ocultas até o usuário pedir
 export const SEARCH_LIMIT = 8;
 export function computeGlobalSearchResults(term){
   const t = fold(term.trim());
-  if(!t) return { tasks:[], doneTasks:[], notes:[], events:[], counts:{ tasks:0, done:0, notes:0, events:0 } };
+  if(!t) return { tasks:[], doneTasks:[], notes:[], events:[], pastEvents:[], counts:{ tasks:0, done:0, notes:0, events:0, past:0 } };
   const tasksFound = G.state.tasks.filter(x => fold(x.title).includes(t));
   const tasksAll = tasksFound.filter(x => !x.done);
   const doneAll = tasksFound.filter(x => x.done);
   const notesAll = G.state.notes.filter(x => !x.archived && fold((x.title||'')+' '+stripHtml(x.body||'')).includes(t));
-  const eventsAll = G.state.events.filter(x => fold(x.title).includes(t));
+  const eventsFound = G.state.events.filter(x => fold(x.title).includes(t));
+  const today = todayStr();
+  /* agenda passada: terminou antes de hoje (repetidas só se a repetição já acabou); a de hoje continua valendo */
+  const isPast = (x) => (x.recurrence && x.recurrence !== 'none') ? !!(x.recurrenceEndDate && x.recurrenceEndDate < today) : (x.endDate || x.date) < today;
+  const eventsAll = eventsFound.filter(x => !isPast(x));
+  const pastAll = eventsFound.filter(isPast).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   return {
-    tasks: tasksAll.slice(0, SEARCH_LIMIT), doneTasks: doneAll.slice(0, SEARCH_LIMIT), notes: notesAll.slice(0, SEARCH_LIMIT), events: eventsAll.slice(0, SEARCH_LIMIT),
-    counts: { tasks: tasksAll.length, done: doneAll.length, notes: notesAll.length, events: eventsAll.length },
+    tasks: tasksAll.slice(0, SEARCH_LIMIT), doneTasks: doneAll.slice(0, SEARCH_LIMIT), notes: notesAll.slice(0, SEARCH_LIMIT), events: eventsAll.slice(0, SEARCH_LIMIT), pastEvents: pastAll.slice(0, SEARCH_LIMIT),
+    counts: { tasks: tasksAll.length, done: doneAll.length, notes: notesAll.length, events: eventsAll.length, past: pastAll.length },
   };
 }
 export function closeSearchResultsDropdown(){
@@ -84,7 +91,6 @@ export function searchItemDate(kind, it){
 export const SR_ICON_TASK = icon('check-square');
 export const SR_ICON_NOTE = icon('file-text');
 export const SR_ICON_EVENT = icon('calendar-blank');
-export const SR_ICON_EYE = icon('eye');
 export function renderSearchResultsDropdown(){
   const dd = document.getElementById('searchResultsDropdown');
   const term = G.searchTerm;
@@ -92,11 +98,14 @@ export function renderSearchResultsDropdown(){
   const res = computeGlobalSearchResults(term);
   const nDone = res.counts.done;
   const showDone = searchShowDone && nDone > 0;
-  const counts = { tasks: res.counts.tasks + (showDone ? nDone : 0), notes: res.counts.notes, events: res.counts.events };
+  const nPast = res.counts.past;
+  const showPast = searchShowPast && nPast > 0;
+  const counts = { tasks: res.counts.tasks + (showDone ? nDone : 0), notes: res.counts.notes, events: res.counts.events + (showPast ? nPast : 0) };
   const total = counts.tasks + counts.notes + counts.events;
-  const toggle = nDone ? `<span class="sr-toggle" id="srToggleDone" role="button" tabindex="0">${SR_ICON_EYE}${showDone ? 'Ocultar concluídas' : 'Mostrar concluídas (' + nDone + ')'}</span>` : '';
-  const foot = `<div class="sr-foot">${toggle}<span class="sr-hint">Enter abrir</span></div>`;
-  if(!total && !nDone){
+  const chip = (id, on, label, n) => `<button type="button" class="sr-chip ${on ? 'on' : ''}" id="${id}" aria-pressed="${on}">${label}<i>${n}</i></button>`;
+  const chips = (nPast || nDone) ? `<div class="sr-chips">${nPast ? chip('srTogglePast', showPast, 'Agendas passadas', nPast) : ''}${nDone ? chip('srToggleDone', showDone, 'Concluídas', nDone) : ''}</div>` : '';
+  const foot = `<div class="sr-foot"><span class="sr-hint">Enter abrir</span></div>`;
+  if(!total && !nDone && !nPast){
     dd.innerHTML = `<div class="search-results-empty">Nenhum resultado para "${escapeHtml(term)}"</div>`;
     dd.style.display = 'block';
     return;
@@ -108,19 +117,23 @@ export function renderSearchResultsDropdown(){
   if(searchTab === 'all' || searchTab === 'tasks') items = items.concat(res.tasks.map(it => ({ kind: 'tasks', it })));
   if(searchTab === 'all' || searchTab === 'notes') items = items.concat(res.notes.map(it => ({ kind: 'notes', it })));
   if(searchTab === 'all' || searchTab === 'events') items = items.concat(res.events.map(it => ({ kind: 'events', it })));
+  const pastItems = showPast && (searchTab === 'all' || searchTab === 'events') ? res.pastEvents.map(it => ({ kind: 'events', it, past: true })) : [];
+  items = items.concat(pastItems);
   const doneItems = showDone && (searchTab === 'all' || searchTab === 'tasks') ? res.doneTasks.map(it => ({ kind: 'tasks', it, done: true })) : [];
   items = items.concat(doneItems);
   if(searchActiveIdx >= items.length) searchActiveIdx = 0;
-  let doneHeadShown = false;
+  let doneHeadShown = false, pastHeadShown = false;
   dd.innerHTML = `
     <div class="sr-tabs">${TABS.map(tb => `<button type="button" class="sr-tab ${searchTab === tb[0] ? 'on' : ''}" data-tab="${tb[0]}">${tb[1]}<i>${tb[2]}</i></button>`).join('')}</div>
+    ${chips}
     <div class="sr-list">
       ${items.length ? items.map((x, i) => {
         const k = KIND[x.kind];
         const snip = x.kind === 'notes' && !fold(x.it.title).includes(fold(term.trim())) ? searchSnippet(x.it, term) : '';
         let head = '';
         if(x.done && !doneHeadShown){ doneHeadShown = true; head = '<div class="sr-sec">Concluídas</div>'; }
-        return head + `<div class="sr-row ${x.done ? 'done' : ''} ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">
+        if(x.past && !pastHeadShown){ pastHeadShown = true; head = '<div class="sr-sec">Agendas passadas</div>'; }
+        return head + `<div class="sr-row ${x.done ? 'done' : ''} ${x.past ? 'past' : ''} ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${x.it.id}" data-i="${i}">
           <span class="sr-ic ${k.cls}">${k.svg}</span>
           <span class="sr-main">
             <span class="sr-title">${highlightTerm(x.it.title || 'Sem título', term)}</span>
@@ -161,12 +174,10 @@ export function renderSearchResultsDropdown(){
     }
   }
   dd._openResult = openResult;
-  const srToggle = dd.querySelector('#srToggleDone');
-  if(srToggle){
-    const flip = (e) => { e.stopPropagation(); searchShowDone = !searchShowDone; searchActiveIdx = 0; renderSearchResultsDropdown(); };
-    srToggle.onclick = flip;
-    srToggle.onkeydown = (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(e); } };
-  }
+  [['#srToggleDone', () => { searchShowDone = !searchShowDone; }], ['#srTogglePast', () => { searchShowPast = !searchShowPast; }]].forEach(([sel, toggleFn]) => {
+    const btn = dd.querySelector(sel);
+    if(btn) btn.onclick = (e) => { e.stopPropagation(); toggleFn(); searchActiveIdx = 0; renderSearchResultsDropdown(); };
+  });
   dd.querySelectorAll('.sr-tab').forEach(btn => {
     btn.onclick = (e) => { e.stopPropagation(); searchTab = btn.dataset.tab; searchActiveIdx = 0; renderSearchResultsDropdown(); };
   });
