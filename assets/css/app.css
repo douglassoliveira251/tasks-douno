@@ -53,41 +53,36 @@
     --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   [data-theme="dark"]{
-    /* Paleta neutra e verde iguais aos do menu lateral (que é sempre escuro,
-       com essas mesmas cores fixas) — antes o conteúdo usava um cinza neutro
-       e um verde mais apagado, diferentes dos do menu, e a costura entre os
-       dois ficava visível no modo escuro (no claro isso não incomoda, já que
-       o menu escuro contrasta de propósito com o conteúdo claro). */
-    /* Azul-petróleo: fundo profundo com brilho azul no canto, superfícies em tom
-       azulado (não cinza neutro) e destaque azul-claro. */
-    --bg:#0A141D;
-    --surface:#0F1C28;
-    --surface-2:#142435;
-    --ink:#E8F0F6;
-    --ink-soft:#A8B9C8;
-    --ink-faint:#6C8296;
-    --border:#1B2D3E;
-    --primary:#4FA3F7;
-    --primary-dark:#A9D1FB;
-    --primary-light:#12304F;
-    --ok:#10B981;
-    --ok-dark:#6EE7B7;
-    --ok-light:#0F2A25;
-    --bg-glow:radial-gradient(1100px 620px at 14% -8%, rgba(32,108,184,.55) 0%, rgba(20,72,124,.24) 42%, rgba(10,20,29,0) 100%);
-    --accent:#EFBD5C;
-    --accent-light:#332812;
-    --danger:#E2685C;
-    --danger-light:#3A211F;
-    --priority-baixa:#5CA8FF;
-    --priority-baixa-light:#16263A;
-    --priority-media:#38D188;
-    --priority-media-light:#152E24;
-    --priority-alta:#FFAA4D;
-    --priority-alta-light:#332413;
-    --priority-critica:#FF6B85;
-    --priority-critica-light:#38181F;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.45);
-    --shadow-md:0 8px 24px rgba(0,0,0,.55);
+    /* v3.34.0 — grafite com degradê azul-escuro; cores contidas e escuras. */
+    --bg:#14161A;
+    --surface:#1C1F24;
+    --surface-2:#252930;
+    --ink:#E9ECF0;
+    --ink-soft:#A9AFB9;
+    --ink-faint:#7A808B;
+    --border:#2A2E36;
+    --primary:#234C9C;
+    --primary-dark:#86A5DE;
+    --primary-light:#1B2A4A;
+    --ok:#2F8A63;
+    --ok-dark:#86B9A3;
+    --ok-light:#15241E;
+    --bg-glow:radial-gradient(1100px 620px at 14% -8%, rgba(40,72,130,.55) 0%, rgba(32,58,104,.24) 42%, rgba(20,22,26,0) 100%);
+    --accent:#9C7A2A;
+    --accent-light:#2A2516;
+    --danger:#B84A40;
+    --danger-light:#2F1F1E;
+    --priority-baixa:#4F7FC4;
+    --priority-baixa-light:#16233A;
+    --priority-media:#4FA67E;
+    --priority-media-light:#15291F;
+    --priority-alta:#C08A3C;
+    --priority-alta-light:#2D2314;
+    --priority-critica:#C86580;
+    --priority-critica-light:#321A22;
+    --progress-ok:#2F8A63;
+    --shadow-sm:none;
+    --shadow-md:0 8px 22px rgba(0,0,0,.5);
   }
   [data-theme="dark"] .status-dot{background:var(--ink-faint);}
   [data-theme="dark"] .status-dot.saved{background:var(--ok);}
@@ -2438,7 +2433,7 @@
      VERSÃO 3: menu no topo, faixa de título e Visão geral compacta
      ============================================================================ */
   :root{ --dv-pend:#C9D6EA; }
-  [data-theme="dark"]{ --dv-pend:#2C4258; }
+  [data-theme="dark"]{ --dv-pend:#3A3F49; }
 
   /* ---------- Topo: marca, menu e ações ---------- */
   .topnav{
@@ -4097,6 +4092,104 @@
 
   /* ===== v3.33.0 — barra de progresso das subtarefas mais grossa, em verde claro ===== */
   :root{--progress-ok:#4CB782;}
-  [data-theme="dark"]{--progress-ok:#3FA874;}
   .tp-subtask-progress-bar{margin-bottom:6px;}
   .task-panel .tp-name-input{min-width:0;}
+
+  /* ===== v3.34.0 — modo escuro: grafite, degradê azul-escuro e cores contidas ===== */
+  /* texto e ícones que eram em azul de marca: azul claro de apoio (o azul escuro some no fundo escuro) */
+  [data-theme="dark"] .settings-nav-item.active,
+  [data-theme="dark"] .help-item.open .help-item-q,
+  [data-theme="dark"] .space-selector-check,
+  [data-theme="dark"] .sr-chip.on,
+  [data-theme="dark"] .sr-pill.st-b,
+  [data-theme="dark"] .sr-pill.st-v,
+  [data-theme="dark"] .filter-clear-btn,
+  [data-theme="dark"] .proj-desc-more,
+  [data-theme="dark"] .proj-desc-add,
+  [data-theme="dark"] .proj-desc-add:hover,
+  [data-theme="dark"] .task-menu-item.current,
+  [data-theme="dark"] .proj-side-back,
+  [data-theme="dark"] .tp-start-link,
+  [data-theme="dark"] .tp-start-foot button,
+  [data-theme="dark"] .nm-col-title,
+  [data-theme="dark"] .nm .nm-add:hover,
+  [data-theme="dark"] .help-feedback-btn,
+  [data-theme="dark"] .task-recurrence-icon,
+  [data-theme="dark"] .ev-col-title,
+  [data-theme="dark"] .tag-create-row,
+  [data-theme="dark"] .notebook-add-note-btn:hover,
+  [data-theme="dark"] .notes-layout .notebook-note-item.active,
+  [data-theme="dark"] .tp-attach-dl:hover,
+  [data-theme="dark"] .note-linked-task-btn.linked,
+  [data-theme="dark"] .cal-layers-btn:hover,
+  [data-theme="dark"] .cal-layers-btn.open,
+  [data-theme="dark"] .tp-past-toggle:hover,
+  [data-theme="dark"] .update-icon,
+  [data-theme="dark"] .onb-eyebrow,
+  [data-theme="dark"] .onb-ico,
+  [data-theme="dark"] .onb-tick,
+  [data-theme="dark"] .whatsnew-icon,
+  [data-theme="dark"] .whatsnew-eyebrow,
+  [data-theme="dark"] .whatsnew-history-link,
+  [data-theme="dark"] .whatsnew-back,
+  [data-theme="dark"] .login-forgot-btn:hover,
+  [data-theme="dark"] .login-terms a,
+  [data-theme="dark"] .login-mail-ic,
+  [data-theme="dark"] body.notes-focus .notes-mbar-focus,
+  [data-theme="dark"] .ph-name .proj-chip,
+  [data-theme="dark"] .nav-item.active svg,
+  [data-theme="dark"] .nm-ic,
+  [data-theme="dark"] .dv-card h3 > svg,
+  [data-theme="dark"] .dv-more,
+  [data-theme="dark"] .dv-link,
+  [data-theme="dark"] .dv-col.today .l,
+  [data-theme="dark"] .dv-al > svg,
+  [data-theme="dark"] .view-mode-toggle button.on,
+  [data-theme="dark"] #spaceSelectorBtn:hover .space-selector-chevron,
+  [data-theme="dark"] #spaceSelectorBtn[aria-expanded="true"] .space-selector-chevron,
+  [data-theme="dark"] .ds-kpi b.pri,
+  [data-theme="dark"] .tp-mobile-back button,
+  [data-theme="dark"] .notes-layout .nb-new-row,
+  [data-theme="dark"] .notes-mback button,
+  [data-theme="dark"] .m-chips .chipf.add,
+  [data-theme="dark"] .m-chips .chipf.add svg,
+  [data-theme="dark"] .m-nbmanage button,
+  [data-theme="dark"] .m-cap button,
+  [data-theme="dark"] .pd-head .prj-circle-btn.pd-back,
+  [data-theme="dark"] .cal-sp.on,
+  [data-theme="dark"] .cal-ag-day.today .cal-ag-date b,
+  [data-theme="dark"] .settings-nav-item.active .settings-nav-count,
+  [data-theme="dark"] .sp-opt svg,
+  [data-theme="dark"] .sp-opt.sel{color:var(--primary-dark);}
+  /* botões azuis: hover num azul um pouco mais claro, em vez do azul claro de apoio */
+  [data-theme="dark"] .icon-add-btn:hover,
+  [data-theme="dark"] .btn:hover,
+  [data-theme="dark"] .notebook-new-btn-top:hover,
+  [data-theme="dark"] .tn-new-btn:hover,
+  [data-theme="dark"] .tn-new-split:hover{background:#2D5BB5;}
+  [data-theme="dark"] .btn.primary, [data-theme="dark"] .tn-new-btn, [data-theme="dark"] .tn-new-split, [data-theme="dark"] .topbar .btn-primary{box-shadow:none; color:#EAF0FB;}
+  [data-theme="dark"] .task-row{background:var(--surface); border:1px solid var(--border);}
+  [data-theme="dark"] .task-row:hover{background:#21242A;}
+  [data-theme="dark"] .task-row.selected{background:#272A30; border-color:#3A3E45; box-shadow:none;}
+  [data-theme="dark"] .task-panel{background:var(--surface); border-left:1px solid var(--border);}
+  /* só o menu tem hover/ativo azulado; o resto fica em cinza */
+  [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .settings-nav-item:hover{background:color-mix(in srgb, var(--primary) 32%, transparent); color:var(--primary-dark);}
+  [data-theme="dark"] .nav-item:hover svg, [data-theme="dark"] .settings-nav-item:hover svg{color:var(--primary-dark);}
+  [data-theme="dark"] .settings-nav-item.active{background:color-mix(in srgb, var(--primary) 38%, transparent); color:var(--primary-dark);}
+  [data-theme="dark"] .nav-item{border-radius:10px;}
+  [data-theme="dark"] .tp-header-icon-btn:hover, [data-theme="dark"] .proj-side-btn:hover{background:var(--surface-2); color:var(--ink);}
+  /* prioridade */
+  [data-theme="dark"] .tp-priority-btn.active[data-p="baixa"]{background:#27508F; color:#EEF1F6;}
+  [data-theme="dark"] .tp-priority-btn.active[data-p="media"]{background:#2A7D58; color:#EEF1F6;}
+  [data-theme="dark"] .tp-priority-btn.active[data-p="alta"]{background:#8F6320; color:#EEF1F6;}
+  [data-theme="dark"] .tp-priority-btn.active[data-p="critica"]{background:#9A3A52; color:#EEF1F6;}
+  /* retomar em: sem o fundo laranja */
+  [data-theme="dark"] .tp-follow-box{background:var(--surface-2);}
+  [data-theme="dark"] .tp-follow-box .tp-label{color:var(--ink-soft);}
+  [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
+  /* concluído, atraso */
+  [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}
+  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-ret.over, [data-theme="dark"] .task-alert-m.over{background:#A8364A; color:#F4E8EA;}
+  [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
+  [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
+  [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}

@@ -1,3 +1,6 @@
+## [3.34.0] - 2026-11-10 23:59
+- Modo escuro redesenhado: fundo grafite com degradê azul-escuro, azul de marca escuro, verdes, prioridades e alertas mais escuros e contidos; seleção e hover em cinza, azul só no menu.
+
 ## [3.33.0] - 2026-11-10 23:59
 - Detalhe da tarefa: ícones de duplicar e excluir depois do favorito (excluir pede confirmação, com aviso de que não pode ser desfeito).
 - Barra de progresso das subtarefas mais grossa (9px) e em verde claro.
