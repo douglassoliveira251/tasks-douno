@@ -1,3 +1,6 @@
+## [3.34.1] - 2026-11-10 23:59
+- Modo escuro: a barra com a cor da prioridade no início de cada tarefa voltou a aparecer.
+
 ## [3.34.0] - 2026-11-10 23:59
 - Modo escuro redesenhado: fundo grafite com degradê azul-escuro, azul de marca escuro, verdes, prioridades e alertas mais escuros e contidos; seleção e hover em cinza, azul só no menu.
 

@@ -4168,9 +4168,9 @@
   [data-theme="dark"] .tn-new-btn:hover,
   [data-theme="dark"] .tn-new-split:hover{background:#2D5BB5;}
   [data-theme="dark"] .btn.primary, [data-theme="dark"] .tn-new-btn, [data-theme="dark"] .tn-new-split, [data-theme="dark"] .topbar .btn-primary{box-shadow:none; color:#EAF0FB;}
-  [data-theme="dark"] .task-row{background:var(--surface); border:1px solid var(--border);}
+  [data-theme="dark"] .task-row{background:var(--surface); border-top-color:var(--border); border-right-color:var(--border); border-bottom-color:var(--border);}
   [data-theme="dark"] .task-row:hover{background:#21242A;}
-  [data-theme="dark"] .task-row.selected{background:#272A30; border-color:#3A3E45; box-shadow:none;}
+  [data-theme="dark"] .task-row.selected{background:#272A30; border-top-color:#3A3E45; border-right-color:#3A3E45; border-bottom-color:#3A3E45; box-shadow:none;}
   [data-theme="dark"] .task-panel{background:var(--surface); border-left:1px solid var(--border);}
   /* só o menu tem hover/ativo azulado; o resto fica em cinza */
   [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .settings-nav-item:hover{background:color-mix(in srgb, var(--primary) 32%, transparent); color:var(--primary-dark);}

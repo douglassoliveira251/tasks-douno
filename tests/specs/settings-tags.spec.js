@@ -280,3 +280,27 @@ test.describe('Detalhe da tarefa: duplicar, excluir e progresso', () => {
     });
   }
 });
+
+test('modo escuro: barra da prioridade no início da tarefa aparece, no computador e no celular', async ({ page }) => {
+  for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(vp);
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      const cat = state.categories[0].id;
+      const t = (id, pr) => ({ id, title: 'T ' + pr, categoryId: cat, done: false, status: 'nao_iniciado', priority: pr, dueDate: '', description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: 1 });
+      state.tasks = [t('a', 'baixa'), t('b', 'media'), t('c', 'alta'), t('d', 'critica')];
+      activeTaskId = null; render();
+    });
+    for (const pr of ['baixa', 'media', 'alta', 'critica']) {
+      const r = await page.locator('.task-row.pri-' + pr).first().evaluate((el, pr) => {
+        const cs = getComputedStyle(el), v = getComputedStyle(document.documentElement).getPropertyValue('--priority-' + pr).trim();
+        const probe = document.createElement('i'); probe.style.color = v; document.body.appendChild(probe);
+        const want = getComputedStyle(probe).color; probe.remove();
+        return { w: cs.borderLeftWidth, c: cs.borderLeftColor, want };
+      }, pr);
+      expect(parseFloat(r.w)).toBeGreaterThanOrEqual(3);
+      expect(r.c).toBe(r.want);
+    }
+  }
+});
