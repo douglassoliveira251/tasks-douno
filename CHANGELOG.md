@@ -1,3 +1,6 @@
+## [3.26.0] - 2026-11-10 23:59
+- Celular: compactação do topo (botões lado a lado), Visão geral, Notas, Calendário (cabeçalho em menos linhas, sem título repetido e com menos margem) e pesquisa (sem legenda de teclas).
+
 ## [3.25.0] - 2026-11-10 23:59
 - Tarefas (celular): visual compacto estilo aplicativo; linha só com título, data, projeto e alerta de prazo (sem retomada, tags, progresso e recorrência).
 - Tags: estilo suave (fundo claro na cor da tag), igual na lista e no detalhe da tarefa.
