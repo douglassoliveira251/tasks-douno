@@ -74,12 +74,15 @@ test.describe('Lista de tarefas', () => {
     expect(kids.indexOf('task-comment-badge')).toBeGreaterThan(-1);
     expect(kids.indexOf('task-comment-badge')).toBeLessThan(kids.indexOf('task-recurrence-icon'));
     await expect(row.locator('.task-row-right .task-comment-badge')).toHaveCount(0);
-    await expect(row.locator('.task-tag-pill')).toHaveCSS('color', 'rgb(255, 255, 255)');
-    await expect(row.locator('.task-tag-pill')).toHaveCSS('background-color', 'rgb(47, 95, 158)');
-    await expect(page.locator('.task-row[data-id="b"] .task-tag-pill')).toHaveCSS('color', 'rgb(30, 41, 59)');
+    // tags suaves: a cor da tag vem na variável --tg e a letra não é branca (fundo claro)
+    await expect(row.locator('.task-tag-pill')).toHaveAttribute('style', /--tg:\s*#2F5F9E/i);
+    expect(await row.locator('.task-tag-pill').evaluate(el => getComputedStyle(el).color)).not.toBe('rgb(255, 255, 255)');
     await row.locator('.task-title').click();
-    await expect(page.locator('.tp-tag-chip.active').first()).toHaveCSS('color', 'rgb(255, 255, 255)');
-    await expect(page.locator('.tp-tag-chip.active').nth(1)).toHaveCSS('color', 'rgb(30, 41, 59)');
+    await expect(page.locator('.tp-tag-chip.active').first()).toHaveAttribute('style', /--tg:\s*#2F5F9E/i);
+    // lista e detalhe usam a mesma regra: mesma cor de fundo
+    const bgRow = await row.locator('.task-tag-pill').evaluate(el => getComputedStyle(el).backgroundColor);
+    const bgPanel = await page.locator('.tp-tag-chip.active').first().evaluate(el => getComputedStyle(el).backgroundColor);
+    expect(bgPanel).toBe(bgRow);
   });
   test('nome do projeto usa o espaço livre da linha e encurta só quando falta lugar', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -124,5 +127,27 @@ test.describe('Lista de tarefas', () => {
     // status ao lado do título (mesma linha) e fora da coluna da direita
     await expect(a.locator('.task-title-line .task-status-label')).toHaveText('Em andamento');
     await expect(a.locator('.task-row-right .task-status-label')).toHaveCount(0);
+  });
+  test('celular compacto: título, data, projeto e só o alerta de prazo (sem retomada, tags e progresso)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const t = todayStr(), cat = state.categories[0].id;
+      state.tags = [{ id: 'g1', name: 'FinOps', color: '#2F5F9E', categoryId: '' }];
+      state.projects = [{ id: 'p1', name: 'Projeto X', categoryId: cat, createdAt: 1, stages: [{ id: 's1', name: 'Etapa 1' }] }];
+      state.tasks = [{ id: 'a', title: 'Tarefa A', done: false, status: 'em_andamento', priority: 'media', dueDate: addDaysStr(t, -2), dueTime: '08:00', followUpDate: addDaysStr(t, -1), categoryId: cat, tagIds: ['g1'],
+        subtasks: [{ id: 's', title: 'x', done: false }], comments: [{ id: 'c', text: 'x', createdAt: 1 }], attachments: [], description: '', createdAt: 1, projectId: 'p1', stageId: 's1', recurrence: 'weekly', recurrenceInterval: 1 }];
+      activeTaskId = null; render();
+    });
+    const row = page.locator('.task-row[data-id="a"]');
+    await expect(row.locator('.task-alert-m.over')).toHaveText('Vencida');
+    await expect(row.locator('.task-meta .task-proj-pill')).toBeVisible();
+    await expect(row.locator('.task-meta .task-cal-badge')).toBeVisible();
+    for (const sel of ['.task-tag-pill', '.task-subtask-badge', '.task-recurrence-icon', '.task-comment-badge', '.task-alert-ret', '.task-status-label']) await expect(row.locator(sel)).toBeHidden();
+    // ordem: data → projeto → alerta (por último)
+    const order = await row.locator('.task-meta').evaluate(el => [...el.children].filter(c => getComputedStyle(c).display !== 'none').map(c => c.className.split(' ')[0]));
+    expect(order).toEqual(['task-cal-badge', 'task-proj-pill', 'task-alert-m']);
+    // fonte da 2ª linha legível (10,5px)
+    expect(await row.locator('.task-cal-badge').evaluate(el => getComputedStyle(el).fontSize)).toBe('10.5px');
   });
 });

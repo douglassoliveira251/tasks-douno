@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.25.0', date:'10/11/2026', title:'Tarefas no celular mais compactas e tags suaves', text:'No celular, a lista de tarefas ficou mais compacta, com título, data, projeto e só o alerta de prazo. As tags agora têm fundo claro na cor da tag, iguais na lista e no detalhe da tarefa.' },
   { version:'3.24.0', date:'10/11/2026', title:'Alertas de prazo e retomada nas tarefas', text:'Na lista de tarefas, o status (Em andamento...) ficou ao lado do título. Os alertas agora usam um relógio para o prazo (Vencida / Hoje, em cor cheia) e um sino para a retomada (Vencida / Hoje, em cor clara).' },
   { version:'3.23.2', date:'10/11/2026', title:'Subtarefas com anel de progresso', text:'Na lista de tarefas, as subtarefas agora mostram um anel de progresso com o contador (por exemplo 4/5), no lugar da barra.' },
   { version:'3.23.1', date:'10/11/2026', title:'Progresso das subtarefas com barra', text:'Na lista de tarefas, as subtarefas mostram o contador (por exemplo 4/5), uma barra de progresso e a porcentagem no fim. No celular continua só o contador.' },

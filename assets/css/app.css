@@ -3898,8 +3898,6 @@
   .task-tag-pill{padding:3px 10px; gap:0;}
   .task-row-left .task-cal-badge.nodate{color:var(--ink-faint);}
   .task-row-left .task-comment-badge{margin:0;}
-  [data-theme="dark"] .task-tag-pill:not(.ink-dark){filter:brightness(.62) saturate(.6);}
-  [data-theme="dark"] .tp-tag-chip.ink-dark{filter:none;}
 
   /* v3.23.0: projeto aberto (computador): sem a escolha Etapas/Linha do tempo/Lista (a Linha do tempo é a visão); botão Editar no topo; descrição no topo do Resumo */
   .proj-side-desc{margin-bottom:12px;}
@@ -3927,4 +3925,35 @@
   @media (max-width:768px){
     .task-title-line{flex:1 1 100%;}
     .task-title-line .task-status-label, .task-alerts{display:none;}
+  }
+
+  /* v3.25.0: tags suaves (fundo claro na cor da tag, letra mais escura), iguais na lista e no detalhe da tarefa */
+  .task-tag-pill, .tp-tag-chip.active{
+    background:color-mix(in srgb, var(--tg) 16%, var(--surface)); color:color-mix(in srgb, var(--tg) 55%, #000);
+  }
+  [data-theme="dark"] .task-tag-pill, [data-theme="dark"] .tp-tag-chip.active{
+    background:color-mix(in srgb, var(--tg) 26%, var(--surface)); color:color-mix(in srgb, var(--tg) 55%, #fff); filter:none;
+  }
+
+  /* v3.25.0: celular, tela de Tarefas mais compacta (estilo aplicativo): título, data, projeto e alerta de prazo (só vencimento) */
+  .task-alert-m{display:none;}
+  @media (max-width:768px){
+    body[data-view="tasks"] .topbar{padding-top:6px !important; padding-bottom:4px !important; min-height:0 !important;}
+    body[data-view="tasks"] .topbar .view-title{font-size:16px !important;}
+    body[data-view="tasks"] .topbar-filters button, body[data-view="tasks"] .topbar-filters .tf-btn{font-size:11px !important; height:26px !important; padding:0 10px !important;}
+    body[data-view="tasks"] .tn-new, body[data-view="tasks"] .topbar .btn-primary{font-size:11.5px !important; height:28px !important; padding:0 10px !important;}
+    body[data-view="tasks"] .bucket-title{font-size:11px !important;}
+    body[data-view="tasks"] .task-row{padding:6px 8px !important; min-height:0 !important; gap:8px !important;}
+    body[data-view="tasks"] .task-row .task-check{width:16px !important; height:16px !important;}
+    body[data-view="tasks"] .task-row .task-title{font-size:12.5px !important; line-height:1.25 !important; -webkit-line-clamp:1 !important;}
+    body[data-view="tasks"] .task-meta{display:flex; flex:0 0 100%; flex-wrap:nowrap; align-items:center; gap:6px; min-width:0; overflow:hidden; margin-top:1px;}
+    body[data-view="tasks"] .task-meta > *{font-size:10.5px;}
+    body[data-view="tasks"] .task-meta .task-subtask-badge, body[data-view="tasks"] .task-meta .task-tag-pill, body[data-view="tasks"] .task-meta .task-tag-more,
+    body[data-view="tasks"] .task-meta .task-recurrence-icon, body[data-view="tasks"] .task-meta .task-comment-badge, body[data-view="tasks"] .task-meta .task-follow-pill{display:none !important;}
+    body[data-view="tasks"] .task-meta .task-cal-badge{flex:none; margin:0 !important;}
+    body[data-view="tasks"] .task-meta .task-proj-pill{order:0; flex:0 1 auto; min-width:36px; max-width:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:1px 6px; margin:0; border-radius:5px;}
+    body[data-view="tasks"] .task-meta .task-alert-m{display:inline-flex; flex:none; align-items:center; gap:3px; font-size:10px; font-weight:700; border-radius:4px; padding:1px 6px; white-space:nowrap; color:#fff;}
+    .task-alert-m svg{width:10px; height:10px;}
+    .task-alert-m.over{background:var(--priority-critica);}
+    .task-alert-m.today{background:var(--priority-alta);}
   }

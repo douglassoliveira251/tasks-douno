@@ -1,3 +1,7 @@
+## [3.25.0] - 2026-11-10 23:59
+- Tarefas (celular): visual compacto estilo aplicativo; linha só com título, data, projeto e alerta de prazo (sem retomada, tags, progresso e recorrência).
+- Tags: estilo suave (fundo claro na cor da tag), igual na lista e no detalhe da tarefa.
+
 ## [3.24.0] - 2026-11-10 23:50
 - Tarefas: status ao lado do título; alertas de prazo com relógio (Vencida/Hoje, cor cheia) e de retomada com sino (Vencida/Hoje, cor invertida); retomada futura continua como etiqueta.
 

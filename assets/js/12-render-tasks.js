@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { markDirty } from './08-persistencia.js';
 import { icon } from './icones.js';
-import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, readableInk, togglePinned, completeRecurring, todayStr } from './10-helpers.js';
+import { dateToStr, escapeHtml, fmtDate, fold, isOverdue, togglePinned, completeRecurring, todayStr } from './10-helpers.js';
 import { closeAllTaskMenus, openTaskRowMenu } from './13-portais-de-tarefa.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
@@ -522,11 +522,12 @@ export function renderTaskRow(t){
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : `<span class="task-cal-badge nodate">${icon('calendar-blank')}Sem data</span>`}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ === 'futura' ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
       ${subtasks.length ? (() => { const pc = Math.round(100 * subDone / subtasks.length); return `<span class="task-subtask-badge task-prog" title="${subDone} de ${subtasks.length} subtarefas concluídas (${pc}%)"><span class="task-prog-ring" style="--p:${pc}"></span><b>${subDone}/${subtasks.length}</b></span>`; })() : ''}
-      ${tags.length ? `<span class="task-tag-pill${readableInk(tags[0].color) !== '#FFFFFF' ? ' ink-dark' : ''}" style="background:${tags[0].color}; color:${readableInk(tags[0].color)};">${escapeHtml(tags[0].name)}</span>` : ''}
+      ${tags.length ? `<span class="task-tag-pill" style="--tg:${escapeHtml(tags[0].color)}">${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
       ${commentCount ? `<span class="task-comment-badge" title="${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}">${icon('chat-circle')}${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
+      ${overdue ? `<span class="task-alert-m over">${icon('clock')}Vencida</span>` : (isToday && !t.done ? `<span class="task-alert-m today">${icon('clock')}Hoje</span>` : '')}
       </div>
     </div>
     <div class="task-row-right">

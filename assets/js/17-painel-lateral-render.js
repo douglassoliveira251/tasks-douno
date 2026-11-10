@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { icon } from './icones.js';
-import { catById, escapeHtml, fmtDate, isOverdue, readableInk, todayStr } from './10-helpers.js';
+import { catById, escapeHtml, fmtDate, isOverdue, todayStr } from './10-helpers.js';
 import { PRIORITY_CONFIG, STATUS_CONFIG, statusCircleSvg } from './12-render-tasks.js';
 import { closeAllTaskMenus } from './13-portais-de-tarefa.js';
 import { closeTaskPanel, recurrenceSummaryLabel } from './16-painel-lateral-de-tarefa.js';
@@ -72,7 +72,7 @@ export function taskPanelHtml(task){
           <button type="button" class="group-current-chip tp-space-chip" id="tpGroupChip" title="Clique para mudar de espaço"></button>
         </div>
         <div class="tp-tags-selected" id="tpTagsSelected">
-          ${(task.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active${readableInk(tg.color) !== '#FFFFFF' ? ' ink-dark' : ''}" data-tag-id="${tg.id}" title="Clique para remover" style="background:${tg.color}; color:${readableInk(tg.color)}">${escapeHtml(tg.name)}</span>`).join('')}
+          ${(task.tagIds||[]).map(id => G.state.tags.find(tg=>tg.id===id)).filter(Boolean).map(tg => `<span class="tp-tag-chip active" data-tag-id="${tg.id}" title="Clique para remover" style="--tg:${escapeHtml(tg.color)}">${escapeHtml(tg.name)}</span>`).join('')}
           <button type="button" class="tp-tags-add-btn" id="tpTagsToggleBtn">+ Tag</button>
         </div>
       </div>
