@@ -67,7 +67,7 @@ test.describe('Lista de tarefas', () => {
     });
     const row = page.locator('.task-row[data-id="a"]');
     await expect(row.locator('.task-cal-badge.nodate')).toContainText('Sem data');
-    await expect(row.locator('.task-subtask-badge')).toHaveText('25%');
+    await expect(row.locator('.task-subtask-badge')).toHaveText('1/4');
     const kids = await row.locator('.task-meta').evaluate(el => [...el.children].map(c => c.className.split(' ')[0]));
     expect(kids.indexOf('task-comment-badge')).toBeGreaterThan(-1);
     expect(kids.indexOf('task-comment-badge')).toBeLessThan(kids.indexOf('task-recurrence-icon'));

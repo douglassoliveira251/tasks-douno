@@ -21,7 +21,7 @@ test.describe('Pesquisa', () => {
     await expect(page.locator('.sr-row')).toHaveCount(3);
     await expect(page.locator('.sr-mark').first()).toHaveText('relatório');
     await expect(page.locator('.sr-head')).toContainText('3 resultados');
-    await expect(page.locator('.sr-sec')).toHaveText(['Tarefas · 1Ver na lista ›', 'Agenda · 1', 'Notas · 1']);
+    await expect(page.locator('.sr-sec')).toHaveText(['Tarefas · 1', 'Agenda · 1', 'Notas · 1']);
     // tarefa: status, subtarefas/prazo; agenda: horário com duração; nota: trecho e caderno
     await expect(page.locator('.sr-row[data-kind="tasks"]')).toContainText('Em andamento');
     await expect(page.locator('.sr-row[data-kind="tasks"] .sr-when')).toContainText('Hoje');
@@ -103,16 +103,16 @@ test.describe('Pesquisa', () => {
     await page.locator('#srTogglePast').click();
     await expect(page.locator('.sr-row')).toHaveCount(3);
   });
-  test('clicar numa tarefa do resultado abre o detalhe e mantém a lista filtrada pelo termo', async ({ page }) => {
+  test('a pesquisa não filtra a lista de Tarefas; clicar no resultado abre o detalhe e limpa a busca', async ({ page }) => {
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(seed);
     await page.locator('#searchInput').fill('relatório');
+    await expect(page.locator('#tasksView .task-row')).toHaveCount(2); // as duas tarefas seguem na lista
+    await expect(page.locator('.sr-row[data-kind="tasks"]')).toHaveCount(1); // o resultado só aparece na pesquisa
     await page.locator('.sr-row[data-kind="tasks"]').first().click();
-    await expect(page.locator('#searchInput')).toHaveValue('relatório');
-    await expect(page.locator('#tasksView .task-row')).toHaveCount(1);
+    await expect(page.locator('#searchInput')).toHaveValue('');
+    await expect(page.locator('#tasksView .task-row')).toHaveCount(2);
     await expect(page.locator('#tasksView .task-row.selected')).toContainText('Enviar relatório mensal');
     await expect(page.locator('.task-panel')).toBeVisible();
-    await page.locator('#searchClearBtn').click();
-    await expect(page.locator('#tasksView .task-row')).toHaveCount(2);
   });
 });

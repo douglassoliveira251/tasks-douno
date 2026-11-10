@@ -175,7 +175,7 @@ export function renderSearchResultsDropdown(){
   const chips = (nPast || nDone) ? `<span class="sr-chips">${nPast ? chip('srTogglePast', showPast, 'Agendas passadas', nPast) : ''}${nDone ? chip('srToggleDone', showDone, 'Concluídas', nDone) : ''}</span>` : '';
   const KIND = { tasks: { cls: 't', icon: 'tasks', svg: SR_ICON_TASK }, notes: { cls: 'n', icon: 'notes', svg: SR_ICON_NOTE }, events: { cls: 'e', icon: 'calendar', svg: SR_ICON_EVENT } };
   const sections = [
-    { label: 'Tarefas', kind: 'tasks', items: res.tasks, count: res.counts.tasks, link: true },
+    { label: 'Tarefas', kind: 'tasks', items: res.tasks, count: res.counts.tasks },
     { label: 'Agenda', kind: 'events', items: res.events, count: res.counts.events },
     { label: 'Notas', kind: 'notes', items: res.notes, count: res.counts.notes },
     ...(showPast ? [{ label: 'Agendas passadas', kind: 'events', items: res.pastEvents, count: nPast, past: true }] : []),
@@ -185,7 +185,6 @@ export function renderSearchResultsDropdown(){
   const body = sections.map(sec => {
     const shown = sec.items.length;
     const lab = `${sec.label} · ${shown < sec.count ? shown + ' de ' + sec.count : sec.count}`;
-    const link = sec.link ? '<a class="sr-seelink" id="srSeeList" role="button" tabindex="0">Ver na lista ›</a>' : '';
     const rows = sec.items.map(it => {
       const i = idx++, k = KIND[sec.kind], info = searchRowInfo(sec.kind, it, term);
       return `<div class="sr-row ${sec.done ? 'done' : ''} ${sec.past ? 'past' : ''} ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${it.id}" data-i="${i}">
@@ -198,7 +197,7 @@ export function renderSearchResultsDropdown(){
         ${info.when ? `<span class="sr-when ${info.whenCls}">${escapeHtml(info.when)}${info.sub ? `<small>${escapeHtml(info.sub)}</small>` : ''}</span>` : ''}
       </div>`;
     }).join('');
-    return `<div class="sr-sec"><span>${lab}</span>${link}</div>${rows}`;
+    return `<div class="sr-sec"><span>${lab}</span></div>${rows}`;
   }).join('');
   if(searchActiveIdx >= idx) searchActiveIdx = 0;
   dd.innerHTML = `
@@ -220,11 +219,9 @@ export function renderSearchResultsDropdown(){
   function openResult(row){
     const kind = row.dataset.kind;
     const id = row.dataset.id;
-    /* tarefa: mantém o termo na busca, assim a lista de Tarefas fica filtrada e a tarefa aberta aparece selecionada nela */
-    if(kind !== 'tasks') clearSearchTerm();
+    clearSearchTerm();
     closeSearchResultsDropdown();
     if(kind === 'tasks'){
-      searchShowDone = false; searchShowPast = false;
       G.currentView = 'tasks'; G.activeTaskId = id; G.creatingNewTask = false; render();
     } else if(kind === 'notes'){
       G.currentView = 'notes'; render();
@@ -240,8 +237,6 @@ export function renderSearchResultsDropdown(){
     const btn = dd.querySelector(sel);
     if(btn) btn.onclick = (e) => { e.stopPropagation(); toggleFn(); searchActiveIdx = 0; renderSearchResultsDropdown(); };
   });
-  const seeList = dd.querySelector('#srSeeList');
-  if(seeList) seeList.onclick = (e) => { e.stopPropagation(); closeSearchResultsDropdown(); G.currentView = 'tasks'; G.activeTaskId = null; render(); };
   dd.querySelectorAll('.sr-row').forEach(row => {
     row.onclick = () => openResult(row);
     row.onmouseenter = () => {

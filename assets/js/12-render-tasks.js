@@ -81,9 +81,7 @@ export function computeTaskGroups(){
   return pinned.length ? [{ key:'fixadas', label:'Favoritos', color:'var(--accent)', tasks: pinned, quickAddDefaults: {} }, ...groups] : groups;
 }
 function computeTaskGroupsUnpinned(pinnedOut){
-  const term = fold(G.searchTerm.trim());
   let pool = G.state.tasks.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
-  if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
   if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
   if(FILTROS.activeProjectFilters.length) pool = pool.filter(t => FILTROS.activeProjectFilters.includes(t.projectId || 'personal'));
@@ -154,10 +152,8 @@ function computeTaskGroupsUnpinned(pinnedOut){
 }
 
 export function computeCompletedGroup(){
-  const term = fold(G.searchTerm.trim());
   let pool = G.state.tasks.filter(t => t.done);
   pool = pool.filter(t => !G.activeCategoryFilter || t.categoryId === G.activeCategoryFilter);
-  if(term) pool = pool.filter(t => fold(t.title).includes(term));
   if(FILTROS.activeTagFilters.length) pool = pool.filter(t => (t.tagIds||[]).some(id => FILTROS.activeTagFilters.includes(id)));
   if(FILTROS.activeCriticalityFilters.length) pool = pool.filter(t => FILTROS.activeCriticalityFilters.includes(t.priority||'media'));
   if(FILTROS.activeProjectFilters.length) pool = pool.filter(t => FILTROS.activeProjectFilters.includes(t.projectId || 'personal'));
@@ -522,7 +518,7 @@ export function renderTaskRow(t){
       <div class="task-meta">
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : `<span class="task-cal-badge nodate">${icon('calendar-blank')}Sem data</span>`}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
-      ${subtasks.length ? `<span class="task-subtask-badge" title="${subDone} de ${subtasks.length} subtarefas concluídas">${Math.round(100 * subDone / subtasks.length)}%</span>` : ''}
+      ${subtasks.length ? `<span class="task-subtask-badge" title="${Math.round(100 * subDone / subtasks.length)}% das subtarefas concluídas">${subDone}/${subtasks.length}</span>` : ''}
       ${tags.length ? `<span class="task-tag-pill${readableInk(tags[0].color) !== '#FFFFFF' ? ' ink-dark' : ''}" style="background:${tags[0].color}; color:${readableInk(tags[0].color)};">${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
       ${commentCount ? `<span class="task-comment-badge" title="${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}">${icon('chat-circle')}${commentCount}</span>` : ''}

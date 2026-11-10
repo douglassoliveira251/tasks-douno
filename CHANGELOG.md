@@ -1,3 +1,7 @@
+## [3.22.2] - 2026-11-10 20:00
+- Pesquisa: não filtra mais a lista de Tarefas (resultados só no painel da pesquisa); removido o link "Ver na lista".
+- Tarefas: contador de subtarefas volta a "feitas/total" (a porcentagem fica na dica ao passar o mouse).
+
 ## [3.22.1] - 2026-11-10 19:00
 - Tarefas: nome do projeto elástico na linha (usa o espaço disponível e encurta só quando necessário).
 
