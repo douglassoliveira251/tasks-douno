@@ -506,9 +506,7 @@ export function renderTaskRow(t){
   const fuSt = followUpState(t);
   let alertsHtml = '';
   if(fuSt === 'vencida') alertsHtml += `<span class="task-alert task-alert-ret over" title="Retomada vencida (${fmtDate(t.followUpDate)})">${icon('bell')}Vencida</span>`;
-  else if(fuSt === 'hoje') alertsHtml += `<span class="task-alert task-alert-ret today" title="Retomar hoje">${icon('bell')}Hoje</span>`;
   if(overdue) alertsHtml += `<span class="task-alert task-status-pill overdue" title="Prazo vencido">${icon('clock')}Vencida</span>`;
-  else if(isToday && !t.done) alertsHtml += `<span class="task-alert task-status-pill today" title="Vence hoje">${icon('clock')}Hoje</span>`;
 
   const cat_ = (G.state.categories || []).find(c => c.id === t.categoryId);
   const stLabel_ = (STATUS_CONFIG.find(s=>s.key===(t.status||'nao_iniciado'))||STATUS_CONFIG[0]).label;
@@ -527,7 +525,7 @@ export function renderTaskRow(t){
       ${commentCount ? `<span class="task-comment-badge" title="${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}">${icon('chat-circle')}${commentCount}</span>` : ''}
       ${(t.recurrence && t.recurrence !== 'none') ? `<span class="task-recurrence-icon" title="Recorrente">${icon('repeat')}</span>` : ''}
       ${t.projectId ? (() => { const pr = projectById(t.projectId); if(!pr) return ''; const st = pr.stages.find(x => x.id === t.stageId); return `<span class="task-proj-pill" title="Tarefa de projeto">${escapeHtml(pr.name)}${st ? ' > ' + escapeHtml(st.name) : ''}</span>`; })() : ''}
-      ${overdue ? `<span class="task-alert-m over">${icon('clock')}Vencida</span>` : (isToday && !t.done ? `<span class="task-alert-m today">${icon('clock')}Hoje</span>` : '')}
+      ${overdue ? `<span class="task-alert-m over">${icon('clock')}Vencida</span>` : ''}
       </div>
     </div>
     <div class="task-row-right">

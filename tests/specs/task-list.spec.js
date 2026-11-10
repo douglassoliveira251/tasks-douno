@@ -6,7 +6,7 @@ const seed = () => {
   const today = todayStr();
   state.tasks = [{
     id: 't1', shortId: '0042', title: 'Enviar relatório mensal de resultados para a diretoria', done: false,
-    status: 'em_andamento', priority: 'alta', dueDate: today, dueTime: '09:00', categoryId: cat,
+    status: 'em_andamento', priority: 'alta', dueDate: addDaysStr(today, -2), dueTime: '09:00', categoryId: cat,
     tagIds: [], subtasks: [], comments: [{ id: 'c1', text: 'ok', createdAt: Date.now() }], attachments: [],
     description: '', recurrence: 'weekly', recurrenceInterval: 1,
   }];
@@ -105,7 +105,7 @@ test.describe('Lista de tarefas', () => {
     expect(cut).toBe(true); // com a linha cheia e a tela menor, encurta
     expect(narrow.width).toBeGreaterThanOrEqual(48);
   });
-  test('alertas: relógio no prazo, sino na retomada, nomes Vencida/Hoje; status ao lado do título', async ({ page }) => {
+  test('alertas: só "Vencida" (relógio no prazo, sino na retomada); "Hoje" não gera alerta; status ao lado do título', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await gotoApp(page, { view: 'tasks' });
     await page.evaluate(() => {
@@ -119,10 +119,10 @@ test.describe('Lista de tarefas', () => {
     await expect(a.locator('.task-alert-ret.over svg')).toHaveCount(1); // sino
     await expect(a.locator('.task-status-pill.overdue')).toHaveText('Vencida');
     await expect(a.locator('.task-status-pill.overdue svg')).toHaveCount(1); // relógio
-    await expect(b.locator('.task-alert-ret.today')).toHaveText('Hoje');
-    await expect(b.locator('.task-status-pill.today')).toHaveText('Hoje');
+    await expect(b.locator('.task-alert-ret')).toHaveCount(0); // retomada hoje: sem alerta
+    await expect(b.locator('.task-status-pill')).toHaveCount(0); // prazo hoje: sem alerta
     // sino antes do relógio
-    const order = await b.locator('.task-alerts').evaluate(el => [...el.children].map(c => c.classList.contains('task-alert-ret') ? 'ret' : 'prazo'));
+    const order = await a.locator('.task-alerts').evaluate(el => [...el.children].map(c => c.classList.contains('task-alert-ret') ? 'ret' : 'prazo'));
     expect(order).toEqual(['ret', 'prazo']);
     // status ao lado do título (mesma linha) e fora da coluna da direita
     await expect(a.locator('.task-title-line .task-status-label')).toHaveText('Em andamento');

@@ -1,3 +1,6 @@
+## [3.27.0] - 2026-11-10 23:59
+- Tarefas: removido o alerta "Hoje" (prazo e retomada); ficam só os alertas "Vencida" (relógio no prazo, sino na retomada).
+
 ## [3.26.0] - 2026-11-10 23:59
 - Celular: compactação do topo (botões lado a lado), Visão geral, Notas, Calendário (cabeçalho em menos linhas, sem título repetido e com menos margem) e pesquisa (sem legenda de teclas).
 

@@ -3919,8 +3919,6 @@
   .task-row .task-alerts .task-alert{display:inline-flex; align-items:center; gap:5px; min-width:0; font-size:11px; font-weight:700; line-height:1.3; border-radius:6px; padding:3px 9px; white-space:nowrap; text-align:left;}
   .task-alert svg{width:13px; height:13px; flex:none;}
   .task-alert-ret.over{background:color-mix(in srgb, var(--danger) 12%, var(--surface)); color:var(--danger); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--danger) 30%, transparent);}
-  .task-alert-ret.today{background:#FFF1D6; color:#9A5B00; box-shadow:inset 0 0 0 1px #F6D79A;}
-  [data-theme="dark"] .task-alert-ret.today{background:color-mix(in srgb, #F59E0B 16%, var(--surface)); color:#F6B25C; box-shadow:inset 0 0 0 1px color-mix(in srgb, #F59E0B 35%, transparent);}
   body[data-view="tasks"] .task-row-left .task-title-line .task-title{flex:0 1 auto; min-width:0;}
   @media (max-width:768px){
     .task-title-line{flex:1 1 100%;}
@@ -3955,7 +3953,6 @@
     body[data-view="tasks"] .task-meta .task-alert-m{display:inline-flex; flex:none; align-items:center; gap:3px; font-size:10px; font-weight:700; border-radius:4px; padding:1px 6px; white-space:nowrap; color:#fff;}
     .task-alert-m svg{width:10px; height:10px;}
     .task-alert-m.over{background:var(--priority-critica);}
-    .task-alert-m.today{background:var(--priority-alta);}
   }
 
   /* v3.26.0: celular, demais telas no mesmo espírito compacto de aplicativo (fontes pequenas, menos margem, controles mais baixos) */

@@ -19,9 +19,9 @@ test.describe('Retomar em', () => {
     expect(r[2][1]).toBe('vencida');
     expect(r[3]).toEqual(['d', null, '']);
     await page.evaluate(() => { taskGroupMode = 'periodo'; render(); });
-    // vencida e hoje viram alerta com sino (Vencida / Hoje); só a futura segue como etiqueta na 2ª linha
+    // só a retomada vencida vira alerta com sino; "hoje" não gera alerta e a futura segue como etiqueta na 2ª linha
     await expect(page.locator('.task-follow-pill')).toHaveCount(1);
-    await expect(page.locator('.task-alert-ret.today')).toHaveText('Hoje');
+    await expect(page.locator('.task-alert-ret.today')).toHaveCount(0);
     await expect(page.locator('.task-alert-ret.over')).toHaveText('Vencida');
   });
 
@@ -37,7 +37,7 @@ test.describe('Retomar em', () => {
     expect(await page.locator('.bucket', { hasText: 'Retomar hoje' }).locator('.task-row').count()).toBe(1);
     // na visão por retomada o grupo já diz a data: sem a etiqueta âmbar da retomada futura; os alertas de sino continuam
     await expect(page.locator('.task-follow-pill')).toHaveCount(0);
-    await expect(page.locator('.task-alert-ret')).toHaveCount(2);
+    await expect(page.locator('.task-alert-ret')).toHaveCount(1);
   });
 
   test('painel: definir, usar atalho e limpar sem mexer no prazo', async ({ page }) => {
