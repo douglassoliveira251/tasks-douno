@@ -45,6 +45,7 @@ export function createNewSpace(){
   const color = DEFAULT_COLORS[G.state.categories.length % DEFAULT_COLORS.length];
   const newCat = { id: uid('cat'), name: 'Novo espaço', color };
   G.state.categories.push(newCat);
+  if(Array.isArray(G.state.calSpaces)) G.state.calSpaces.push(newCat.id); // espaço novo já aparece no calendário
   openSettingsView('categorias');
   markDirty();
   setTimeout(() => renderCatRows(newCat.id), 0);

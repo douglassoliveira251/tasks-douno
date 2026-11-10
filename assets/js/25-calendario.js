@@ -6,9 +6,10 @@ export const WEEKDAY_LABELS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 export const WEEKDAY_FULL_LABELS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 export const MONTH_LABELS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-/* Espaços marcados na coluna do calendário (G.calSpaces); sem marcação própria, segue o espaço escolhido no menu */
+/* Espaços marcados na coluna do calendário (state.calSpaces, guardado junto com os dados: fica até a pessoa desmarcar);
+   sem marcação própria, segue o espaço escolhido no menu */
 export function calSpaceOk(catId){
-  if(Array.isArray(G.calSpaces)) return G.calSpaces.includes(catId);
+  if(Array.isArray(G.state.calSpaces)) return G.state.calSpaces.includes(catId);
   return !G.activeCategoryFilter || catId === G.activeCategoryFilter;
 }
 export function eventsInScope(){

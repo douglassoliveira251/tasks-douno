@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.35.0', date:'10/11/2026', title:'Espaços do calendário fixos e barra de prioridade maior', text:'No Calendário, os espaços marcados na coluna lateral agora ficam salvos e só mudam quando você marcar ou desmarcar. Um espaço novo já entra marcado. Nas Tarefas, a barra colorida da prioridade ficou um pouco mais larga. O menu ganhou o item Biblioteca, ainda desativado.' },
   { version:'3.34.1', date:'10/11/2026', title:'Barra de prioridade de volta no modo escuro', text:'No modo escuro, a barra colorida no início de cada tarefa (a cor da prioridade) voltou a aparecer.' },
   { version:'3.34.0', date:'10/11/2026', title:'Novo modo escuro', text:'O modo escuro foi redesenhado: fundo grafite com um degradê azul-escuro no topo, cores mais escuras e contidas, seleções em cinza e azul só no destaque do menu.' },
   { version:'3.33.0', date:'10/11/2026', title:'Duplicar e excluir direto na tarefa', text:'No detalhe da tarefa, depois da estrela, agora há ícones para duplicar e para excluir, com confirmação. A barra de progresso das subtarefas ficou um pouco mais grossa e em verde claro.' },

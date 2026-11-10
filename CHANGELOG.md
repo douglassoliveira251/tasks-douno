@@ -1,3 +1,8 @@
+## [3.35.0] - 2026-11-10 23:59
+- Calendário: os espaços marcados na coluna lateral ficam salvos (com os dados) até você desmarcar; espaço novo entra marcado.
+- Tarefas: barra de prioridade mais larga (6px no computador, 5px no celular).
+- Menu: item Biblioteca (ícone de livros) criado, desativado por enquanto.
+
 ## [3.34.1] - 2026-11-10 23:59
 - Modo escuro: a barra com a cor da prioridade no início de cada tarefa voltou a aparecer.
 

@@ -11,7 +11,6 @@ export const G = {
   calSelectedDate: undefined,
   calendarFocusDate: undefined,
   calendarView: undefined,
-  calSpaces: null,
   tagSpaceFilter: "",
   templateSpaceFilter: "",
   cloudSession: undefined,

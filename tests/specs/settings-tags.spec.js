@@ -304,3 +304,40 @@ test('modo escuro: barra da prioridade no início da tarefa aparece, no computad
     }
   }
 });
+
+test('calendário: espaços marcados ficam salvos até desmarcar (mesmo trocando de tela e de espaço no menu)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'calendar' });
+  await page.evaluate(() => {
+    state.categories = [{ id: 'c1', name: 'Trabalho', color: '#4A6FA5' }, { id: 'c2', name: 'Pessoal', color: '#9B5DE5' }, { id: 'c3', name: 'Estudos', color: '#2F6F5E' }];
+    state.calSpaces = null; activeCategoryFilter = null; currentView = 'calendar'; render();
+  });
+  await expect(page.locator('input[data-space]:checked')).toHaveCount(3);
+  await page.locator('.cal-sp:has(input[data-space="c3"])').click();
+  await page.locator('.cal-sp:has(input[data-space="c2"])').click();
+  expect(await page.evaluate(() => state.calSpaces)).toEqual(['c1']);
+  // sai da tela, muda o espaço do menu e volta: a marcação é a mesma
+  await page.evaluate(() => { currentView = 'tasks'; render(); activeCategoryFilter = 'c2'; currentView = 'calendar'; render(); });
+  await expect(page.locator('input[data-space]:checked')).toHaveCount(1);
+  await expect(page.locator('input[data-space="c1"]')).toBeChecked();
+  // vai junto com os dados salvos (estado)
+  expect(await page.evaluate(() => JSON.parse(JSON.stringify(state)).calSpaces)).toEqual(['c1']);
+  // marcar de novo só muda quando a pessoa marca
+  await page.locator('.cal-sp:has(input[data-space="c2"])').click();
+  expect(await page.evaluate(() => state.calSpaces)).toEqual(['c1', 'c2']);
+});
+
+test('menu: Biblioteca existe com ícone de livros, desativada e sem abrir tela', async ({ page }) => {
+  for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(vp);
+    await gotoApp(page, { view: 'tasks' });
+    const b = page.locator('#navLibrary');
+    await expect(b).toBeVisible();
+    await expect(b).toBeDisabled();
+    await expect(b).toHaveAttribute('title', /em breve/i);
+    await expect(b.locator('svg rect')).toHaveCount(2);
+    await b.click({ force: true });
+    expect(await page.evaluate(() => currentView)).toBe('tasks');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(vp.width);
+  }
+});

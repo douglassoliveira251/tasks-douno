@@ -290,9 +290,10 @@ export function buildCalSidebar(){
     <label class="cal-chk"><input type="checkbox" id="sideTask" ${G.state.showCalTasks !== false ? 'checked' : ''}><span class="bx"></span>Tarefas com prazo</label>`;
   info.querySelectorAll('input[data-space]').forEach(inp => {
     inp.onchange = () => {
-      let cur = Array.isArray(G.calSpaces) ? G.calSpaces.slice() : cats.filter(c => calSpaceOk(c.id)).map(c => c.id);
+      let cur = Array.isArray(G.state.calSpaces) ? G.state.calSpaces.slice() : cats.filter(c => calSpaceOk(c.id)).map(c => c.id);
       cur = inp.checked ? cur.concat(inp.dataset.space) : cur.filter(x => x !== inp.dataset.space);
-      G.calSpaces = cur;
+      G.state.calSpaces = cur;
+      markDirty();
       render();
     };
   });

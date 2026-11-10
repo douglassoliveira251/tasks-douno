@@ -4193,3 +4193,13 @@
   [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
   [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
   [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}
+
+  /* ===== v3.35.0 — barra de prioridade das tarefas um pouco mais larga (computador 6px, celular 5px) ===== */
+  body .task-row, body[data-view="tasks"] .task-row{border-left-width:6px; padding-left:8px;}
+  @media (max-width:768px){
+    body .task-row, body[data-view="tasks"] .task-row{border-left-width:5px; padding-left:8px;}
+  }
+
+  /* Biblioteca: item de menu já criado, desativado por enquanto (ver ROADMAP.md) */
+  .nav-item.nav-soon, .nav-item.nav-soon:hover, [data-theme="dark"] .nav-item.nav-soon:hover{opacity:.45; cursor:not-allowed; background:transparent !important; color:var(--ink-soft) !important;}
+  .nav-item.nav-soon:hover svg, [data-theme="dark"] .nav-item.nav-soon:hover svg{color:var(--ink-soft) !important;}

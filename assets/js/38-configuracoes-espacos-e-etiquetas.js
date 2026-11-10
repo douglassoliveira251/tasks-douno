@@ -48,7 +48,9 @@ export function renderCategoriesPanel(panel){
   const addCat = () => {
     const name = nameNew.value.trim();
     if(!name){ nameNew.focus(); return; }
-    G.state.categories.push({ id: uid('cat'), name, color: newColor });
+    const nc = { id: uid('cat'), name, color: newColor };
+    G.state.categories.push(nc);
+    if(Array.isArray(G.state.calSpaces)) G.state.calSpaces.push(nc.id); // espaço novo já aparece no calendário
     markDirty();
     renderCategoriesPanel(panel);
     document.getElementById('catNewName').focus();
