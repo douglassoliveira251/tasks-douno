@@ -1,3 +1,6 @@
+## [3.23.1] - 2026-11-10 22:00
+- Tarefas: subtarefas com contador + barra de progresso + porcentagem no fim (no celular, só o contador).
+
 ## [3.23.0] - 2026-11-10 21:00
 - Projeto (computador): Linha do tempo como visão fixa (sem Etapas/Linha do tempo/Lista); botão Editar com ícone no topo; descrição no começo do Resumo; removido o "Editar projeto" do fim do Resumo. No celular as visões continuam.
 

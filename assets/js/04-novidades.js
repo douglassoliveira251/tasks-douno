@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.23.1', date:'10/11/2026', title:'Progresso das subtarefas com barra', text:'Na lista de tarefas, as subtarefas mostram o contador (por exemplo 4/5), uma barra de progresso e a porcentagem no fim. No celular continua só o contador.' },
   { version:'3.23.0', date:'10/11/2026', title:'Projeto com o topo mais simples', text:'No computador, o projeto aberto mostra sempre a Linha do tempo (sem a escolha Etapas/Linha do tempo/Lista), com o botão Editar no topo e a descrição logo no começo do Resumo.' },
   { version:'3.22.2', date:'10/11/2026', title:'Pesquisa não filtra mais a lista', text:'Ao pesquisar, os resultados aparecem só no painel da pesquisa; a lista de Tarefas não é mais filtrada. Nas tarefas, o contador de subtarefas voltou a mostrar "feitas/total" (por exemplo 4/5).' },
   { version:'3.22.1', date:'10/11/2026', title:'Nome do projeto na linha da tarefa', text:'Na lista de tarefas, o nome do projeto agora usa todo o espaço que sobrar na linha e só é encurtado quando faltar lugar.' },

@@ -518,7 +518,7 @@ export function renderTaskRow(t){
       <div class="task-meta">
       ${t.dueDate ? `<span class="task-cal-badge ${overdue?'overdue':''}">${icon('calendar-blank')}${fmtDate(t.dueDate)}${t.dueTime ? ' '+t.dueTime : ''}</span>` : `<span class="task-cal-badge nodate">${icon('calendar-blank')}Sem data</span>`}
       ${(() => { const fs_ = G.taskGroupMode === 'retomada' ? null : followUpState(t); return fs_ ? `<span class="task-follow-pill ${fs_}" title="Data para voltar a olhar esta tarefa">${icon('arrow-bend-up-right')}${escapeHtml(followUpLabel(t))}</span>` : ''; })()}
-      ${subtasks.length ? `<span class="task-subtask-badge" title="${Math.round(100 * subDone / subtasks.length)}% das subtarefas concluídas">${subDone}/${subtasks.length}</span>` : ''}
+      ${subtasks.length ? (() => { const pc = Math.round(100 * subDone / subtasks.length); return `<span class="task-subtask-badge task-prog" title="${subDone} de ${subtasks.length} subtarefas concluídas (${pc}%)"><b>${subDone}/${subtasks.length}</b><span class="task-prog-bar"><i style="width:${pc}%"></i></span><span class="task-prog-pct">${pc}%</span></span>`; })() : ''}
       ${tags.length ? `<span class="task-tag-pill${readableInk(tags[0].color) !== '#FFFFFF' ? ' ink-dark' : ''}" style="background:${tags[0].color}; color:${readableInk(tags[0].color)};">${escapeHtml(tags[0].name)}</span>` : ''}
       ${tags.length > 1 ? `<span class="task-tag-more" title="${tags.slice(1).map(t=>t.name).join(', ')}">+${tags.length-1}</span>` : ''}
       ${commentCount ? `<span class="task-comment-badge" title="${commentCount} ${commentCount === 1 ? 'comentário' : 'comentários'}">${icon('chat-circle')}${commentCount}</span>` : ''}

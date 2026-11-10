@@ -3907,3 +3907,11 @@
   .proj-side-desc{margin-bottom:12px;}
   @media (min-width:769px){ .pd-head .pd-tabs{display:none;} }
   @media (max-width:768px){ #prjEditTop{display:none;} }
+
+  /* v3.23.1: subtarefas com contador na frente, barra de progresso e porcentagem no fim */
+  .task-prog{display:inline-flex; align-items:center; gap:7px; white-space:nowrap;}
+  .task-prog b{font-weight:600; color:var(--ink-soft);}
+  .task-prog-bar{width:64px; height:8px; border-radius:99px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--border); overflow:hidden; display:inline-block;}
+  .task-prog-bar i{display:block; height:100%; border-radius:99px; background:var(--ok);}
+  .task-prog-pct{min-width:30px; text-align:right;}
+  @media (max-width:768px){ .task-prog-bar, .task-prog-pct{display:none;} }
