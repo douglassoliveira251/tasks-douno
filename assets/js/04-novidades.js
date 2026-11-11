@@ -4,6 +4,8 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.38.0', date:'11/11/2026', title:'Projetos: etapa mais fácil de escolher', text:'No painel da etapa, Nova tarefa e Editar ficam lado a lado no topo. O chip do projeto na tarefa agora abre a lista de etapas, com Alterar projeto e Ir até o projeto. Tarefas de projeto passam a nascer numa etapa: o Nova tarefa do projeto pergunta em qual.' },
+  { version:'3.37.8', date:'11/11/2026', title:'Voltar do celular nas Configurações', text:'No celular, depois de abrir uma opção de Configurações, o gesto ou botão voltar do aparelho agora volta para a lista de opções. Um segundo voltar sai das Configurações.' },
   { version:'3.37.7', date:'11/11/2026', title:'Botão Hoje na visão Dia do celular', text:'No celular, na visão Dia do Calendário, o botão Hoje voltou (sem as setas): um toque leva ao dia atual.' },
   { version:'3.37.6', date:'11/11/2026', title:'Alça de arrastar maior no celular', text:'No celular, o ícone de seis pontos para reordenar (subtarefas, tags e espaços) ficou maior, para ser mais fácil de pegar com o dedo.' },
   { version:'3.37.5', date:'11/11/2026', title:'Janela de recorrência não vai mais para o canto', text:'Ao mexer nas opções de recorrência (como Retornar antes), a janela às vezes pulava para o canto superior esquerdo da tela. Agora ela fica junto do botão.' },

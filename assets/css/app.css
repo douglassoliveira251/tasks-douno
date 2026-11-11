@@ -4269,3 +4269,8 @@
   .tp-subtask-row .drag-grip-spacer{width:26px; margin-right:-4px;}
   .tp-subtask-row .drag-grip svg{width:14px; height:14px;}
 }
+
+/* v3.38.0: painel da etapa com Nova tarefa e Editar lado a lado, no topo */
+.proj-side-actions{display:flex; gap:8px; margin:10px 0 0;}
+.proj-side-actions .proj-side-btn{flex:1 1 0; min-width:0; margin-top:0; display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap;}
+.proj-side-actions .proj-side-btn svg{width:15px; height:15px; flex:none;}

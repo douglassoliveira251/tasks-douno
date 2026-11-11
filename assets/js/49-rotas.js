@@ -61,6 +61,16 @@ export function onRouteChange(){
   NOTAS_UI.pendingNoteNotebookId = null;
   render();
 }
+/* Configurações no celular: a opção aberta tem uma entrada própria no histórico (mesmo endereço, state.sTab).
+   Voltar sai da opção para a lista; um segundo voltar sai das Configurações. Roda antes de onRouteChange
+   para só agir quando já estávamos nas Configurações. */
+window.addEventListener('popstate', () => {
+  if(G.currentView !== 'settings' || routeFromLocation() !== 'settings') return;
+  if(!window.matchMedia('(max-width:768px)').matches) return;
+  const t = history.state && history.state.sTab;
+  if(t){ G.settingsTab = t; G.settingsMobileList = false; } else { G.settingsMobileList = true; }
+  render();
+});
 window.addEventListener(ROUTE_MODE === 'path' ? 'popstate' : 'hashchange', onRouteChange);
 
 // a tela inicial vem do endereço (sem tela no endereço, é o Resumo)

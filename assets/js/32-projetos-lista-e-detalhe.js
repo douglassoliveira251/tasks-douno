@@ -2,6 +2,7 @@ import { G } from './globais.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
 import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
+import { closeAllTaskMenus, ensureTaskMenuPortal } from './13-portais-de-tarefa.js';
 import { MONTH_LABELS, addDaysStr } from './25-calendario.js';
 import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor, openStageEditor, projectById, projectColor, projectIconSvg, projectStatus, projectsInScope, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
 import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.js';
@@ -161,7 +162,11 @@ export function renderProjectDetail(view, p){
     const spct = stagePercent(p, selStage), sstate = stageState(p, selStage), stks = sortByStart(stageTasks(p, selStage));
     stageSideHtml = `
       <button type="button" class="proj-side-back" id="stgSideBack">‹ Visão geral do projeto</button>
-      <div class="proj-side-label" style="margin-top:8px;">Etapa</div>
+      <div class="proj-side-actions">
+        <button type="button" class="proj-side-btn pri" id="stgSideNewTask">${icon('plus')}<span>Nova tarefa</span></button>
+        <button type="button" class="proj-side-btn" id="stgSideEdit">${icon('pencil-simple')}<span>Editar</span></button>
+      </div>
+      <div class="proj-side-label" style="margin-top:14px;">Etapa</div>
       <div class="proj-side-top">
         <div class="proj-ring" style="--p:${spct}"><b>${spct}%</b></div>
         <div><b>${escapeHtml(selStage.name)}</b>
@@ -173,8 +178,7 @@ export function renderProjectDetail(view, p){
         const pr_ = Math.round(taskProgress(t) * 100);
         return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.done ? 'done' : (t.dueDate && t.dueDate < today ? 'late' : '')}"></i><div><b style="${t.done ? 'text-decoration:line-through; opacity:.6;' : ''}">${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}${subs.length ? ' · ' + subs.filter(x => x.done).length + '/' + subs.length + ' subtarefas' : ''}${!t.done && pr_ ? ' · ' + pr_ + '%' : ''}</small></div></div>`;
       }).join('') : '<div class="proj-side-sub" style="padding:8px 0;">Nenhuma tarefa nesta etapa ainda.</div>'}
-      <button type="button" class="proj-side-btn pri" id="stgSideNewTask">+ Nova tarefa nesta etapa</button>
-      <button type="button" class="proj-side-btn" id="stgSideEdit">Editar etapa</button>`;
+`;
   }
   const phTasks = G.state.tasks.filter(t => t.projectId === p.id);
   const soonLim = addDaysStr(today, 3);
@@ -319,17 +323,33 @@ export function renderProjectDetail(view, p){
   view.querySelector('#prjBack').onclick = () => { G.activeProjectId = null; G.selectedStageId = null; render(); };
   view.querySelector('#prjMore').onclick = (e) => { e.stopPropagation(); openProjectMenu(e.currentTarget, p); };
   view.querySelector('#prjAddStage').onclick = () => openStageEditor(p, null);
-  view.querySelector('#prjAddTask').onclick = () => {
+  /* a tarefa de projeto nasce já numa etapa: com uma etapa aberta usa ela; senão pergunta (uma só etapa: usa direto) */
+  function addTaskToStage(stageId){
     G.state.taskIdCounter = (G.state.taskIdCounter || 0) + 1;
     const t = {
       id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'), title: '', categoryId: p.categoryId,
       done: false, status: 'nao_iniciado', dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority: 'media',
       description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: Date.now(),
-      projectId: p.id, stageId: null,
+      projectId: p.id, stageId: stageId || null,
     };
     G.state.tasks.push(t);
     G.activeTaskId = t.id; G.creatingNewTask = false;
     markDirty();
+  }
+  view.querySelector('#prjAddTask').onclick = (e) => {
+    e.stopPropagation();
+    if(selStage){ addTaskToStage(selStage.id); return; }
+    if(stages.length <= 1){ addTaskToStage(stages[0] ? stages[0].id : null); return; }
+    const portal = ensureTaskMenuPortal();
+    if(portal.classList.contains('show') && portal.querySelector('[data-pick-stage]')){ closeAllTaskMenus(); return; }
+    closeAllTaskMenus();
+    portal.innerHTML = '<div class="tpl-menu-head">Em qual etapa?</div>' + stages.map(sg => '<button type="button" class="task-menu-item" data-pick-stage="' + sg.id + '">' + escapeHtml(sg.name || 'Etapa') + '</button>').join('');
+    const r = e.currentTarget.getBoundingClientRect();
+    portal.style.top = Math.round(r.bottom + 6) + 'px';
+    portal.style.right = Math.round(window.innerWidth - r.right) + 'px';
+    portal.style.left = 'auto';
+    portal.classList.add('show');
+    portal.querySelectorAll('[data-pick-stage]').forEach(bt => { bt.onclick = (ev) => { ev.stopPropagation(); closeAllTaskMenus(); addTaskToStage(bt.dataset.pickStage); }; });
   };
   view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { G.projectTab = b.dataset.tab; render(); }; });
   const body = view.querySelector('#prjBody');

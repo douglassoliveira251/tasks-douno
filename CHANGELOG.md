@@ -1,3 +1,11 @@
+## [3.38.0] - 2026-11-11 23:59
+- Projetos: painel da etapa com "Nova tarefa" e "Editar" lado a lado, no topo.
+- Projetos: o chip do projeto na tarefa abre as etapas do projeto, com "Alterar projeto…" e "Ir até o projeto".
+- Projetos: tarefa de projeto exige etapa ao criar ("Nova tarefa" do projeto pergunta qual; uma só etapa usa direto). Tarefas antigas sem etapa não mudam.
+
+## [3.37.8] - 2026-11-11 23:59
+- Celular, Configurações: voltar do aparelho sai da opção para a lista (antes saía das Configurações).
+
 ## [3.37.7] - 2026-11-11 23:59
 - Celular, Calendário (visão Dia): botão Hoje de volta, ao lado de Personalizar; setas continuam ocultas.
 

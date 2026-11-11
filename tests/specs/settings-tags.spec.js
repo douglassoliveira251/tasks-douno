@@ -492,3 +492,25 @@ test('celular: alça de arrastar das subtarefas tem área de toque maior', async
   expect(g.h).toBeGreaterThanOrEqual(36);
   expect(g.sw).toBeLessThanOrEqual(g.vw);
 });
+
+test('celular, Configurações: voltar do aparelho sai da opção para a lista e só depois das Configurações', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => { openSettingsView('personalizacao', { list: true }); });
+  await expect(page.locator('.settings-m-list')).toBeVisible();
+  await page.locator('.settings-m-item[data-tab="tags"]').click();
+  await expect(page.locator('.settings-m-back')).toBeVisible();
+  await page.goBack();
+  await expect(page.locator('.settings-m-list')).toBeVisible();
+  expect(await page.evaluate(() => currentView)).toBe('settings');
+  await page.goBack();
+  await expect.poll(() => page.evaluate(() => currentView)).toBe('tasks');
+  // pelo botão da tela: ‹ Configurações volta para a lista e o voltar seguinte sai
+  await page.goForward();
+  await expect(page.locator('.settings-m-list')).toBeVisible();
+  await page.locator('.settings-m-item[data-tab="tags"]').click();
+  await page.locator('#settingsMBack').click();
+  await expect(page.locator('.settings-m-list')).toBeVisible();
+  await page.goBack();
+  await expect.poll(() => page.evaluate(() => currentView)).toBe('tasks');
+});

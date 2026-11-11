@@ -115,17 +115,35 @@ export function bindTpMenu(panel, task){
     portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); if(menuAnchor !== tpMenuBtn && task.projectId) showStageList(task.projectId); else { menuAnchor = tpMenuBtn; showMainMenu(); } };
     portal.querySelectorAll('[data-p]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); showStageList(b.dataset.p); }; });
   }
+  function goToProject(projectId){
+    closeAllTaskMenus();
+    closeTaskPanel(true);
+    G.activeProjectId = projectId; G.projectTab = defaultProjectTab(); G.selectedStageId = null;
+    G.currentView = 'projects';
+    render();
+  }
+  /* Etapas do projeto. Aberto pelo chip do projeto na tarefa, também traz "Alterar projeto…" e "Ir até o projeto".
+     A etapa é obrigatória: só quando o projeto ainda não tem etapas a tarefa pode ficar só no projeto. */
   function showStageList(projectId){
     const portal = ensureTaskMenuPortal();
     const pr = projectById(projectId); if(!pr) return;
+    const fromChip = !!(menuAnchor && menuAnchor.id === 'tpProjChip');
+    const stageBtns = pr.stages.length
+      ? pr.stages.map(st => { const cur = task.projectId === pr.id && task.stageId === st.id; return `<button type="button" class="task-menu-item${cur ? ' current' : ''}" data-s="${st.id}">${escapeHtml(st.name || 'Etapa')}${cur ? '<span class="tpl-menu-meta">atual</span>' : ''}</button>`; }).join('')
+      : `<div class="tpl-menu-empty">Este projeto ainda não tem etapas.</div><button type="button" class="task-menu-item" data-s="">Só o projeto (sem etapa)</button>`;
     portal.innerHTML = `
-      <button type="button" class="task-menu-item" data-m="back">‹ Projetos</button>
+      ${fromChip ? '' : '<button type="button" class="task-menu-item" data-m="back">‹ Projetos</button>'}
       <div class="tpl-menu-head">${escapeHtml(pr.name)} · etapa</div>
-      <button type="button" class="task-menu-item" data-s="">Só o projeto (sem etapa)</button>
-      ${pr.stages.map(st => { const cur = task.projectId === pr.id && task.stageId === st.id; return `<button type="button" class="task-menu-item${cur ? ' current' : ''}" data-s="${st.id}">${escapeHtml(st.name || 'Etapa')}${cur ? '<span class="tpl-menu-meta">atual</span>' : ''}</button>`; }).join('')}`;
+      ${stageBtns}
+      ${fromChip ? `<div style="height:1px;background:var(--border);margin:4px 6px;"></div>
+      <button type="button" class="task-menu-item" data-m="change">⇄ Alterar projeto…</button>
+      <button type="button" class="task-menu-item" data-m="goproj">${ICO_PROJ}Ir até o projeto</button>` : ''}`;
     placeMenu(portal, menuAnchor);
-    portal.querySelector('[data-m="back"]').onclick = (ev) => { ev.stopPropagation(); showProjectList(); };
-    portal.querySelectorAll('[data-s]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); linkTaskTo(projectId, b.dataset.s); }; });
+    const back = portal.querySelector('[data-m="back"]');
+    if(back) back.onclick = (ev) => { ev.stopPropagation(); showProjectList(); };
+    portal.querySelectorAll('[data-s]').forEach(bt => { bt.onclick = (ev) => { ev.stopPropagation(); linkTaskTo(projectId, bt.dataset.s); }; });
+    const ch = portal.querySelector('[data-m="change"]'); if(ch) ch.onclick = (ev) => { ev.stopPropagation(); showProjectList(); };
+    const gp = portal.querySelector('[data-m="goproj"]'); if(gp) gp.onclick = (ev) => { ev.stopPropagation(); goToProject(projectId); };
   }
   function showTemplateList(){
     const portal = ensureTaskMenuPortal();
@@ -155,21 +173,11 @@ export function bindTpMenu(panel, task){
     tpProjChipEl.onclick = (e) => {
       e.stopPropagation();
       const portal = ensureTaskMenuPortal();
-      if(portal.classList.contains('show') && portal.querySelector('[data-m="goproj"]')){ closeAllTaskMenus(); return; }
+      if(portal.classList.contains('show') && menuAnchor === tpProjChipEl){ closeAllTaskMenus(); return; }
       closeAllTaskMenus();
       menuAnchor = tpProjChipEl;
-      portal.innerHTML = `<button type="button" class="task-menu-item" data-m="goproj">${ICO_PROJ}Ir até o projeto</button>`;
-      placeMenu(portal, tpProjChipEl);
+      showStageList(task.projectId);
       portal.classList.add('show');
-      portal.querySelector('[data-m="goproj"]').onclick = (ev) => {
-        ev.stopPropagation();
-        const projectId = task.projectId;
-        closeAllTaskMenus();
-        closeTaskPanel(true);
-        G.activeProjectId = projectId; G.projectTab = defaultProjectTab(); G.selectedStageId = null;
-        G.currentView = 'projects';
-        render();
-      };
     };
   }
   tpMenuBtn.onclick = (e) => {

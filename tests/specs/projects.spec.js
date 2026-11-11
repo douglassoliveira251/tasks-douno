@@ -163,6 +163,7 @@ test('tarefa de projeto: desvincular pelo menu ⋮ e criar tarefa pelo projeto',
   await gotoApp(page, { view: 'projects' });
   await page.evaluate((src) => { eval('(' + src + ')')(); activeProjectId = 'p1'; currentView = 'projects'; render(); }, seed.toString());
   await page.locator('#prjAddTask').click();
+  await page.locator('[data-pick-stage]').first().click(); // a etapa é obrigatória: o projeto pergunta
   const t = await page.evaluate(() => state.tasks[state.tasks.length - 1]);
   expect(t.projectId).toBe('p1');
   await expect(page.locator('#tpProjChip')).toContainText('Construção da casa');
@@ -248,7 +249,7 @@ test('chip do projeto: "Ir até o projeto" abre o projeto; nome longo encurta', 
   const cut = await chip.evaluate(el => { const t = el.querySelector('.tp-proj-chip-t'); return t.scrollWidth > t.clientWidth && el.getBoundingClientRect().right <= el.closest('.task-panel').getBoundingClientRect().right; });
   expect(cut).toBe(true);
   await chip.click();
-  await expect(page.locator('.task-menu-item')).toHaveCount(1);
+  await expect(page.locator('[data-m="goproj"]')).toHaveCount(1); // o chip agora abre as etapas + Alterar projeto + Ir até o projeto
   await page.locator('[data-m="goproj"]').click();
   expect(await page.evaluate(() => [currentView, activeProjectId, activeTaskId])).toEqual(['projects', 'p1', null]);
 });

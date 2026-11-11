@@ -84,7 +84,11 @@ function renderSettingsMobileList(view){
       return `<button type="button" class="settings-m-item" data-tab="${key}">${SETTINGS_NAV_ICONS[key]}<span>${SETTINGS_NAV_LABELS[key]}</span>${n === null ? '' : `<span class="settings-m-count">${n}</span>`}${icon('caret-right')}</button>`;
     }).join('')}</div>`).join('')}</div>`;
   view.querySelectorAll('.settings-m-item').forEach(btn => {
-    btn.onclick = () => { G.settingsTab = btn.dataset.tab; G.settingsMobileList = false; renderSettingsView(); window.scrollTo(0, 0); };
+    btn.onclick = () => {
+      /* a opção aberta vira uma entrada do histórico: o gesto/botão voltar do aparelho volta para a lista */
+      try{ history.pushState({ sTab: btn.dataset.tab }, '', location.href); }catch(e){}
+      G.settingsTab = btn.dataset.tab; G.settingsMobileList = false; renderSettingsView(); window.scrollTo(0, 0);
+    };
   });
 }
 export function renderSettingsView(){
@@ -106,7 +110,10 @@ export function renderSettingsView(){
       <div class="settings-panel" id="settingsPanel"></div>
     </div>
   `;
-  view.querySelector('#settingsMBack').onclick = () => { G.settingsMobileList = true; renderSettingsView(); window.scrollTo(0, 0); };
+  view.querySelector('#settingsMBack').onclick = () => {
+    if(history.state && history.state.sTab){ history.back(); return; } /* desfaz a entrada criada ao abrir a opção */
+    G.settingsMobileList = true; renderSettingsView(); window.scrollTo(0, 0);
+  };
   view.querySelectorAll('.settings-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === G.settingsTab);
     btn.onclick = () => { G.settingsTab = btn.dataset.tab; renderSettingsView(); };
