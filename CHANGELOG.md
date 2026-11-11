@@ -1,3 +1,6 @@
+## [3.37.3] - 2026-11-11 23:59
+- Modo escuro: o texto digitado no campo de nova subtarefa fica visível (estava escuro sobre escuro).
+
 ## [3.37.2] - 2026-11-11 23:59
 - Modo escuro: o campo de buscar tags deixa de ficar branco.
 

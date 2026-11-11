@@ -431,3 +431,23 @@ test('modo escuro: campo de buscar tags segue o tema (não fica branco)', async 
   expect(bg).not.toBe('rgb(255, 255, 255)');
   expect(bg).toBe('rgb(28, 31, 36)');
 });
+
+test('modo escuro: texto digitado em campos do detalhe da tarefa é legível', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  const r = await page.evaluate(() => {
+    const cat = state.categories[0].id;
+    state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: 1 }];
+    document.documentElement.setAttribute('data-theme', 'dark');
+    currentView = 'tasks'; render(); openTaskPanel('t1');
+    const lum = (c) => { const m = c.match(/\d+/g).map(Number); return (m[0] * 299 + m[1] * 587 + m[2] * 114) / 1000; };
+    const out = {};
+    for (const sel of ['#tpNewSubtask', '#tpNewComment']) {
+      const el = document.querySelector(sel); if (!el) continue;
+      out[sel] = lum(getComputedStyle(el).color);
+    }
+    return out;
+  });
+  expect(Object.keys(r).length).toBeGreaterThan(0);
+  for (const k of Object.keys(r)) expect(r[k], k).toBeGreaterThan(150);
+});

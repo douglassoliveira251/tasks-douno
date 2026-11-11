@@ -4252,3 +4252,7 @@
 /* v3.37.2: busca de tags no padrao do tema (era branca no escuro) */
 .tag-picker-search{background:var(--surface); color:var(--ink);}
 .tag-picker-search::placeholder{color:var(--ink-faint);}
+
+/* v3.37.3: texto digitado em campos sem cor propria fica legivel no escuro */
+.tp-add-inline input{color:var(--ink);}
+.tp-add-inline input::placeholder{color:var(--ink-faint);}
