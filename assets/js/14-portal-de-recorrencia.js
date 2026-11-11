@@ -19,6 +19,16 @@ export function closeRecurrencePortal(e){
   if(e && e.target instanceof Element && portal.contains(e.target)) return;
   portal.classList.remove('show');
 }
+/* O painel é redesenhado a cada mudança e o botão antigo sai da tela: acha o botão atual
+   (ou mantém a posição) em vez de medir um botão que não existe mais. */
+function repositionRecurrencePortal(portal){
+  if(!(portal._anchorBtn && portal._anchorBtn.isConnected)){
+    const fresh = document.getElementById('tpRecurrenceTrigger');
+    if(fresh) portal._anchorBtn = fresh;
+  }
+  const a = portal._anchorBtn;
+  if(a && a.isConnected) positionTagsPortalNear(portal, a);
+}
 export function renderRecurrencePortalContent(portal, task, onChange){
   const enabled = !!(task.recurrence && task.recurrence !== 'none');
   const currentUnit = enabled ? task.recurrence : 'daily';
@@ -69,10 +79,8 @@ export function renderRecurrencePortalContent(portal, task, onChange){
   function refreshAfterToggleChange(){
     markDirty();
     onChange();
-    const freshAnchor = document.getElementById('tpRecurrenceTrigger');
-    if(freshAnchor) portal._anchorBtn = freshAnchor;
     renderRecurrencePortalContent(portal, task, onChange);
-    positionTagsPortalNear(portal, portal._anchorBtn);
+    repositionRecurrencePortal(portal);
   }
   const enabledCheckbox = portal.querySelector('#recPopEnabled');
   enabledCheckbox.addEventListener('click', e => e.stopPropagation());
@@ -127,7 +135,7 @@ export function renderRecurrencePortalContent(portal, task, onChange){
   }
   const rerenderPortal = () => {
     renderRecurrencePortalContent(portal, task, onChange);
-    positionTagsPortalNear(portal, portal._anchorBtn);
+    repositionRecurrencePortal(portal);
   };
   portal.querySelectorAll('.rec-chip[data-rb]').forEach(btn => {
     btn.addEventListener('click', e => {

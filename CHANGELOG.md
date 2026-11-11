@@ -1,3 +1,6 @@
+## [3.37.5] - 2026-11-11 23:59
+- Recorrência: a janela não pula mais para o canto superior esquerdo quando o painel da tarefa é redesenhado com ela aberta.
+
 ## [3.37.4] - 2026-11-11 23:59
 - Modo escuro: campo Nome do perfil segue o tema (estava branco). Varredura das telas principais não achou outros campos.
 

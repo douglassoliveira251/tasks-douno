@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.37.5', date:'11/11/2026', title:'Janela de recorrência não vai mais para o canto', text:'Ao mexer nas opções de recorrência (como Retornar antes), a janela às vezes pulava para o canto superior esquerdo da tela. Agora ela fica junto do botão.' },
   { version:'3.37.4', date:'11/11/2026', title:'Campo Nome do perfil no modo escuro', text:'No modo escuro, o campo Nome em Configurações > Meu perfil estava branco; agora segue as cores do tema.' },
   { version:'3.37.3', date:'11/11/2026', title:'Digitar subtarefa no modo escuro', text:'No modo escuro, o texto que você digita no campo de nova subtarefa agora aparece enquanto digita, em vez de só aparecer depois do Enter.' },
   { version:'3.37.2', date:'11/11/2026', title:'Busca de tags no modo escuro', text:'No modo escuro, o campo de buscar tags agora segue as cores do tema, em vez de ficar branco.' },

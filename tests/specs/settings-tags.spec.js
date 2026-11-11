@@ -451,3 +451,29 @@ test('modo escuro: texto digitado em campos do detalhe da tarefa é legível', a
   expect(Object.keys(r).length).toBeGreaterThan(0);
   for (const k of Object.keys(r)) expect(r[k], k).toBeGreaterThan(150);
 });
+
+test('recorrência: ao escolher "No dia" (anual) a janela continua junto do botão', async ({ page }) => {
+  for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(vp);
+    await gotoApp(page, { view: 'tasks' });
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '2026-11-20', description: '', tagIds: [], recurrence: 'yearly', recurrenceInterval: 1, recurrenceBaseDate: '2026-11-20', subtasks: [], comments: [], attachments: [], createdAt: 1 }];
+      currentView = 'tasks'; render(); openTaskPanel('t1');
+    });
+    await page.click('#tpRecurrenceTrigger');
+    await page.evaluate(() => render()); /* o painel é redesenhado e o botão antigo sai da tela */
+    await page.click('#recurrencePortal .rec-chip[data-rb="0"]');
+    await page.click('#recurrencePortal .rec-chip[data-rb="7"]');
+    const d = await page.evaluate(() => {
+      const p = document.getElementById('recurrencePortal').getBoundingClientRect();
+      const b = document.getElementById('tpRecurrenceTrigger').getBoundingClientRect();
+      return { pt: p.top, pl: p.left, bt: b.top, bb: b.bottom, vw: innerWidth, sw: document.documentElement.scrollWidth, show: document.getElementById('recurrencePortal').classList.contains('show') };
+    });
+    expect(d.show).toBe(true);
+    expect(d.pt).toBeGreaterThan(20);
+    expect(d.pl > 8 || d.pt > 20).toBe(true); /* o defeito jogava a janela em top=6, left=8 */
+    expect(d.pt === 6 && d.pl === 8).toBe(false);
+    expect(d.sw).toBeLessThanOrEqual(d.vw);
+  }
+});
