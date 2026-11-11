@@ -13,7 +13,7 @@ const seed = () => {
 };
 
 for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
-  test(`projeto (${vp.width}px): painel da etapa tem Nova tarefa e Editar lado a lado, no topo`, async ({ page }) => {
+  test(`projeto (${vp.width}px): painel da etapa tem Nova tarefa e Editar lado a lado, embaixo da lista`, async ({ page }) => {
     await page.setViewportSize(vp);
     await gotoApp(page, { view: 'projects' });
     await page.evaluate(seed);
@@ -21,12 +21,12 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
     const r = await page.evaluate(() => {
       const a = document.getElementById('stgSideNewTask').getBoundingClientRect();
       const b = document.getElementById('stgSideEdit').getBoundingClientRect();
-      const label = document.querySelector('.proj-side-label').getBoundingClientRect();
-      return { at: a.top, bt: b.top, ar: a.right, bl: b.left, bottomBtns: Math.max(a.bottom, b.bottom), labelTop: label.top, sw: document.documentElement.scrollWidth, vw: innerWidth, an: a.width, bn: b.width };
+      const list = document.querySelector('.proj-side-tasks').getBoundingClientRect();
+      return { at: a.top, bt: b.top, ar: a.right, bl: b.left, topBtns: Math.min(a.top, b.top), listBottom: list.bottom, sw: document.documentElement.scrollWidth, vw: innerWidth, an: a.width, bn: b.width };
     });
     expect(Math.abs(r.at - r.bt)).toBeLessThan(2);
     expect(r.bl).toBeGreaterThan(r.ar - 1);
-    expect(r.bottomBtns).toBeLessThanOrEqual(r.labelTop + 1);
+    expect(r.topBtns).toBeGreaterThanOrEqual(r.listBottom - 1);
     expect(r.an).toBeGreaterThan(60);
     expect(r.bn).toBeGreaterThan(60);
     expect(r.sw).toBeLessThanOrEqual(r.vw);
@@ -88,3 +88,27 @@ test('projeto: "Nova tarefa" do cabeçalho exige etapa (pergunta quando há vár
   expect(nova2.projectId).toBe('p2');
   expect(nova2.stageId).toBe('m1');
 });
+
+for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+  test(`projeto (${vp.width}px): com muitas tarefas na etapa a lista rola por dentro e os botões continuam perto`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    await gotoApp(page, { view: 'projects' });
+    await page.evaluate(seed);
+    await page.evaluate(() => {
+      const cat = state.categories[0].id;
+      for (let i = 0; i < 20; i++) state.tasks.push({ id: 'x' + i, title: 'Tarefa ' + i, categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], projectId: 'p1', stageId: 's2', createdAt: 1 });
+      selectedStageId = 's2'; render();
+    });
+    const r = await page.evaluate(() => {
+      const l = document.querySelector('.proj-side-tasks');
+      const b = document.getElementById('stgSideNewTask').getBoundingClientRect();
+      const lr = l.getBoundingClientRect();
+      return { h: lr.height, scroll: l.scrollHeight > l.clientHeight, dist: b.bottom - lr.top, sw: document.documentElement.scrollWidth, vw: innerWidth };
+    });
+    expect(r.h).toBeLessThanOrEqual(272);
+    expect(r.scroll).toBe(true);
+    expect(r.dist).toBeLessThan(380);
+    expect(r.sw).toBeLessThanOrEqual(r.vw);
+    await expect(page.locator('#stgSideNewTask')).toBeVisible();
+  });
+}

@@ -1,3 +1,6 @@
+## [3.38.1] - 2026-11-11 23:59
+- Projetos, painel da etapa: "Nova tarefa" e "Editar" embaixo da lista (lado a lado); a lista de tarefas tem altura limitada e rola por dentro.
+
 ## [3.38.0] - 2026-11-11 23:59
 - Projetos: painel da etapa com "Nova tarefa" e "Editar" lado a lado, no topo.
 - Projetos: o chip do projeto na tarefa abre as etapas do projeto, com "Alterar projeto…" e "Ir até o projeto".

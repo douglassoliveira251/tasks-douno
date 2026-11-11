@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.38.1', date:'11/11/2026', title:'Painel da etapa: botões embaixo e lista limitada', text:'No painel da etapa, Nova tarefa e Editar voltaram para baixo da lista, lado a lado. A lista de tarefas tem altura limitada e rola por dentro, para os botões não ficarem escondidos quando há muitas tarefas.' },
   { version:'3.38.0', date:'11/11/2026', title:'Projetos: etapa mais fácil de escolher', text:'No painel da etapa, Nova tarefa e Editar ficam lado a lado no topo. O chip do projeto na tarefa agora abre a lista de etapas, com Alterar projeto e Ir até o projeto. Tarefas de projeto passam a nascer numa etapa: o Nova tarefa do projeto pergunta em qual.' },
   { version:'3.37.8', date:'11/11/2026', title:'Voltar do celular nas Configurações', text:'No celular, depois de abrir uma opção de Configurações, o gesto ou botão voltar do aparelho agora volta para a lista de opções. Um segundo voltar sai das Configurações.' },
   { version:'3.37.7', date:'11/11/2026', title:'Botão Hoje na visão Dia do celular', text:'No celular, na visão Dia do Calendário, o botão Hoje voltou (sem as setas): um toque leva ao dia atual.' },

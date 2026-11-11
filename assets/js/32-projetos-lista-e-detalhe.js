@@ -162,23 +162,25 @@ export function renderProjectDetail(view, p){
     const spct = stagePercent(p, selStage), sstate = stageState(p, selStage), stks = sortByStart(stageTasks(p, selStage));
     stageSideHtml = `
       <button type="button" class="proj-side-back" id="stgSideBack">‹ Visão geral do projeto</button>
-      <div class="proj-side-actions">
-        <button type="button" class="proj-side-btn pri" id="stgSideNewTask">${icon('plus')}<span>Nova tarefa</span></button>
-        <button type="button" class="proj-side-btn" id="stgSideEdit">${icon('pencil-simple')}<span>Editar</span></button>
-      </div>
-      <div class="proj-side-label" style="margin-top:14px;">Etapa</div>
+      <div class="proj-side-label" style="margin-top:8px;">Etapa</div>
       <div class="proj-side-top">
         <div class="proj-ring" style="--p:${spct}"><b>${spct}%</b></div>
         <div><b>${escapeHtml(selStage.name)}</b>
           <div class="proj-side-sub">${STAGE_STATE_LABELS[sstate]} · ${selStage.start ? fmtDate(selStage.start) : '—'} a ${selStage.end ? fmtDate(selStage.end) : '—'}</div></div>
       </div>
       <div class="proj-side-label" style="margin-top:10px;">Tarefas da etapa <span style="text-transform:none; letter-spacing:0; font-weight:500;">(${stks.filter(t => t.done).length}/${stks.length})</span></div>
+      <div class="proj-side-tasks">
       ${stks.length ? stks.map(t => {
         const subs = t.subtasks || [];
         const pr_ = Math.round(taskProgress(t) * 100);
         return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.done ? 'done' : (t.dueDate && t.dueDate < today ? 'late' : '')}"></i><div><b style="${t.done ? 'text-decoration:line-through; opacity:.6;' : ''}">${escapeHtml(t.title || 'Sem título')}</b><small>${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}${subs.length ? ' · ' + subs.filter(x => x.done).length + '/' + subs.length + ' subtarefas' : ''}${!t.done && pr_ ? ' · ' + pr_ + '%' : ''}</small></div></div>`;
       }).join('') : '<div class="proj-side-sub" style="padding:8px 0;">Nenhuma tarefa nesta etapa ainda.</div>'}
-`;
+      </div>
+      <div class="proj-side-actions">
+        <button type="button" class="proj-side-btn pri" id="stgSideNewTask">${icon('plus')}<span>Nova tarefa</span></button>
+        <button type="button" class="proj-side-btn" id="stgSideEdit">${icon('pencil-simple')}<span>Editar</span></button>
+      </div>
+`
   }
   const phTasks = G.state.tasks.filter(t => t.projectId === p.id);
   const soonLim = addDaysStr(today, 3);
