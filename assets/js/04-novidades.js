@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.37.4', date:'11/11/2026', title:'Campo Nome do perfil no modo escuro', text:'No modo escuro, o campo Nome em Configurações > Meu perfil estava branco; agora segue as cores do tema.' },
   { version:'3.37.3', date:'11/11/2026', title:'Digitar subtarefa no modo escuro', text:'No modo escuro, o texto que você digita no campo de nova subtarefa agora aparece enquanto digita, em vez de só aparecer depois do Enter.' },
   { version:'3.37.2', date:'11/11/2026', title:'Busca de tags no modo escuro', text:'No modo escuro, o campo de buscar tags agora segue as cores do tema, em vez de ficar branco.' },
   { version:'3.37.1', date:'11/11/2026', title:'Linha do topo do detalhe na cor da prioridade', text:'No detalhe da tarefa, a linha colorida no topo agora segue a cor da prioridade (Baixa, Média, Alta ou Crítica).' },

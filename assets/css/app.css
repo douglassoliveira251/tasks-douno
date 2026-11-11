@@ -4256,3 +4256,7 @@
 /* v3.37.3: texto digitado em campos sem cor propria fica legivel no escuro */
 .tp-add-inline input{color:var(--ink);}
 .tp-add-inline input::placeholder{color:var(--ink-faint);}
+
+/* v3.37.4: campo Nome do perfil segue o tema */
+#profileNameInput{background:var(--surface); color:var(--ink); border:1px solid var(--border);}
+#profileNameInput::placeholder{color:var(--ink-faint);}

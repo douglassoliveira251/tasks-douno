@@ -1,3 +1,6 @@
+## [3.37.4] - 2026-11-11 23:59
+- Modo escuro: campo Nome do perfil segue o tema (estava branco). Varredura das telas principais não achou outros campos.
+
 ## [3.37.3] - 2026-11-11 23:59
 - Modo escuro: o texto digitado no campo de nova subtarefa fica visível (estava escuro sobre escuro).
 
