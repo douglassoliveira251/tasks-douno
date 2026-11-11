@@ -13,7 +13,7 @@ test.describe('Calendário: visão padrão', () => {
     expect(await page.evaluate(() => state.calendarViewDefault)).toBe('month');
     // sai e volta: abre em Agenda de novo
     await page.evaluate(() => { currentView = 'dashboard'; render(); currentView = 'calendar'; render(); });
-    await expect(page.locator('.cal-view-toggle button[data-cv="day"]')).toHaveClass(/active/);
+    await expect(page.locator('.cal-view-toggle button[data-cv="agenda"]')).toHaveClass(/active/);
   });
 
   test('no computador continua abrindo na visão escolhida', async ({ page }) => {
