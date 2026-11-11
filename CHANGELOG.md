@@ -1,3 +1,6 @@
+## [3.37.6] - 2026-11-11 23:59
+- Celular: alça de arrastar (subtarefas, tags, espaços) com área de toque maior.
+
 ## [3.37.5] - 2026-11-11 23:59
 - Recorrência: a janela não pula mais para o canto superior esquerdo quando o painel da tarefa é redesenhado com ela aberta.
 

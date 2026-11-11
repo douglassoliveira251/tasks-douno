@@ -477,3 +477,18 @@ test('recorrência: ao escolher "No dia" (anual) a janela continua junto do bot�
     expect(d.sw).toBeLessThanOrEqual(d.vw);
   }
 });
+
+test('celular: alça de arrastar das subtarefas tem área de toque maior', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoApp(page, { view: 'tasks' });
+  const g = await page.evaluate(() => {
+    const cat = state.categories[0].id;
+    state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: 'media', dueDate: '', description: '', tagIds: [], recurrence: 'none', subtasks: [{ id: 's1', title: 'Um', done: false }], comments: [], attachments: [], createdAt: 1 }];
+    currentView = 'tasks'; render(); openTaskPanel('t1');
+    const r = document.querySelector('.tp-subtask-row .drag-grip').getBoundingClientRect();
+    return { w: r.width, h: r.height, sw: document.documentElement.scrollWidth, vw: innerWidth };
+  });
+  expect(g.w).toBeGreaterThanOrEqual(24);
+  expect(g.h).toBeGreaterThanOrEqual(36);
+  expect(g.sw).toBeLessThanOrEqual(g.vw);
+});

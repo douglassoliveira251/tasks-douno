@@ -4260,3 +4260,12 @@
 /* v3.37.4: campo Nome do perfil segue o tema */
 #profileNameInput{background:var(--surface); color:var(--ink); border:1px solid var(--border);}
 #profileNameInput::placeholder{color:var(--ink-faint);}
+
+/* v3.38.0: alça de arrastar maior para o dedo no celular */
+@media (max-width:768px){
+  .drag-grip{width:28px; height:40px;}
+  .drag-grip-spacer{width:28px;}
+  .tp-subtask-row .drag-grip{width:26px; height:38px; margin-right:-4px;}
+  .tp-subtask-row .drag-grip-spacer{width:26px; margin-right:-4px;}
+  .tp-subtask-row .drag-grip svg{width:14px; height:14px;}
+}
