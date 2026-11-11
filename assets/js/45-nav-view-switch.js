@@ -26,13 +26,14 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
   };
 });
 
-export function openSettingsView(tab){
+export function openSettingsView(tab, opts){
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
   }
   G.currentView = 'settings';
   if(tab) G.settingsTab = tab;
+  G.settingsMobileList = !!(opts && opts.list); // celular: lista de opções só quando pedido
   G.activeTaskId = null;
   G.creatingNewTask = false;
   NOTAS_UI.creatingNewNote = false;

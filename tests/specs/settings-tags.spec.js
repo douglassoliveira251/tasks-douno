@@ -242,7 +242,7 @@ test.describe('Correções', () => {
       expect(b.x).toBeGreaterThanOrEqual(0);
       expect(b.x + b.width).toBeLessThanOrEqual(vp.width);
       expect(b.y + b.height).toBeLessThanOrEqual(vp.height);
-      await page.locator('h1, .settings-nav').first().click({ position: { x: 5, y: 5 }, force: true });
+      await page.mouse.click(vp.width - 6, 70); // fora da confirmação
       await expect(portal).toBeHidden();
       await page.locator('.cat-del').last().click();
       await expect(portal).toBeVisible();
@@ -375,4 +375,30 @@ test('modo escuro: hover do menu só muda a cor (sem fundo); menu de Configuraç
   const top = await page.evaluate(() => { const b = [...document.querySelectorAll('.nav-item')].find(x => x.dataset.view === 'notes'); const cs = getComputedStyle(b); return { c: cs.color, bg: cs.backgroundColor }; });
   expect(top.c).toBe('rgb(255, 255, 255)');
   expect(top.bg).toBe('rgba(0, 0, 0, 0)');
+});
+
+test('celular: Configurações abre em lista de opções; tocar abre a tela da opção; voltar leva à lista; computador não muda', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => { document.getElementById('avatarMenuSettingsBtn').click(); });
+  await expect(page.locator('.settings-m-item')).toHaveCount(6);
+  await expect(page.locator('.settings-m-group')).toHaveText(['Conta', 'Organização', 'Sistema']);
+  await expect(page.locator('.settings-panel')).toHaveCount(0);
+  await page.locator('.settings-m-item[data-tab="tags"]').click();
+  await expect(page.locator('.settings-panel')).toBeVisible();
+  await expect(page.locator('.settings-nav')).toBeHidden();
+  await expect(page.locator('#settingsMBack')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await page.locator('#settingsMBack').click();
+  await expect(page.locator('.settings-m-item')).toHaveCount(6);
+  // outros caminhos (ex.: Gerenciar espaços) abrem direto a tela da opção
+  await page.evaluate(() => { openSettingsView('categorias'); });
+  await expect(page.locator('.settings-panel')).toBeVisible();
+  await expect(page.locator('.settings-m-item')).toHaveCount(0);
+  // computador: menu lateral, sem lista nem botão de voltar
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.evaluate(() => { openSettingsView('personalizacao', { list: true }); });
+  await expect(page.locator('.settings-nav')).toBeVisible();
+  await expect(page.locator('.settings-m-item')).toHaveCount(0);
+  await expect(page.locator('#settingsMBack')).toBeHidden();
 });

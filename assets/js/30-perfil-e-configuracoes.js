@@ -75,10 +75,24 @@ export function cardifySettingsPanel(panel){
     g.nodes.forEach(n => card.appendChild(n));
   });
 }
+/* Celular: Configurações abre numa lista de opções; tocar numa opção abre a tela dela (com "‹ Configurações" para voltar). */
+function renderSettingsMobileList(view){
+  view.innerHTML = `<div class="settings-m-list">${SETTINGS_NAV_GROUPS.map(g => `
+    <div class="settings-m-group">${g.title}</div>
+    <div class="settings-m-card">${g.keys.map(key => {
+      const n = settingsNavCount(key);
+      return `<button type="button" class="settings-m-item" data-tab="${key}">${SETTINGS_NAV_ICONS[key]}<span>${SETTINGS_NAV_LABELS[key]}</span>${n === null ? '' : `<span class="settings-m-count">${n}</span>`}${icon('caret-right')}</button>`;
+    }).join('')}</div>`).join('')}</div>`;
+  view.querySelectorAll('.settings-m-item').forEach(btn => {
+    btn.onclick = () => { G.settingsTab = btn.dataset.tab; G.settingsMobileList = false; renderSettingsView(); window.scrollTo(0, 0); };
+  });
+}
 export function renderSettingsView(){
   if(G.settingsTab === 'arquivo' || G.settingsTab === 'integracoes') G.settingsTab = 'dados';
   const view = document.getElementById('settingsView');
+  if(G.settingsMobileList && window.matchMedia('(max-width:768px)').matches){ renderSettingsMobileList(view); return; }
   view.innerHTML = `
+    <div class="settings-m-back"><button type="button" id="settingsMBack">${icon('caret-left')}<span>Configurações</span></button></div>
     <div class="settings-layout">
       <div class="settings-nav">
         ${SETTINGS_NAV_GROUPS.map(g => `
@@ -92,6 +106,7 @@ export function renderSettingsView(){
       <div class="settings-panel" id="settingsPanel"></div>
     </div>
   `;
+  view.querySelector('#settingsMBack').onclick = () => { G.settingsMobileList = true; renderSettingsView(); window.scrollTo(0, 0); };
   view.querySelectorAll('.settings-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === G.settingsTab);
     btn.onclick = () => { G.settingsTab = btn.dataset.tab; renderSettingsView(); };

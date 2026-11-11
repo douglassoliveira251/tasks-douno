@@ -27,7 +27,7 @@ document.getElementById('avatarMenuProfileBtn').onclick = () => {
 };
 document.getElementById('avatarMenuSettingsBtn').onclick = () => {
   document.getElementById('avatarDropdownMenu').style.display = 'none';
-  openSettingsView('personalizacao');
+  openSettingsView('personalizacao', { list: true }); // no celular abre a lista de opções
 };
 document.getElementById('avatarMenuLogoutBtn').onclick = (e) => {
   e.stopPropagation();

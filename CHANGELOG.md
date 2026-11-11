@@ -1,3 +1,7 @@
+## [3.37.0] - 2026-11-11 23:59
+- Celular, Calendário: abre sempre em Agenda; na visão Dia o calendário do mês fica no topo para escolher a data (sem Hoje e setas). No computador segue a preferência da pessoa.
+- Celular: Configurações em duas telas (lista de opções e, ao tocar, a tela da opção com "‹ Configurações" para voltar).
+
 ## [3.36.0] - 2026-11-10 23:59
 - Configurações: menu lateral com cantos mais quadrados (itens 4px, caixa 8px).
 - Modo escuro: hover do menu só muda a cor da fonte e do ícone para branco, sem fundo.

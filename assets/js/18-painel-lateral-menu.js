@@ -83,7 +83,7 @@ export function bindTpMenu(panel, task){
     on('proj', showProjectList);
     on('unproj', () => { closeAllTaskMenus(); const t = getOrCreateActiveTask(); if(t){ t.projectId = null; t.stageId = null; markDirty(); } });
     on('save', () => { closeAllTaskMenus(); openTemplateEditor(null, templateFromTask(task)); });
-    on('manage', () => { closeAllTaskMenus(); G.settingsTab = 'templates'; G.currentView = 'settings'; render(); });
+    on('manage', () => { closeAllTaskMenus(); G.settingsTab = 'templates'; G.settingsMobileList = false; G.currentView = 'settings'; render(); });
     on('dup', () => { closeAllTaskMenus(); duplicateThisTask(); });
     on('move', () => {
       closeAllTaskMenus();

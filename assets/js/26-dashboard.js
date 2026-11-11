@@ -374,7 +374,7 @@ export function renderDashboard(){
   });
   bindOnboardingCard(view);
   const addSpace = document.getElementById('rsAddSpace');
-  if(addSpace) addSpace.onclick = () => { G.settingsTab = 'categorias'; G.currentView = 'settings'; render(); };
+  if(addSpace) addSpace.onclick = () => { G.settingsTab = 'categorias'; G.settingsMobileList = false; G.currentView = 'settings'; render(); };
   view.querySelectorAll('.dv-pr[data-project]').forEach(el => {
     el.onclick = () => { G.activeProjectId = el.dataset.project; G.projectTab = defaultProjectTab(); G.currentView = 'projects'; render(); };
   });

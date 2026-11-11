@@ -57,6 +57,7 @@ export function renderCalendar(){
       </div>
     </div>
   `;
+  if(isMobileViewport() && G.calendarView === 'day') header.classList.add('cal-day-m'); // sem Hoje/setas: a data se escolhe no calendário
   view.appendChild(header);
   header.querySelector('#calLayersBtn').onclick = (e) => { e.stopPropagation(); G.calLayersOpen = !G.calLayersOpen; render(); };
   if(G.calLayersOpen){
@@ -85,6 +86,12 @@ export function renderCalendar(){
   shell.appendChild(buildCalSidebar());
   const body = document.createElement('div');
   body.className = 'cal-body';
+  if(isMobileViewport() && G.calendarView === 'day'){
+    const card = document.createElement('div');
+    card.className = 'cal-m-mini';
+    card.appendChild(buildCalMini());
+    shell.appendChild(card);
+  }
   shell.appendChild(body);
   view.appendChild(shell);
 
@@ -247,9 +254,8 @@ export function getCalHourStep(){
 }
 
 export const CAL_START_HOUR = 7;
-export function buildCalSidebar(){
-  const side = document.createElement('div');
-  side.className = 'cal-side';
+/* Calendário do mês (usado na coluna lateral e, no celular, no topo da visão Dia). */
+export function buildCalMini(){
   const focusD = new Date(G.calendarFocusDate + 'T00:00:00');
   const year = focusD.getFullYear(), month = focusD.getMonth();
   const startDay = G.state.weekStartDay || 0;
@@ -265,7 +271,7 @@ export function buildCalSidebar(){
     const ds = dateToStr(d);
     if(i >= 35 && d.getMonth() !== month) break;
     const has = getEventsForDate(ds).length > 0;
-    cells += `<button type="button" class="cal-mini-day${d.getMonth()!==month?' other':''}${ds===todayS?' today':''}${ds>=weekStart&&ds<=weekEnd?' inweek':''}${has?' has':''}" data-date="${ds}">${d.getDate()}</button>`;
+    cells += `<button type="button" class="cal-mini-day${d.getMonth()!==month?' other':''}${ds===todayS?' today':''}${ds>=weekStart&&ds<=weekEnd?' inweek':''}${has?' has':''}${ds===G.calendarFocusDate?' sel':''}" data-date="${ds}">${d.getDate()}</button>`;
   }
   const mini = document.createElement('div');
   mini.className = 'cal-mini';
@@ -276,7 +282,12 @@ export function buildCalSidebar(){
   mini.querySelector('#calMiniPrev').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); G.calendarFocusDate = dateToStr(d); render(); };
   mini.querySelector('#calMiniNext').onclick = () => { const d = new Date(G.calendarFocusDate + 'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()+1); G.calendarFocusDate = dateToStr(d); render(); };
   mini.querySelectorAll('.cal-mini-day').forEach(b => { b.onclick = () => { G.calendarFocusDate = b.dataset.date; render(); }; });
-  side.appendChild(mini);
+  return mini;
+}
+export function buildCalSidebar(){
+  const side = document.createElement('div');
+  side.className = 'cal-side';
+  side.appendChild(buildCalMini());
 
   const cats = (G.state.categories || []);
   const evIn = id => G.state.events.filter(ev => ev.categoryId === id).length;

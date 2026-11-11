@@ -38,6 +38,7 @@ export const G = {
   searchTerm: undefined,
   selectedStageId: undefined,
   settingsTab: undefined,
+  settingsMobileList: false,
   signupDraft: undefined,
   startCloudSession: undefined,
   state: undefined,

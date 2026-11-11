@@ -49,10 +49,10 @@ export function render(){
     const saved = G.state.categoryGroupModes && G.state.categoryGroupModes[G.lastGroupModeKey];
     G.taskGroupMode = GROUP_MODES.includes(saved) ? saved : DEFAULT_GROUP_MODE;
   }
-  /* celular: ao abrir o calendário, começa na visão Dia (de hoje), qualquer que seja a escolha do computador */
+  /* celular: ao abrir o calendário, começa sempre na visão Agenda (de hoje), qualquer que seja a escolha do computador */
   if(G.currentView === 'calendar' && lastRenderedView !== 'calendar' && isMobileViewport()){
-    if(G.calendarView !== 'day') G.calendarFocusDate = todayStr();
-    G.calendarView = 'day';
+    if(G.calendarView !== 'agenda') G.calendarFocusDate = todayStr();
+    G.calendarView = 'agenda';
   }
   if(G.currentView !== lastRenderedView){
     lastRenderedView = G.currentView;

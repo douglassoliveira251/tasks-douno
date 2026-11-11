@@ -170,7 +170,7 @@ export function openTemplatePickMenu(anchorBtn){
   portal.querySelector('[data-tpl-manage]').onclick = (e) => {
     e.stopPropagation();
     closeAllTaskMenus();
-    G.settingsTab = 'templates';
+    G.settingsTab = 'templates'; G.settingsMobileList = false;
     G.currentView = 'settings';
     render();
   };

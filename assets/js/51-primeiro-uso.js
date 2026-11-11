@@ -231,9 +231,9 @@ export function bindOnboardingCard(view){
   view.querySelectorAll('[data-onb]').forEach(b => b.onclick = () => {
     const k = b.dataset.onb;
     if(k === 'tarefa'){ G.currentView = 'tasks'; openNewTaskPanel(); return; }
-    if(k === 'espacos'){ G.settingsTab = 'categorias'; G.currentView = 'settings'; }
+    if(k === 'espacos'){ G.settingsTab = 'categorias'; G.settingsMobileList = false; G.currentView = 'settings'; }
     else if(k === 'fixar'){ G.currentView = 'tasks'; }
-    else if(k === 'outlook'){ G.settingsTab = 'dados'; G.currentView = 'settings'; }
+    else if(k === 'outlook'){ G.settingsTab = 'dados'; G.settingsMobileList = false; G.currentView = 'settings'; }
     render();
   });
 }
