@@ -1,3 +1,6 @@
+## [3.38.2] - 2026-11-11 23:59
+- Notificações: a "Agenda de hoje" pode ser dispensada por hoje (x em cada item e "Dispensar todas"), com Desfazer; guardado nos dados. Tarefas continuam fixas.
+
 ## [3.38.1] - 2026-11-11 23:59
 - Projetos, painel da etapa: "Nova tarefa" e "Editar" embaixo da lista (lado a lado); a lista de tarefas tem altura limitada e rola por dentro.
 

@@ -10,6 +10,8 @@ import { openEventComposer } from './28-calendario-eventos.js';
 import { projectById } from './31-projetos.js';
 import { followUpLabel } from './35-templates-de-tarefa.js';
 import { render } from './48-render-principal.js';
+import { persistOnly } from './08-persistencia.js';
+import { showUndoToast } from './42-nuvem-persistencia.js';
 import { icon } from './icones.js';
 let searchShowDone, searchShowPast;
 
@@ -272,13 +274,34 @@ document.getElementById('searchInput').addEventListener('keydown', (e) => {
     if(row && dd._openResult) dd._openResult(row);
   }
 });
+/* Agenda de hoje: cada item pode ser dispensado só por hoje (volta amanhã se houver outra agenda). Tarefas não se dispensam:
+   enquanto estiverem atrasadas/de hoje, ficam fixas. Guardado em state.notifDismissed = { 'AAAA-MM-DD': [ids] }. */
+function dismissedToday(){
+  const today = todayStr();
+  const all = G.state.notifDismissed;
+  return (all && Array.isArray(all[today])) ? all[today] : [];
+}
+function setDismissedToday(ids){
+  G.state.notifDismissed = { [todayStr()]: ids }; // só o dia de hoje fica guardado
+  persistOnly();
+}
+export function dismissAgendaItems(ids){
+  const prev = dismissedToday();
+  setDismissedToday(Array.from(new Set(prev.concat(ids))));
+  updateNotifBadge(); renderNotifDropdown();
+  showUndoToast(ids.length > 1 ? 'Agendas de hoje dispensadas.' : 'Agenda dispensada por hoje.', 'Desfazer', () => {
+    setDismissedToday(dismissedToday().filter(id => !ids.includes(id)));
+    updateNotifBadge(); renderNotifDropdown();
+  });
+}
 export function computeNotifItems(){
   const today = todayStr();
   const inSpace = x => !G.activeCategoryFilter || x.categoryId === G.activeCategoryFilter;
   const overdueTasks = G.state.tasks.filter(t => inSpace(t) && !t.done && t.dueDate && t.dueDate < today)
     .sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||''));
   const todayTasks = G.state.tasks.filter(t => inSpace(t) && !t.done && t.dueDate === today);
-  const todayEvents = getEventsForDate(today);
+  const hidden = dismissedToday();
+  const todayEvents = getEventsForDate(today).filter(ev => !hidden.includes(ev.id));
   const followUpTasks = G.state.tasks.filter(t => inSpace(t) && !t.done && t.followUpDate && t.followUpDate <= today)
     .sort((a,b) => (a.followUpDate||'').localeCompare(b.followUpDate||''));
   /* uma tarefa aparece uma vez só: se já está em Atrasadas/Hoje, a retomada vira só uma marca na linha */
@@ -304,15 +327,16 @@ export function renderNotifDropdown(){
     dd.style.display = 'block';
     return;
   }
-  function group(label, items, iconKey, iconBg, iconColor, metaFn, extraClass){
+  function group(label, items, iconKey, iconBg, iconColor, metaFn, extraClass, dismissible){
     if(!items.length) return '';
     return `
-      <div class="search-results-group-label">${label}</div>
+      <div class="search-results-group-label${dismissible ? ' notif-group-head' : ''}"><span>${label}</span>${dismissible && items.length > 1 ? '<button type="button" class="notif-clear" data-ids="' + items.map(i => i.id).join(',') + '">Dispensar todas</button>' : ''}</div>
       ${items.map(it => `
         <div class="search-result-row ${extraClass||''}" data-kind="${iconKey}" data-id="${it.id}">
           <span class="search-result-icon" style="background:${iconBg}; color:${iconColor};">${PAGE_HEADER_ICONS[iconKey]}</span>
           <span class="search-result-title">${escapeHtml(it.title||'Sem título')}</span>
           <span class="search-result-meta">${metaFn(it)}</span>
+          ${dismissible ? '<button type="button" class="notif-x" data-dismiss="' + it.id + '" title="Dispensar por hoje" aria-label="Dispensar por hoje">' + icon('x') + '</button>' : ''}
         </div>
       `).join('')}
     `;
@@ -321,7 +345,9 @@ export function renderNotifDropdown(){
     group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => withFollow(t) + fmtDate(t.dueDate), 'notif-overdue') +
     group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => withFollow(t) + (t.dueTime || '')) +
     group('Retomar hoje', followOnly, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
-    group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''));
+    group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''), '', true);
+  dd.querySelectorAll('.notif-x').forEach(b => { b.onclick = (e) => { e.stopPropagation(); dismissAgendaItems([b.dataset.dismiss]); }; });
+  dd.querySelectorAll('.notif-clear').forEach(b => { b.onclick = (e) => { e.stopPropagation(); dismissAgendaItems(b.dataset.ids.split(',')); }; });
   dd.querySelectorAll('.search-result-row').forEach(row => {
     row.onclick = () => {
       const kind = row.dataset.kind;

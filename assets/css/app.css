@@ -4279,3 +4279,12 @@
 .proj-side-tasks{max-height:268px; overflow-y:auto; margin-right:-8px; padding-right:8px; overscroll-behavior:contain;}
 .proj-side-tasks .proj-side-task:first-child{border-top:none;}
 .proj-side-actions{margin:14px 0 0;}
+
+/* v3.38.2: notificações — agenda de hoje pode ser dispensada por hoje (x e "Dispensar todas") */
+.search-results-group-label.notif-group-head{display:flex; align-items:center; justify-content:space-between;}
+.notif-clear{border:0; background:transparent; color:var(--primary); font:inherit; font-size:10.5px; font-weight:700; text-transform:none; letter-spacing:0; cursor:pointer; padding:2px 4px; border-radius:6px;}
+.notif-clear:hover{background:var(--surface-2);}
+.notif-x{flex:none; width:24px; height:24px; border:0; border-radius:50%; background:transparent; color:var(--ink-faint); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
+.notif-x svg{width:13px; height:13px;}
+.notif-x:hover, .notif-x:focus-visible{background:var(--surface-2); color:var(--ink); outline:none;}
+@media (max-width:768px){ .notif-x{width:32px; height:32px;} .notif-x svg{width:15px; height:15px;} }
