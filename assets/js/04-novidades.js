@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.37.2', date:'11/11/2026', title:'Busca de tags no modo escuro', text:'No modo escuro, o campo de buscar tags agora segue as cores do tema, em vez de ficar branco.' },
   { version:'3.37.1', date:'11/11/2026', title:'Linha do topo do detalhe na cor da prioridade', text:'No detalhe da tarefa, a linha colorida no topo agora segue a cor da prioridade (Baixa, Média, Alta ou Crítica).' },
   { version:'3.37.0', date:'11/11/2026', title:'Celular: Configurações em duas telas e Calendário em Agenda', text:'No celular, Configurações agora abre numa lista de opções; ao tocar numa, abre só a tela dela, com botão para voltar. O Calendário abre sempre em Agenda e, na visão Dia, tem o calendário do mês no topo para escolher a data. No computador nada mudou.' },
   { version:'3.36.0', date:'10/11/2026', title:'Menu de Configurações mais quadrado e novo hover no escuro', text:'O menu lateral de Configurações ficou com cantos mais quadrados. No modo escuro, passar o mouse no menu agora só deixa o texto e o ícone brancos, sem fundo colorido.' },

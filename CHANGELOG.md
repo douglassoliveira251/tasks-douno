@@ -1,3 +1,6 @@
+## [3.37.2] - 2026-11-11 23:59
+- Modo escuro: o campo de buscar tags deixa de ficar branco.
+
 ## [3.37.1] - 2026-11-11 23:59
 - Tarefa: a linha colorida no topo do detalhe usa a cor da prioridade.
 

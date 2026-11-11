@@ -419,3 +419,15 @@ test('detalhe da tarefa: a linha do topo tem a cor da prioridade', async ({ page
     expect(r.flag).toBe(r.want);
   }
 });
+
+test('modo escuro: campo de buscar tags segue o tema (não fica branco)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  const bg = await page.evaluate(() => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    const i = document.createElement('input'); i.className = 'tag-picker-search'; document.body.appendChild(i);
+    const c = getComputedStyle(i).backgroundColor; i.remove(); return c;
+  });
+  expect(bg).not.toBe('rgb(255, 255, 255)');
+  expect(bg).toBe('rgb(28, 31, 36)');
+});

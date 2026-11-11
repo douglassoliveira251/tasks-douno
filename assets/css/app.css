@@ -4248,3 +4248,7 @@
 .tp-top-flag.prio-media{background:var(--priority-media);}
 .tp-top-flag.prio-alta{background:var(--priority-alta);}
 .tp-top-flag.prio-critica{background:var(--priority-critica);}
+
+/* v3.37.2: busca de tags no padrao do tema (era branca no escuro) */
+.tag-picker-search{background:var(--surface); color:var(--ink);}
+.tag-picker-search::placeholder{color:var(--ink-faint);}
