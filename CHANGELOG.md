@@ -1,3 +1,6 @@
+## [3.37.1] - 2026-11-11 23:59
+- Tarefa: a linha colorida no topo do detalhe usa a cor da prioridade.
+
 ## [3.37.0] - 2026-11-11 23:59
 - Celular, Calendário: abre sempre em Agenda; na visão Dia o calendário do mês fica no topo para escolher a data (sem Hoje e setas). No computador segue a preferência da pessoa.
 - Celular: Configurações em duas telas (lista de opções e, ao tocar, a tela da opção com "‹ Configurações" para voltar).

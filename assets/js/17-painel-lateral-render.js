@@ -41,11 +41,8 @@ export function renderTaskPanel(panel){
 export function taskPanelHtml(task){
   const catOptions = G.state.categories.map(c => `<option value="${c.id}" ${c.id===task.categoryId?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
 
-  const overdue = isOverdue(task.dueDate, task.done);
-  const isToday = task.dueDate === todayStr();
-  let topBarClass = 'normal';
-  if(overdue) topBarClass = 'overdue';
-  else if(isToday && !task.done) topBarClass = 'today';
+  /* a linha do topo usa a cor da prioridade da tarefa */
+  const topBarClass = 'prio-' + (['baixa','media','alta','critica'].includes(task.priority) ? task.priority : 'media');
 
   return `
     <div class="tp-mobile-back"><button type="button" id="tpMobileBack">${icon('caret-left')}<span>Tarefas</span></button></div>

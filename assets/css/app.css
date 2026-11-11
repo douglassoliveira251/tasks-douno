@@ -4242,3 +4242,9 @@
     .cal-m-mini .cal-mini-day{width:34px; height:34px; font-size:13px;}
     .cal-m-mini .cal-mini-day.inweek:not(.sel):not(.today){background:none;}
   }
+
+/* v3.37.1: linha do topo do detalhe usa a cor da prioridade */
+.tp-top-flag.prio-baixa{background:var(--priority-baixa);}
+.tp-top-flag.prio-media{background:var(--priority-media);}
+.tp-top-flag.prio-alta{background:var(--priority-alta);}
+.tp-top-flag.prio-critica{background:var(--priority-critica);}

@@ -402,3 +402,20 @@ test('celular: Configurações abre em lista de opções; tocar abre a tela da o
   await expect(page.locator('.settings-m-item')).toHaveCount(0);
   await expect(page.locator('#settingsMBack')).toBeHidden();
 });
+
+test('detalhe da tarefa: a linha do topo tem a cor da prioridade', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  for (const p of ['baixa', 'media', 'alta', 'critica']) {
+    const r = await page.evaluate((p) => {
+      const cat = state.categories[0].id;
+      state.tasks = [{ id: 't1', title: 'T', categoryId: cat, done: false, status: 'nao_iniciado', priority: p, dueDate: '2000-01-01', description: '', tagIds: [], recurrence: 'none', subtasks: [], comments: [], attachments: [], createdAt: 1 }];
+      currentView = 'tasks'; render(); openTaskPanel('t1');
+      const flag = getComputedStyle(document.querySelector('.tp-top-flag')).backgroundColor;
+      const probe = document.createElement('i'); probe.style.background = 'var(--priority-' + p + ')'; document.body.appendChild(probe);
+      const want = getComputedStyle(probe).backgroundColor; probe.remove();
+      return { flag, want };
+    }, p);
+    expect(r.flag).toBe(r.want);
+  }
+});
