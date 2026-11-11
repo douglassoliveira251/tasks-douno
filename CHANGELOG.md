@@ -1,3 +1,6 @@
+## [3.37.7] - 2026-11-11 23:59
+- Celular, Calendário (visão Dia): botão Hoje de volta, ao lado de Personalizar; setas continuam ocultas.
+
 ## [3.37.6] - 2026-11-11 23:59
 - Celular: alça de arrastar (subtarefas, tags, espaços) com área de toque maior.
 

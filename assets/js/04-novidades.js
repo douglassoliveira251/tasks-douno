@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.37.7', date:'11/11/2026', title:'Botão Hoje na visão Dia do celular', text:'No celular, na visão Dia do Calendário, o botão Hoje voltou (sem as setas): um toque leva ao dia atual.' },
   { version:'3.37.6', date:'11/11/2026', title:'Alça de arrastar maior no celular', text:'No celular, o ícone de seis pontos para reordenar (subtarefas, tags e espaços) ficou maior, para ser mais fácil de pegar com o dedo.' },
   { version:'3.37.5', date:'11/11/2026', title:'Janela de recorrência não vai mais para o canto', text:'Ao mexer nas opções de recorrência (como Retornar antes), a janela às vezes pulava para o canto superior esquerdo da tela. Agora ela fica junto do botão.' },
   { version:'3.37.4', date:'11/11/2026', title:'Campo Nome do perfil no modo escuro', text:'No modo escuro, o campo Nome em Configurações > Meu perfil estava branco; agora segue as cores do tema.' },

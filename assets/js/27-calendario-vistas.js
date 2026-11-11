@@ -57,7 +57,7 @@ export function renderCalendar(){
       </div>
     </div>
   `;
-  if(isMobileViewport() && G.calendarView === 'day') header.classList.add('cal-day-m'); // sem Hoje/setas: a data se escolhe no calendário
+  if(isMobileViewport() && G.calendarView === 'day') header.classList.add('cal-day-m'); // só o Hoje (sem setas): a data se escolhe no calendário
   view.appendChild(header);
   header.querySelector('#calLayersBtn').onclick = (e) => { e.stopPropagation(); G.calLayersOpen = !G.calLayersOpen; render(); };
   if(G.calLayersOpen){

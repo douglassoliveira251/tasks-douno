@@ -4236,7 +4236,7 @@
   /* ===== v3.37.0 — Calendário no celular: Dia com o mês em cima, sem Hoje/setas ===== */
   .cal-mini-day.sel:not(.today){box-shadow:inset 0 0 0 2px var(--primary); font-weight:700;}
   @media (max-width:768px){
-    .cal-day-m .cal-nav{display:none;}
+    .cal-day-m #calPrevBtn, .cal-day-m #calNextBtn{display:none;}
     .cal-m-mini{margin:2px 0 10px;}
     .cal-m-mini .cal-mini{padding:12px 14px; border-radius:16px;}
     .cal-m-mini .cal-mini-day{width:34px; height:34px; font-size:13px;}
