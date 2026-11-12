@@ -6,6 +6,7 @@ import { ensureProjectOverlay } from './31-projetos.js';
 import { showToast } from './42-nuvem-persistencia.js';
 import { icon } from './icones.js';
 import { render } from './48-render-principal.js';
+import { renderMarkdown } from './58-markdown.js';
 
 /* ===================== BIBLIOTECA =====================
    Central de recursos. Cada item tem um tipo (por ora só "link"); as COLEÇÕES são pastas (até 3 níveis), cada espaço com a sua.
@@ -31,7 +32,7 @@ export const LIB_TYPES = [
   { key: 'check', label: 'Checklists', ico: icon('list-numbers') },
 ];
 
-const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null };
+const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null, pending: null };
 
 /* ---------- dados ---------- */
 const folders = () => (Array.isArray(G.state.libFolders) ? G.state.libFolders : (G.state.libFolders = []));
@@ -169,13 +170,14 @@ function itemRow(it){
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
-  return `<div class="lib-row" data-item="${it.id}">
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir os dados do link ${escapeHtml(it.title || host)}">
     <div class="lib-av" style="background:${colorOf(host)}">${escapeHtml((it.title || host || '?').trim().charAt(0).toUpperCase())}</div>
     <div class="lib-mid">
-      <a class="lib-tt" href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(it.title || host)}</a>
+      <div class="lib-tt">${escapeHtml(it.title || host)}</div>
       <div class="lib-dm">${escapeHtml(host)}${it.description ? ' · ' + escapeHtml(it.description) : ''}</div>
       ${where ? `<div class="lib-where">${escapeHtml(where)}</div>` : ''}
     </div>
+    <button type="button" class="lib-act lib-globe" data-web="${it.id}" title="Abrir o site em outra aba" aria-label="Abrir o site em outra aba">${GLOBE_SVG}</button>
     <button type="button" class="lib-star${it.favorite ? ' on' : ''}" data-fav="${it.id}" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}">${it.favorite ? STAR_ON : icon('star')}</button>
     <button type="button" class="lib-imenu" data-imenu="${it.id}" title="Opções" aria-label="Opções do item">${icon('dots-three-vertical')}</button>
   </div>`;
@@ -185,7 +187,7 @@ function listHtml(){
   if(list.length) return `<div class="lib-list">${list.map(itemRow).join('')}</div>`;
   const total = scopeItems().length;
   const msg = total === 0
-    ? 'Sua Biblioteca está vazia. Cole um link no campo acima e pressione Enter para guardar o primeiro.'
+    ? 'Sua Biblioteca está vazia. Clique em Novo para guardar o primeiro link ou a primeira skill.'
     : (LIB.q.trim() ? 'Nada encontrado para essa busca.' : 'Nenhum item aqui ainda.');
   return `<div class="lib-empty">${msg}</div>`;
 }
@@ -215,9 +217,9 @@ function openFolderMenu(btn, f){
 }
 function openItemMenu(btn, it){
   if(it.type === 'skill') return openSkillMenu(btn, it);
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir site</button><button type="button" class="task-menu-item" data-m="edit">Ver e editar</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => window.open(it.url, '_blank', 'noopener,noreferrer'),
-    edit: () => openItemModal(it),
+    edit: () => openDetail(it.id),
     copy: () => { try{ navigator.clipboard.writeText(it.url).then(() => showToast('Endereço copiado.')); }catch(e){} },
     del: () => openConfirmPortal(btn, 'Excluir este item da Biblioteca? Essa ação não pode ser desfeita.', () => { G.state.libItems = items().filter(x => x.id !== it.id); markDirty(); }),
   });
@@ -337,8 +339,7 @@ function openItemModal(item){
 }
 
 /* usado pelo botão "+" do topo (menu contextual) */
-export function openNewLibraryItem(){ if(LIB.type === 'skill') openSkillEditor(null); else openItemModal(null); }
-export function libNewLabel(){ return LIB.type === 'skill' ? 'Nova skill' : 'Novo link'; }
+export function openNewLibraryItem(){ openTypePicker(); }
 
 /* celular: a árvore de coleções abre numa janela, uma escolha por vez */
 function openTreeSheet(){
@@ -364,16 +365,6 @@ function bindTree(root, onPick, repaint){
   root.querySelectorAll('[data-newcol]').forEach(b => { b.onclick = () => openFolderModal({}); });
 }
 
-function addQuickLink(raw){
-  const url = normalizeUrl(raw);
-  if(!url){ showToast('Endereço inválido. Cole um link começando por http:// ou https://.'); return false; }
-  const folderId = LIB.sel.kind === 'folder' ? LIB.sel.id : null;
-  const f = folderId ? folderById(folderId) : null;
-  items().push({ id: uid('li'), type: 'link', title: '', url, description: '', folderId, categoryId: f ? f.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() });
-  markDirty();
-  return true;
-}
-
 function paintMain(view){
   const host = view.querySelector('#libMain');
   if(!host) return;
@@ -381,8 +372,9 @@ function paintMain(view){
   host.innerHTML = crumbHtml() + listHtml();
   host.querySelectorAll('[data-fav]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.fav); if(it){ it.favorite = !it.favorite; markDirty(); } }; });
   host.querySelectorAll('[data-imenu]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.imenu); if(it) openItemMenu(b, it); }; });
-  host.querySelectorAll('[data-open]').forEach(a => { a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openDetail(a.dataset.open); }; });
-  host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(!it) return; if(it.type === 'skill') openDetail(it.id); else window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
+  host.querySelectorAll('[data-web]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.web); if(it) window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
+  host.querySelectorAll('[data-dl]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = skillById(b.dataset.dl); if(it) exportSkill(it); }; });
+  host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); }; r.onkeydown = (e) => { if(e.key === 'Enter' && e.target === r){ e.preventDefault(); const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); } }; });
 }
 
 
@@ -399,26 +391,34 @@ const fmtChars = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' 
 const statsText = (st) => fmtNum(st.lines) + (st.lines === 1 ? ' linha' : ' linhas') + ' · ' + fmtNum(st.words) + (st.words === 1 ? ' palavra' : ' palavras') + ' · ' + fmtChars(st.chars) + ' caracteres';
 const SKILL_MAX_BYTES = 1024 * 1024; // 1 MB por skill
 const skillById = (id) => items().find(i => i.id === id && i.type === 'skill') || null;
+/* modo de leitura da skill (Código ou Visualização): preferência única, guardada com os dados */
+const skillMode = () => (G.state.libSkillMode === 'code' ? 'code' : 'view');
+
+const EYE_SVG = S16('<path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/>');
+const EXT_SVG = S16('<path d="M9 3h4v4M13 3L7.5 8.5M11 9.5V12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2.5"/>');
+const GLOBE_SVG = S16('<circle cx="8" cy="8" r="5.5"/><path d="M2.5 8h11M8 2.5c1.7 1.6 2.5 3.5 2.5 5.5S9.7 11.9 8 13.5M8 2.5C6.3 4.1 5.5 6 5.5 8s.8 3.9 2.5 5.5"/>');
+const DOWN_SVG = S16('<path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M3 13.5h10"/>');
 
 function skillRow(it){
   const st = skillStats(it.content);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
-  return `<div class="lib-row" data-item="${it.id}">
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir a skill ${escapeHtml(it.title || 'sem título')}">
     <div class="lib-typ">${icon('file-text')}</div>
     <div class="lib-mid">
-      <a class="lib-tt" href="#" data-open="${it.id}">${escapeHtml(it.title || 'Sem título')}</a>
+      <div class="lib-tt">${escapeHtml(it.title || 'Sem título')}</div>
       <div class="lib-dm">Skill · ${fmtNum(st.lines)} ${st.lines === 1 ? 'linha' : 'linhas'} · ${fmtNum(st.words)} ${st.words === 1 ? 'palavra' : 'palavras'}</div>
       ${where ? `<div class="lib-where">${escapeHtml(where)}</div>` : ''}
     </div>
+    <button type="button" class="lib-act" data-dl="${it.id}" title="Baixar como .md" aria-label="Baixar como .md">${DOWN_SVG}</button>
     <button type="button" class="lib-star${it.favorite ? ' on' : ''}" data-fav="${it.id}" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}">${it.favorite ? STAR_ON : icon('star')}</button>
     <button type="button" class="lib-imenu" data-imenu="${it.id}" title="Opções" aria-label="Opções do item">${icon('dots-three-vertical')}</button>
   </div>`;
 }
 
-function openDetail(id){ LIB.openId = id; LIB.editing = false; LIB.draft = null; render(); window.scrollTo(0, 0); }
-function closeDetail(){ LIB.openId = null; LIB.editing = false; LIB.draft = null; }
+function openDetail(id){ LIB.openId = id; LIB.editing = false; LIB.draft = null; LIB.pending = null; render(); window.scrollTo(0, 0); }
+function closeDetail(){ LIB.openId = null; LIB.editing = false; LIB.draft = null; LIB.pending = null; }
 
 function copyText(text, msg){
   const done = () => showToast(msg || 'Copiado.');
@@ -434,7 +434,7 @@ function fallbackCopy(text, done){
   ta.remove();
 }
 function slug(name){
-  const base = String(name || 'skill').trim().replace(/\.(md|markdown|txt)$/i, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const base = String(name || 'skill').trim().replace(/\.(md|markdown|txt)$/i, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return (base || 'skill') + '.md';
 }
 function exportSkill(it){
@@ -446,33 +446,64 @@ function exportSkill(it){
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* importar um ou mais .md do computador (lidos no navegador; nada sai daqui) */
-function pickMarkdownFiles(){
+/* ---- importar .md (lido no navegador; nada sai daqui) ---- */
+async function readMarkdownFile(file){
+  if(file.size > SKILL_MAX_BYTES) return { ok: false, big: true };
+  let text = '';
+  try{ text = await file.text(); }catch(e){ return { ok: false }; }
+  text = text.replace(/^﻿/, '');
+  const h1 = (text.match(/^#\s+(.+?)\s*$/m) || [])[1];
+  const title = (h1 || file.name.replace(/\.(md|markdown|txt)$/i, '')).trim().slice(0, 120) || 'Skill importada';
+  return { ok: true, title, content: text, name: file.name };
+}
+function chooseFiles(multiple, onFiles){
   const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = '.md,.markdown,.txt,text/markdown,text/plain'; inp.multiple = true;
-  inp.onchange = async () => { const files = Array.from(inp.files || []); if(files.length) await importMarkdownFiles(files); };
+  inp.type = 'file'; inp.accept = '.md,.markdown,.txt,text/markdown,text/plain'; inp.multiple = !!multiple;
+  inp.onchange = async () => { const files = Array.from(inp.files || []); if(files.length) await onFiles(files); };
   inp.click();
 }
+/* na lista: um arquivo abre no editor para revisar e salvar; vários são criados de uma vez */
+function pickMarkdownFiles(){ chooseFiles(true, importMarkdownFiles); }
 export async function importMarkdownFiles(files){
   const folderId = LIB.sel.kind === 'folder' ? LIB.sel.id : null;
   const fo = folderId ? folderById(folderId) : null;
-  const created = []; let tooBig = 0;
-  for(const file of files){
-    if(file.size > SKILL_MAX_BYTES){ tooBig++; continue; }
-    let text = '';
-    try{ text = await file.text(); }catch(e){ continue; }
-    text = text.replace(/^\uFEFF/, '');
-    const h1 = (text.match(/^#\s+(.+?)\s*$/m) || [])[1];
-    const title = (h1 || file.name.replace(/\.(md|markdown|txt)$/i, '')).trim().slice(0, 120) || 'Skill importada';
-    const it = { id: uid('li'), type: 'skill', title, content: text, description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() };
-    items().push(it); created.push(it);
-  }
+  const read = []; let tooBig = 0;
+  for(const file of files){ const r = await readMarkdownFile(file); if(r.big) tooBig++; else if(r.ok) read.push(r); }
   if(tooBig) showToast(tooBig + ' arquivo(s) acima de 1 MB não foram importados.');
-  if(!created.length){ if(!tooBig) showToast('Nenhum arquivo importado.'); return; }
+  if(!read.length){ if(!tooBig) showToast('Nenhum arquivo importado.'); return; }
   LIB.type = 'skill';
-  if(created.length === 1) LIB.openId = created[0].id;
+  if(read.length === 1){ openSkillEditor(null, read[0]); return; }
+  read.forEach(r => items().push({ id: uid('li'), type: 'skill', title: r.title, content: r.content, description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() }));
   markDirty();
-  showToast(created.length === 1 ? 'Skill importada.' : created.length + ' skills importadas.');
+  showToast(read.length + ' skills importadas.');
+}
+/* dentro de uma skill: importa por cima (pergunta antes de substituir; o texto novo vai para o editor, sem salvar) */
+function importIntoSkill(it){
+  chooseFiles(false, async (files) => {
+    const r = await readMarkdownFile(files[0]);
+    if(r.big){ showToast('O arquivo passa de 1 MB.'); return; }
+    if(!r.ok){ showToast('Não consegui ler o arquivo.'); return; }
+    if(!(it.content || '').trim()){ openSkillEditor(it, r); return; }
+    openOverwriteDialog(it, r);
+  });
+}
+function openOverwriteDialog(it, r){
+  const ov = ensureProjectOverlay('libOverwriteOverlay');
+  const modal = ov.firstElementChild;
+  const cur = skillStats(it.content), nw = skillStats(r.content);
+  modal.className = 'modal nm nm-560 lib-pick';
+  modal.innerHTML = `
+    <div class="lib-pick-t">Substituir o texto desta skill?</div>
+    <div class="lib-pick-s">Você escolheu <b>${escapeHtml(r.name)}</b>. O texto dele será carregado na tela para você revisar. Só é gravado quando você clicar em Salvar.</div>
+    <div class="lib-cmp"><div><b>Texto atual</b>${statsText(cur)}</div><div class="new"><b>Arquivo escolhido</b>${statsText(nw)}</div></div>
+    <div class="lib-pick-f lib-pick-f3"><button type="button" class="btn ghost small" id="libOwCancel">Cancelar</button><button type="button" class="btn ghost small" id="libOwNew">Importar como nova skill</button><button type="button" class="btn small" id="libOwGo">Substituir e revisar</button></div>`;
+  ov.classList.add('show');
+  const close = () => closeOv(ov);
+  modal.querySelector('#libOwCancel').onclick = close;
+  modal.querySelector('#libOwNew').onclick = () => { close(); openSkillEditor(null, r); };
+  modal.querySelector('#libOwGo').onclick = () => { close(); openSkillEditor(it, r); };
+  ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
+  setTimeout(() => modal.querySelector('#libOwGo').focus(), 30);
 }
 
 function openSkillMenu(btn, it){
@@ -480,7 +511,7 @@ function openSkillMenu(btn, it){
     open: () => openDetail(it.id),
     copy: () => copyText(it.content || '', 'Texto da skill copiado.'),
     exp: () => exportSkill(it),
-    edit: () => { openDetail(it.id); LIB.editing = true; LIB.draft = null; render(); },
+    edit: () => { LIB.openId = it.id; LIB.editing = true; LIB.draft = null; LIB.pending = null; render(); },
     del: () => deleteSkill(it, btn),
   });
 }
@@ -492,33 +523,42 @@ function deleteSkill(it, anchor){
   });
 }
 
-function openSkillEditor(it){
+/* editor da skill. it = skill existente (ou null para nova); imported = { title, content, name } vindo de um .md */
+function openSkillEditor(it, imported){
   const folderId = it ? it.folderId : (LIB.sel.kind === 'folder' ? LIB.sel.id : null);
   const fo = folderId ? folderById(folderId) : null;
-  if(it){ LIB.openId = it.id; LIB.draft = null; }
-  else { LIB.openId = '__new__'; LIB.draft = { id: uid('li'), type: 'skill', title: '', content: '', description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() }; }
+  if(it){ LIB.openId = it.id; LIB.draft = null; LIB.pending = imported ? { name: imported.name, content: imported.content } : null; }
+  else {
+    LIB.openId = '__new__';
+    LIB.draft = { id: uid('li'), type: 'skill', title: imported ? imported.title : '', content: imported ? imported.content : '', description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() };
+    LIB.pending = imported ? { name: imported.name, content: null } : null;
+  }
   LIB.editing = true;
   render(); window.scrollTo(0, 0);
 }
 
 function paintDetail(view, host){
   const draft = LIB.draft;
-  const it = draft || skillById(LIB.openId);
+  const it = draft || items().find(x => x.id === LIB.openId);
   if(!it){ closeDetail(); paintMain(view); return; }
+  if(it.type === 'link') return paintLinkDetail(host, it);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = catById(it.categoryId);
   const pathTxt = [!G.activeCategoryFilter && sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ') || 'Sem coleção';
   const back = `<button type="button" class="lib-back" id="libBack">${icon('caret-left')}<span>Skills</span></button>`;
   if(LIB.editing){
+    const pending = LIB.pending;
+    const initial = (pending && pending.content != null) ? pending.content : (it.content || '');
     host.innerHTML = `<div class="lib-detail">${back}
       <div class="lib-dcard lib-edit">
+        ${pending ? `<div class="lib-banner"><span>Texto carregado de <b>${escapeHtml(pending.name || 'arquivo')}</b> — ainda <b>não está salvo</b>. Revise e clique em Salvar.</span></div>` : ''}
         <div class="tp-field"><label class="tp-label" for="skTitle">Nome da skill</label><input type="text" class="tp-input" id="skTitle" maxlength="120" placeholder="Ex.: skill-relatorio-semanal" value="${escapeHtml(it.title || '')}"></div>
         <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
           <div class="tp-field"><label class="tp-label" for="skSpace">Espaço</label><select class="tp-select" id="skSpace">${spaceOptions(it.categoryId)}</select></div>
           <div class="tp-field"><label class="tp-label" for="skFolder">Coleção</label><select class="tp-select" id="skFolder"><option value="">Sem coleção</option>${folderOptions(it.categoryId, it.folderId, LIB_MAX_DEPTH)}</select></div>
         </div>
-        <div class="tp-field"><label class="tp-label" for="skText">Conteúdo (Markdown)</label><textarea class="tp-textarea lib-ta" id="skText" spellcheck="false" placeholder="# Título da skill&#10;&#10;Escreva ou cole o texto em Markdown…">${escapeHtml(it.content || '')}</textarea></div>
-        <div class="lib-counter" id="skCount">${statsText(skillStats(it.content))}</div>
+        <div class="tp-field"><label class="tp-label" for="skText">Conteúdo (Markdown)</label><textarea class="tp-textarea lib-ta" id="skText" spellcheck="false" placeholder="# Título da skill&#10;&#10;Escreva ou cole o texto em Markdown…">${escapeHtml(initial)}</textarea></div>
+        <div class="lib-counter" id="skCount">${statsText(skillStats(initial))}</div>
         <p id="skErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
         <div class="lib-dactions"><button type="button" class="btn ghost small" id="skCancel">Cancelar</button><button type="button" class="btn small" id="skSave">Salvar</button></div>
       </div></div>`;
@@ -526,7 +566,7 @@ function paintDetail(view, host){
     const ta = $('#skText');
     ta.oninput = () => { $('#skCount').textContent = statsText(skillStats(ta.value)); };
     $('#skSpace').onchange = () => { $('#skFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#skSpace').value, '', LIB_MAX_DEPTH); };
-    $('#libBack').onclick = $('#skCancel').onclick = () => { if(draft){ closeDetail(); } else { LIB.editing = false; } render(); };
+    $('#libBack').onclick = $('#skCancel').onclick = () => { if(draft){ closeDetail(); } else { LIB.editing = false; LIB.pending = null; } render(); };
     $('#skSave').onclick = () => {
       const title = $('#skTitle').value.trim();
       const content = ta.value;
@@ -536,13 +576,19 @@ function paintDetail(view, host){
       const data = { title, content, categoryId: $('#skSpace').value, folderId: $('#skFolder').value || null, updatedAt: Date.now() };
       if(draft){ Object.assign(draft, data); items().push(draft); LIB.openId = draft.id; LIB.draft = null; }
       else Object.assign(it, data);
-      LIB.editing = false; markDirty();
+      LIB.editing = false; LIB.pending = null; markDirty();
     };
     setTimeout(() => (it.title ? ta : $('#skTitle')).focus(), 30);
     return;
   }
   const st = skillStats(it.content);
+  const mode = skillMode();
   const lines = String(it.content || '').replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n');
+  const body = !st.lines
+    ? '<div class="lib-codeempty">Esta skill ainda está vazia. Use Editar para escrever ou colar o texto, ou Importar .md.</div>'
+    : (mode === 'code'
+      ? `<div class="lib-code" role="region" aria-label="Conteúdo da skill (código)">${lines.map((l, i) => `<div><span class="n">${i + 1}</span><span class="t">${l ? escapeHtml(l) : '&nbsp;'}</span></div>`).join('')}</div>`
+      : `<div class="lib-md" role="region" aria-label="Conteúdo da skill (visualização)">${renderMarkdown(it.content)}</div>`);
   host.innerHTML = `<div class="lib-detail">${back}
     <div class="lib-dhead">
       <div class="lib-typ lib-typ-l">${icon('file-text')}</div>
@@ -552,20 +598,90 @@ function paintDetail(view, host){
     <div class="lib-dcard">
       <div class="lib-dbar">
         <button type="button" class="btn small" id="skCopy">${icon('copy')}<span>Copiar</span></button>
+        <button type="button" class="btn ghost small" id="skImport">${icon('export')}<span>Importar .md</span></button>
         <button type="button" class="btn ghost small" id="skExport">${icon('download-simple')}<span>Exportar .md</span></button>
         <button type="button" class="btn ghost small" id="skEdit">${icon('pencil-simple')}<span>Editar</span></button>
         <button type="button" class="btn ghost small lib-del" id="skDel">${icon('trash')}<span>Excluir</span></button>
       </div>
-      <div class="lib-counter" id="skCount">${statsText(st)}</div>
-      <div class="lib-code" role="region" aria-label="Conteúdo da skill">${st.lines ? lines.map((l, i) => `<div><span class="n">${i + 1}</span><span class="t">${l ? escapeHtml(l) : '&nbsp;'}</span></div>`).join('') : '<div class="lib-codeempty">Esta skill ainda está vazia. Use Editar para escrever ou colar o texto.</div>'}</div>
+      <div class="lib-counter"><span id="skCount">${statsText(st)}</span>
+        <div class="lib-seg" role="group" aria-label="Modo de visualização"><button type="button" data-mode="code" class="${mode === 'code' ? 'on' : ''}" aria-pressed="${mode === 'code'}">${CODE_SVG}<span>Código</span></button><button type="button" data-mode="view" class="${mode === 'view' ? 'on' : ''}" aria-pressed="${mode === 'view'}">${EYE_SVG}<span>Visualização</span></button></div>
+      </div>
+      ${body}
     </div></div>`;
   const $ = (s) => host.querySelector(s);
   $('#libBack').onclick = () => { closeDetail(); render(); };
   $('#skFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
   $('#skCopy').onclick = () => copyText(it.content || '', 'Texto da skill copiado.');
+  $('#skImport').onclick = () => importIntoSkill(it);
   $('#skExport').onclick = () => exportSkill(it);
-  $('#skEdit').onclick = () => { LIB.editing = true; render(); };
+  $('#skEdit').onclick = () => { LIB.editing = true; LIB.pending = null; render(); };
   $('#skDel').onclick = (e) => { e.stopPropagation(); deleteSkill(it, e.currentTarget); };
+  host.querySelectorAll('.lib-seg [data-mode]').forEach(b => { b.onclick = () => { G.state.libSkillMode = b.dataset.mode; markDirty(); }; });
+}
+
+/* tela do link: dados editáveis + "Abrir site" (clicar na linha da lista abre esta tela; o globo da linha abre o site) */
+function paintLinkDetail(host, it){
+  const h = hostOf(it.url);
+  const f = it.folderId ? folderById(it.folderId) : null;
+  const sp = catById(it.categoryId);
+  const pathTxt = [!G.activeCategoryFilter && sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ') || 'Sem coleção';
+  host.innerHTML = `<div class="lib-detail"><button type="button" class="lib-back" id="libBack">${icon('caret-left')}<span>Links</span></button>
+    <div class="lib-dhead">
+      <div class="lib-av lib-av-l" style="background:${colorOf(h)}">${escapeHtml((it.title || h || '?').trim().charAt(0).toUpperCase())}</div>
+      <div class="lib-dtitle"><h2>${escapeHtml(it.title || h)}</h2><div class="lib-dm">${escapeHtml(h)} · ${escapeHtml(pathTxt)}</div></div>
+      <a class="btn small lib-openbtn" id="lkOpen" href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer">${EXT_SVG}<span>Abrir site</span></a>
+      <button type="button" class="lib-star${it.favorite ? ' on' : ''}" id="lkFav" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="Favoritar">${it.favorite ? STAR_ON : icon('star')}</button>
+    </div>
+    <div class="lib-dcard lib-edit">
+      <div class="tp-field"><label class="tp-label" for="lkUrl">Endereço</label><input type="text" class="tp-input" id="lkUrl" inputmode="url" autocomplete="off" value="${escapeHtml(it.url)}"></div>
+      <div class="tp-field"><label class="tp-label" for="lkTitle">Título</label><input type="text" class="tp-input" id="lkTitle" maxlength="120" placeholder="Se vazio, usa o nome do site" value="${escapeHtml(it.title || '')}"></div>
+      <div class="tp-field"><label class="tp-label" for="lkDesc">Descrição</label><input type="text" class="tp-input" id="lkDesc" maxlength="200" value="${escapeHtml(it.description || '')}"></div>
+      <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+        <div class="tp-field"><label class="tp-label" for="lkSpace">Espaço</label><select class="tp-select" id="lkSpace">${spaceOptions(it.categoryId)}</select></div>
+        <div class="tp-field"><label class="tp-label" for="lkFolder">Coleção</label><select class="tp-select" id="lkFolder"><option value="">Sem coleção</option>${folderOptions(it.categoryId, it.folderId, LIB_MAX_DEPTH)}</select></div>
+      </div>
+      <p id="lkErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+      <div class="lib-dactions lib-dactions-l"><button type="button" class="btn ghost small" id="lkCopy">Copiar endereço</button><button type="button" class="btn ghost small lib-del" id="lkDel">Excluir</button><span class="lib-grow"></span><button type="button" class="btn small" id="lkSave">Salvar</button></div>
+    </div></div>`;
+  const $ = (s) => host.querySelector(s);
+  $('#libBack').onclick = () => { closeDetail(); render(); };
+  $('#lkFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
+  $('#lkSpace').onchange = () => { $('#lkFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#lkSpace').value, '', LIB_MAX_DEPTH); };
+  $('#lkCopy').onclick = () => copyText(it.url, 'Endereço copiado.');
+  $('#lkDel').onclick = (e) => { e.stopPropagation(); openConfirmPortal(e.currentTarget, 'Excluir este item da Biblioteca? Essa ação não pode ser desfeita.', () => { G.state.libItems = items().filter(x => x.id !== it.id); closeDetail(); markDirty(); }); };
+  $('#lkSave').onclick = () => {
+    const url = normalizeUrl($('#lkUrl').value);
+    const e = $('#lkErr');
+    if(!url){ e.textContent = 'Endereço inválido. Use um site começando por http:// ou https:// (ou só o endereço, como rh.empresa.com.br).'; e.style.display = 'block'; $('#lkUrl').focus(); return; }
+    Object.assign(it, { url, title: $('#lkTitle').value.trim(), description: $('#lkDesc').value.trim(), categoryId: $('#lkSpace').value, folderId: $('#lkFolder').value || null, updatedAt: Date.now() });
+    markDirty();
+    showToast('Link salvo.');
+  };
+}
+
+/* "Novo": quadro para escolher o tipo do que será criado (o tipo que está aberto na lateral já vem marcado) */
+function openTypePicker(){
+  const ov = ensureProjectOverlay('libPickOverlay');
+  const modal = ov.firstElementChild;
+  const cur = LIB.type === 'skill' ? 'skill' : 'link';
+  const opts = [
+    ['link', 'Link', 'Guarde um endereço com título, coleção e favoritos.', true, LINK_SVG],
+    ['skill', 'Skill', 'Texto em Markdown: escreva ou importe um arquivo .md.', true, icon('file-text')],
+    ['task', 'Modelo de tarefa', 'Tarefa pronta com subtarefas e agendas.', false, icon('check-square')],
+    ['snippet', 'Snippet ou comando', 'PowerShell, SQL, Linux… com botão de copiar.', false, CODE_SVG],
+    ['text', 'Modelo de texto', 'E-mails, atas e relatórios reaproveitáveis.', false, icon('note')],
+    ['ref', 'Referência', 'Texto de consulta mais longo.', false, icon('book')],
+  ];
+  modal.className = 'modal nm lib-pick lib-pick-wide';
+  modal.innerHTML = `<div class="lib-pick-t">O que você quer criar?</div><div class="lib-pick-s">Escolha o tipo. O que você está vendo na lateral já vem marcado.</div>
+    <div class="lib-pick-grid">${opts.map(o => `<button type="button" class="lib-opt${o[0] === cur ? ' cur' : ''}${o[3] ? '' : ' soon'}" data-new="${o[0]}" ${o[3] ? '' : 'disabled'}><span class="lib-opt-ic">${o[4]}</span><span class="lib-opt-n">${o[1]}${o[3] ? '' : '<small>em breve</small>'}</span><span class="lib-opt-d">${o[2]}</span></button>`).join('')}</div>
+    <div class="lib-pick-f"><button type="button" class="btn ghost small" id="libPickCancel">Cancelar</button></div>`;
+  ov.classList.add('show');
+  const close = () => closeOv(ov);
+  modal.querySelector('#libPickCancel').onclick = close;
+  modal.querySelectorAll('[data-new]').forEach(b => { b.onclick = () => { close(); if(b.dataset.new === 'skill') openSkillEditor(null); else openItemModal(null); }; });
+  ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
+  setTimeout(() => { const c = modal.querySelector('.lib-opt.cur'); if(c) c.focus(); }, 30);
 }
 
 export function renderLibrary(){
@@ -582,7 +698,7 @@ export function renderLibrary(){
   view.innerHTML = `
     <div class="lib${LIB.openId ? ' lib-in-detail' : ''}">
       <div class="lib-bar">
-        ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : `<div class="lib-paste">${LINK_SVG}<input type="text" id="libQuick" inputmode="url" autocomplete="off" placeholder="Cole um link aqui e pressione Enter…" aria-label="Guardar um link"></div>`}
+        ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : ''}
         <div class="lib-search">${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar na biblioteca…" aria-label="Buscar na biblioteca" value="${escapeHtml(LIB.q)}"></div>
       </div>
       <button type="button" class="lib-mfolder" id="libMFolder">${icon('folder')}<span>${escapeHtml(where)}</span>${icon('caret-down')}</button>
@@ -596,9 +712,7 @@ export function renderLibrary(){
   bindTree(view.querySelector('#libTree'), () => render(), repaintTree);
   view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
-  const quick = view.querySelector('#libQuick');
   const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
-  if(quick) quick.onkeydown = (e) => { if(e.key === 'Enter' && quick.value.trim()){ e.preventDefault(); if(addQuickLink(quick.value)) setTimeout(() => { const q = document.getElementById('libQuick'); if(q) q.focus(); }, 30); } };
   const search = view.querySelector('#libSearch');
   search.oninput = () => { LIB.q = search.value; paintMain(view); };
   paintMain(view);

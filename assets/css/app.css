@@ -4401,3 +4401,71 @@
   .lib-del{margin-left:0;}
   .lib-ta{min-height:260px; font-size:12.5px;}
 }
+
+/* ===== v3.41.0 — Biblioteca: tela do link, quadro de tipos, importar por cima, modos Código/Visualização ===== */
+.lib-search{flex:1 1 auto; width:auto; min-width:0;}
+.lib-skbtns{flex:none;}
+.lib-skbtns .btn.ghost{background:var(--surface); color:var(--ink); border:1px solid var(--border);}
+.lib-row:focus-visible{outline:2px solid var(--primary); outline-offset:-2px;}
+.lib-act{width:32px; height:32px; border:1px solid var(--border); background:var(--surface); color:var(--primary-dark,var(--primary)); border-radius:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex:none; padding:0;}
+.lib-act svg{width:16px; height:16px;}
+.lib-act:hover{background:var(--surface-2);}
+.lib-av-l{width:44px; height:44px; border-radius:11px; font-size:18px;}
+.lib-openbtn{display:inline-flex; align-items:center; gap:6px; text-decoration:none; white-space:nowrap;}
+.lib-openbtn svg{width:15px; height:15px; flex:none;}
+.lib-dactions-l{align-items:center;} .lib-grow{flex:1;}
+.lib-banner{display:flex; gap:10px; align-items:center; padding:10px 14px; border-radius:12px; background:#FFF4DB; color:#7A5200; font-size:12.5px; font-weight:600; margin:0 0 14px; border:1px solid #F1D79A;}
+.lib-counter{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.lib-seg{margin-left:auto; display:inline-flex; border:1px solid var(--border); border-radius:10px; background:var(--surface); overflow:hidden;}
+.lib-seg button{border:0; background:transparent; color:var(--ink-soft); font:inherit; font-size:12px; font-weight:700; padding:5px 12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; white-space:nowrap;}
+.lib-seg button svg{width:13px; height:13px; flex:none;}
+.lib-seg button.on{background:var(--ink); color:var(--bg);}
+.lib-md{padding:18px 22px 22px; color:var(--ink); font-size:14.5px; line-height:1.65; max-height:calc(100vh - 340px); min-height:160px; overflow:auto; overflow-wrap:anywhere;}
+.lib-md h1{font-size:23px; margin:0 0 12px; font-weight:800;}
+.lib-md h2{font-size:18px; margin:20px 0 8px; font-weight:800; padding-bottom:6px; border-bottom:1px solid var(--border);}
+.lib-md h3{font-size:16px; margin:16px 0 6px; font-weight:800;} .lib-md h4, .lib-md h5, .lib-md h6{font-size:14.5px; margin:14px 0 6px; font-weight:800;}
+.lib-md > :first-child{margin-top:0;}
+.lib-md p{margin:0 0 12px;} .lib-md ol, .lib-md ul{margin:0 0 12px; padding-left:24px;} .lib-md li{margin:3px 0;} .lib-md li > ul, .lib-md li > ol{margin:4px 0 4px;}
+.lib-md blockquote{margin:0 0 14px; padding:8px 14px; border-left:4px solid var(--primary); background:var(--surface-2); border-radius:0 8px 8px 0; color:var(--ink-soft);}
+.lib-md blockquote p:last-child{margin-bottom:0}
+.lib-md code{font-family:Consolas,Menlo,monospace; font-size:12.5px; background:var(--surface-2); border:1px solid var(--border); padding:1px 6px; border-radius:6px;}
+.lib-md pre{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; overflow:auto; margin:0 0 14px;}
+.lib-md pre code{background:none; border:0; padding:0; white-space:pre;}
+.lib-md a{color:var(--primary-dark,var(--primary)); text-decoration:underline;}
+.lib-md hr{border:0; border-top:1px solid var(--border); margin:18px 0;}
+.lib-md-t{overflow-x:auto; margin:0 0 14px;} .lib-md table{border-collapse:collapse; font-size:13.5px;} .lib-md th, .lib-md td{border:1px solid var(--border); padding:6px 10px; text-align:left;} .lib-md th{background:var(--surface-2); font-weight:800;}
+/* quadro de escolha do tipo e aviso de substituir */
+.lib-pick{width:min(640px, calc(100vw - 32px)); padding:22px 22px 18px;}
+.lib-pick-wide{width:min(700px, calc(100vw - 32px));}
+.lib-pick-t{font-size:19px; font-weight:800; color:var(--ink); margin:0 0 2px;}
+.lib-pick-s{font-size:13px; color:var(--ink-soft); margin:0 0 16px; line-height:1.45;}
+.lib-pick-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.lib-opt{border:1.5px solid var(--border); border-radius:14px; padding:14px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; background:var(--surface); min-height:118px; text-align:left; font:inherit; color:inherit; cursor:pointer;}
+.lib-opt:hover:not(:disabled){border-color:var(--primary);}
+.lib-opt:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
+.lib-opt.cur{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 8%, var(--surface));}
+.lib-opt.soon{opacity:.5; cursor:not-allowed;}
+.lib-opt-ic{width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:var(--surface-2); color:var(--ink-soft);}
+.lib-opt.cur .lib-opt-ic{background:var(--primary); color:#fff;}
+.lib-opt-ic svg{width:17px; height:17px;}
+.lib-opt-n{font-weight:800; font-size:14px; color:var(--ink); display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.lib-opt-n small{font-size:9.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint);}
+.lib-opt-d{font-size:12px; line-height:1.4; color:var(--ink-soft);}
+.lib-pick-f{display:flex; justify-content:flex-end; gap:8px; margin-top:16px; flex-wrap:wrap;}
+.lib-cmp{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 14px;}
+.lib-cmp div{border:1px solid var(--border); border-radius:12px; padding:10px 12px; background:var(--surface-2); font-size:12.5px; color:var(--ink-soft);}
+.lib-cmp b{display:block; color:var(--ink); font-size:13px; margin-bottom:2px;}
+.lib-cmp div.new{border-color:var(--primary); background:color-mix(in srgb, var(--primary) 8%, var(--surface));}
+#libPickOverlay .modal, #libOverwriteOverlay .modal{max-width:none; padding:22px 22px 18px;}
+@media (max-width:768px){
+  .lib-pick-grid{grid-template-columns:repeat(2,1fr);}
+  #libPickOverlay, #libOverwriteOverlay{align-items:flex-end; padding:0;}
+  #libPickOverlay .modal, #libOverwriteOverlay .modal{width:100%; border-radius:18px 18px 0 0; max-height:92vh; overflow-y:auto; padding:18px 16px 20px;}
+  .lib-cmp{grid-template-columns:1fr;}
+  .lib-pick-f{justify-content:stretch;} .lib-pick-f .btn{flex:1 1 auto;}
+  .lib-md{padding:14px 14px 18px; font-size:14px; max-height:none;}
+  .lib-seg{margin-left:0;}
+  .lib-act{width:36px; height:36px;}
+  .lib-skbtns{flex:1 1 100%;} .lib-skbtns .btn{flex:1 1 auto; justify-content:center;}
+  .lib-search{flex:1 1 100%;}
+}

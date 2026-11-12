@@ -1,3 +1,8 @@
+## [3.41.0] - 2026-11-11 23:59
+- Biblioteca, links: clicar na linha abre a tela do item (editar, abrir site, copiar, excluir); o ícone de globo na linha abre o site. O título deixou de ser link.
+- Biblioteca: o botão "Novo" abre o quadro "O que você quer criar?"; a barra de colar link foi retirada.
+- Skills: importar .md por cima (com aviso de substituir, comparando linhas/palavras/caracteres) e o texto vai para o editor sem salvar; ícone de baixar .md na linha; modos Código e Visualização (Markdown aplicado, seguro) com a escolha salva.
+
 ## [3.40.0] - 2026-11-11 23:59
 - Biblioteca: tipo Skills (texto em Markdown). Criar, importar .md (vários de uma vez, até 1 MB cada), ver com números de linha e contador (linhas, palavras, caracteres), copiar, exportar .md, editar, favoritar, buscar pelo conteúdo e excluir. Sem versionamento.
 
