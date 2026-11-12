@@ -20,6 +20,17 @@ export const ROUTE_MODE = (() => {
   return (!segs.length || (segs.length === 1 && segs[0] === 'index.html') || segs[0] === 'app') ? 'path' : 'hash';
 })();
 
+/* Página HTML em aba própria: /app/pagina/<id> (ou #/pagina/<id>) */
+export function standalonePageId(){
+  if(ROUTE_MODE === 'path'){ const segs = pathSegments(); return segs[0] === 'app' && segs[1] === 'pagina' && segs[2] ? decodeURIComponent(segs[2]) : null; }
+  const parts = location.hash.replace(/^#/, '').split('/').filter(Boolean);
+  return parts[0] === 'pagina' && parts[1] ? decodeURIComponent(parts[1]) : null;
+}
+export function pageUrl(id){
+  return ROUTE_MODE === 'path' ? location.origin + APP_BASE + '/pagina/' + encodeURIComponent(id) : location.origin + location.pathname + '#/pagina/' + encodeURIComponent(id);
+}
+G.standalonePage = standalonePageId();
+
 export function routeFromLocation(){
   let name;
   if(ROUTE_MODE === 'path'){
@@ -39,6 +50,7 @@ export function routeIsCanonical(){
 
 let routeSynced = false;
 export function syncRouteToView(){
+  if(G.standalonePage) return;
   const route = VIEW_ROUTES[G.currentView];
   if(route === undefined) return;
   document.title = (G.currentView === 'dashboard' ? '' : (VIEW_TITLES[G.currentView] || '') + ' · ') + 'DOUNO Tasks';
@@ -52,6 +64,7 @@ export function syncRouteToView(){
 }
 
 export function onRouteChange(){
+  if(G.standalonePage) return;
   const view = routeFromLocation();
   if(view === G.currentView) return;
   G.currentView = view;

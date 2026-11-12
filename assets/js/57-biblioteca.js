@@ -7,6 +7,7 @@ import { showToast } from './42-nuvem-persistencia.js';
 import { icon } from './icones.js';
 import { render } from './48-render-principal.js';
 import { renderMarkdown } from './58-markdown.js';
+import { pageUrl } from './49-rotas.js';
 
 /* ===================== BIBLIOTECA =====================
    Central de recursos. Cada item tem um tipo (por ora só "link"); as COLEÇÕES são pastas (até 3 níveis), cada espaço com a sua.
@@ -26,6 +27,7 @@ export const LIB_TYPES = [
   { key: 'link', label: 'Links', ico: LINK_SVG, ready: true },
   { key: 'task', label: 'Modelos de tarefa', ico: icon('check-square') },
   { key: 'skill', label: 'Skills', ico: icon('file-text'), ready: true },
+  { key: 'html', label: 'Páginas HTML', ico: icon('file-text'), ready: true },
   { key: 'snippet', label: 'Snippets e comandos', ico: CODE_SVG },
   { key: 'text', label: 'Modelos de texto', ico: icon('note') },
   { key: 'ref', label: 'Referências', ico: icon('book') },
@@ -98,7 +100,7 @@ function visibleItems(){
   else if(kind === 'space') list = list.filter(i => i.categoryId === id);
   if(LIB.type) list = list.filter(i => i.type === LIB.type);
   const q = LIB.q.trim().toLowerCase();
-  if(q) list = list.filter(i => ((i.title || '') + ' ' + (i.url || '') + ' ' + (i.description || '') + ' ' + (i.type === 'skill' ? (i.content || '') : '')).toLowerCase().includes(q));
+  if(q) list = list.filter(i => ((i.title || '') + ' ' + (i.url || '') + ' ' + (i.description || '') + ' ' + (i.type === 'skill' ? (i.content || '') : '') + ' ' + (i.fileName || '')).toLowerCase().includes(q));
   return list.sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 /* itens da seleção (sem o filtro de tipo e busca), para contar por tipo */
@@ -166,6 +168,7 @@ function crumbHtml(){
 }
 function itemRow(it){
   if(it.type === 'skill') return skillRow(it);
+  if(it.type === 'html') return htmlRow(it);
   const host = hostOf(it.url);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
@@ -217,6 +220,7 @@ function openFolderMenu(btn, f){
 }
 function openItemMenu(btn, it){
   if(it.type === 'skill') return openSkillMenu(btn, it);
+  if(it.type === 'html') return openHtmlMenu(btn, it);
   openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir site</button><button type="button" class="task-menu-item" data-m="edit">Ver e editar</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => window.open(it.url, '_blank', 'noopener,noreferrer'),
     edit: () => openDetail(it.id),
@@ -432,7 +436,8 @@ function paintMain(view){
   host.querySelectorAll('[data-fav]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.fav); if(it){ it.favorite = !it.favorite; markDirty(); } }; });
   host.querySelectorAll('[data-imenu]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.imenu); if(it) openItemMenu(b, it); }; });
   host.querySelectorAll('[data-web]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.web); if(it) window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
-  host.querySelectorAll('[data-dl]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = skillById(b.dataset.dl); if(it) exportSkill(it); }; });
+  host.querySelectorAll('[data-dl]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.dl); if(it) (it.type === 'html' ? exportHtml(it) : exportSkill(it)); }; });
+  host.querySelectorAll('[data-showp]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); openDetail(b.dataset.showp); }; });
   host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); }; r.onkeydown = (e) => { if(e.key === 'Enter' && e.target === r){ e.preventDefault(); const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); } }; });
 }
 
@@ -601,6 +606,7 @@ function paintDetail(view, host){
   const it = draft || items().find(x => x.id === LIB.openId);
   if(!it){ closeDetail(); paintMain(view); return; }
   if(it.type === 'link') return paintLinkDetail(host, it);
+  if(it.type === 'html') return paintHtmlDetail(host, it);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = catById(it.categoryId);
   const pathTxt = [!G.activeCategoryFilter && sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ') || 'Sem coleção';
@@ -719,13 +725,214 @@ function paintLinkDetail(host, it){
 }
 
 /* "Novo": quadro para escolher o tipo do que será criado (o tipo que está aberto na lateral já vem marcado) */
+/* ===================== PÁGINAS HTML (arquivo .html guardado e aberto dentro do app) =====================
+   O texto do arquivo fica no item (html). Para ver, vai num <iframe> com sandbox SEM allow-same-origin: a página roda
+   (scripts, estilos, imagens da internet), mas é uma origem à parte e não enxerga tarefas, notas nem login do app. */
+const HTML_MAX_BYTES = 1024 * 1024; // 1 MB por página
+const HTML_SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals';
+const FILE_SVG = S16('<path d="M4 1.5h5.5L13 5v9a.5.5 0 0 1-.5.5h-8.5A.5.5 0 0 1 3.5 14V2a.5.5 0 0 1 .5-.5z"/><path d="M9 1.5V5h4M6 9l-1 1 1 1M10 9l1 1-1 1"/>');
+const FULL_SVG = S16('<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>');
+const fmtSize = (n) => n >= 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round((n || 0) / 1024)) + ' KB';
+const htmlById = (id) => items().find(i => i.id === id && i.type === 'html') || null;
+
+function htmlRow(it){
+  const f = it.folderId ? folderById(it.folderId) : null;
+  const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
+  const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir a página ${escapeHtml(it.title || 'sem título')}">
+    <div class="lib-av lib-av-html">HTML</div>
+    <div class="lib-mid">
+      <div class="lib-tt">${escapeHtml(it.title || 'Sem título')}</div>
+      <div class="lib-dm">Página HTML · ${fmtSize(it.size)}${it.fileName ? ' · ' + escapeHtml(it.fileName) : ''}</div>
+      ${where ? `<div class="lib-where">${escapeHtml(where)}</div>` : ''}
+    </div>
+    <button type="button" class="lib-act" data-dl="${it.id}" title="Baixar o arquivo .html" aria-label="Baixar o arquivo .html">${DOWN_SVG}</button>
+    <button type="button" class="lib-star${it.favorite ? ' on' : ''}" data-fav="${it.id}" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}">${it.favorite ? STAR_ON : icon('star')}</button>
+    <button type="button" class="lib-open" data-showp="${it.id}" title="Abrir a página" aria-label="Abrir a página"><span>Abrir</span>${EYE_SVG}</button>
+    <button type="button" class="lib-imenu" data-imenu="${it.id}" title="Opções" aria-label="Opções do item">${icon('dots-three-vertical')}</button>
+  </div>`;
+}
+
+function exportHtml(it){
+  const blob = new Blob([it.html || ''], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const base = (it.fileName || it.title || 'pagina').replace(/\.(html?|htm)$/i, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'pagina';
+  a.href = url; a.download = base + '.html'; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function openHtmlTab(it){
+  const w = window.open(pageUrl(it.id), '_blank', 'noopener');
+  if(!w) showToast('O navegador bloqueou a nova aba. Permita pop-ups para este site.');
+}
+
+/* lê um .html escolhido: confere extensão e tamanho; o título vem do <title> ou do nome do arquivo */
+async function readHtmlFile(file){
+  if(!/\.html?$/i.test(file.name) && file.type !== 'text/html') return { ok: false, msg: 'Escolha um arquivo .html ou .htm.' };
+  if(file.size > HTML_MAX_BYTES) return { ok: false, msg: '"' + file.name + '" tem ' + fmtSize(file.size) + '. O limite é 1 MB por página. Reduza imagens embutidas e tente de novo.' };
+  let text = '';
+  try{ text = await file.text(); }catch(e){ return { ok: false, msg: 'Não consegui ler o arquivo.' }; }
+  text = text.replace(/^﻿/, '');
+  const tm = (text.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1];
+  const title = ((tm || '').replace(/\s+/g, ' ').trim() || file.name.replace(/\.html?$/i, '')).slice(0, 120) || 'Página HTML';
+  return { ok: true, title, html: text, name: file.name, size: file.size };
+}
+function chooseHtmlFile(onFile){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.html,.htm,text/html';
+  inp.onchange = async () => { const f = (inp.files || [])[0]; if(f) await onFile(f); };
+  inp.click();
+}
+
+/* janela de dados: nova página (com escolha do arquivo) ou edição de título, espaço e coleção */
+function openHtmlModal(item){
+  const ov = ensureProjectOverlay('libHtmlOverlay');
+  const modal = ov.firstElementChild;
+  const editing = !!item;
+  const spaceId = item ? item.categoryId : currentSpaceId();
+  const selFolder = item ? item.folderId : (LIB.sel.kind === 'folder' ? LIB.sel.id : '');
+  let picked = null;
+  modal.className = 'modal nm nm-560';
+  modal.innerHTML = `
+    <div class="nm-flag"></div>
+    <button type="button" class="nm-x" id="hmClose" aria-label="Fechar">${icon('x')}</button>
+    <div class="nm-head"><div class="nm-kicker">${editing ? 'Dados da página' : 'Nova página HTML'}</div></div>
+    <div class="nm-body prj-body">
+      ${editing ? '' : `<div class="lib-drop" id="hmDrop" tabindex="0" role="button" aria-label="Escolher arquivo .html"><b>Escolher arquivo .html</b><span id="hmDropTxt">ou solte aqui · até 1 MB · arquivo único (CSS e JavaScript dentro do .html)</span></div>`}
+      <div class="tp-field"><label class="tp-label" for="hmTitle">Título</label><input type="text" class="tp-input" id="hmTitle" maxlength="120" placeholder="${editing ? '' : 'Vem do arquivo, se vazio'}" value="${editing ? escapeHtml(item.title || '') : ''}"></div>
+      <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
+        <div class="tp-field"><label class="tp-label" for="hmSpace">Espaço</label><select class="tp-select" id="hmSpace">${spaceOptions(spaceId)}</select></div>
+        <div class="tp-field"><label class="tp-label" for="hmFolder">Coleção</label>${comboHtml('hmFolder', selFolder)}</div>
+      </div>
+      <p id="hmErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn ghost small" id="hmCancel">Cancelar</button><button type="button" class="btn small" id="hmSave">Salvar</button></div>`;
+  ov.classList.add('show');
+  const $ = (s) => modal.querySelector(s);
+  $('#hmClose').onclick = $('#hmCancel').onclick = () => closeOv(ov);
+  bindCombo(modal, 'hmFolder', $('#hmSpace'));
+  const err = (m) => { const e = $('#hmErr'); e.textContent = m; e.style.display = m ? 'block' : 'none'; };
+  const take = async (file) => {
+    const r = await readHtmlFile(file);
+    if(!r.ok){ picked = null; err(r.msg); $('#hmDropTxt').textContent = 'ou solte aqui · até 1 MB · arquivo único'; return; }
+    err(''); picked = r;
+    $('#hmDrop').classList.add('ok');
+    $('#hmDropTxt').textContent = r.name + ' · ' + fmtSize(r.size);
+    if(!$('#hmTitle').value.trim()) $('#hmTitle').value = r.title;
+  };
+  const drop = $('#hmDrop');
+  if(drop){
+    drop.onclick = () => chooseHtmlFile(take);
+    drop.onkeydown = (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); chooseHtmlFile(take); } };
+    drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('over'); };
+    drop.ondragleave = () => drop.classList.remove('over');
+    drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) take(f); };
+  }
+  $('#hmSave').onclick = () => {
+    if(!editing && !picked){ err('Escolha o arquivo .html.'); return; }
+    const title = $('#hmTitle').value.trim() || (picked ? picked.title : (item.title || 'Página HTML'));
+    const data = { title, categoryId: $('#hmSpace').value, folderId: $('#hmFolder').value || null, updatedAt: Date.now() };
+    if(editing) Object.assign(item, data);
+    else {
+      const it = Object.assign({ id: uid('li'), type: 'html', html: picked.html, fileName: picked.name, size: picked.size, description: '', favorite: false, createdAt: Date.now() }, data);
+      items().push(it);
+      LIB.type = 'html';
+    }
+    closeOv(ov); markDirty();
+  };
+  modal.onkeydown = (e) => { if(e.key === 'Escape') closeOv(ov); else if(e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.id === 'hmTitle'){ e.preventDefault(); $('#hmSave').click(); } };
+  setTimeout(() => { const d = $('#hmDrop'); (d || $('#hmTitle')).focus(); }, 30);
+}
+
+/* substituir o arquivo de uma página existente (pergunta antes; sem versões anteriores) */
+function replaceHtmlFile(it){
+  chooseHtmlFile(async (file) => {
+    const r = await readHtmlFile(file);
+    if(!r.ok){ showToast(r.msg); return; }
+    const ov = ensureProjectOverlay('libOverwriteOverlay');
+    const modal = ov.firstElementChild;
+    modal.className = 'modal nm nm-560 lib-pick';
+    modal.innerHTML = `
+      <div class="lib-pick-t">Substituir o arquivo desta página?</div>
+      <div class="lib-pick-s">Você escolheu <b>${escapeHtml(r.name)}</b>. O arquivo atual será trocado e não há versões anteriores. O título e a coleção continuam os mesmos.</div>
+      <div class="lib-cmp"><div><b>Arquivo atual</b>${escapeHtml(it.fileName || 'sem nome')} · ${fmtSize(it.size)}</div><div class="new"><b>Arquivo novo</b>${escapeHtml(r.name)} · ${fmtSize(r.size)}</div></div>
+      <div class="lib-pick-f"><button type="button" class="btn ghost small" id="hrCancel">Cancelar</button><button type="button" class="btn small" id="hrGo">Substituir</button></div>`;
+    ov.classList.add('show');
+    const close = () => closeOv(ov);
+    modal.querySelector('#hrCancel').onclick = close;
+    modal.querySelector('#hrGo').onclick = () => { close(); Object.assign(it, { html: r.html, fileName: r.name, size: r.size, updatedAt: Date.now() }); markDirty(); showToast('Arquivo substituído.'); };
+    ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
+    setTimeout(() => modal.querySelector('#hrGo').focus(), 30);
+  });
+}
+
+function deleteHtml(it, anchor){
+  openConfirmPortal(anchor, 'Excluir esta página da Biblioteca? Essa ação não pode ser desfeita.', () => {
+    G.state.libItems = items().filter(x => x.id !== it.id);
+    if(LIB.openId === it.id) closeDetail();
+    markDirty();
+  });
+}
+function openHtmlMenu(btn, it){
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="tab">Abrir em nova aba</button><button type="button" class="task-menu-item" data-m="edit">Editar dados</button><button type="button" class="task-menu-item" data-m="rep">Substituir arquivo</button><button type="button" class="task-menu-item" data-m="dl">Baixar .html</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+    open: () => openDetail(it.id),
+    tab: () => openHtmlTab(it),
+    edit: () => openHtmlModal(it),
+    rep: () => replaceHtmlFile(it),
+    dl: () => exportHtml(it),
+    del: () => deleteHtml(it, btn),
+  });
+}
+
+/* tela da página: barra com ações e o quadro isolado */
+function paintHtmlDetail(host, it){
+  const f = it.folderId ? folderById(it.folderId) : null;
+  const sp = catById(it.categoryId);
+  const pathTxt = [!G.activeCategoryFilter && sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ') || 'Sem coleção';
+  host.innerHTML = `<div class="lib-detail lib-hdet" id="hDet">
+    <div class="lib-hbar">
+      <button type="button" class="lib-back" id="libBack">${icon('caret-left')}<span>Páginas HTML</span></button>
+      <div class="lib-htt"><b>${escapeHtml(it.title || 'Sem título')}</b><span class="lib-tag">HTML</span></div>
+      <div class="lib-hacts">
+        <button type="button" class="lib-act" id="hDl" title="Baixar o arquivo .html" aria-label="Baixar o arquivo .html">${DOWN_SVG}</button>
+        <button type="button" class="lib-star${it.favorite ? ' on' : ''}" id="hFav" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="Favoritar">${it.favorite ? STAR_ON : icon('star')}</button>
+        <button type="button" class="btn ghost small lib-hbtn" id="hFull">${FULL_SVG}<span>Tela cheia</span></button>
+        <button type="button" class="btn small lib-hbtn" id="hTab">${EXT_SVG}<span>Nova aba</span></button>
+        <button type="button" class="lib-imenu" id="hMore" title="Mais ações" aria-label="Mais ações">${icon('dots-three-vertical')}</button>
+      </div>
+    </div>
+    <div class="lib-hmeta">${it.fileName ? escapeHtml(it.fileName) + ' · ' : ''}${fmtSize(it.size)} · ${escapeHtml(pathTxt)}</div>
+    <div class="lib-hframe"><div class="lib-hfh"><i></i><i></i><i></i><span>página isolada · não acessa os dados do app</span></div><iframe id="hFrame" title="${escapeHtml(it.title || 'Página HTML')}" sandbox="${HTML_SANDBOX}" referrerpolicy="no-referrer"></iframe></div>
+    <button type="button" class="lib-hexit" id="hExit">Sair da tela cheia</button>
+  </div>`;
+  const $ = (s) => host.querySelector(s);
+  $('#hFrame').srcdoc = it.html || '';
+  $('#libBack').onclick = () => { closeDetail(); render(); };
+  $('#hDl').onclick = () => exportHtml(it);
+  $('#hFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
+  $('#hTab').onclick = () => openHtmlTab(it);
+  $('#hMore').onclick = (e) => { e.stopPropagation(); openHtmlMenu($('#hMore'), it); };
+  const det = $('#hDet');
+  const onKey = (e) => { if(e.key === 'Escape') setFull(false); };
+  const setFull = (on) => {
+    det.classList.toggle('full', on);
+    document.body.classList.toggle('lib-hfull', on);
+    document.removeEventListener('keydown', onKey);
+    if(on) document.addEventListener('keydown', onKey);
+  };
+  $('#hFull').onclick = () => setFull(true);
+  $('#hExit').onclick = () => setFull(false);
+}
+
 function openTypePicker(){
   const ov = ensureProjectOverlay('libPickOverlay');
   const modal = ov.firstElementChild;
-  const cur = LIB.type === 'skill' ? 'skill' : 'link';
+  const cur = LIB.type === 'skill' ? 'skill' : (LIB.type === 'html' ? 'html' : 'link');
   const opts = [
     ['link', 'Link', 'Guarde um endereço com título, coleção e favoritos.', true, LINK_SVG],
     ['skill', 'Skill', 'Texto em Markdown: escreva ou importe um arquivo .md.', true, icon('file-text')],
+    ['html', 'Página HTML', 'Arquivo .html guardado aqui e aberto dentro do app.', true, FILE_SVG],
     ['task', 'Modelo de tarefa', 'Tarefa pronta com subtarefas e agendas.', false, icon('check-square')],
     ['snippet', 'Snippet ou comando', 'PowerShell, SQL, Linux… com botão de copiar.', false, CODE_SVG],
     ['text', 'Modelo de texto', 'E-mails, atas e relatórios reaproveitáveis.', false, icon('note')],
@@ -738,12 +945,13 @@ function openTypePicker(){
   ov.classList.add('show');
   const close = () => closeOv(ov);
   modal.querySelector('#libPickCancel').onclick = close;
-  modal.querySelectorAll('[data-new]').forEach(b => { b.onclick = () => { close(); if(b.dataset.new === 'skill') openSkillEditor(null); else openItemModal(null); }; });
+  modal.querySelectorAll('[data-new]').forEach(b => { b.onclick = () => { close(); if(b.dataset.new === 'skill') openSkillEditor(null); else if(b.dataset.new === 'html') openHtmlModal(null); else openItemModal(null); }; });
   ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
   setTimeout(() => { const c = modal.querySelector('.lib-opt.cur'); if(c) c.focus(); }, 30);
 }
 
 export function renderLibrary(){
+  document.body.classList.remove('lib-hfull');
   const view = document.getElementById('libraryView');
   if(!view) return;
   // seleção que deixou de existir (coleção apagada, espaço trocado)

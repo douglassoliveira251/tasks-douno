@@ -3,6 +3,7 @@ import { maybeShowWhatsNew, updateWhatsNewDot } from './05-novidades-painel.js';
 import { maybeShowOnboarding } from './51-primeiro-uso.js';
 import { renderHelpPanelContent, renderPageHeaderMeta } from './06-cabecalho-e-ajuda.js';
 import { isMobileViewport } from './01-estado.js';
+import { renderStandalonePage } from './59-pagina-html.js';
 import { refreshFromCloudIfSafe } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { escapeHtml, todayStr } from './10-helpers.js';
@@ -41,6 +42,8 @@ export const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem e
 export const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada'];
 export function groupModeKey(){ return G.activeCategoryFilter || '__all'; }
 export function render(){
+  /* aba só com a página HTML (/app/pagina/<id>): mostra apenas o quadro, sem o resto do app */
+  if(G.standalonePage){ renderStandalonePage(); return; }
   /* celular: não há Visão geral; quem cair nela (endereço, atalho) vai para Tarefas */
   if(G.currentView === 'dashboard' && isMobileViewport()) G.currentView = 'tasks';
   saveUiSession();

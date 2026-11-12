@@ -48,7 +48,7 @@ test('Biblioteca: Novo abre o quadro de tipos; Link abre a janela e guarda com h
   await expect(page.locator('#newBtnLabel')).toHaveText('Novo');
   await page.click('#newBtn');
   await expect(page.locator('#libPickOverlay')).toHaveClass(/show/);
-  await expect(page.locator('#libPickOverlay .lib-opt')).toHaveCount(6);
+  await expect(page.locator('#libPickOverlay .lib-opt')).toHaveCount(7);
   await expect(page.locator('#libPickOverlay .lib-opt.cur')).toHaveAttribute('data-new', 'link'); // o tipo da lateral vem marcado
   await expect(page.locator('#libPickOverlay .lib-opt.soon').first()).toBeDisabled();
   await page.click('#libPickOverlay [data-new="link"]');
@@ -175,7 +175,7 @@ test('Biblioteca: escolher coleção filtra a lista (inclui subcoleções), com 
   await expect(page.locator('.lib-row')).toHaveCount(1);
   await expect(page.locator('.lib-row .lib-tt')).toHaveText('Portal do RH');
   await page.locator('[data-kind="all"]').click();
-  await expect(page.locator('.lib-types .lib-type:not(.soon)')).toHaveCount(2);
+  await expect(page.locator('.lib-types .lib-type:not(.soon)')).toHaveCount(3);
   await expect(page.locator('.lib-types .lib-type.soon').first()).toBeDisabled();
 });
 

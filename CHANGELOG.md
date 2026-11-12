@@ -1,3 +1,6 @@
+## [3.45.0] - 2026-11-12 21:00
+- Biblioteca: tipo Páginas HTML. Importar .html (até 1 MB, arquivo único), abrir dentro do app num quadro isolado (sandbox sem acesso aos dados do app), Tela cheia, Nova aba (/app/pagina/<id>, só a página na janela), baixar, substituir o arquivo (com aviso), editar título/coleção, favoritar e excluir.
+
 ## [3.44.0] - 2026-11-12 19:30
 - Links: o globo ficou junto do endereço e o botão azul "Abrir" (só o ícone no celular) foi para o fim da linha.
 - Coleção com busca: ao novo link, à tela do link e ao editor de skill, o campo Coleção agora pesquisa e permite criar coleção na hora (na raiz ou dentro da escolhida, respeitando 3 níveis).
