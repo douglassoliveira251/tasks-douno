@@ -1,3 +1,6 @@
+## [3.43.0] - 2026-11-12 18:40
+- Biblioteca: o campo de busca ficou menor e foi para o topo, à esquerda do botão Novo (no celular, na mesma linha do Novo).
+
 ## [3.42.0] - 2026-11-12 08:20
 - Celular: a Visão geral saiu do menu de baixo e o endereço inicial abre Tarefas. No computador continua igual.
 - Projetos: removida a aba Lista; ficam Etapas e Linha do tempo (quem tinha Lista guardada cai na Linha do tempo).

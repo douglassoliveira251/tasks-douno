@@ -4474,3 +4474,12 @@
 @media (max-width:768px){
   .nav-item[data-view="dashboard"]{display:none;}
 }
+
+/* ===== v3.43.0 — Biblioteca: busca no topo, à esquerda do botão Novo ===== */
+.lib-topsearch{width:200px; height:32px; border-radius:10px; flex:0 1 200px;}
+.lib-topsearch input{font-size:13.5px;}
+@media (max-width:768px){
+  body[data-view="library"] .topbar-filters{flex:1 1 100%; flex-wrap:nowrap; gap:8px;}
+  .lib-topsearch{flex:1 1 auto; width:auto; min-width:0; height:34px; order:1;}
+  body[data-view="library"] .topbar-filters .tn-new{order:2;}
+}

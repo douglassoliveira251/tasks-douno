@@ -699,7 +699,6 @@ export function renderLibrary(){
     <div class="lib${LIB.openId ? ' lib-in-detail' : ''}">
       <div class="lib-bar">
         ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : ''}
-        <div class="lib-search">${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar na biblioteca…" aria-label="Buscar na biblioteca" value="${escapeHtml(LIB.q)}"></div>
       </div>
       <button type="button" class="lib-mfolder" id="libMFolder">${icon('folder')}<span>${escapeHtml(where)}</span>${icon('caret-down')}</button>
       <div class="lib-mtypes">${LIB_TYPES.map(t => `<button type="button" class="lib-chip${LIB.type === t.key ? ' on' : ''}${t.ready ? '' : ' soon'}" data-type="${t.key}" ${t.ready ? '' : 'disabled'}>${t.label}</button>`).join('')}</div>
@@ -713,7 +712,19 @@ export function renderLibrary(){
   view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
   const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
-  const search = view.querySelector('#libSearch');
-  search.oninput = () => { LIB.q = search.value; paintMain(view); };
+  /* a busca mora no topo, à esquerda do botão Novo (mesma faixa dos filtros das outras telas) */
+  const top = document.getElementById('topbarFilters');
+  let box = top && top.querySelector('.lib-topsearch');
+  if(top && !box){
+    box = document.createElement('div');
+    box.className = 'lib-search lib-topsearch';
+    box.innerHTML = `${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar na biblioteca…" aria-label="Buscar na biblioteca">`;
+    top.insertBefore(box, top.firstChild);
+  }
+  const search = box && box.querySelector('#libSearch');
+  if(search){
+    if(search.value !== LIB.q) search.value = LIB.q;
+    search.oninput = () => { LIB.q = search.value; paintMain(view); };
+  }
   paintMain(view);
 }
