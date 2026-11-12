@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { gotoApp } from './helpers.js';
 
+async function pickFolder(page, id, folderId){
+  const label = await page.evaluate((fid) => { const n = []; let c = state.libFolders.find(f => f.id === fid); while(c){ n.unshift(c.name); const p = c.parentId; c = p ? state.libFolders.find(f => f.id === p) : null; } return n.join(' › '); }, folderId);
+  await page.locator('[data-combo="' + id + '"] .lib-combo-btn').click();
+  await page.locator('[data-combo="' + id + '"] .lib-combo-opt', { hasText: label }).first().click();
+}
+
+
 const seed = () => {
   const cat = state.categories[0].id;
   state.libFolders = [
@@ -100,7 +107,7 @@ test('Biblioteca: na tela do link edita e salva; endereço inválido é recusado
   await page.locator('.lib-row[data-item="i2"]').click({ position: { x: 120, y: 14 } });
   await page.fill('#lkTitle', 'Chamados de TI');
   await page.fill('#lkDesc', 'Abrir e acompanhar');
-  await page.selectOption('#lkFolder', 'fd');
+  await pickFolder(page, 'lkFolder', 'fd');
   await page.click('#lkSave');
   const it = await page.evaluate(() => state.libItems.find(i => i.id === 'i2'));
   expect(it.title).toBe('Chamados de TI');
@@ -198,7 +205,7 @@ test('Biblioteca: favoritar, mover pela tela do item e excluir pelo menu da linh
   expect(await page.evaluate(() => state.libItems.find(i => i.id === 'i4').favorite)).toBe(true);
   await page.locator('[data-imenu="i4"]').click();
   await page.locator('#taskMenuPortal [data-m="edit"]').click();
-  await page.selectOption('#lkFolder', 'fd');
+  await pickFolder(page, 'lkFolder', 'fd');
   await page.fill('#lkTitle', 'Solto agora em Pessoal');
   await page.click('#lkSave');
   const it = await page.evaluate(() => state.libItems.find(i => i.id === 'i4'));
@@ -256,7 +263,8 @@ test('Biblioteca: com espaço em "Todos" os espaços viram grupos; cada espaço 
   await page.click('#newBtn');
   await page.click('#libPickOverlay [data-new="link"]');
   await expect(page.locator('#libISpace')).toHaveValue('c2');
-  await expect(page.locator('#libIFolder option')).toHaveCount(2);
+  await page.locator('[data-combo="libIFolder"] .lib-combo-btn').click();
+  await expect(page.locator('[data-combo="libIFolder"] .lib-combo-opt')).toHaveCount(2);
 });
 
 test('Biblioteca (celular): sem rolagem lateral, árvore numa janela, tipos em faixa, globo e quadro de tipos', async ({ page }) => {

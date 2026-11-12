@@ -1,5 +1,5 @@
 import { G } from './globais.js';
-import { markDirty } from './08-persistencia.js';
+import { markDirty, persistOnly } from './08-persistencia.js';
 import { catById, escapeHtml, uid } from './10-helpers.js';
 import { closeAllTaskMenus, ensureTaskMenuPortal, openConfirmPortal } from './13-portais-de-tarefa.js';
 import { ensureProjectOverlay } from './31-projetos.js';
@@ -174,11 +174,11 @@ function itemRow(it){
     <div class="lib-av" style="background:${colorOf(host)}">${escapeHtml((it.title || host || '?').trim().charAt(0).toUpperCase())}</div>
     <div class="lib-mid">
       <div class="lib-tt">${escapeHtml(it.title || host)}</div>
-      <div class="lib-dm">${escapeHtml(host)}${it.description ? ' · ' + escapeHtml(it.description) : ''}</div>
+      <div class="lib-dm"><span class="lib-dm-g">${GLOBE_SVG}</span><span class="lib-dm-t">${escapeHtml(host)}${it.description ? ' · ' + escapeHtml(it.description) : ''}</span></div>
       ${where ? `<div class="lib-where">${escapeHtml(where)}</div>` : ''}
     </div>
-    <button type="button" class="lib-act lib-globe" data-web="${it.id}" title="Abrir o site em outra aba" aria-label="Abrir o site em outra aba">${GLOBE_SVG}</button>
     <button type="button" class="lib-star${it.favorite ? ' on' : ''}" data-fav="${it.id}" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}">${it.favorite ? STAR_ON : icon('star')}</button>
+    <button type="button" class="lib-open" data-web="${it.id}" title="Abrir o site em outra aba" aria-label="Abrir o site em outra aba"><span>Abrir</span>${EXT_SVG}</button>
     <button type="button" class="lib-imenu" data-imenu="${it.id}" title="Opções" aria-label="Opções do item">${icon('dots-three-vertical')}</button>
   </div>`;
 }
@@ -252,6 +252,65 @@ function folderOptions(spaceId, selId, maxDepth, excludeId){
   return out.join('');
 }
 
+/* Escolha de coleção com busca e criação na hora. O valor fica num <input hidden> com o id dado (.value = id da coleção ou ''). */
+function comboHtml(id, selId){
+  const f = selId ? folderById(selId) : null;
+  return `<div class="lib-combo" data-combo="${id}"><input type="hidden" id="${id}" value="${f ? f.id : ''}"><button type="button" class="tp-select lib-combo-btn" aria-haspopup="listbox"><span>${f ? escapeHtml(folderPath(f.id).join(' › ')) : 'Sem coleção'}</span></button><div class="lib-combo-pop" style="display:none"><input type="text" class="tp-input lib-combo-q" placeholder="Buscar ou criar coleção…" autocomplete="off" aria-label="Buscar ou criar coleção"><div class="lib-combo-list" role="listbox"></div></div></div>`;
+}
+const fold = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function bindCombo(root, id, spaceSelect){
+  const box = root.querySelector('[data-combo="' + id + '"]');
+  const hid = box.querySelector('input[type="hidden"]'), btn = box.querySelector('.lib-combo-btn'), pop = box.querySelector('.lib-combo-pop');
+  const q = box.querySelector('.lib-combo-q'), list = box.querySelector('.lib-combo-list');
+  const space = () => spaceSelect.value;
+  const set = (v) => { hid.value = v || ''; btn.firstElementChild.textContent = v ? folderPath(v).join(' › ') : 'Sem coleção'; };
+  const close = () => { pop.style.display = 'none'; };
+  const create = (parentId) => {
+    const name = q.value.trim().slice(0, 60); if(!name) return;
+    const par = parentId ? folderById(parentId) : null;
+    const f = { id: uid('lf'), name, parentId: par ? par.id : null, categoryId: space(), createdAt: Date.now() };
+    folders().push(f);
+    if(par) LIB.open.add(par.id);
+    persistOnly(); set(f.id); close(); showToast('Coleção criada.');
+  };
+  const rows = () => {
+    const term = fold(q.value.trim());
+    const fs = folders().filter(f => f.categoryId === space());
+    const all = [];
+    const walk = (pid, d) => childrenOf(pid, fs).forEach(f => { if(d <= LIB_MAX_DEPTH) all.push(f); walk(f.id, d + 1); });
+    walk(null, 1);
+    const hit = all.filter(f => !term || fold(folderPath(f.id).join(' › ')).includes(term));
+    const out = [];
+    if(!term) out.push({ v: '', label: 'Sem coleção' });
+    hit.forEach(f => out.push({ v: f.id, label: folderPath(f.id).join(' › ') }));
+    const name = q.value.trim();
+    if(name){
+      if(!fs.some(f => !f.parentId && fold(f.name) === term)) out.push({ create: '', label: '+ Criar coleção "' + name + '"' });
+      const cur = hid.value ? folderById(hid.value) : null;
+      if(cur && folderDepth(cur) < LIB_MAX_DEPTH) out.push({ create: cur.id, label: '+ Criar "' + name + '" dentro de ' + folderPath(cur.id).join(' › ') });
+    }
+    return out;
+  };
+  let cur = [];
+  const paint = () => {
+    cur = rows();
+    list.innerHTML = cur.length ? cur.map((r, i) => '<button type="button" class="lib-combo-opt' + (r.create !== undefined ? ' new' : '') + (r.v !== undefined && r.v === hid.value ? ' on' : '') + '" data-i="' + i + '" role="option">' + escapeHtml(r.label) + '</button>').join('') : '<div class="lib-combo-none">Nenhuma coleção encontrada.</div>';
+  };
+  const pick = (r) => { if(!r) return; if(r.create !== undefined) create(r.create || null); else { set(r.v); close(); } };
+  btn.onclick = (e) => { e.stopPropagation(); const open = pop.style.display === 'none'; if(open){ q.value = ''; paint(); pop.style.display = 'block'; q.focus({ preventScroll: true }); pop.scrollIntoView({ block: 'nearest' }); } else close(); };
+  q.oninput = paint;
+  q.onkeydown = (e) => {
+    e.stopPropagation();
+    if(e.key === 'Escape'){ e.preventDefault(); close(); btn.focus(); }
+    else if(e.key === 'Enter'){ e.preventDefault(); pick(cur.find(r => r.v) || cur.find(r => r.create === '') || cur[0]); }
+  };
+  list.onclick = (e) => { const b = e.target.closest('[data-i]'); if(b){ e.stopPropagation(); pick(cur[Number(b.dataset.i)]); } };
+  box.addEventListener('click', (e) => e.stopPropagation());
+  root.addEventListener('click', close);
+  spaceSelect.addEventListener('change', () => { set(''); close(); });
+  return { set };
+}
+
 function openFolderModal({ folder, parentId } = {}){
   const ov = ensureProjectOverlay('libFolderOverlay');
   const modal = ov.firstElementChild;
@@ -265,7 +324,7 @@ function openFolderModal({ folder, parentId } = {}){
     <div class="nm-head"><div class="nm-kicker">${editing ? 'Renomear coleção' : (parent ? 'Nova subcoleção' : 'Nova coleção')}</div></div>
     <div class="nm-body prj-body">
       <div class="tp-field"><label class="tp-label" for="libFName">Nome</label><input type="text" class="tp-input" id="libFName" maxlength="60" placeholder="Ex.: Sistemas do trabalho" value="${editing ? escapeHtml(folder.name) : ''}"></div>
-      ${editing ? '' : `<div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+      ${editing ? '' : `<div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
         <div class="tp-field"><label class="tp-label" for="libFSpace">Espaço</label><select class="tp-select" id="libFSpace" ${parent ? 'disabled' : ''}>${spaceOptions(spaceId)}</select></div>
         <div class="tp-field"><label class="tp-label" for="libFParent">Dentro de</label><select class="tp-select" id="libFParent"><option value="">Raiz do espaço</option>${folderOptions(spaceId, parent ? parent.id : '', LIB_MAX_DEPTH - 1)}</select></div>
       </div>`}
@@ -313,9 +372,9 @@ function openItemModal(item){
       <div class="tp-field"><label class="tp-label" for="libIUrl">Endereço</label><input type="text" class="tp-input" id="libIUrl" inputmode="url" autocomplete="off" placeholder="Ex.: rh.empresa.com.br/portal" value="${editing ? escapeHtml(item.url) : ''}"></div>
       <div class="tp-field"><label class="tp-label" for="libITitle">Título <span style="font-weight:500; text-transform:none;">(opcional)</span></label><input type="text" class="tp-input" id="libITitle" maxlength="120" placeholder="Se vazio, usa o nome do site" value="${editing ? escapeHtml(item.title || '') : ''}"></div>
       <div class="tp-field"><label class="tp-label" for="libIDesc">Descrição <span style="font-weight:500; text-transform:none;">(opcional)</span></label><input type="text" class="tp-input" id="libIDesc" maxlength="200" value="${editing ? escapeHtml(item.description || '') : ''}"></div>
-      <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+      <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
         <div class="tp-field"><label class="tp-label" for="libISpace">Espaço</label><select class="tp-select" id="libISpace">${spaceOptions(spaceId)}</select></div>
-        <div class="tp-field"><label class="tp-label" for="libIFolder">Coleção</label><select class="tp-select" id="libIFolder"><option value="">Sem coleção</option>${folderOptions(spaceId, selFolder, LIB_MAX_DEPTH)}</select></div>
+        <div class="tp-field"><label class="tp-label" for="libIFolder">Coleção</label>${comboHtml('libIFolder', selFolder)}</div>
       </div>
       <p id="libIErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
     </div>
@@ -323,7 +382,7 @@ function openItemModal(item){
   ov.classList.add('show');
   const $ = (s) => modal.querySelector(s);
   $('#libIClose').onclick = $('#libICancel').onclick = () => closeOv(ov);
-  $('#libISpace').onchange = () => { $('#libIFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#libISpace').value, '', LIB_MAX_DEPTH); };
+  bindCombo(modal, 'libIFolder', $('#libISpace'));
   const err = (m) => { const e = $('#libIErr'); e.textContent = m; e.style.display = m ? 'block' : 'none'; };
   const save = () => {
     const url = normalizeUrl($('#libIUrl').value);
@@ -553,9 +612,9 @@ function paintDetail(view, host){
       <div class="lib-dcard lib-edit">
         ${pending ? `<div class="lib-banner"><span>Texto carregado de <b>${escapeHtml(pending.name || 'arquivo')}</b> — ainda <b>não está salvo</b>. Revise e clique em Salvar.</span></div>` : ''}
         <div class="tp-field"><label class="tp-label" for="skTitle">Nome da skill</label><input type="text" class="tp-input" id="skTitle" maxlength="120" placeholder="Ex.: skill-relatorio-semanal" value="${escapeHtml(it.title || '')}"></div>
-        <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+        <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
           <div class="tp-field"><label class="tp-label" for="skSpace">Espaço</label><select class="tp-select" id="skSpace">${spaceOptions(it.categoryId)}</select></div>
-          <div class="tp-field"><label class="tp-label" for="skFolder">Coleção</label><select class="tp-select" id="skFolder"><option value="">Sem coleção</option>${folderOptions(it.categoryId, it.folderId, LIB_MAX_DEPTH)}</select></div>
+          <div class="tp-field"><label class="tp-label" for="skFolder">Coleção</label>${comboHtml('skFolder', it.folderId)}</div>
         </div>
         <div class="tp-field"><label class="tp-label" for="skText">Conteúdo (Markdown)</label><textarea class="tp-textarea lib-ta" id="skText" spellcheck="false" placeholder="# Título da skill&#10;&#10;Escreva ou cole o texto em Markdown…">${escapeHtml(initial)}</textarea></div>
         <div class="lib-counter" id="skCount">${statsText(skillStats(initial))}</div>
@@ -565,7 +624,7 @@ function paintDetail(view, host){
     const $ = (s) => host.querySelector(s);
     const ta = $('#skText');
     ta.oninput = () => { $('#skCount').textContent = statsText(skillStats(ta.value)); };
-    $('#skSpace').onchange = () => { $('#skFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#skSpace').value, '', LIB_MAX_DEPTH); };
+    bindCombo(host, 'skFolder', $('#skSpace'));
     $('#libBack').onclick = $('#skCancel').onclick = () => { if(draft){ closeDetail(); } else { LIB.editing = false; LIB.pending = null; } render(); };
     $('#skSave').onclick = () => {
       const title = $('#skTitle').value.trim();
@@ -636,9 +695,9 @@ function paintLinkDetail(host, it){
       <div class="tp-field"><label class="tp-label" for="lkUrl">Endereço</label><input type="text" class="tp-input" id="lkUrl" inputmode="url" autocomplete="off" value="${escapeHtml(it.url)}"></div>
       <div class="tp-field"><label class="tp-label" for="lkTitle">Título</label><input type="text" class="tp-input" id="lkTitle" maxlength="120" placeholder="Se vazio, usa o nome do site" value="${escapeHtml(it.title || '')}"></div>
       <div class="tp-field"><label class="tp-label" for="lkDesc">Descrição</label><input type="text" class="tp-input" id="lkDesc" maxlength="200" value="${escapeHtml(it.description || '')}"></div>
-      <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+      <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
         <div class="tp-field"><label class="tp-label" for="lkSpace">Espaço</label><select class="tp-select" id="lkSpace">${spaceOptions(it.categoryId)}</select></div>
-        <div class="tp-field"><label class="tp-label" for="lkFolder">Coleção</label><select class="tp-select" id="lkFolder"><option value="">Sem coleção</option>${folderOptions(it.categoryId, it.folderId, LIB_MAX_DEPTH)}</select></div>
+        <div class="tp-field"><label class="tp-label" for="lkFolder">Coleção</label>${comboHtml('lkFolder', it.folderId)}</div>
       </div>
       <p id="lkErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
       <div class="lib-dactions lib-dactions-l"><button type="button" class="btn ghost small" id="lkCopy">Copiar endereço</button><button type="button" class="btn ghost small lib-del" id="lkDel">Excluir</button><span class="lib-grow"></span><button type="button" class="btn small" id="lkSave">Salvar</button></div>
@@ -646,7 +705,7 @@ function paintLinkDetail(host, it){
   const $ = (s) => host.querySelector(s);
   $('#libBack').onclick = () => { closeDetail(); render(); };
   $('#lkFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
-  $('#lkSpace').onchange = () => { $('#lkFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#lkSpace').value, '', LIB_MAX_DEPTH); };
+  bindCombo(host, 'lkFolder', $('#lkSpace'));
   $('#lkCopy').onclick = () => copyText(it.url, 'Endereço copiado.');
   $('#lkDel').onclick = (e) => { e.stopPropagation(); openConfirmPortal(e.currentTarget, 'Excluir este item da Biblioteca? Essa ação não pode ser desfeita.', () => { G.state.libItems = items().filter(x => x.id !== it.id); closeDetail(); markDirty(); }); };
   $('#lkSave').onclick = () => {

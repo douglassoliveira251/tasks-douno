@@ -4,6 +4,13 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+async function pickFolder(page, id, folderId){
+  const label = await page.evaluate((fid) => { const n = []; let c = state.libFolders.find(f => f.id === fid); while(c){ n.unshift(c.name); const p = c.parentId; c = p ? state.libFolders.find(f => f.id === p) : null; } return n.join(' › '); }, folderId);
+  await page.locator('[data-combo="' + id + '"] .lib-combo-btn').click();
+  await page.locator('[data-combo="' + id + '"] .lib-combo-opt', { hasText: label }).first().click();
+}
+
+
 const go = async (page, vp) => {
   await page.setViewportSize(vp || { width: 1280, height: 800 });
   await gotoApp(page, { view: 'tasks' });
@@ -242,7 +249,7 @@ test('Skills: editar, mover de coleção, buscar pelo conteúdo e excluir', asyn
   await page.locator('[data-imenu="s1"]').click();
   await page.locator('#taskMenuPortal [data-m="edit"]').click();
   await page.fill('#skTitle', 'Skill A v2');
-  await page.selectOption('#skFolder', 'fa');
+  await pickFolder(page, 'skFolder', 'fa');
   await page.fill('#skText', 'novo texto\nem duas linhas');
   await expect(page.locator('#skCount')).toContainText('2 linhas');
   await page.click('#skSave');

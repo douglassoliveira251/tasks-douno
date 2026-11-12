@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.44.0', date:'12/11/2026', title:'Links mais claros e coleção com busca', text:'Na lista de links, o globo ficou junto do endereço e o botão azul Abrir foi para o fim da linha. Ao escolher a coleção (em link e skill) dá para digitar para buscar e criar uma coleção ali mesmo.' },
   { version:'3.43.0', date:'12/11/2026', title:'Busca da Biblioteca no topo', text:'O campo de buscar da Biblioteca ficou menor e foi para o topo, à esquerda do botão Novo. Ele busca no título, no endereço e no conteúdo das skills.' },
   { version:'3.42.0', date:'12/11/2026', title:'Celular mais enxuto', text:'No celular, a Visão geral saiu do menu (o app abre em Tarefas) e o projeto ficou só com as abas Etapas e Linha do tempo. A aba Lista foi removida.' },
   { version:'3.41.0', date:'11/11/2026', title:'Biblioteca: tela do link, quadro Novo e skills em dois modos', text:'Clicar na linha de um link abre a tela com os dados (o ícone de globo abre o site). O botão Novo abre um quadro para escolher o tipo. Nas skills: Importar .md por cima (com aviso), ícone de baixar na lista e dois modos de leitura, Código e Visualização, que ficam salvos.' },

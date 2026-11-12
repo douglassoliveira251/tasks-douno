@@ -1,3 +1,7 @@
+## [3.44.0] - 2026-11-12 19:30
+- Links: o globo ficou junto do endereço e o botão azul "Abrir" (só o ícone no celular) foi para o fim da linha.
+- Coleção com busca: ao novo link, à tela do link e ao editor de skill, o campo Coleção agora pesquisa e permite criar coleção na hora (na raiz ou dentro da escolhida, respeitando 3 níveis).
+
 ## [3.43.0] - 2026-11-12 18:40
 - Biblioteca: o campo de busca ficou menor e foi para o topo, à esquerda do botão Novo (no celular, na mesma linha do Novo).
 
