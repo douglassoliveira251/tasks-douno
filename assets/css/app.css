@@ -4469,3 +4469,8 @@
   .lib-skbtns{flex:1 1 100%;} .lib-skbtns .btn{flex:1 1 auto; justify-content:center;}
   .lib-search{flex:1 1 100%;}
 }
+
+/* ===== v3.42.0 — sem Visão geral no celular ===== */
+@media (max-width:768px){
+  .nav-item[data-view="dashboard"]{display:none;}
+}

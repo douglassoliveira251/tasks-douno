@@ -190,7 +190,7 @@ export function renderProjectDetail(view, p){
   const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
   const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
   const isMobileP = window.matchMedia('(max-width:768px)').matches;
-  const tabNow = !isMobileP ? 'timeline' : (G.projectTab || 'timeline');
+  const tabNow = !isMobileP ? 'timeline' : (G.projectTab === 'etapas' ? 'etapas' : 'timeline');
   const kp = (v, of, l, color) => `<div class="pd-kp"><small>${l}</small><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b></div>`;
   const daysLeft = (p.endDate || st.end) ? Math.round((new Date((p.endDate || st.end) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
   view.innerHTML = `
@@ -214,7 +214,6 @@ export function renderProjectDetail(view, p){
           <span class="pd-tabs">
             <button type="button" class="proj-tab pd-tab-etapas ${tabNow === 'etapas' ? 'on' : ''}" data-tab="etapas">Etapas</button>
             <button type="button" class="proj-tab ${tabNow === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
-            <button type="button" class="proj-tab ${tabNow === 'lista' ? 'on' : ''}" data-tab="lista">Lista</button>
           </span>
           <button type="button" class="prj-act" id="prjEditTop">${icon('pencil-simple')}Editar</button>
           <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
@@ -375,22 +374,6 @@ export function renderProjectDetail(view, p){
     }).join('') + (loose.length ? `<div class="pe-card"><div class="pe-head"><div class="pe-hl"><b>Sem etapa</b></div></div>${loose.map(taskRow).join('')}</div>` : '') + '</div>';
     body.querySelectorAll('.pe-task').forEach(el => { el.onclick = () => { G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); }; });
     body.querySelectorAll('.pe-head').forEach(h => { h.onclick = () => h.parentElement.classList.toggle('closed'); });
-    return;
-  }
-
-  if(tabNow === 'lista'){
-    body.innerHTML = '<div class="tpl-list">' + stages.map(sg => {
-      const pct = stagePercent(p, sg), state_ = stageState(p, sg), n = stageTasks(p, sg);
-      return `<div class="tpl-card" data-id="${sg.id}" style="cursor:pointer;">
-        <div class="tpl-card-main">
-          <div class="tpl-card-name">${escapeHtml(sg.name)}</div>
-          <div class="tpl-card-meta">${sg.start ? fmtDate(sg.start) : '—'} → ${sg.end ? fmtDate(sg.end) : '—'} · ${n.filter(t => t.done).length}/${n.length} tarefas</div>
-          <div class="proj-bar" style="margin-top:8px;"><i style="width:${pct}%"></i></div>
-        </div>
-        <span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]} · ${pct}%</span>
-      </div>`;
-    }).join('') + '</div>';
-    body.querySelectorAll('.tpl-card').forEach(c => { c.onclick = () => { G.selectedStageId = G.selectedStageId === c.dataset.id ? null : c.dataset.id; render(); }; });
     return;
   }
 

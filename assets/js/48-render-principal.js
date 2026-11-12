@@ -41,6 +41,8 @@ export const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem e
 export const GROUP_MODES = ['periodo','grupos','prioridade','status','tags','retomada'];
 export function groupModeKey(){ return G.activeCategoryFilter || '__all'; }
 export function render(){
+  /* celular: não há Visão geral; quem cair nela (endereço, atalho) vai para Tarefas */
+  if(G.currentView === 'dashboard' && isMobileViewport()) G.currentView = 'tasks';
   saveUiSession();
   syncRouteToView();
   render_syncStages();

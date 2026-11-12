@@ -1,3 +1,7 @@
+## [3.42.0] - 2026-11-12 08:20
+- Celular: a Visão geral saiu do menu de baixo e o endereço inicial abre Tarefas. No computador continua igual.
+- Projetos: removida a aba Lista; ficam Etapas e Linha do tempo (quem tinha Lista guardada cai na Linha do tempo).
+
 ## [3.41.0] - 2026-11-11 23:59
 - Biblioteca, links: clicar na linha abre a tela do item (editar, abrir site, copiar, excluir); o ícone de globo na linha abre o site. O título deixou de ser link.
 - Biblioteca: o botão "Novo" abre o quadro "O que você quer criar?"; a barra de colar link foi retirada.

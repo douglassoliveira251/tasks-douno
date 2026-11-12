@@ -214,57 +214,6 @@ test('Agenda ficou na última coluna de baixo e o mapa de calor no lugar dela, n
   expect(agenda.x).toBeGreaterThan(imp.x); // agenda à direita das importantes
 });
 
-test.describe('Visão geral no celular', () => {
-  const seedMobile = () => {
-    const cat = state.categories[0].id, today = todayStr();
-    const t = (id, title, extra) => Object.assign({ id, title, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now() - 86400000 }, extra);
-    state.tasks = [t('a', 'Enviar proposta ao cliente com um título bem comprido para testar a quebra', { dueDate: today, dueTime: '10:00', priority: 'alta' }), t('b', 'Revisar contrato', { dueDate: today, followUpDate: today }), t('c', 'Atrasada', { dueDate: addDaysStr(today, -2) }), t('d', 'Sem prazo qualquer'), t('x', 'Feita hoje', { done: true, status: 'concluida', dueDate: today, completedAt: Date.now() })];
-    state.events = [{ id: 'e1', title: 'Daily', date: today, endDate: today, startTime: '09:00', endTime: '09:30', allDay: false, categoryId: cat, tagIds: [], recurrence: 'none', recurrenceInterval: 1, createdAt: 1 }];
-    render();
-  };
-
-  test('ordem: Hoje, indicadores, Tarefas, Agenda e depois os demais; indicadores em grade e avisos tocáveis', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await gotoApp(page, { view: 'dashboard' });
-    await page.evaluate(seedMobile);
-    const y = async sel => (await page.locator(sel).first().boundingBox()).y;
-    const ys = [await y('.dv-hero'), await y('.dv-kgrid'), await y('.dv-tarefas'), await y('.dv-agenda'), await y('.dv-heat'), await y('.dv-status-card'), await y('.dv-imp')];
-    expect([...ys].sort((a, b) => a - b)).toEqual(ys); // já está em ordem crescente
-    await expect(page.locator('.dv-stats')).toBeHidden(); // a faixa antiga de indicadores sai do cartão Hoje
-    await expect(page.locator('.dv-kt')).toHaveCount(4);
-    await expect(page.locator('.dv-kt.k-ab b')).toHaveText('4');
-    await expect(page.locator('.dv-kt.k-at b')).toHaveText('1');
-    await expect(page.locator('.dv-ring')).toContainText('33%'); // 1 concluída hoje de 3 (2 a fazer + 1 feita)
-    await expect(page.locator('.dv-al')).toHaveCount(2);
-    await page.locator('.dv-al[data-nodate="due"]').click();
-    expect(await page.evaluate(() => [currentView, taskGroupMode])).toEqual(['tasks', 'periodo']);
-  });
-
-  test('lista de tarefas: título inteiro sem ser cortado e retomar só com o ícone', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await gotoApp(page, { view: 'dashboard' });
-    await page.evaluate(seedMobile);
-    const title = page.locator('.dv-tr[data-task-id="a"] .dv-t1 b');
-    const box = await title.boundingBox();
-    const scroll = await title.evaluate(el => el.scrollWidth - el.clientWidth);
-    expect(scroll).toBeLessThanOrEqual(1); // não está cortado por reticências
-    expect(box.height).toBeGreaterThan(18); // quebrou em mais de uma linha em vez de cortar
-    await expect(page.locator('.dv-tr[data-task-id="b"] .dv-ret')).toBeVisible();
-    await expect(page.locator('.dv-tr[data-task-id="b"] .dv-ret em')).toBeHidden();
-    await expect(page.locator('.dv-thead')).toBeHidden();
-    const w = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(w).toBeLessThanOrEqual(390); // sem rolagem lateral
-  });
-
-  test('no computador os indicadores continuam na faixa do cartão Hoje', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await gotoApp(page, { view: 'dashboard' });
-    await page.evaluate(seedMobile);
-    await expect(page.locator('.dv-stats')).toBeVisible();
-    await expect(page.locator('.dv-mkpis')).toBeHidden();
-    await expect(page.locator('.dv-ring')).toBeHidden();
-  });
-});
 
 test('botão "+" é contextual: + Item na Visão geral (menu) e + Tarefa/Nota/Evento/Projeto nas outras telas', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
