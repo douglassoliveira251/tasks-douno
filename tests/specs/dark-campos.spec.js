@@ -15,7 +15,7 @@ test('modo escuro: nenhum campo de texto fica branco ou ilegível nas telas prin
         if (Math.abs(fg - bg) < 90 || bg > 200) res.push(`${tag} ${el.tagName}#${el.id}.${el.className} fg=${Math.round(fg)} bg=${Math.round(bg)}`);
       });
     };
-    for (const v of ['dashboard','tasks','calendar','notes','projects','settings']) {
+    for (const v of ['dashboard','tasks','calendar','notes','projects','library','settings']) {
       try { currentView = v; render(); } catch(e){ res.push('erro view '+v); continue; }
       await new Promise(r => setTimeout(r, 200));
       scan(v);

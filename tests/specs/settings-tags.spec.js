@@ -327,17 +327,17 @@ test('calendário: espaços marcados ficam salvos até desmarcar (mesmo trocando
   expect(await page.evaluate(() => state.calSpaces)).toEqual(['c1', 'c2']);
 });
 
-test('menu: Biblioteca existe com ícone de livros, desativada e sem abrir tela', async ({ page }) => {
+test('menu: Biblioteca existe com ícone de livros e abre a tela', async ({ page }) => {
   for (const vp of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(vp);
     await gotoApp(page, { view: 'tasks' });
     const b = page.locator('#navLibrary');
     await expect(b).toBeVisible();
-    await expect(b).toBeDisabled();
-    await expect(b).toHaveAttribute('title', /em breve/i);
+    await expect(b).toBeEnabled();
     await expect(b.locator('svg rect')).toHaveCount(2);
-    await b.click({ force: true });
-    expect(await page.evaluate(() => currentView)).toBe('tasks');
+    await b.click();
+    expect(await page.evaluate(() => currentView)).toBe('library');
+    await expect(page.locator('#libraryView')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(vp.width);
   }
 });

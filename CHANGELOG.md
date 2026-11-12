@@ -1,3 +1,6 @@
+## [3.39.0] - 2026-11-11 23:59
+- Biblioteca (nova): guarda links colando o endereço no campo do topo; coleções em até 3 níveis por espaço; favoritos; busca; editar, mover e excluir. Tipos fixos no rodapé da lateral (por ora só Links; os demais aparecem como "em breve"). No celular, as coleções abrem numa janela. Dados em libFolders e libItems.
+
 ## [3.38.2] - 2026-11-11 23:59
 - Notificações: a "Agenda de hoje" pode ser dispensada por hoje (x em cada item e "Dispensar todas"), com Desfazer; guardado nos dados. Tarefas continuam fixas.
 

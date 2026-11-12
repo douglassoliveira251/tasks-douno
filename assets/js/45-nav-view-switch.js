@@ -61,7 +61,7 @@ export function renderSpaceSelector(){
   renderPeriodSelector();
   const wrap = document.getElementById('spaceSelectorWrap');
   if(!wrap) return;
-  const showOn = (G.currentView === 'dashboard' || G.currentView === 'tasks' || G.currentView === 'notes' || G.currentView === 'calendar' || G.currentView === 'projects');
+  const showOn = (G.currentView === 'dashboard' || G.currentView === 'tasks' || G.currentView === 'notes' || G.currentView === 'calendar' || G.currentView === 'projects' || G.currentView === 'library');
   wrap.style.display = showOn ? 'flex' : 'none';
   if(!showOn){ closeSpaceSelectorDropdown(); return; }
 

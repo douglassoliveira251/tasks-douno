@@ -14,12 +14,13 @@ import { renderNotes } from './29-notas-lista.js';
 import { renderProfileCard, renderSettingsView } from './30-perfil-e-configuracoes.js';
 import { syncStageDates } from './31-projetos.js';
 import { renderProjects } from './32-projetos-lista-e-detalhe.js';
+import { renderLibrary } from './57-biblioteca.js';
 import { renderSpaceSelector } from './45-nav-view-switch.js';
 import { updateNotifBadge } from './46-busca-e-notificacoes.js';
 import { syncRouteToView } from './49-rotas.js';
 
 /* ===================== RENDER PRINCIPAL ===================== */
-export const VIEW_TITLES = { dashboard:'Visão geral', tasks:'Tarefas', notes:'Notas', projects:'Projetos', calendar:'Calendário', settings:'Configurações' };
+export const VIEW_TITLES = { dashboard:'Visão geral', tasks:'Tarefas', notes:'Notas', projects:'Projetos', calendar:'Calendário', library:'Biblioteca', settings:'Configurações' };
 export function saveUiSession(){
   try{
     sessionStorage.setItem('taskinUiSession', JSON.stringify({ currentView: G.currentView, activeCategoryFilter: G.activeCategoryFilter }));
@@ -91,6 +92,7 @@ export function render(){
   document.getElementById('notesView').style.display = G.currentView === 'notes' ? 'block' : 'none';
   document.getElementById('calendarView').style.display = G.currentView === 'calendar' ? 'block' : 'none';
   document.getElementById('projectsView').style.display = G.currentView === 'projects' ? 'block' : 'none';
+  document.getElementById('libraryView').style.display = G.currentView === 'library' ? 'block' : 'none';
   document.getElementById('settingsView').style.display = G.currentView === 'settings' ? 'block' : 'none';
   document.getElementById('searchWrap').style.display = 'flex';
   renderProfileCard();
@@ -104,6 +106,7 @@ export function render(){
   else if(G.currentView === 'notes') renderNotes();
   else if(G.currentView === 'calendar') renderCalendar();
   else if(G.currentView === 'projects') renderProjects();
+  else if(G.currentView === 'library') renderLibrary();
   else renderSettingsView();
   updateFileStatus();
   document.dispatchEvent(new Event('douno:rendered'));

@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.39.0', date:'11/11/2026', title:'Biblioteca: seus links à mão', text:'Nova tela Biblioteca, no menu. Cole um link no campo do topo e pressione Enter para guardar. Organize em coleções de até 3 níveis (cada espaço com as suas), marque favoritos, busque e edite. Outros tipos de conteúdo virão depois.' },
   { version:'3.38.2', date:'11/11/2026', title:'Dispensar agendas nas notificações', text:'Nas notificações, cada agenda de hoje tem um x para dispensar só por hoje, e há Dispensar todas. O número do sino acompanha. As tarefas atrasadas ou de hoje continuam fixas.' },
   { version:'3.38.1', date:'11/11/2026', title:'Painel da etapa: botões embaixo e lista limitada', text:'No painel da etapa, Nova tarefa e Editar voltaram para baixo da lista, lado a lado. A lista de tarefas tem altura limitada e rola por dentro, para os botões não ficarem escondidos quando há muitas tarefas.' },
   { version:'3.38.0', date:'11/11/2026', title:'Projetos: etapa mais fácil de escolher', text:'No painel da etapa, Nova tarefa e Editar ficam lado a lado no topo. O chip do projeto na tarefa agora abre a lista de etapas, com Alterar projeto e Ir até o projeto. Tarefas de projeto passam a nascer numa etapa: o Nova tarefa do projeto pergunta em qual.' },

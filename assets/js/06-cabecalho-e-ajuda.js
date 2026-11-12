@@ -1,3 +1,4 @@
+import { libCounts } from './57-biblioteca.js';
 import { G } from './globais.js';
 import { APP_VERSION } from './00-versao.js';
 import { triggerCloudWrite } from './08-persistencia.js';
@@ -34,6 +35,12 @@ export function renderPageHeaderMeta(){
       { n: list.length, label: list.length === 1 ? 'projeto' : 'projetos' },
       { n: late, label: late === 1 ? 'com atraso' : 'com atraso' },
     ];
+  } else if(G.currentView === 'library'){
+    const lc = libCounts();
+    stats = [
+      { n: lc.items, label: lc.items === 1 ? 'item' : 'itens' },
+      { n: lc.folders, label: lc.folders === 1 ? 'coleção' : 'coleções' },
+    ];
   } else if(G.currentView === 'calendar'){
     const todayCount = getEventsForDate(todayStr()).length;
     const total = eventsInScope().length;
@@ -51,6 +58,10 @@ export function renderPageHeaderMeta(){
 }
 
 export const HELP_CONTENT = {
+  library: [
+    { q: 'Para que serve a Biblioteca?', a: 'Para guardar o que não é tarefa, nota nem agenda, mas precisa ficar à mão. Por enquanto, links: cole o endereço no campo do topo e pressione Enter.' },
+    { q: 'Como organizo os links?', a: 'Em coleções (pastas), com até 3 níveis, cada espaço com as suas. Use "Nova coleção" na lateral e escolha a coleção ao editar um link. Um link fica em uma coleção só.' },
+  ],
   dashboard: [
     { q: 'O que esse painel mostra?', a: 'Um resumo do que está em aberto: tarefas pendentes, notas recentes, eventos do dia e indicadores gerais de conclusão.' },
     { q: 'Os números somem quando eu concluo uma tarefa?', a: 'Sim — os cards contam só o que está em aberto. Tarefas concluídas continuam no histórico, só saem da contagem.' },

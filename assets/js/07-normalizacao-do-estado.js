@@ -7,6 +7,8 @@ export function normalizeState(){
   if(!Array.isArray(G.state.emailHistory)) G.state.emailHistory = [];
   if(!Array.isArray(G.state.taskTemplates)) G.state.taskTemplates = [];
   if(!Array.isArray(G.state.projects)) G.state.projects = [];
+  if(!Array.isArray(G.state.libFolders)) G.state.libFolders = [];
+  if(!Array.isArray(G.state.libItems)) G.state.libItems = [];
   G.state.projects.forEach(p => { if(!Array.isArray(p.stages)) p.stages = []; });
   if(!G.state.tasks) G.state.tasks = [];
   if(!Array.isArray(G.state.completedLog)) G.state.completedLog = [];

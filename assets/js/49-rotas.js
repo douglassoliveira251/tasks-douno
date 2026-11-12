@@ -8,7 +8,7 @@ import { NOTAS_UI } from './estado-ui.js';
    currentView; o endereço só acompanha: render() chama syncRouteToView() e o botão voltar/avançar do
    navegador volta aqui. Qualquer outro endereço (/, /app/xyz, /app/resumo) vira /app. Hospedado numa subpasta (onde o servidor
    não devolve o index.html para esses caminhos), usa #/tarefas e, no Resumo, nada depois do endereço. */
-export const VIEW_ROUTES = { dashboard: '', tasks: 'tarefas', notes: 'notas', calendar: 'calendario', projects: 'projetos', settings: 'configuracoes' };
+export const VIEW_ROUTES = { dashboard: '', tasks: 'tarefas', notes: 'notas', calendar: 'calendario', projects: 'projetos', library: 'biblioteca', settings: 'configuracoes' };
 export const ROUTE_VIEWS = Object.fromEntries(Object.entries(VIEW_ROUTES).filter(([, route]) => route).map(([view, route]) => [route, view]));
 
 export const APP_BASE = '/app';

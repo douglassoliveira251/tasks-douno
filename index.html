@@ -47,7 +47,7 @@
         <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/></svg>
         <span class="nav-label">Calendário</span>
       </button>
-      <button class="nav-item nav-soon" type="button" id="navLibrary" disabled aria-disabled="true" title="Biblioteca (em breve)">
+      <button class="nav-item" type="button" id="navLibrary" data-view="library" title="Biblioteca">
         <svg viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="24" y="40" width="52" height="176" rx="8"/><path d="M24 80h52"/><rect x="92" y="40" width="52" height="176" rx="8"/><path d="M92 80h52"/><path d="M162 62l46-14a8 8 0 0 1 10 6l34 142a8 8 0 0 1-6 10l-46 12a8 8 0 0 1-10-6L156 72a8 8 0 0 1 6-10z"/></svg>
         <span class="nav-label">Biblioteca</span>
       </button>
@@ -179,6 +179,7 @@
     <div class="view" id="tasksView" style="display:none;"></div>
     <div class="view" id="notesView" style="display:none;"></div>
     <div class="view" id="projectsView" style="display:none;"></div>
+    <div class="view" id="libraryView" style="display:none;"></div>
     <div class="view" id="calendarView" style="display:none;"></div>
     <div class="view" id="settingsView" style="display:none;"></div>
   </main>
