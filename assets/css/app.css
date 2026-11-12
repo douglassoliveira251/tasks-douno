@@ -4355,7 +4355,8 @@
   .lib-bar{flex-wrap:wrap; gap:8px;}
   .lib-paste{flex:1 1 100%; order:1;}
   .lib-search{flex:1 1 100%; width:auto; order:2;}
-  .lib-lay{grid-template-columns:1fr; gap:0;}
+  .lib-lay{grid-template-columns:minmax(0,1fr); gap:0;}
+  .lib-main{min-width:0;}
   .lib-side{display:none;}
   .lib-mfolder{display:flex; align-items:center; gap:8px; width:100%; height:44px; padding:0 12px; margin:0 0 10px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--ink); font:inherit; font-size:13.5px; font-weight:700; cursor:pointer;}
   .lib-mfolder svg{width:16px; height:16px; flex:none; color:var(--ink-soft);}
@@ -4363,4 +4364,40 @@
   .lib-mtypes{display:flex; gap:8px; margin:0 0 12px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch;}
   .lib-fmenu{opacity:1; width:32px; height:32px;}
   .lib-star, .lib-imenu{width:36px; height:36px;}
+}
+
+/* ===== v3.40.0 — Biblioteca: Skills (texto em Markdown) ===== */
+.lib-typ{width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex:none; background:var(--surface-2); color:var(--ink-soft);}
+.lib-typ svg{width:17px; height:17px;}
+.lib-typ-l{width:44px; height:44px; border-radius:11px;} .lib-typ-l svg{width:21px; height:21px;}
+.lib-skbtns{flex:1; display:flex; gap:10px; min-width:0;}
+.lib-skbtns .btn{height:44px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;}
+.lib-skbtns .btn svg{width:15px; height:15px; flex:none;}
+.lib-in-detail .lib-bar, .lib-in-detail .lib-mfolder, .lib-in-detail .lib-mtypes{display:none;}
+.lib-back{display:inline-flex; align-items:center; gap:4px; border:0; background:transparent; color:var(--primary-dark,var(--primary)); font:inherit; font-size:13.5px; font-weight:700; padding:4px 2px; margin:0 0 10px; cursor:pointer;}
+.lib-back svg{width:14px; height:14px;}
+.lib-dhead{display:flex; align-items:center; gap:14px; margin:0 0 14px;}
+.lib-dtitle{flex:1; min-width:0;}
+.lib-dtitle h2{margin:0; font-size:22px; font-weight:800; color:var(--ink); overflow-wrap:anywhere;}
+.lib-dcard{border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden;}
+.lib-dbar{display:flex; flex-wrap:wrap; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);}
+.lib-dbar .btn{display:inline-flex; align-items:center; gap:6px; white-space:nowrap;}
+.lib-dbar .btn svg{width:14px; height:14px; flex:none;}
+.lib-del{margin-left:auto; color:var(--danger) !important;}
+.lib-counter{padding:8px 14px; font-size:12px; color:var(--ink-soft); background:var(--surface-2); border-bottom:1px solid var(--border);}
+.lib-edit{padding:16px;} .lib-edit .lib-counter{margin:0 -16px; padding:8px 16px; border-top:1px solid var(--border);}
+.lib-ta{min-height:320px; font-family:Consolas,Menlo,monospace; font-size:13px; line-height:1.6; resize:vertical; tab-size:2;}
+.lib-dactions{display:flex; justify-content:flex-end; gap:8px; margin-top:14px;}
+.lib-code{font-family:Consolas,Menlo,monospace; font-size:12.5px; line-height:1.65; padding:12px 0; color:var(--ink); max-height:calc(100vh - 340px); min-height:160px; overflow:auto;}
+.lib-code > div{display:flex; gap:14px; padding:0 14px;}
+.lib-code .n{width:34px; text-align:right; color:var(--ink-faint); flex:none; user-select:none;}
+.lib-code .t{white-space:pre-wrap; overflow-wrap:anywhere; min-width:0;}
+.lib-codeempty{padding:18px 14px; color:var(--ink-faint); font-family:inherit;}
+@media (max-width:768px){
+  .lib-skbtns{flex-wrap:wrap;} .lib-skbtns .btn{flex:1 1 auto; justify-content:center;}
+  .lib-dtitle h2{font-size:18px;}
+  .lib-code{font-size:11.5px; max-height:none;}
+  .lib-code .n{width:26px;}
+  .lib-del{margin-left:0;}
+  .lib-ta{min-height:260px; font-size:12.5px;}
 }

@@ -1,3 +1,6 @@
+## [3.40.0] - 2026-11-11 23:59
+- Biblioteca: tipo Skills (texto em Markdown). Criar, importar .md (vários de uma vez, até 1 MB cada), ver com números de linha e contador (linhas, palavras, caracteres), copiar, exportar .md, editar, favoritar, buscar pelo conteúdo e excluir. Sem versionamento.
+
 ## [3.39.0] - 2026-11-11 23:59
 - Biblioteca (nova): guarda links colando o endereço no campo do topo; coleções em até 3 níveis por espaço; favoritos; busca; editar, mover e excluir. Tipos fixos no rodapé da lateral (por ora só Links; os demais aparecem como "em breve"). No celular, as coleções abrem numa janela. Dados em libFolders e libItems.
 

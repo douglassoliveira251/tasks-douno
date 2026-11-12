@@ -1,4 +1,4 @@
-import { openNewLibraryItem } from './57-biblioteca.js';
+import { libNewLabel, openNewLibraryItem } from './57-biblioteca.js';
 import { G } from './globais.js';
 import { openNewTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { openNoteComposer } from './24-render-notes.js';
@@ -92,7 +92,7 @@ function newBtnMode(){
     if(pr) return { label: 'Nova etapa', title: 'Nova etapa do projeto', run: () => openStageEditor(pr, null) };
     return { label: 'Novo projeto', title: 'Novo projeto', run: () => { G.activeProjectId = null; openProjectEditor(null); } };
   }
-  if(v === 'library') return { label: 'Novo link', title: 'Novo link', run: () => openNewLibraryItem() };
+  if(v === 'library') return { label: libNewLabel(), title: libNewLabel(), run: () => openNewLibraryItem() };
   return { label: 'Novo item', title: 'Criar novo item', menu: true };
 }
 export function syncNewButton(){

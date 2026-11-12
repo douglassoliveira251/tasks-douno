@@ -5,11 +5,13 @@ import { closeAllTaskMenus, ensureTaskMenuPortal, openConfirmPortal } from './13
 import { ensureProjectOverlay } from './31-projetos.js';
 import { showToast } from './42-nuvem-persistencia.js';
 import { icon } from './icones.js';
+import { render } from './48-render-principal.js';
 
 /* ===================== BIBLIOTECA =====================
    Central de recursos. Cada item tem um tipo (por ora só "link"); as COLEÇÕES são pastas (até 3 níveis), cada espaço com a sua.
    Dados em G.state.libFolders ({id,name,parentId,categoryId,createdAt}) e G.state.libItems
    ({id,type,title,url,description,folderId,categoryId,favorite,createdAt,updatedAt}). Um item fica em uma coleção só.
+   Tipo "skill": texto em Markdown (campo content), sem url; mostra contador de linhas/palavras/caracteres, copiar, exportar e importar .md.
    Com o seletor de espaço em "Todos", os espaços aparecem como grupos no topo da árvore. */
 export const LIB_MAX_DEPTH = 3;
 
@@ -22,14 +24,14 @@ const CODE_SVG = S16('<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3"/>');
 export const LIB_TYPES = [
   { key: 'link', label: 'Links', ico: LINK_SVG, ready: true },
   { key: 'task', label: 'Modelos de tarefa', ico: icon('check-square') },
-  { key: 'skill', label: 'Skills', ico: icon('file-text') },
+  { key: 'skill', label: 'Skills', ico: icon('file-text'), ready: true },
   { key: 'snippet', label: 'Snippets e comandos', ico: CODE_SVG },
   { key: 'text', label: 'Modelos de texto', ico: icon('note') },
   { key: 'ref', label: 'Referências', ico: icon('book') },
   { key: 'check', label: 'Checklists', ico: icon('list-numbers') },
 ];
 
-const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false };
+const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null };
 
 /* ---------- dados ---------- */
 const folders = () => (Array.isArray(G.state.libFolders) ? G.state.libFolders : (G.state.libFolders = []));
@@ -95,7 +97,7 @@ function visibleItems(){
   else if(kind === 'space') list = list.filter(i => i.categoryId === id);
   if(LIB.type) list = list.filter(i => i.type === LIB.type);
   const q = LIB.q.trim().toLowerCase();
-  if(q) list = list.filter(i => ((i.title || '') + ' ' + (i.url || '') + ' ' + (i.description || '')).toLowerCase().includes(q));
+  if(q) list = list.filter(i => ((i.title || '') + ' ' + (i.url || '') + ' ' + (i.description || '') + ' ' + (i.type === 'skill' ? (i.content || '') : '')).toLowerCase().includes(q));
   return list.sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 /* itens da seleção (sem o filtro de tipo e busca), para contar por tipo */
@@ -162,6 +164,7 @@ function crumbHtml(){
   return `<div class="lib-crumb"><b>${kind === 'fav' ? 'Favoritos' : 'Todos os itens'}</b>${LIB.type ? ' › ' + escapeHtml((LIB_TYPES.find(t => t.key === LIB.type) || {}).label || '') : ''}</div>`;
 }
 function itemRow(it){
+  if(it.type === 'skill') return skillRow(it);
   const host = hostOf(it.url);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
@@ -211,6 +214,7 @@ function openFolderMenu(btn, f){
   });
 }
 function openItemMenu(btn, it){
+  if(it.type === 'skill') return openSkillMenu(btn, it);
   openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => window.open(it.url, '_blank', 'noopener,noreferrer'),
     edit: () => openItemModal(it),
@@ -333,7 +337,8 @@ function openItemModal(item){
 }
 
 /* usado pelo botão "+" do topo (menu contextual) */
-export function openNewLibraryItem(){ openItemModal(null); }
+export function openNewLibraryItem(){ if(LIB.type === 'skill') openSkillEditor(null); else openItemModal(null); }
+export function libNewLabel(){ return LIB.type === 'skill' ? 'Nova skill' : 'Novo link'; }
 
 /* celular: a árvore de coleções abre numa janela, uma escolha por vez */
 function openTreeSheet(){
@@ -343,7 +348,7 @@ function openTreeSheet(){
   const paint = () => {
     modal.innerHTML = `<div class="nm-flag"></div><button type="button" class="nm-x" id="libSClose" aria-label="Fechar">${icon('x')}</button><div class="nm-head"><div class="nm-kicker">Coleções</div></div><div class="nm-body lib-side-m">${treeHtml()}</div>`;
     modal.querySelector('#libSClose').onclick = () => closeOv(ov);
-    bindTree(modal, () => { closeOv(ov); renderLibrary(); }, paint);
+    bindTree(modal, () => { closeOv(ov); render(); }, paint);
   };
   paint();
   ov.classList.add('show');
@@ -351,9 +356,9 @@ function openTreeSheet(){
 
 /* ---------- ligações ---------- */
 function bindTree(root, onPick, repaint){
-  root.querySelectorAll('[data-pick]').forEach(b => { b.onclick = () => { LIB.sel = { kind: 'folder', id: b.dataset.pick }; LIB.type = null; onPick(); }; });
-  root.querySelectorAll('[data-pickspace]').forEach(b => { b.onclick = () => { LIB.sel = { kind: 'space', id: b.dataset.pickspace }; LIB.type = null; onPick(); }; });
-  root.querySelectorAll('[data-kind]').forEach(b => { b.onclick = () => { LIB.sel = { kind: b.dataset.kind, id: null }; LIB.type = null; onPick(); }; });
+  root.querySelectorAll('[data-pick]').forEach(b => { b.onclick = () => { LIB.sel = { kind: 'folder', id: b.dataset.pick }; LIB.type = null; closeDetail(); onPick(); }; });
+  root.querySelectorAll('[data-pickspace]').forEach(b => { b.onclick = () => { LIB.sel = { kind: 'space', id: b.dataset.pickspace }; LIB.type = null; closeDetail(); onPick(); }; });
+  root.querySelectorAll('[data-kind]').forEach(b => { b.onclick = () => { LIB.sel = { kind: b.dataset.kind, id: null }; LIB.type = null; closeDetail(); onPick(); }; });
   root.querySelectorAll('[data-toggle]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const id = b.dataset.toggle; if(LIB.open.has(id)) LIB.open.delete(id); else LIB.open.add(id); repaint(); }; });
   root.querySelectorAll('[data-fmenu]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const f = folderById(b.dataset.fmenu); if(f) openFolderMenu(b, f); }; });
   root.querySelectorAll('[data-newcol]').forEach(b => { b.onclick = () => openFolderModal({}); });
@@ -372,10 +377,195 @@ function addQuickLink(raw){
 function paintMain(view){
   const host = view.querySelector('#libMain');
   if(!host) return;
+  if(LIB.openId){ paintDetail(view, host); return; }
   host.innerHTML = crumbHtml() + listHtml();
   host.querySelectorAll('[data-fav]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.fav); if(it){ it.favorite = !it.favorite; markDirty(); } }; });
   host.querySelectorAll('[data-imenu]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.imenu); if(it) openItemMenu(b, it); }; });
-  host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(it) window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
+  host.querySelectorAll('[data-open]').forEach(a => { a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openDetail(a.dataset.open); }; });
+  host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(!it) return; if(it.type === 'skill') openDetail(it.id); else window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
+}
+
+
+/* ===================== SKILLS (texto em Markdown) ===================== */
+export function skillStats(text){
+  const t = String(text || '');
+  if(!t.trim()) return { lines: 0, words: 0, chars: 0 };
+  const lines = t.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n').length;
+  const words = (t.match(/\S+/g) || []).length;
+  return { lines, words, chars: t.length };
+}
+const fmtNum = (n) => n.toLocaleString('pt-BR');
+const fmtChars = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' mil' : String(n);
+const statsText = (st) => fmtNum(st.lines) + (st.lines === 1 ? ' linha' : ' linhas') + ' · ' + fmtNum(st.words) + (st.words === 1 ? ' palavra' : ' palavras') + ' · ' + fmtChars(st.chars) + ' caracteres';
+const SKILL_MAX_BYTES = 1024 * 1024; // 1 MB por skill
+const skillById = (id) => items().find(i => i.id === id && i.type === 'skill') || null;
+
+function skillRow(it){
+  const st = skillStats(it.content);
+  const f = it.folderId ? folderById(it.folderId) : null;
+  const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
+  const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
+  return `<div class="lib-row" data-item="${it.id}">
+    <div class="lib-typ">${icon('file-text')}</div>
+    <div class="lib-mid">
+      <a class="lib-tt" href="#" data-open="${it.id}">${escapeHtml(it.title || 'Sem título')}</a>
+      <div class="lib-dm">Skill · ${fmtNum(st.lines)} ${st.lines === 1 ? 'linha' : 'linhas'} · ${fmtNum(st.words)} ${st.words === 1 ? 'palavra' : 'palavras'}</div>
+      ${where ? `<div class="lib-where">${escapeHtml(where)}</div>` : ''}
+    </div>
+    <button type="button" class="lib-star${it.favorite ? ' on' : ''}" data-fav="${it.id}" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}">${it.favorite ? STAR_ON : icon('star')}</button>
+    <button type="button" class="lib-imenu" data-imenu="${it.id}" title="Opções" aria-label="Opções do item">${icon('dots-three-vertical')}</button>
+  </div>`;
+}
+
+function openDetail(id){ LIB.openId = id; LIB.editing = false; LIB.draft = null; render(); window.scrollTo(0, 0); }
+function closeDetail(){ LIB.openId = null; LIB.editing = false; LIB.draft = null; }
+
+function copyText(text, msg){
+  const done = () => showToast(msg || 'Copiado.');
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); return; }
+  }catch(e){}
+  fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ showToast('Não consegui copiar. Selecione o texto e copie à mão.'); }
+  ta.remove();
+}
+function slug(name){
+  const base = String(name || 'skill').trim().replace(/\.(md|markdown|txt)$/i, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return (base || 'skill') + '.md';
+}
+function exportSkill(it){
+  const blob = new Blob([it.content || ''], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = slug(it.title); a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* importar um ou mais .md do computador (lidos no navegador; nada sai daqui) */
+function pickMarkdownFiles(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.md,.markdown,.txt,text/markdown,text/plain'; inp.multiple = true;
+  inp.onchange = async () => { const files = Array.from(inp.files || []); if(files.length) await importMarkdownFiles(files); };
+  inp.click();
+}
+export async function importMarkdownFiles(files){
+  const folderId = LIB.sel.kind === 'folder' ? LIB.sel.id : null;
+  const fo = folderId ? folderById(folderId) : null;
+  const created = []; let tooBig = 0;
+  for(const file of files){
+    if(file.size > SKILL_MAX_BYTES){ tooBig++; continue; }
+    let text = '';
+    try{ text = await file.text(); }catch(e){ continue; }
+    text = text.replace(/^\uFEFF/, '');
+    const h1 = (text.match(/^#\s+(.+?)\s*$/m) || [])[1];
+    const title = (h1 || file.name.replace(/\.(md|markdown|txt)$/i, '')).trim().slice(0, 120) || 'Skill importada';
+    const it = { id: uid('li'), type: 'skill', title, content: text, description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() };
+    items().push(it); created.push(it);
+  }
+  if(tooBig) showToast(tooBig + ' arquivo(s) acima de 1 MB não foram importados.');
+  if(!created.length){ if(!tooBig) showToast('Nenhum arquivo importado.'); return; }
+  LIB.type = 'skill';
+  if(created.length === 1) LIB.openId = created[0].id;
+  markDirty();
+  showToast(created.length === 1 ? 'Skill importada.' : created.length + ' skills importadas.');
+}
+
+function openSkillMenu(btn, it){
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="copy">Copiar texto</button><button type="button" class="task-menu-item" data-m="exp">Exportar .md</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+    open: () => openDetail(it.id),
+    copy: () => copyText(it.content || '', 'Texto da skill copiado.'),
+    exp: () => exportSkill(it),
+    edit: () => { openDetail(it.id); LIB.editing = true; LIB.draft = null; render(); },
+    del: () => deleteSkill(it, btn),
+  });
+}
+function deleteSkill(it, anchor){
+  openConfirmPortal(anchor, 'Excluir esta skill da Biblioteca? Essa ação não pode ser desfeita.', () => {
+    G.state.libItems = items().filter(x => x.id !== it.id);
+    if(LIB.openId === it.id) closeDetail();
+    markDirty();
+  });
+}
+
+function openSkillEditor(it){
+  const folderId = it ? it.folderId : (LIB.sel.kind === 'folder' ? LIB.sel.id : null);
+  const fo = folderId ? folderById(folderId) : null;
+  if(it){ LIB.openId = it.id; LIB.draft = null; }
+  else { LIB.openId = '__new__'; LIB.draft = { id: uid('li'), type: 'skill', title: '', content: '', description: '', folderId, categoryId: fo ? fo.categoryId : currentSpaceId(), favorite: false, createdAt: Date.now(), updatedAt: Date.now() }; }
+  LIB.editing = true;
+  render(); window.scrollTo(0, 0);
+}
+
+function paintDetail(view, host){
+  const draft = LIB.draft;
+  const it = draft || skillById(LIB.openId);
+  if(!it){ closeDetail(); paintMain(view); return; }
+  const f = it.folderId ? folderById(it.folderId) : null;
+  const sp = catById(it.categoryId);
+  const pathTxt = [!G.activeCategoryFilter && sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ') || 'Sem coleção';
+  const back = `<button type="button" class="lib-back" id="libBack">${icon('caret-left')}<span>Skills</span></button>`;
+  if(LIB.editing){
+    host.innerHTML = `<div class="lib-detail">${back}
+      <div class="lib-dcard lib-edit">
+        <div class="tp-field"><label class="tp-label" for="skTitle">Nome da skill</label><input type="text" class="tp-input" id="skTitle" maxlength="120" placeholder="Ex.: skill-relatorio-semanal" value="${escapeHtml(it.title || '')}"></div>
+        <div class="prj-row3" style="grid-template-columns:1fr 1fr;">
+          <div class="tp-field"><label class="tp-label" for="skSpace">Espaço</label><select class="tp-select" id="skSpace">${spaceOptions(it.categoryId)}</select></div>
+          <div class="tp-field"><label class="tp-label" for="skFolder">Coleção</label><select class="tp-select" id="skFolder"><option value="">Sem coleção</option>${folderOptions(it.categoryId, it.folderId, LIB_MAX_DEPTH)}</select></div>
+        </div>
+        <div class="tp-field"><label class="tp-label" for="skText">Conteúdo (Markdown)</label><textarea class="tp-textarea lib-ta" id="skText" spellcheck="false" placeholder="# Título da skill&#10;&#10;Escreva ou cole o texto em Markdown…">${escapeHtml(it.content || '')}</textarea></div>
+        <div class="lib-counter" id="skCount">${statsText(skillStats(it.content))}</div>
+        <p id="skErr" style="display:none; color:var(--danger); font-size:12.5px; margin:4px 0 0;"></p>
+        <div class="lib-dactions"><button type="button" class="btn ghost small" id="skCancel">Cancelar</button><button type="button" class="btn small" id="skSave">Salvar</button></div>
+      </div></div>`;
+    const $ = (s) => host.querySelector(s);
+    const ta = $('#skText');
+    ta.oninput = () => { $('#skCount').textContent = statsText(skillStats(ta.value)); };
+    $('#skSpace').onchange = () => { $('#skFolder').innerHTML = '<option value="">Sem coleção</option>' + folderOptions($('#skSpace').value, '', LIB_MAX_DEPTH); };
+    $('#libBack').onclick = $('#skCancel').onclick = () => { if(draft){ closeDetail(); } else { LIB.editing = false; } render(); };
+    $('#skSave').onclick = () => {
+      const title = $('#skTitle').value.trim();
+      const content = ta.value;
+      const err = (m) => { const e = $('#skErr'); e.textContent = m; e.style.display = 'block'; };
+      if(!title){ err('Dê um nome para a skill.'); $('#skTitle').focus(); return; }
+      if(new Blob([content]).size > SKILL_MAX_BYTES){ err('O texto passa de 1 MB. Divida em mais de uma skill.'); return; }
+      const data = { title, content, categoryId: $('#skSpace').value, folderId: $('#skFolder').value || null, updatedAt: Date.now() };
+      if(draft){ Object.assign(draft, data); items().push(draft); LIB.openId = draft.id; LIB.draft = null; }
+      else Object.assign(it, data);
+      LIB.editing = false; markDirty();
+    };
+    setTimeout(() => (it.title ? ta : $('#skTitle')).focus(), 30);
+    return;
+  }
+  const st = skillStats(it.content);
+  const lines = String(it.content || '').replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n');
+  host.innerHTML = `<div class="lib-detail">${back}
+    <div class="lib-dhead">
+      <div class="lib-typ lib-typ-l">${icon('file-text')}</div>
+      <div class="lib-dtitle"><h2>${escapeHtml(it.title || 'Sem título')}</h2><div class="lib-dm">Skill · ${escapeHtml(pathTxt)} · atualizada ${new Date(it.updatedAt || it.createdAt || Date.now()).toLocaleDateString('pt-BR')}</div></div>
+      <button type="button" class="lib-star${it.favorite ? ' on' : ''}" id="skFav" title="${it.favorite ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="Favoritar">${it.favorite ? STAR_ON : icon('star')}</button>
+    </div>
+    <div class="lib-dcard">
+      <div class="lib-dbar">
+        <button type="button" class="btn small" id="skCopy">${icon('copy')}<span>Copiar</span></button>
+        <button type="button" class="btn ghost small" id="skExport">${icon('download-simple')}<span>Exportar .md</span></button>
+        <button type="button" class="btn ghost small" id="skEdit">${icon('pencil-simple')}<span>Editar</span></button>
+        <button type="button" class="btn ghost small lib-del" id="skDel">${icon('trash')}<span>Excluir</span></button>
+      </div>
+      <div class="lib-counter" id="skCount">${statsText(st)}</div>
+      <div class="lib-code" role="region" aria-label="Conteúdo da skill">${st.lines ? lines.map((l, i) => `<div><span class="n">${i + 1}</span><span class="t">${l ? escapeHtml(l) : '&nbsp;'}</span></div>`).join('') : '<div class="lib-codeempty">Esta skill ainda está vazia. Use Editar para escrever ou colar o texto.</div>'}</div>
+    </div></div>`;
+  const $ = (s) => host.querySelector(s);
+  $('#libBack').onclick = () => { closeDetail(); render(); };
+  $('#skFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
+  $('#skCopy').onclick = () => copyText(it.content || '', 'Texto da skill copiado.');
+  $('#skExport').onclick = () => exportSkill(it);
+  $('#skEdit').onclick = () => { LIB.editing = true; render(); };
+  $('#skDel').onclick = (e) => { e.stopPropagation(); deleteSkill(it, e.currentTarget); };
 }
 
 export function renderLibrary(){
@@ -384,13 +574,15 @@ export function renderLibrary(){
   // seleção que deixou de existir (coleção apagada, espaço trocado)
   if(LIB.sel.kind === 'folder' && !scopeFolders().some(f => f.id === LIB.sel.id)) LIB.sel = { kind: 'all', id: null };
   if(LIB.sel.kind === 'space' && (G.activeCategoryFilter || !catById(LIB.sel.id))) LIB.sel = { kind: 'all', id: null };
+  // detalhe de uma skill que deixou de existir
+  if(LIB.openId && !LIB.draft && !items().some(i => i.id === LIB.openId)) closeDetail();
   // abre os pais da coleção escolhida
   if(LIB.sel.kind === 'folder'){ let f = folderById(LIB.sel.id), g = 0; while(f && f.parentId && g++ < 10){ LIB.open.add(f.parentId); f = folderById(f.parentId); } }
   const where = LIB.sel.kind === 'folder' ? folderPath(LIB.sel.id).join(' › ') : (LIB.sel.kind === 'fav' ? 'Favoritos' : (LIB.sel.kind === 'space' ? ((catById(LIB.sel.id) || {}).name || '') : 'Todos os itens'));
   view.innerHTML = `
-    <div class="lib">
+    <div class="lib${LIB.openId ? ' lib-in-detail' : ''}">
       <div class="lib-bar">
-        <div class="lib-paste">${LINK_SVG}<input type="text" id="libQuick" inputmode="url" autocomplete="off" placeholder="Cole um link aqui e pressione Enter…" aria-label="Guardar um link"></div>
+        ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : `<div class="lib-paste">${LINK_SVG}<input type="text" id="libQuick" inputmode="url" autocomplete="off" placeholder="Cole um link aqui e pressione Enter…" aria-label="Guardar um link"></div>`}
         <div class="lib-search">${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar na biblioteca…" aria-label="Buscar na biblioteca" value="${escapeHtml(LIB.q)}"></div>
       </div>
       <button type="button" class="lib-mfolder" id="libMFolder">${icon('folder')}<span>${escapeHtml(where)}</span>${icon('caret-down')}</button>
@@ -400,12 +592,13 @@ export function renderLibrary(){
         <section class="lib-main" id="libMain"></section>
       </div>
     </div>`;
-  const repaintTree = () => { view.querySelector('#libTree').innerHTML = treeHtml(); bindTree(view.querySelector('#libTree'), () => renderLibrary(), repaintTree); };
-  bindTree(view.querySelector('#libTree'), () => renderLibrary(), repaintTree);
-  view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; renderLibrary(); }; });
+  const repaintTree = () => { view.querySelector('#libTree').innerHTML = treeHtml(); bindTree(view.querySelector('#libTree'), () => render(), repaintTree); };
+  bindTree(view.querySelector('#libTree'), () => render(), repaintTree);
+  view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
   const quick = view.querySelector('#libQuick');
-  quick.onkeydown = (e) => { if(e.key === 'Enter' && quick.value.trim()){ e.preventDefault(); if(addQuickLink(quick.value)) setTimeout(() => { const q = document.getElementById('libQuick'); if(q) q.focus(); }, 30); } };
+  const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
+  if(quick) quick.onkeydown = (e) => { if(e.key === 'Enter' && quick.value.trim()){ e.preventDefault(); if(addQuickLink(quick.value)) setTimeout(() => { const q = document.getElementById('libQuick'); if(q) q.focus(); }, 30); } };
   const search = view.querySelector('#libSearch');
   search.oninput = () => { LIB.q = search.value; paintMain(view); };
   paintMain(view);

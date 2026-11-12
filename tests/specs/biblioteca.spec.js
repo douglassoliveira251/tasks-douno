@@ -107,9 +107,9 @@ test('Biblioteca: escolher coleção filtra a lista (inclui subcoleções), com 
   await page.locator('[data-kind="fav"]').click();
   await expect(page.locator('.lib-row')).toHaveCount(1);
   await expect(page.locator('.lib-row .lib-tt')).toHaveText('Portal do RH');
-  // tipos: só Links está pronto; os outros ficam desativados
+  // tipos: Links e Skills estão prontos; os outros ficam desativados
   await page.locator('[data-kind="all"]').click();
-  await expect(page.locator('.lib-types .lib-type:not(.soon)')).toHaveCount(1);
+  await expect(page.locator('.lib-types .lib-type:not(.soon)')).toHaveCount(2);
   await expect(page.locator('.lib-types .lib-type.soon').first()).toBeDisabled();
 });
 
