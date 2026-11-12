@@ -4,6 +4,7 @@ import { maybeShowOnboarding } from './51-primeiro-uso.js';
 import { renderHelpPanelContent, renderPageHeaderMeta } from './06-cabecalho-e-ajuda.js';
 import { isMobileViewport } from './01-estado.js';
 import { renderStandalonePage } from './59-pagina-html.js';
+import { renderFoco } from './60-modo-foco.js';
 import { refreshFromCloudIfSafe } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { escapeHtml, todayStr } from './10-helpers.js';
@@ -100,6 +101,7 @@ export function render(){
   document.getElementById('projectsView').style.display = G.currentView === 'projects' ? 'block' : 'none';
   document.getElementById('libraryView').style.display = G.currentView === 'library' ? 'block' : 'none';
   document.getElementById('settingsView').style.display = G.currentView === 'settings' ? 'block' : 'none';
+  renderFoco(); // celular: Modo Foco (só hoje) cobre as outras telas enquanto estiver ligado
   document.getElementById('searchWrap').style.display = 'flex';
   renderProfileCard();
   updateNotifBadge();

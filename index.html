@@ -67,6 +67,7 @@
         </button>
         <div class="space-selector-dropdown" id="spaceSelectorDropdown" style="display:none;"></div>
       </div>
+      <button type="button" class="foco-btn" id="focoBtn" aria-pressed="false" title="Modo Foco: só o dia de hoje" aria-label="Modo Foco"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm0-152a64,64,0,1,0,64,64A64.07,64.07,0,0,0,128,64Zm0,112a48,48,0,1,1,48-48A48.05,48.05,0,0,1,128,176Zm0-72a24,24,0,1,0,24,24A24,24,0,0,0,128,104Z"/></svg><span>Foco</span></button>
       <div class="search-wrap" id="searchWrap">
         <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
         <input type="text" id="searchInput" placeholder="Buscar…" aria-label="Buscar tarefas, notas e eventos" autocomplete="off">
@@ -176,6 +177,7 @@
     <div class="help-panel-backdrop" id="helpPanelBackdrop"></div>
 
     <div class="view" id="dashboardView"></div>
+    <div class="view" id="focoView" style="display:none;"></div>
     <div class="view" id="tasksView" style="display:none;"></div>
     <div class="view" id="notesView" style="display:none;"></div>
     <div class="view" id="projectsView" style="display:none;"></div>

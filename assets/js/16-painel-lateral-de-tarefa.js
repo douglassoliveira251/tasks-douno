@@ -55,7 +55,8 @@ export function openTaskPanel(taskId){
   render();
 }
 
-export function openNewTaskPanel(){
+export function openNewTaskPanel(opts){
+  G.newTaskDueDate = (opts && opts.dueDate) || null;
   const panel = document.querySelector('.task-panel');
   if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
     document.activeElement.blur();
@@ -204,7 +205,7 @@ export function getOrCreateActiveTask(){
     const t = {
       id: uid('task'), shortId: String(G.state.taskIdCounter).padStart(4, '0'),
       title:'', categoryId: defaultCat, done:false, status:'nao_iniciado',
-      dueDate: null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
+      dueDate: G.newTaskDueDate || null, startDate: todayStr(), followUpDate: todayStr(), dueTime: '', priority:'media', description:'',
       tagIds:[], recurrence:'none', subtasks:[], comments:[], attachments:[], createdAt: Date.now()
     };
     G.state.tasks.push(t);

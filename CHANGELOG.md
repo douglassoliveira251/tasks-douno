@@ -1,3 +1,6 @@
+## [3.46.0] - 2026-11-12 22:00
+- Modo Foco (só celular): botão Foco no topo (não entra no menu). Ligado, mostra a tarefa de agora (atrasadas, depois as de hoje por horário e prioridade) com Concluir, Adiar (amanhã, próxima semana, escolher data) e Pular; lista Depois; anel do dia; reunião que começa em até 30 min toma o lugar do cartão. Estados: dia sem tarefas, tudo feito, modo escuro. Respeita o espaço; a escolha fica no aparelho.
+
 ## [3.45.0] - 2026-11-12 21:00
 - Biblioteca: tipo Páginas HTML. Importar .html (até 1 MB, arquivo único), abrir dentro do app num quadro isolado (sandbox sem acesso aos dados do app), Tela cheia, Nova aba (/app/pagina/<id>, só a página na janela), baixar, substituir o arquivo (com aviso), editar título/coleção, favoritar e excluir.
 

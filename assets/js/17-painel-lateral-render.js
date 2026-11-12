@@ -20,7 +20,7 @@ import { PAINEL_TAREFA } from './estado-ui.js';
 export function renderTaskPanel(panel){
   closeAllTaskMenus();
   const task = G.creatingNewTask
-    ? { title:'', categoryId:(G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : G.state.categories[0].id, dueDate:null, dueTime:'', priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
+    ? { title:'', categoryId:(G.activeCategoryFilter && catById(G.activeCategoryFilter)) ? G.activeCategoryFilter : G.state.categories[0].id, dueDate:(G.newTaskDueDate || null), dueTime:'', priority:'media', description:'', tagIds:[], recurrence:'none', subtasks:[], comments:[] }
     : G.state.tasks.find(x => x.id === G.activeTaskId);
 
   if(!task){ closeTaskPanel(true); return; }
