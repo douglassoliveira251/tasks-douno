@@ -4184,8 +4184,8 @@
   [data-theme="dark"] .tp-priority-btn.active[data-p="alta"]{background:#8F6320; color:#EEF1F6;}
   [data-theme="dark"] .tp-priority-btn.active[data-p="critica"]{background:#9A3A52; color:#EEF1F6;}
   /* retomar em: sem o fundo laranja */
-  [data-theme="dark"] .tp-follow-box{background:var(--surface-2);}
-  [data-theme="dark"] .tp-follow-box .tp-label{color:var(--ink-soft);}
+  [data-theme="dark"] .tp-follow-box{background:transparent;}
+  [data-theme="dark"] .tp-follow-box .tp-label{color:#94A3B8;}
   [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
   /* concluído, atraso */
   [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}

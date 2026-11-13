@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.49.5', date:'13/11/2026', title:'Retomar em igual ao Prazo no modo escuro', text:'No painel da tarefa, no modo escuro, o título Retomar em estava dentro de uma caixa com a cor do campo, diferente do Prazo. Agora os dois têm o mesmo estilo.' },
   { version:'3.49.4', date:'13/11/2026', title:'Retomada vencida mais clara no modo escuro', text:'No modo escuro, o alerta de retomada vencida ganhou fundo vermelho translúcido, letra rosa clara e borda fina, para não parecer igual ao alerta de prazo vencido (que continua vermelho sólido).' },
   { version:'3.49.3', date:'13/11/2026', title:'Editar e substituir o HTML num só lugar', text:'Nas páginas HTML, o menu agora tem só Editar: na mesma janela você muda título, espaço e coleção e também troca o arquivo (Salvar e substituir). O endereço da página continua o mesmo.' },
   { version:'3.49.2', date:'13/11/2026', title:'Atalho de página HTML abre em nova aba', text:'Na faixa de atalhos da Biblioteca, clicar numa página HTML agora abre direto em uma nova aba, só com a página. Links continuam abrindo o site e skills abrem na Biblioteca.' },

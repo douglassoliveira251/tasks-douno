@@ -1,3 +1,6 @@
+## [3.49.5] - 2026-11-13 12:00
+- Correção (modo escuro, painel da tarefa): a caixa do Retomar em tinha fundo igual ao do campo, e o título ficava dentro dela, diferente do Prazo. Agora a caixa é transparente e o título tem a mesma cor do Prazo. Teste confere caixa, campo e título nos dois temas, no computador e no celular.
+
 ## [3.49.4] - 2026-11-13 11:00
 - Modo escuro: o alerta Retomada vencida (sino) agora tem fundo vermelho translúcido, letra rosa clara e borda fina, diferente do Prazo vencido (relógio), que segue vermelho sólido. Modo claro sem mudança.
 
