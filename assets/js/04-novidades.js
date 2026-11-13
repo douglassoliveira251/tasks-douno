@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.50.1', date:'13/11/2026', title:'Projeto não volta mais ao topo', text:'Em Projetos, ao abrir uma tarefa (ou marcar uma etapa) a tela do projeto agora fica onde estava, sem subir para o topo. Dá para ir de uma tarefa para a seguinte sem rolar de novo.' },
   { version:'3.50.0', date:'13/11/2026', title:'Concluir subtarefa põe a tarefa em andamento', text:'Ao marcar uma subtarefa como concluída, a tarefa que ainda estava como Não iniciado passa sozinha para Em andamento. Tarefas em outro status não mudam.' },
   { version:'3.49.5', date:'13/11/2026', title:'Retomar em igual ao Prazo no modo escuro', text:'No painel da tarefa, no modo escuro, o título Retomar em estava dentro de uma caixa com a cor do campo, diferente do Prazo. Agora os dois têm o mesmo estilo.' },
   { version:'3.49.4', date:'13/11/2026', title:'Retomada vencida mais clara no modo escuro', text:'No modo escuro, o alerta de retomada vencida ganhou fundo vermelho translúcido, letra rosa clara e borda fina, para não parecer igual ao alerta de prazo vencido (que continua vermelho sólido).' },

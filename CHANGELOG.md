@@ -1,3 +1,6 @@
+## [3.50.1] - 2026-11-13 14:00
+- Correção (Projetos): abrir uma tarefa, marcar uma etapa ou mudar o filtro refazia a tela e zerava a rolagem, levando o projeto ao topo. Agora o render guarda a rolagem da tela e devolve, se continua no mesmo projeto. Teste reproduz o salto (cerca de 1000 px antes da correção) no computador e no celular.
+
 ## [3.50.0] - 2026-11-13 13:00
 - Tarefas: marcar uma subtarefa como concluída muda a tarefa de Não iniciado para Em andamento automaticamente. Desmarcar não volta o status; tarefas em Em andamento ou Concluída não mudam.
 

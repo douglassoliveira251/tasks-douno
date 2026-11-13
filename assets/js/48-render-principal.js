@@ -37,6 +37,7 @@ export function loadUiSession(){
   }catch(e){}
 }
 let lastRenderedView = null;
+let lastScrollKey = null;
 export function render_syncStages(){ try{ syncStageDates(); }catch(e){} }
 G.lastGroupModeKey = null; // var: pode ser zerada por normalizeState antes desta linha rodar
 export const DEFAULT_GROUP_MODE = 'retomada'; // visão principal: espaço sem escolha própria abre por Retomada
@@ -109,6 +110,13 @@ export function render(){
   maybeShowOnboarding();
   maybeShowWhatsNew();
   if(document.getElementById('helpPanel').classList.contains('show')) renderHelpPanelContent();
+  /* redesenhar a tela esvazia e refaz o conteúdo, o que zerava a rolagem: ao abrir uma tarefa dentro de um
+     projeto (ou marcar etapa/filtro), a tela voltava ao topo. Guarda a rolagem da tela e devolve depois,
+     só se continua na mesma tela (e, em Projetos, no mesmo projeto). */
+  const scrollKey = G.currentView + '|' + (G.activeProjectId || '');
+  const scrollEl = document.getElementById(G.currentView + 'View');
+  const keepScroll = scrollEl && scrollKey === lastScrollKey ? { el: scrollEl, top: scrollEl.scrollTop, win: window.scrollY } : null;
+  lastScrollKey = scrollKey;
   if(G.currentView === 'dashboard') renderDashboard();
   else if(G.currentView === 'tasks') renderTasks();
   else if(G.currentView === 'notes') renderNotes();
@@ -116,6 +124,10 @@ export function render(){
   else if(G.currentView === 'projects') renderProjects();
   else if(G.currentView === 'library') renderLibrary();
   else renderSettingsView();
+  if(keepScroll && G.currentView === 'projects'){
+    if(keepScroll.el.scrollTop !== keepScroll.top) keepScroll.el.scrollTop = keepScroll.top;
+    if(window.scrollY !== keepScroll.win) window.scrollTo(0, keepScroll.win);
+  }
   updateFileStatus();
   document.dispatchEvent(new Event('douno:rendered'));
 }
