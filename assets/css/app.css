@@ -4747,6 +4747,6 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .gantt-wrap .gantt-bar.concluida span.gantt-pct.on{color:#fff;}
 /* etapa concluída: check verde antes do nome e linha esverdeada */
 .gantt-wrap .gantt-row.stage-done, .gantt-wrap .gantt-row.stage-done .gl{background:color-mix(in srgb, #2f9e6a 12%, var(--surface-2));}
-.stage-okc{display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:#2f9e6a; color:#fff; flex:none;}
-.stage-okc svg{width:12px; height:12px;}
+.stage-okc{display:inline-grid; place-items:center; width:15px; height:15px; border-radius:50%; background:#2f9e6a; color:#fff; flex:none;}
+.stage-okc svg{width:9px; height:9px;}
 @media (max-width:768px){ .stage-okc{display:none;} }

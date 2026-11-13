@@ -24,7 +24,11 @@ for (const [w, h, n] of [[1280, 900, 'd'], [390, 844, 'm']]) {
     await expect(row('s2').locator('.gantt-pct')).toHaveText('13%'); // (0% + 25%) / 2 tarefas = 12,5 arredonda para 13
     await expect(row('s3').locator('.gantt-pct')).toHaveText('0%');
     // concluída: check e linha esverdeada; as outras não
-    if (w > 768) await expect(row('s1').locator('.stage-okc')).toBeVisible();
+    if (w > 768) {
+      await expect(row('s1').locator('.stage-okc')).toBeVisible();
+      const bx = await row('s1').locator('.stage-okc').boundingBox();
+      expect(bx.width).toBeLessThanOrEqual(16); // sinal discreto
+    }
     await expect(row('s2').locator('.stage-okc')).toHaveCount(0);
     const bg = (id) => row(id).evaluate(e => getComputedStyle(e).backgroundColor);
     expect(await bg('s1')).not.toBe(await bg('s2'));
