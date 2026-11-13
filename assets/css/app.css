@@ -4602,9 +4602,9 @@
 }
 
 /* ===== v3.47.0 — Ordenar das Notas: a linha inteira escolhe (sem bolinha) ===== */
-.tag-filter-row.sort-opt{width:100%; border:0; background:transparent; font:inherit; color:var(--ink); text-align:left; cursor:pointer; justify-content:space-between;}
+.tag-filter-row.sort-opt{width:100%; border:0; background:transparent; font-family:inherit; font-size:13px; font-weight:500; color:var(--ink); text-align:left; cursor:pointer; justify-content:space-between;}
 .tag-filter-row.sort-opt svg{width:15px; height:15px; color:var(--primary);}
-.tag-filter-row.sort-opt.on{font-weight:800; color:var(--primary-dark,var(--primary));}
+.tag-filter-row.sort-opt.on{font-weight:700; color:var(--primary-dark,var(--primary));}
 
 /* ===== v3.47.0 — skill: busca no texto, excluir vermelho ===== */
 .lib-find{display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 4px 0 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--ink-faint); min-width:0; flex:0 1 270px;}

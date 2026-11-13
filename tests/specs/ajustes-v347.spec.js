@@ -68,6 +68,8 @@ test('Notas: Ordenar escolhe pela linha (sem seletor) e fica salvo depois de atu
   await page.locator('.notes-filters [data-pop="sort"]').click();
   await expect(page.locator('.notes-filters input[name="notesSort"]')).toHaveCount(0);
   await expect(page.locator('.notes-filters [data-sort="updated"]')).toHaveClass(/on/);
+  // a fonte das linhas segue o padrão dos filtros (13px), não a do navegador
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.notes-filters .sort-opt')).fontSize)).toBe('13px');
   await page.locator('.notes-filters [data-sort="title"]').click();
   await expect(page.locator('.notes-filters [data-pop="sort"] b')).toHaveText('Título');
   expect(await page.evaluate(() => state.notesSort)).toBe('title');

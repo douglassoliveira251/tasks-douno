@@ -33,6 +33,8 @@ export function projectListKind(st){
 }
 export const PROJ_SORTS = [['entrega', 'Entrega'], ['nome', 'Nome'], ['progresso', 'Progresso'], ['criacao', 'Criação']];
 G.projectSort = G.projectSort || 'entrega';
+/* a ordem escolhida fica salva (state.projectSort) e vale depois de atualizar a página */
+const projSortKey = () => (PROJ_SORTS.some(x => x[0] === G.state.projectSort) ? G.state.projectSort : 'entrega');
 G.projectListSel = G.projectListSel || null;
 export function renderProjectList(view){
   const all = projectsInScope();
@@ -45,7 +47,7 @@ export function renderProjectList(view){
     nome: (a, b) => (a.p.name || '').localeCompare(b.p.name || '', 'pt-BR'),
     progresso: (a, b) => b.st.pct - a.st.pct,
     criacao: (a, b) => (b.p.createdAt || 0) - (a.p.createdAt || 0),
-  }[G.projectSort] || (() => 0);
+  }[projSortKey()] || (() => 0);
   filtered.sort(cmp);
   renderProjectFilters(counts);
   const sel = filtered.find(r => r.p.id === G.projectListSel) || filtered[0] || null;
@@ -121,14 +123,14 @@ function renderProjectFilters(counts){
   host.querySelectorAll('.proj-filters').forEach(el => el.remove());
   const STATUS = [['all', 'Todos'], ['andamento', 'Em andamento'], ['atrasado', 'Atrasados'], ['concluido', 'Concluídos']];
   const curStatus = (STATUS.find(x => x[0] === G.projectListFilter) || STATUS[0])[1];
-  const curSort = (PROJ_SORTS.find(x => x[0] === G.projectSort) || PROJ_SORTS[0])[1];
+  const curSort = (PROJ_SORTS.find(x => x[0] === projSortKey()) || PROJ_SORTS[0])[1];
   const wrap = document.createElement('div');
   wrap.className = 'proj-filters';
   wrap.innerHTML = `
     <div class="tag-filter-control"><button type="button" class="tag-filter-btn${G.projectListFilter !== 'all' ? ' on' : ''}" data-pop="status">${icon('funnel')}<span><i class="nf-k">Status:</i> <b>${curStatus}</b></span>${icon('caret-down')}</button>
       <div class="tag-filter-popover" data-popover="status" style="display:none;">${STATUS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="projStatus" value="${k}" ${G.projectListFilter === k ? 'checked' : ''}>${l}<span class="pf-n">${counts[k]}</span></label>`).join('')}</div></div>
     <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="sort">${icon('rows')}<span><i class="nf-k">Ordenar:</i> <b>${curSort}</b></span>${icon('caret-down')}</button>
-      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${PROJ_SORTS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="projSort" value="${k}" ${G.projectSort === k ? 'checked' : ''}>${l}</label>`).join('')}</div></div>`;
+      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${PROJ_SORTS.map(([k, l]) => `<button type="button" class="tag-filter-row sort-opt${projSortKey() === k ? ' on' : ''}" data-sort="${k}" role="menuitemradio" aria-checked="${projSortKey() === k}">${l}${projSortKey() === k ? icon('check') : ''}</button>`).join('')}</div></div>`;
   host.prepend(wrap);
   wrap.querySelectorAll('[data-pop]').forEach(b => {
     b.onclick = (e) => {
@@ -141,7 +143,7 @@ function renderProjectFilters(counts){
   });
   wrap.querySelectorAll('[data-popover]').forEach(p => p.addEventListener('click', e => e.stopPropagation()));
   wrap.querySelectorAll('input[name="projStatus"]').forEach(r => r.addEventListener('change', () => { G.projectListFilter = r.value; render(); }));
-  wrap.querySelectorAll('input[name="projSort"]').forEach(r => r.addEventListener('change', () => { G.projectSort = r.value; render(); }));
+  wrap.querySelectorAll('[data-sort]').forEach(b => { b.onclick = () => { G.state.projectSort = b.dataset.sort; G.projectSort = b.dataset.sort; markDirty(); }; });
 }
 document.addEventListener('click', () => { document.querySelectorAll('.proj-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });
 

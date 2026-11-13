@@ -1,3 +1,7 @@
+## [3.48.1] - 2026-11-13 00:10
+- Projetos: Ordenar escolhe clicando na linha (sem seletor) e a escolha fica salva (state.projectSort).
+- Correção: as linhas do Ordenar (Notas e Projetos) estavam com a fonte grande; voltaram ao tamanho dos outros filtros (13px).
+
 ## [3.48.0] - 2026-11-12 23:40
 - Biblioteca: faixa de atalhos no topo com os favoritos (links primeiro, até 6, "Ver todos" abre o filtro Favoritos). Link abre o site em outra aba; skill e página HTML abrem o item. Respeita o espaço escolhido e some com um item aberto ou sem favoritos. No celular, rola para o lado.
 
