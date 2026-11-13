@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.49.3', date:'13/11/2026', title:'Editar e substituir o HTML num só lugar', text:'Nas páginas HTML, o menu agora tem só Editar: na mesma janela você muda título, espaço e coleção e também troca o arquivo (Salvar e substituir). O endereço da página continua o mesmo.' },
   { version:'3.49.2', date:'13/11/2026', title:'Atalho de página HTML abre em nova aba', text:'Na faixa de atalhos da Biblioteca, clicar numa página HTML agora abre direto em uma nova aba, só com a página. Links continuam abrindo o site e skills abrem na Biblioteca.' },
   { version:'3.49.1', date:'13/11/2026', title:'Páginas HTML até 1,5 MB e topo da Biblioteca mais alto', text:'O limite de cada página HTML da Biblioteca subiu de 1 MB para 1,5 MB. Além disso, o conteúdo da Biblioteca (atalhos, lateral e lista) subiu, ficando mais perto do título.' },
   { version:'3.49.0', date:'13/11/2026', title:'Arrastar para coleções e ordem dos atalhos', text:'Na Biblioteca, arraste um item pela alça (seis pontinhos) até uma coleção da lateral para movê-lo. No menu da linha há também Mover para…, que funciona no celular. Nos atalhos, o botão Ordenar deixa arrastar (ou usar as setas) para escolher a ordem, que fica salva.' },

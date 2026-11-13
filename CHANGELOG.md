@@ -1,3 +1,6 @@
+## [3.49.3] - 2026-11-13 10:00
+- Biblioteca, páginas HTML: Editar e Substituir arquivo viraram uma só opção. A janela Editar mostra o arquivo atual, permite escolher/soltar outro (aviso de que substitui ao salvar, botão Salvar e substituir) e edita título, espaço e coleção. O item de menu Substituir arquivo e a janela de comparação saíram. O endereço da página não muda.
+
 ## [3.49.2] - 2026-11-13 09:00
 - Biblioteca, atalhos: clicar num atalho de página HTML abre direto em nova aba (/app/pagina/<id>); links abrem o site e skills abrem na Biblioteca.
 

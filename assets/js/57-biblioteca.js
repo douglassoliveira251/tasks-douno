@@ -847,13 +847,14 @@ function openHtmlModal(item){
   const spaceId = item ? item.categoryId : currentSpaceId();
   const selFolder = item ? item.folderId : (LIB.sel.kind === 'folder' ? LIB.sel.id : '');
   let picked = null;
+  const dropIdle = () => (editing ? 'Atual: ' + (item.fileName || 'arquivo') + ' · ' + fmtSize(item.size) + '. Clique ou solte um .html para trocar (até 1,5 MB).' : 'ou solte aqui · até 1,5 MB · arquivo único (CSS e JavaScript dentro do .html)');
   modal.className = 'modal nm nm-560';
   modal.innerHTML = `
     <div class="nm-flag"></div>
     <button type="button" class="nm-x" id="hmClose" aria-label="Fechar">${icon('x')}</button>
-    <div class="nm-head"><div class="nm-kicker">${editing ? 'Dados da página' : 'Nova página HTML'}</div></div>
+    <div class="nm-head"><div class="nm-kicker">${editing ? 'Editar página HTML' : 'Nova página HTML'}</div></div>
     <div class="nm-body prj-body">
-      ${editing ? '' : `<div class="lib-drop" id="hmDrop" tabindex="0" role="button" aria-label="Escolher arquivo .html"><b>Escolher arquivo .html</b><span id="hmDropTxt">ou solte aqui · até 1,5 MB · arquivo único (CSS e JavaScript dentro do .html)</span></div>`}
+      <div class="lib-drop" id="hmDrop" tabindex="0" role="button" aria-label="${editing ? 'Substituir o arquivo .html' : 'Escolher arquivo .html'}"><b>${editing ? 'Substituir arquivo' : 'Escolher arquivo .html'}</b><span id="hmDropTxt"></span></div>
       <div class="tp-field"><label class="tp-label" for="hmTitle">Título</label><input type="text" class="tp-input" id="hmTitle" maxlength="120" placeholder="${editing ? '' : 'Vem do arquivo, se vazio'}" value="${editing ? escapeHtml(item.title || '') : ''}"></div>
       <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
         <div class="tp-field"><label class="tp-label" for="hmSpace">Espaço</label><select class="tp-select" id="hmSpace">${spaceOptions(spaceId)}</select></div>
@@ -864,16 +865,18 @@ function openHtmlModal(item){
     <div class="modal-footer"><button type="button" class="btn ghost small" id="hmCancel">Cancelar</button><button type="button" class="btn small" id="hmSave">Salvar</button></div>`;
   ov.classList.add('show');
   const $ = (s) => modal.querySelector(s);
+  $('#hmDropTxt').textContent = dropIdle();
   $('#hmClose').onclick = $('#hmCancel').onclick = () => closeOv(ov);
   bindCombo(modal, 'hmFolder', $('#hmSpace'));
   const err = (m) => { const e = $('#hmErr'); e.textContent = m; e.style.display = m ? 'block' : 'none'; };
   const take = async (file) => {
     const r = await readHtmlFile(file);
-    if(!r.ok){ picked = null; err(r.msg); $('#hmDropTxt').textContent = 'ou solte aqui · até 1,5 MB · arquivo único'; return; }
+    if(!r.ok){ picked = null; err(r.msg); $('#hmDrop').classList.remove('ok'); $('#hmDropTxt').textContent = dropIdle(); return; }
     err(''); picked = r;
     $('#hmDrop').classList.add('ok');
-    $('#hmDropTxt').textContent = r.name + ' · ' + fmtSize(r.size);
+    $('#hmDropTxt').textContent = editing ? 'Novo arquivo: ' + r.name + ' · ' + fmtSize(r.size) + '. Substitui o atual ao salvar (não há versões anteriores).' : r.name + ' · ' + fmtSize(r.size);
     if(!$('#hmTitle').value.trim()) $('#hmTitle').value = r.title;
+    if(editing) $('#hmSave').textContent = 'Salvar e substituir';
   };
   const drop = $('#hmDrop');
   if(drop){
@@ -887,7 +890,7 @@ function openHtmlModal(item){
     if(!editing && !picked){ err('Escolha o arquivo .html.'); return; }
     const title = $('#hmTitle').value.trim() || (picked ? picked.title : (item.title || 'Página HTML'));
     const data = { title, categoryId: $('#hmSpace').value, folderId: $('#hmFolder').value || null, updatedAt: Date.now() };
-    if(editing) Object.assign(item, data);
+    if(editing){ Object.assign(item, data); if(picked) Object.assign(item, { html: picked.html, fileName: picked.name, size: picked.size }); }
     else {
       const it = Object.assign({ id: uid('li'), type: 'html', html: picked.html, fileName: picked.name, size: picked.size, description: '', favorite: false, createdAt: Date.now() }, data);
       items().push(it);
@@ -896,29 +899,7 @@ function openHtmlModal(item){
     closeOv(ov); markDirty();
   };
   modal.onkeydown = (e) => { if(e.key === 'Escape') closeOv(ov); else if(e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.id === 'hmTitle'){ e.preventDefault(); $('#hmSave').click(); } };
-  setTimeout(() => { const d = $('#hmDrop'); (d || $('#hmTitle')).focus(); }, 30);
-}
-
-/* substituir o arquivo de uma página existente (pergunta antes; sem versões anteriores) */
-function replaceHtmlFile(it){
-  chooseHtmlFile(async (file) => {
-    const r = await readHtmlFile(file);
-    if(!r.ok){ showToast(r.msg); return; }
-    const ov = ensureProjectOverlay('libOverwriteOverlay');
-    const modal = ov.firstElementChild;
-    modal.className = 'modal nm nm-560 lib-pick';
-    modal.innerHTML = `
-      <div class="lib-pick-t">Substituir o arquivo desta página?</div>
-      <div class="lib-pick-s">Você escolheu <b>${escapeHtml(r.name)}</b>. O arquivo atual será trocado e não há versões anteriores. O título e a coleção continuam os mesmos.</div>
-      <div class="lib-cmp"><div><b>Arquivo atual</b>${escapeHtml(it.fileName || 'sem nome')} · ${fmtSize(it.size)}</div><div class="new"><b>Arquivo novo</b>${escapeHtml(r.name)} · ${fmtSize(r.size)}</div></div>
-      <div class="lib-pick-f"><button type="button" class="btn ghost small" id="hrCancel">Cancelar</button><button type="button" class="btn small" id="hrGo">Substituir</button></div>`;
-    ov.classList.add('show');
-    const close = () => closeOv(ov);
-    modal.querySelector('#hrCancel').onclick = close;
-    modal.querySelector('#hrGo').onclick = () => { close(); Object.assign(it, { html: r.html, fileName: r.name, size: r.size, updatedAt: Date.now() }); markDirty(); showToast('Arquivo substituído.'); };
-    ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
-    setTimeout(() => modal.querySelector('#hrGo').focus(), 30);
-  });
+  setTimeout(() => { const d = $('#hmDrop'); (editing ? $('#hmTitle') : (d || $('#hmTitle'))).focus(); }, 30);
 }
 
 function deleteHtml(it, anchor){
@@ -929,12 +910,11 @@ function deleteHtml(it, anchor){
   });
 }
 function openHtmlMenu(btn, it){
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="tab">Abrir em nova aba</button><button type="button" class="task-menu-item" data-m="edit">Editar dados</button><button type="button" class="task-menu-item" data-m="move">Mover para…</button><button type="button" class="task-menu-item" data-m="rep">Substituir arquivo</button><button type="button" class="task-menu-item" data-m="dl">Baixar .html</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="tab">Abrir em nova aba</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="move">Mover para…</button><button type="button" class="task-menu-item" data-m="dl">Baixar .html</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => openDetail(it.id),
     tab: () => openHtmlTab(it),
     edit: () => openHtmlModal(it),
     move: () => openMoveDialog(it),
-    rep: () => replaceHtmlFile(it),
     dl: () => exportHtml(it),
     del: () => deleteHtml(it, btn),
   });

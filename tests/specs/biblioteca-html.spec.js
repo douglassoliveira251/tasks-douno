@@ -77,19 +77,26 @@ test('Página HTML: substituir pergunta antes; baixar devolve o .html; tela chei
   // baixar
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#hDl')]);
   expect(dl.suggestedFilename()).toBe('relatorio.html');
-  // substituir
+  // editar + substituir o arquivo, na mesma janela (sem item "Substituir arquivo" separado)
   await page.locator('#hMore').click();
-  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.locator('#taskMenuPortal [data-m="rep"]').click()]);
+  await expect(page.locator('#taskMenuPortal [data-m="rep"]')).toHaveCount(0);
+  await page.locator('#taskMenuPortal [data-m="edit"]').click();
+  await expect(page.locator('#hmDropTxt')).toContainText('Atual: relatorio.html');
+  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.click('#hmDrop')]);
   await fc.setFiles({ name: 'novo.html', mimeType: 'text/html', buffer: Buffer.from('<html><body><b id="x">Versão 2</b></body></html>') });
-  await expect(page.locator('#libOverwriteOverlay')).toHaveClass(/show/);
-  await expect(page.locator('#libOverwriteOverlay .lib-cmp')).toContainText('novo.html');
-  await page.locator('#libOverwriteOverlay .lib-pick-f .btn.ghost').click(); // cancelar: nada muda
+  await expect(page.locator('#hmDropTxt')).toContainText('Substitui o atual ao salvar');
+  // cancelar: nada muda
+  await page.click('#hmCancel');
   expect(await page.evaluate(() => state.libItems[0].fileName)).toBe('relatorio.html');
   await page.locator('#hMore').click();
-  const [fc2] = await Promise.all([page.waitForEvent('filechooser'), page.locator('#taskMenuPortal [data-m="rep"]').click()]);
+  await page.locator('#taskMenuPortal [data-m="edit"]').click();
+  await page.fill('#hmTitle', 'Relatório v2');
+  const [fc2] = await Promise.all([page.waitForEvent('filechooser'), page.click('#hmDrop')]);
   await fc2.setFiles({ name: 'novo.html', mimeType: 'text/html', buffer: Buffer.from('<html><body><b id="x">Versão 2</b></body></html>') });
-  await page.locator('#hrGo').click();
-  expect(await page.evaluate(() => state.libItems[0].fileName)).toBe('novo.html');
+  await page.click('#hmSave');
+  const it2 = await page.evaluate(() => state.libItems[0]);
+  expect(it2.fileName).toBe('novo.html');
+  expect(it2.title).toBe('Relatório v2');
   await expect(page.frameLocator('#hFrame').locator('#x')).toHaveText('Versão 2');
   // tela cheia
   await page.click('#hFull');
@@ -164,9 +171,10 @@ test('Página HTML: substituir o arquivo mantém o mesmo endereço (/app/pagina/
   await expect(aba.frameLocator('#pageOnly iframe').locator('#v')).toHaveText('Versão 1');
   // substitui o arquivo na Biblioteca
   await page.locator('#hMore').click();
-  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.locator('#taskMenuPortal [data-m="rep"]').click()]);
+  await page.locator('#taskMenuPortal [data-m="edit"]').click();
+  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.click('#hmDrop')]);
   await fc.setFiles({ name: 'relatorio-v2.html', mimeType: 'text/html', buffer: Buffer.from('<html><body><b id="v">Versão 2</b></body></html>') });
-  await page.locator('#hrGo').click();
+  await page.click('#hmSave');
   expect(await page.evaluate(() => state.libItems[0].id)).toBe(id); // mesmo item, mesmo id
   await page.evaluate(() => localStorage.setItem('tyvraTasksState', JSON.stringify(state)));
   await aba.reload();
