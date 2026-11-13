@@ -1,3 +1,6 @@
+## [3.49.4] - 2026-11-13 11:00
+- Modo escuro: o alerta Retomada vencida (sino) agora tem fundo vermelho translúcido, letra rosa clara e borda fina, diferente do Prazo vencido (relógio), que segue vermelho sólido. Modo claro sem mudança.
+
 ## [3.49.3] - 2026-11-13 10:00
 - Biblioteca, páginas HTML: Editar e Substituir arquivo viraram uma só opção. A janela Editar mostra o arquivo atual, permite escolher/soltar outro (aviso de que substitui ao salvar, botão Salvar e substituir) e edita título, espaço e coleção. O item de menu Substituir arquivo e a janela de comparação saíram. O endereço da página não muda.
 

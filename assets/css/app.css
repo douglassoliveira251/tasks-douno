@@ -4189,7 +4189,9 @@
   [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
   /* concluído, atraso */
   [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}
-  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-ret.over, [data-theme="dark"] .task-alert-m.over{background:#A8364A; color:#F4E8EA;}
+  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:#A8364A; color:#F4E8EA;}
+  /* retomada vencida no escuro: fundo vermelho translúcido, letra rosa clara e borda fina (diferente do prazo vencido, que é sólido) */
+  [data-theme="dark"] .task-alert-ret.over{background:rgba(255,107,129,.16); color:#FF9AAA; box-shadow:inset 0 0 0 1px rgba(255,107,129,.45);}
   [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
   [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
   [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}
