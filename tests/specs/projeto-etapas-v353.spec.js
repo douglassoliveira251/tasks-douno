@@ -20,18 +20,14 @@ for (const [w, h, n] of [[1280, 900, 'd'], [390, 844, 'm']]) {
     await page.evaluate(seed);
     const row = (id) => page.locator(`.gantt-row[data-id="${id}"]`);
     // % no medidor; 100% vira "Concluído"
-    await expect(row('s1').locator('.gantt-pct')).toHaveText('Concluído');
+    await expect(row('s1').locator('.gantt-pct')).toHaveText('100%');
     await expect(row('s2').locator('.gantt-pct')).toHaveText('13%'); // (0% + 25%) / 2 tarefas = 12,5 arredonda para 13
     await expect(row('s3').locator('.gantt-pct')).toHaveText('0%');
-    // concluída: check e linha esverdeada; as outras não
-    if (w > 768) {
-      await expect(row('s1').locator('.stage-okc')).toBeVisible();
-      const bx = await row('s1').locator('.stage-okc').boundingBox();
-      expect(bx.width).toBeLessThanOrEqual(16); // sinal discreto
-    }
-    await expect(row('s2').locator('.stage-okc')).toHaveCount(0);
+    // concluída: sem check nem linha esverdeada; 100% do lado de fora da barra
+    await expect(row('s1').locator('.stage-okc')).toHaveCount(0);
+    await expect(row('s1').locator('.gantt-pct')).toHaveClass(/out/);
     const bg = (id) => row(id).evaluate(e => getComputedStyle(e).backgroundColor);
-    expect(await bg('s1')).not.toBe(await bg('s2'));
+    expect(await bg('s1')).toBe(await bg('s2'));
     await expect(row('s1').locator('small')).toContainText('Concluída em 12/11/26');
     if (w > 768) {
       // detalhe numa linha só e fonte menor

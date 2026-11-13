@@ -1,3 +1,6 @@
+## [3.54.0] - 2026-11-13 20:00
+- Projetos, linha do tempo: removidos o check e a linha esverdeada da etapa concluída; em 100% a barra mostra "100%" do lado de fora (no lugar de "Concluído"). A frase "Concluída em dd/mm" continua no detalhe.
+
 ## [3.53.1] - 2026-11-13 19:00
 - Etapa concluída: o círculo com check antes do nome passou de 20 px para 15 px (ícone de 12 para 9 px).
 

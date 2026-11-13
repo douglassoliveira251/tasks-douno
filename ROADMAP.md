@@ -68,6 +68,15 @@ Pontos a conversar:
 - Ligação com o que já existe: sugerir as pessoas ao convidar para uma agenda (hoje há só o histórico de e-mails) e vincular tarefas/agendas a uma pessoa.
 - Se mora na Biblioteca como novo tipo ou em tela própria; privacidade e exportar/importar contatos.
 
+### Canvas de status do projeto (backlog, 13/11/2026)
+Um canvas por projeto, no estilo business case, para acompanhar o status: situação geral, riscos, pontos de atenção, decisões e próximos passos.
+
+Pontos a conversar:
+- Blocos do canvas (status geral, objetivo, riscos, pontos de atenção, marcos, decisões) e se são editáveis livremente ou fixos.
+- Se o status geral (cor/semáforo) é manual ou calculado a partir das tarefas e prazos.
+- Histórico de atualizações do status e exportação (PDF/relatório do projeto).
+- Ligação com a documentação do projeto (itens da Biblioteca e anotações associados).
+
 ## Próximos passos sugeridos
 1. Estabilizar as correções em andamento.
 2. Biblioteca: avaliar as propostas de layout em imagem (árvore de coleções, tipos, tela de skill) e fechar a primeira entrega (Links).
