@@ -150,3 +150,27 @@ test('Página HTML (celular): lista, abrir e botões cabem na tela', async ({ pa
   await page.screenshot({ path: 'test-results/html-aberta-m.png' });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
+
+test('Página HTML: substituir o arquivo mantém o mesmo endereço (/app/pagina/<id>) e a aba mostra o conteúdo novo', async ({ page, context }) => {
+  await abrir(page);
+  await importar(page, 'relatorio.html', '<html><body><b id="v">Versão 1</b></body></html>');
+  await page.click('#hmSave');
+  const id = await page.evaluate(() => state.libItems[0].id);
+  await page.locator('.lib-row .lib-open').click();
+  await page.evaluate(() => localStorage.setItem('tyvraTasksState', JSON.stringify(state)));
+  const [aba] = await Promise.all([context.waitForEvent('page'), page.click('#hTab')]);
+  await aba.waitForLoadState();
+  const url1 = aba.url();
+  await expect(aba.frameLocator('#pageOnly iframe').locator('#v')).toHaveText('Versão 1');
+  // substitui o arquivo na Biblioteca
+  await page.locator('#hMore').click();
+  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.locator('#taskMenuPortal [data-m="rep"]').click()]);
+  await fc.setFiles({ name: 'relatorio-v2.html', mimeType: 'text/html', buffer: Buffer.from('<html><body><b id="v">Versão 2</b></body></html>') });
+  await page.locator('#hrGo').click();
+  expect(await page.evaluate(() => state.libItems[0].id)).toBe(id); // mesmo item, mesmo id
+  await page.evaluate(() => localStorage.setItem('tyvraTasksState', JSON.stringify(state)));
+  await aba.reload();
+  expect(aba.url()).toBe(url1); // o endereço não muda
+  expect(new URL(aba.url()).pathname).toBe('/app/pagina/' + id);
+  await expect(aba.frameLocator('#pageOnly iframe').locator('#v')).toHaveText('Versão 2');
+});
