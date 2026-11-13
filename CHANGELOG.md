@@ -1,3 +1,6 @@
+## [3.52.1] - 2026-11-13 17:00
+- Correção (Projetos, linha do tempo): o hover da tarefa só pintava a área da barra porque a coluna do nome tem fundo próprio. Agora a coluna do nome (e a linha Nova tarefa) acompanham o hover. Funciona também no modo escuro.
+
 ## [3.52.0] - 2026-11-13 16:00
 - Projetos: ordem manual das etapas. Alça em cada etapa (linha do tempo e lista de etapas do celular) para arrastar, com linha azul indicando onde cai; setas do teclado movem uma posição. A ordem fica em p.stageOrder, vale no resumo e no relatório, etapa nova entra no fim e "voltar à ordem por data" restaura o automático. Arrastar rola a tela sozinho perto da borda.
 

@@ -4725,3 +4725,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .stage-dropline{position:absolute; left:0; right:0; height:4px; margin-top:-2px; border-radius:3px; background:var(--primary); z-index:12; pointer-events:none;}
 .pe-card.dragging{box-shadow:0 8px 24px rgba(27,33,48,.16); position:relative; z-index:2;}
 .sorting .gantt-row{cursor:grabbing;}
+
+/* ===== v3.52.1 — hover da linha da tarefa na linha do tempo cobre também o nome ===== */
+.gantt-task:hover .gl{background:var(--surface-2);}
+.gantt-add:hover .gl{background:var(--surface-2);}
