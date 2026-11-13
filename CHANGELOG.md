@@ -1,3 +1,6 @@
+## [3.48.0] - 2026-11-12 23:40
+- Biblioteca: faixa de atalhos no topo com os favoritos (links primeiro, até 6, "Ver todos" abre o filtro Favoritos). Link abre o site em outra aba; skill e página HTML abrem o item. Respeita o espaço escolhido e some com um item aberto ou sem favoritos. No celular, rola para o lado.
+
 ## [3.47.0] - 2026-11-12 23:00
 - Calendário: clicar numa faixa de horário (semana e dia) abre o cadastro com o início naquele horário (de 15 em 15 min) e fim 1 h depois.
 - Agenda: mudar a data/hora de início desloca o fim na mesma duração; o fim não pode ficar antes do início (mínimos nos campos e correção automática).

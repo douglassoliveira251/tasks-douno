@@ -4626,3 +4626,21 @@ mark.lib-hit.cur{background:#FF9F43; outline:2px solid #FF9F43;}
 
 .lib-find ~ .lib-del{margin-left:0;}
 .btn.lib-del, .btn.ghost.lib-del, .lib-dactions .lib-del{color:#fff !important;}
+
+/* ===== v3.48.0 — Biblioteca: faixa de atalhos (favoritos) no topo ===== */
+.lib-quick{display:flex; align-items:center; gap:10px; margin:0 0 14px; min-width:0;}
+.lib-qlbl{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); flex:none;}
+.lib-qlbl svg{width:13px; height:13px; color:#E0A100;}
+.lib-qrow{display:flex; align-items:center; gap:8px; min-width:0; flex:1; overflow-x:auto; scrollbar-width:none; padding:2px 1px;}
+.lib-qrow::-webkit-scrollbar{display:none;}
+.lib-qchip{display:inline-flex; align-items:center; gap:7px; height:34px; border:1px solid var(--border); border-radius:99px; padding:0 13px 0 5px; background:var(--surface); color:var(--ink); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; flex:none; max-width:210px;}
+.lib-qchip:hover{border-color:var(--primary);}
+.lib-qchip:focus-visible, .lib-qmore:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
+.lib-qchip i{width:24px; height:24px; border-radius:50%; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:11px; font-weight:800; flex:none;}
+.lib-qchip.t i{border-radius:7px;} .lib-qchip i svg{width:13px; height:13px;}
+.lib-qchip span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lib-qmore{border:0; background:transparent; color:var(--primary-dark,var(--primary)); font:inherit; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap; flex:none; padding:0 6px;}
+@media (max-width:768px){
+  .lib-quick{flex-direction:column; align-items:stretch; gap:6px;}
+  .lib-qchip{height:36px;}
+}

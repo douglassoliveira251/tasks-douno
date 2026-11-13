@@ -1000,6 +1000,23 @@ function openTypePicker(){
   setTimeout(() => { const c = modal.querySelector('.lib-opt.cur'); if(c) c.focus(); }, 30);
 }
 
+/* faixa de atalhos: os favoritados (links primeiro) com abertura em 1 clique; mostra até 6 e o resto vai em "Ver todos" */
+const QUICK_MAX = 6;
+function quickHtml(){
+  if(LIB.openId) return '';
+  const all = scopeItems().filter(i => i.favorite).sort((a, b) => (a.type === 'link' ? 0 : 1) - (b.type === 'link' ? 0 : 1) || (b.updatedAt || 0) - (a.updatedAt || 0));
+  if(!all.length) return '';
+  const chip = (it) => {
+    let bg, mark, kind = '';
+    if(it.type === 'link'){ const h = hostOf(it.url); bg = colorOf(h); mark = escapeHtml((it.title || h || '?').trim().charAt(0).toUpperCase()); }
+    else if(it.type === 'html'){ bg = '#C77700'; mark = 'H'; kind = ' t'; }
+    else { bg = '#8A5CC2'; mark = icon('file-text'); kind = ' t'; }
+    const name = it.title || (it.type === 'link' ? hostOf(it.url) : 'Sem título');
+    return `<button type="button" class="lib-qchip${kind}" data-quick="${it.id}" title="${escapeHtml(name)}${it.type === 'link' ? ' (abre o site)' : ''}"><i style="background:${bg}">${mark}</i><span>${escapeHtml(name)}</span></button>`;
+  };
+  return `<div class="lib-quick" aria-label="Atalhos (favoritos)"><div class="lib-qlbl">${STAR_ON}<span>Atalhos</span></div><div class="lib-qrow">${all.slice(0, QUICK_MAX).map(chip).join('')}${all.length > QUICK_MAX ? `<button type="button" class="lib-qmore" id="libQAll">Ver todos (${all.length}) ›</button>` : ''}</div></div>`;
+}
+
 export function renderLibrary(){
   document.body.classList.remove('lib-hfull');
   const view = document.getElementById('libraryView');
@@ -1017,6 +1034,7 @@ export function renderLibrary(){
       <div class="lib-bar">
         ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : ''}
       </div>
+      ${quickHtml()}
       <button type="button" class="lib-mfolder" id="libMFolder">${icon('folder')}<span>${escapeHtml(where)}</span>${icon('caret-down')}</button>
       <div class="lib-mtypes">${LIB_TYPES.map(t => `<button type="button" class="lib-chip${LIB.type === t.key ? ' on' : ''}${t.ready ? '' : ' soon'}" data-type="${t.key}" ${t.ready ? '' : 'disabled'}>${t.label}</button>`).join('')}</div>
       <div class="lib-lay">
@@ -1028,6 +1046,8 @@ export function renderLibrary(){
   bindTree(view.querySelector('#libTree'), () => render(), repaintTree);
   view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
+  view.querySelectorAll('[data-quick]').forEach(b => { b.onclick = () => { const it = items().find(x => x.id === b.dataset.quick); if(!it) return; if(it.type === 'link') window.open(it.url, '_blank', 'noopener,noreferrer'); else openDetail(it.id); }; });
+  const qAll = view.querySelector('#libQAll'); if(qAll) qAll.onclick = () => { LIB.sel = { kind: 'fav', id: null }; LIB.type = null; closeDetail(); render(); };
   const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
   /* a busca mora no topo, à esquerda do botão Novo (mesma faixa dos filtros das outras telas) */
   const top = document.getElementById('topbarFilters');
