@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.49.1', date:'13/11/2026', title:'Páginas HTML até 1,5 MB e topo da Biblioteca mais alto', text:'O limite de cada página HTML da Biblioteca subiu de 1 MB para 1,5 MB. Além disso, o conteúdo da Biblioteca (atalhos, lateral e lista) subiu, ficando mais perto do título.' },
   { version:'3.49.0', date:'13/11/2026', title:'Arrastar para coleções e ordem dos atalhos', text:'Na Biblioteca, arraste um item pela alça (seis pontinhos) até uma coleção da lateral para movê-lo. No menu da linha há também Mover para…, que funciona no celular. Nos atalhos, o botão Ordenar deixa arrastar (ou usar as setas) para escolher a ordem, que fica salva.' },
   { version:'3.48.2', date:'13/11/2026', title:'Revisão geral do celular', text:'Revisão de todas as telas no celular e no computador: as notificações não ficam mais cortadas na lateral, a semana do calendário não mostra mais texto quebrado nas agendas e o voltar das Configurações ficou legível no modo escuro.' },
   { version:'3.48.1', date:'13/11/2026', title:'Ordenar dos Projetos', text:'Em Projetos, o Ordenar agora escolhe pela linha (sem seletor) e a escolha fica salva depois de atualizar a página, igual às Notas.' },

@@ -1,3 +1,7 @@
+## [3.49.1] - 2026-11-13 08:00
+- Biblioteca: limite de cada página HTML aumentado de 1 MB para 1,5 MB (mensagens e teste atualizados).
+- Biblioteca: o conteúdo subiu cerca de 30px no computador (menos respiro no topo e removida uma barra vazia que ocupava espaço); no celular, 14px.
+
 ## [3.49.0] - 2026-11-13 02:00
 - Biblioteca: arrastar a linha de um item (alça de seis pontos) até uma coleção ou um espaço na lateral move o item; Esc cancela. Soltar fora não muda nada.
 - Biblioteca: Mover para… no menu de link, skill e página HTML (lista de coleções de todos os espaços; serve no celular, onde a alça não aparece).

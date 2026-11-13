@@ -50,16 +50,22 @@ test('Página HTML: abre na tela, roda o script e fica isolada do app', async ({
   await expect(page.locator('.lib-row')).toHaveCount(1);
 });
 
-test('Página HTML: recusa arquivo que não é .html e arquivo acima de 1 MB', async ({ page }) => {
+test('Página HTML: recusa arquivo que não é .html e arquivo acima de 1,5 MB', async ({ page }) => {
   await abrir(page);
   await importar(page, 'nota.txt', 'oi', 'text/plain');
   await expect(page.locator('#hmErr')).toContainText('.html');
-  const grande = '<html>' + 'a'.repeat(1024 * 1024 + 10) + '</html>';
+  const grande = '<html>' + 'a'.repeat(Math.round(1.5 * 1024 * 1024) + 10) + '</html>';
   const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.click('#hmDrop')]);
   await fc.setFiles({ name: 'grande.html', mimeType: 'text/html', buffer: Buffer.from(grande) });
-  await expect(page.locator('#hmErr')).toContainText('limite é 1 MB');
+  await expect(page.locator('#hmErr')).toContainText('limite é 1,5 MB');
   await page.click('#hmSave');
   await expect(page.locator('#hmErr')).toContainText('Escolha o arquivo');
+  // um arquivo de 1,2 MB (entre o limite antigo e o novo) é aceito
+  const medio = '<html><body>' + 'a'.repeat(Math.round(1.2 * 1024 * 1024)) + '</body></html>';
+  const [fc2] = await Promise.all([page.waitForEvent('filechooser'), page.click('#hmDrop')]);
+  await fc2.setFiles({ name: 'medio.html', mimeType: 'text/html', buffer: Buffer.from(medio) });
+  await expect(page.locator('#hmDropTxt')).toContainText('medio.html');
+  await expect(page.locator('#hmErr')).toBeHidden();
   expect(await page.evaluate(() => state.libItems.length)).toBe(0);
 });
 

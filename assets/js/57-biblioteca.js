@@ -782,7 +782,7 @@ function paintLinkDetail(host, it){
 /* ===================== PÁGINAS HTML (arquivo .html guardado e aberto dentro do app) =====================
    O texto do arquivo fica no item (html). Para ver, vai num <iframe> com sandbox SEM allow-same-origin: a página roda
    (scripts, estilos, imagens da internet), mas é uma origem à parte e não enxerga tarefas, notas nem login do app. */
-const HTML_MAX_BYTES = 1024 * 1024; // 1 MB por página
+const HTML_MAX_BYTES = Math.round(1.5 * 1024 * 1024); // 1,5 MB por página
 const HTML_SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals';
 const FILE_SVG = S16('<path d="M4 1.5h5.5L13 5v9a.5.5 0 0 1-.5.5h-8.5A.5.5 0 0 1 3.5 14V2a.5.5 0 0 1 .5-.5z"/><path d="M9 1.5V5h4M6 9l-1 1 1 1M10 9l1 1-1 1"/>');
 const FULL_SVG = S16('<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>');
@@ -824,7 +824,7 @@ function openHtmlTab(it){
 /* lê um .html escolhido: confere extensão e tamanho; o título vem do <title> ou do nome do arquivo */
 async function readHtmlFile(file){
   if(!/\.html?$/i.test(file.name) && file.type !== 'text/html') return { ok: false, msg: 'Escolha um arquivo .html ou .htm.' };
-  if(file.size > HTML_MAX_BYTES) return { ok: false, msg: '"' + file.name + '" tem ' + fmtSize(file.size) + '. O limite é 1 MB por página. Reduza imagens embutidas e tente de novo.' };
+  if(file.size > HTML_MAX_BYTES) return { ok: false, msg: '"' + file.name + '" tem ' + fmtSize(file.size) + '. O limite é 1,5 MB por página. Reduza imagens embutidas e tente de novo.' };
   let text = '';
   try{ text = await file.text(); }catch(e){ return { ok: false, msg: 'Não consegui ler o arquivo.' }; }
   text = text.replace(/^﻿/, '');
@@ -853,7 +853,7 @@ function openHtmlModal(item){
     <button type="button" class="nm-x" id="hmClose" aria-label="Fechar">${icon('x')}</button>
     <div class="nm-head"><div class="nm-kicker">${editing ? 'Dados da página' : 'Nova página HTML'}</div></div>
     <div class="nm-body prj-body">
-      ${editing ? '' : `<div class="lib-drop" id="hmDrop" tabindex="0" role="button" aria-label="Escolher arquivo .html"><b>Escolher arquivo .html</b><span id="hmDropTxt">ou solte aqui · até 1 MB · arquivo único (CSS e JavaScript dentro do .html)</span></div>`}
+      ${editing ? '' : `<div class="lib-drop" id="hmDrop" tabindex="0" role="button" aria-label="Escolher arquivo .html"><b>Escolher arquivo .html</b><span id="hmDropTxt">ou solte aqui · até 1,5 MB · arquivo único (CSS e JavaScript dentro do .html)</span></div>`}
       <div class="tp-field"><label class="tp-label" for="hmTitle">Título</label><input type="text" class="tp-input" id="hmTitle" maxlength="120" placeholder="${editing ? '' : 'Vem do arquivo, se vazio'}" value="${editing ? escapeHtml(item.title || '') : ''}"></div>
       <div class="prj-row3 lib-row2" style="grid-template-columns:1fr 1fr;">
         <div class="tp-field"><label class="tp-label" for="hmSpace">Espaço</label><select class="tp-select" id="hmSpace">${spaceOptions(spaceId)}</select></div>
@@ -869,7 +869,7 @@ function openHtmlModal(item){
   const err = (m) => { const e = $('#hmErr'); e.textContent = m; e.style.display = m ? 'block' : 'none'; };
   const take = async (file) => {
     const r = await readHtmlFile(file);
-    if(!r.ok){ picked = null; err(r.msg); $('#hmDropTxt').textContent = 'ou solte aqui · até 1 MB · arquivo único'; return; }
+    if(!r.ok){ picked = null; err(r.msg); $('#hmDropTxt').textContent = 'ou solte aqui · até 1,5 MB · arquivo único'; return; }
     err(''); picked = r;
     $('#hmDrop').classList.add('ok');
     $('#hmDropTxt').textContent = r.name + ' · ' + fmtSize(r.size);
@@ -1161,9 +1161,7 @@ export function renderLibrary(){
   const where = LIB.sel.kind === 'folder' ? folderPath(LIB.sel.id).join(' › ') : (LIB.sel.kind === 'fav' ? 'Favoritos' : (LIB.sel.kind === 'space' ? ((catById(LIB.sel.id) || {}).name || '') : 'Todos os itens'));
   view.innerHTML = `
     <div class="lib${LIB.openId ? ' lib-in-detail' : ''}">
-      <div class="lib-bar">
-        ${LIB.type === 'skill' ? `<div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div>` : ''}
-      </div>
+      ${LIB.type === 'skill' ? `<div class="lib-bar"><div class="lib-skbtns"><button type="button" class="btn ghost" id="libImport">${icon('export')}<span>Importar .md</span></button></div></div>` : ''}
       ${quickHtml()}
       <button type="button" class="lib-mfolder" id="libMFolder">${icon('folder')}<span>${escapeHtml(where)}</span>${icon('caret-down')}</button>
       <div class="lib-mtypes">${LIB_TYPES.map(t => `<button type="button" class="lib-chip${LIB.type === t.key ? ' on' : ''}${t.ready ? '' : ' soon'}" data-type="${t.key}" ${t.ready ? '' : 'disabled'}>${t.label}</button>`).join('')}</div>
