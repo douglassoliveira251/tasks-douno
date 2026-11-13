@@ -1,3 +1,6 @@
+## [3.53.0] - 2026-11-13 18:00
+- Projetos, linha do tempo: barra da etapa como medidor com % (Concluído em 100%); etapa concluída com check verde, linha esverdeada e "Concluída em dd/mm"; coluna das etapas mais larga (250 px no computador) com detalhe em fonte menor e numa linha; etapa recolhida mostra só o nome; recolhido/aberto fica salvo no projeto (p.collapsedStages). No celular o check da etapa não aparece (falta espaço); a barra e a linha esverdeada sim.
+
 ## [3.52.1] - 2026-11-13 17:00
 - Correção (Projetos, linha do tempo): o hover da tarefa só pintava a área da barra porque a coluna do nome tem fundo próprio. Agora a coluna do nome (e a linha Nova tarefa) acompanham o hover. Funciona também no modo escuro.
 

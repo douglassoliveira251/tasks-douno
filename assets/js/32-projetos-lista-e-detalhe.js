@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
-import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
+import { catById, dateToStr, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
 import { closeAllTaskMenus, ensureTaskMenuPortal } from './13-portais-de-tarefa.js';
 import { MONTH_LABELS, addDaysStr } from './25-calendario.js';
@@ -471,7 +471,7 @@ export function renderProjectDetail(view, p){
   const rangeEnd = new Date(last.getFullYear(), last.getMonth() + 1, 1);
   const total = Math.round((rangeEnd - rangeStart) / DAYMS);
   /* Ajustar: encolhe o período inteiro para a largura disponível (sem rolagem lateral) */
-  const glFit = window.matchMedia('(max-width:768px)').matches ? 104 : 210;
+  const glFit = window.matchMedia('(max-width:768px)').matches ? 104 : 250;
   const dpx = fit ? Math.max(((body.clientWidth || 900) - 2 - glFit) / total, 1.4) : ZOOMS[G.ganttZoom].dpx;
   const fine = G.ganttZoom === 'day' || G.ganttZoom === 'week';
   const W = fit ? total * dpx : Math.round(total * dpx);
@@ -536,10 +536,22 @@ export function renderProjectDetail(view, p){
           const a = pos(sg.start || sg.end || today), b = pos(sg.end || sg.start || today);
           const w = Math.max(b - a, 18);
           const tks = stageTasks(p, sg).filter(pass);
-          const collapsed = projectCollapsedStages.has(sg.id);
-          return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
-            <div class="gl"><b>${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
-            <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
+          const collapsed = (p.collapsedStages || []).includes(sg.id);
+          const all = stageTasks(p, sg), nDone = all.filter(t => t.done).length;
+          const isDone = state_ === 'concluida';
+          /* concluída: data da última tarefa concluída (sem data guardada, o fim da etapa) */
+          const doneAt = isDone ? (all.map(t => t.completedAt).filter(Boolean).sort((x, y) => x - y).pop() || null) : null;
+          const doneLbl = doneAt ? fmtDate(dateToStr(new Date(doneAt))) : (sg.end ? fmtDate(sg.end) : '');
+          const detail = isDone
+            ? `Concluída${doneLbl ? ' em ' + doneLbl : ''} · ${nDone}/${all.length} tarefas`
+            : `${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${nDone}/${all.length} tarefas`;
+          /* o medidor: parte cheia = avanço; número dentro (Concluído em 100%); em barra curta o texto vai para fora */
+          const txt = pct >= 100 ? 'Concluído' : pct + '%';
+          const outside = w < (pct >= 100 ? 84 : 46);
+          const lab = `<span class="gantt-pct${pct >= 45 && !outside ? ' on' : ''}${outside ? ' out' : ''}"${!outside && pct < 45 ? ` style="padding-left:calc(${pct}% + 6px)"` : ''}>${txt}</span>`;
+          return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}${collapsed ? ' collapsed' : ''}${isDone ? ' stage-done' : ''}" data-id="${sg.id}">
+            <div class="gl"><b>${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${isDone ? `<span class="stage-okc" title="Etapa concluída">${icon('check')}</span>` : ''}${escapeHtml(sg.name)}</b><small>${detail}</small></div>
+            <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;" title="${pct}% concluído"><div class="fill" style="width:${pct}%"></div>${lab}</div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
           </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (G.ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}
         ${(() => {
@@ -588,8 +600,10 @@ export function renderProjectDetail(view, p){
     b.onclick = (e) => {
       e.stopPropagation();
       const id = b.dataset.toggle;
-      if(projectCollapsedStages.has(id)) projectCollapsedStages.delete(id); else projectCollapsedStages.add(id);
-      render();
+      const cur = new Set(p.collapsedStages || []);
+      if(cur.has(id)) cur.delete(id); else cur.add(id);
+      p.collapsedStages = Array.from(cur);
+      markDirty();
     };
   });
   body.querySelectorAll('.gantt-task').forEach(r => {

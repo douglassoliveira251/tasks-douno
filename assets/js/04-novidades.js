@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.53.0', date:'13/11/2026', title:'Etapas mais limpas, com % e conclusão', text:'Na linha do tempo do projeto: a barra da etapa mostra a porcentagem de avanço (e Concluído quando chega a 100%); a etapa concluída ganha um check verde antes do nome e a linha fica esverdeada; a coluna das etapas ficou mais larga com o detalhe menor, numa linha só; e a etapa recolhida mostra só o nome. O que você recolhe fica salvo ao sair e voltar.' },
   { version:'3.52.1', date:'13/11/2026', title:'Hover da linha da tarefa completo', text:'Na linha do tempo do projeto, ao passar o mouse numa tarefa o destaque agora cobre a linha inteira, inclusive o nome, e não só a parte da barra.' },
   { version:'3.52.0', date:'13/11/2026', title:'Ordem manual das etapas do projeto', text:'Em Projetos, cada etapa tem agora uma alça (seis pontinhos): arraste para escolher a ordem, na linha do tempo e também na lista de etapas do celular. A ordem fica salva e vale no resumo e no relatório. Para voltar ao automático, use Voltar à ordem por data.' },
   { version:'3.51.0', date:'13/11/2026', title:'Porcentagem de avanço nas tarefas do projeto', text:'Na linha do tempo do projeto, a barra de cada tarefa agora mostra o quanto foi feito: a parte escura é o avanço (subtarefas concluídas) e o número fica dentro. Tarefa sem nada feito mostra 0%.' },

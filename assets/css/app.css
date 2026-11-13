@@ -4729,3 +4729,24 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 /* ===== v3.52.1 — hover da linha da tarefa na linha do tempo cobre também o nome ===== */
 .gantt-task:hover .gl{background:var(--surface-2);}
 .gantt-add:hover .gl{background:var(--surface-2);}
+
+/* ===== v3.53.0 — etapas: recolhida só com o nome, detalhe menor, % no medidor, concluída com check ===== */
+.gantt-row .gl small{font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.gantt-wrap .gantt-row.collapsed{min-height:36px;}
+.gantt-wrap .gantt-row.collapsed .gl small{display:none;}
+.gantt-wrap .gantt-row.collapsed .gl{padding-top:4px; padding-bottom:4px;}
+@media (min-width:769px){ .gantt-wrap.fit{--gl:250px;} }
+/* barra da etapa vira medidor (igual às tarefas): parte cheia = avanço, número dentro */
+.gantt-wrap .gantt-bar{top:50%; transform:translateY(-50%); height:18px; border-radius:9px; padding:0; display:block; overflow:hidden; color:var(--ink); text-shadow:none; background:color-mix(in srgb, var(--pc) 20%, transparent);}
+.gantt-wrap .gantt-bar.nao_iniciada, .gantt-wrap .gantt-bar.andamento, .gantt-wrap .gantt-bar.atrasada, .gantt-wrap .gantt-bar.concluida{background:color-mix(in srgb, var(--pc) 20%, transparent); color:var(--ink); text-shadow:none;}
+.gantt-wrap .gantt-bar .fill, .gantt-wrap.fit .gantt-bar .fill{display:block; background:var(--pc); opacity:1; border-radius:9px 0 0 9px;}
+.gantt-wrap .gantt-bar.concluida .fill{border-radius:9px;}
+.gantt-wrap .gantt-bar span.gantt-pct, .gantt-wrap.fit .gantt-bar span.gantt-pct{display:flex; position:absolute;}
+.gantt-wrap .gantt-bar span.gantt-pct.out{inset:auto; left:calc(100% + 6px); top:50%; transform:translateY(-50%); padding:0; color:var(--ink-soft);}
+.gantt-bar:has(.gantt-pct.out){overflow:visible;}
+.gantt-wrap .gantt-bar.concluida span.gantt-pct.on{color:#fff;}
+/* etapa concluída: check verde antes do nome e linha esverdeada */
+.gantt-wrap .gantt-row.stage-done, .gantt-wrap .gantt-row.stage-done .gl{background:color-mix(in srgb, #2f9e6a 12%, var(--surface-2));}
+.stage-okc{display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:#2f9e6a; color:#fff; flex:none;}
+.stage-okc svg{width:12px; height:12px;}
+@media (max-width:768px){ .stage-okc{display:none;} }
