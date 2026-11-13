@@ -214,7 +214,7 @@ test('Skills: importar por cima pode virar uma skill nova; skill vazia recebe o 
   await expect(page.locator('#skText')).toHaveValue('# Outra skill\n\ntexto\n');
 });
 
-test('Skills: copiar texto, exportar .md, baixar pelo ícone da lista e favoritar', async ({ page }) => {
+test('Skills: exportar .md, baixar pelo ícone da lista e favoritar (sem botão Copiar)', async ({ page }) => {
   await go(page);
   await putSkill(page, SK);
   // ícone de baixar na linha da lista
@@ -222,9 +222,7 @@ test('Skills: copiar texto, exportar .md, baixar pelo ícone da lista e favorita
   expect(dl0.suggestedFilename()).toBe('minha-skill-ac.md');
   expect(fs.readFileSync(await dl0.path(), 'utf8')).toBe(SK);
   await page.locator('.lib-row .lib-tt').click();
-  await page.click('#skCopy');
-  const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => null));
-  if (clip !== null) expect(clip.split('\r\n').join('\n')).toBe(SK); // o Windows guarda a área de transferência com CRLF
+  await expect(page.locator('#skCopy')).toHaveCount(0);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#skExport')]);
   expect(dl.suggestedFilename()).toBe('minha-skill-ac.md');
   expect(fs.readFileSync(await dl.path(), 'utf8')).toBe(SK);
@@ -292,7 +290,7 @@ test('Skills (celular): sem rolagem lateral, criar pelo quadro, modos e importar
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
   await page.click('#skSave');
   await expect(page.locator('.lib-counter')).toContainText('7 linhas');
-  for (const s of ['#skCopy', '#skImport', '#skExport', '.lib-seg [data-mode="code"]', '.lib-seg [data-mode="view"]']) await expect(page.locator(s)).toBeVisible();
+  for (const s of ['#skImport', '#skExport', '.lib-seg [data-mode="code"]', '.lib-seg [data-mode="view"]']) await expect(page.locator(s)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
   // aviso de substituir (de baixo para cima)
   const novo = tmpFile('v2.md', '# V2\ntexto\n');

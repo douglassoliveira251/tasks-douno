@@ -458,8 +458,7 @@ export function renderCalendarWeek(body){
       if(e.target.closest('.cal-event-block-timed')) return;
       const rect = col.getBoundingClientRect();
       const offsetY = e.clientY - rect.top;
-      const hour = Math.max(0, Math.min(23, Math.floor(offsetY / hourHeight)));
-      openEventComposer(null, dStr);
+      openEventComposer(null, dStr, null, slotTime(offsetY, hourHeight));
     });
     grid.appendChild(col);
   });
@@ -504,6 +503,11 @@ export function syncWeekScrollbar(){
 }
 window.addEventListener('resize', syncWeekScrollbar);
 
+/* horário clicado numa faixa da grade (de 15 em 15 minutos), como HH:MM */
+const slotTime = (offsetY, hourHeight) => {
+  const mins = Math.max(0, Math.min(23 * 60 + 45, Math.floor(offsetY / hourHeight * 4) * 15));
+  return String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+};
 export const WEEKDAY_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 export function renderCalendarDay(body){
   const dateStr = G.calendarFocusDate;
@@ -579,7 +583,7 @@ export function renderCalendarDay(body){
   }
   grid.addEventListener('click', (e) => {
     if(e.target.closest('.cal-dayblk')) return;
-    openEventComposer(null, dateStr);
+    openEventComposer(null, dateStr, null, slotTime(e.clientY - grid.getBoundingClientRect().top, hourHeight));
   });
   scroll.appendChild(grid);
   card.appendChild(scroll);

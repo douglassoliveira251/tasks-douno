@@ -1,3 +1,10 @@
+## [3.47.0] - 2026-11-12 23:00
+- Calendário: clicar numa faixa de horário (semana e dia) abre o cadastro com o início naquele horário (de 15 em 15 min) e fim 1 h depois.
+- Agenda: mudar a data/hora de início desloca o fim na mesma duração; o fim não pode ficar antes do início (mínimos nos campos e correção automática).
+- Notas: Ordenar escolhe clicando na linha (sem seletor) e a escolha fica salva (state.notesSort).
+- Biblioteca, skill: busca dentro do texto (marca, conta e anda entre resultados, nos dois modos); botão Copiar removido; Excluir com fundo vermelho; trocar de espaço fecha o item aberto de outro espaço.
+- ROADMAP: backlog do cadastro de pessoas.
+
 ## [3.46.0] - 2026-11-12 22:00
 - Modo Foco (só celular): botão Foco no topo (não entra no menu). Ligado, mostra a tarefa de agora (atrasadas, depois as de hoje por horário e prioridade) com Concluir, Adiar (amanhã, próxima semana, escolher data) e Pular; lista Depois; anel do dia; reunião que começa em até 30 min toma o lugar do cartão. Estados: dia sem tarefas, tudo feito, modo escuro. Respeita o espaço; a escolha fica no aparelho.
 

@@ -34,7 +34,7 @@ export const LIB_TYPES = [
   { key: 'check', label: 'Checklists', ico: icon('list-numbers') },
 ];
 
-const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null, pending: null };
+const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null, pending: null, find: '', findIdx: 0 };
 
 /* ---------- dados ---------- */
 const folders = () => (Array.isArray(G.state.libFolders) ? G.state.libFolders : (G.state.libFolders = []));
@@ -571,9 +571,8 @@ function openOverwriteDialog(it, r){
 }
 
 function openSkillMenu(btn, it){
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="copy">Copiar texto</button><button type="button" class="task-menu-item" data-m="exp">Exportar .md</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="exp">Exportar .md</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => openDetail(it.id),
-    copy: () => copyText(it.content || '', 'Texto da skill copiado.'),
     exp: () => exportSkill(it),
     edit: () => { LIB.openId = it.id; LIB.editing = true; LIB.draft = null; LIB.pending = null; render(); },
     del: () => deleteSkill(it, btn),
@@ -662,11 +661,11 @@ function paintDetail(view, host){
     </div>
     <div class="lib-dcard">
       <div class="lib-dbar">
-        <button type="button" class="btn small" id="skCopy">${icon('copy')}<span>Copiar</span></button>
         <button type="button" class="btn ghost small" id="skImport">${icon('export')}<span>Importar .md</span></button>
         <button type="button" class="btn ghost small" id="skExport">${icon('download-simple')}<span>Exportar .md</span></button>
         <button type="button" class="btn ghost small" id="skEdit">${icon('pencil-simple')}<span>Editar</span></button>
-        <button type="button" class="btn ghost small lib-del" id="skDel">${icon('trash')}<span>Excluir</span></button>
+        <div class="lib-find"><span class="lib-find-ic">${icon('magnifying-glass')}</span><input type="search" id="skFind" placeholder="Buscar no texto…" aria-label="Buscar no texto da skill" value="${escapeHtml(LIB.find)}"><span class="lib-find-n" id="skFindN" aria-live="polite"></span><button type="button" class="lib-find-b" id="skFindPrev" title="Anterior" aria-label="Resultado anterior">${icon('caret-up')}</button><button type="button" class="lib-find-b" id="skFindNext" title="Próximo" aria-label="Próximo resultado">${icon('caret-down')}</button></div>
+        <button type="button" class="btn small lib-del" id="skDel">${icon('trash')}<span>Excluir</span></button>
       </div>
       <div class="lib-counter"><span id="skCount">${statsText(st)}</span>
         <div class="lib-seg" role="group" aria-label="Modo de visualização"><button type="button" data-mode="code" class="${mode === 'code' ? 'on' : ''}" aria-pressed="${mode === 'code'}">${CODE_SVG}<span>Código</span></button><button type="button" data-mode="view" class="${mode === 'view' ? 'on' : ''}" aria-pressed="${mode === 'view'}">${EYE_SVG}<span>Visualização</span></button></div>
@@ -676,12 +675,63 @@ function paintDetail(view, host){
   const $ = (s) => host.querySelector(s);
   $('#libBack').onclick = () => { closeDetail(); render(); };
   $('#skFav').onclick = () => { it.favorite = !it.favorite; markDirty(); };
-  $('#skCopy').onclick = () => copyText(it.content || '', 'Texto da skill copiado.');
   $('#skImport').onclick = () => importIntoSkill(it);
   $('#skExport').onclick = () => exportSkill(it);
   $('#skEdit').onclick = () => { LIB.editing = true; LIB.pending = null; render(); };
   $('#skDel').onclick = (e) => { e.stopPropagation(); deleteSkill(it, e.currentTarget); };
+  bindSkillFind(host);
   host.querySelectorAll('.lib-seg [data-mode]').forEach(b => { b.onclick = () => { G.state.libSkillMode = b.dataset.mode; markDirty(); }; });
+}
+
+/* busca dentro do texto da skill: marca todos os resultados (nos dois modos) e anda entre eles */
+function markMatches(root, query){
+  const q = query.toLowerCase();
+  const nodes = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && n.parentElement.closest('.n') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) });
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  const marks = [];
+  nodes.forEach(node => {
+    const text = node.nodeValue, low = text.toLowerCase();
+    let at = low.indexOf(q);
+    if(at < 0) return;
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    while(at >= 0){
+      if(at > last) frag.appendChild(document.createTextNode(text.slice(last, at)));
+      const m = document.createElement('mark'); m.className = 'lib-hit'; m.textContent = text.slice(at, at + q.length);
+      frag.appendChild(m); marks.push(m);
+      last = at + q.length; at = low.indexOf(q, last);
+    }
+    if(last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+  return marks;
+}
+function bindSkillFind(host){
+  const inp = host.querySelector('#skFind'); if(!inp) return;
+  const body = host.querySelector('.lib-code, .lib-md');
+  const out = host.querySelector('#skFindN');
+  const original = body ? body.innerHTML : '';
+  let marks = [];
+  const run = (jump) => {
+    if(!body) return;
+    body.innerHTML = original;
+    marks = [];
+    const q = LIB.find.trim();
+    if(!q){ out.textContent = ''; return; }
+    marks = markMatches(body, q);
+    if(!marks.length){ out.textContent = 'Nada'; return; }
+    LIB.findIdx = ((LIB.findIdx % marks.length) + marks.length) % marks.length;
+    marks[LIB.findIdx].classList.add('cur');
+    out.textContent = (LIB.findIdx + 1) + ' de ' + marks.length;
+    if(jump) marks[LIB.findIdx].scrollIntoView({ block: 'center' });
+  };
+  const step = (d) => { if(!marks.length) return; marks[LIB.findIdx].classList.remove('cur'); LIB.findIdx = (LIB.findIdx + d + marks.length) % marks.length; marks[LIB.findIdx].classList.add('cur'); out.textContent = (LIB.findIdx + 1) + ' de ' + marks.length; marks[LIB.findIdx].scrollIntoView({ block: 'center' }); };
+  inp.oninput = () => { LIB.find = inp.value; LIB.findIdx = 0; run(true); };
+  inp.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); step(e.shiftKey ? -1 : 1); } };
+  host.querySelector('#skFindNext').onclick = () => step(1);
+  host.querySelector('#skFindPrev').onclick = () => step(-1);
+  run(false);
 }
 
 /* tela do link: dados editáveis + "Abrir site" (clicar na linha da lista abre esta tela; o globo da linha abre o site) */
@@ -958,7 +1008,7 @@ export function renderLibrary(){
   if(LIB.sel.kind === 'folder' && !scopeFolders().some(f => f.id === LIB.sel.id)) LIB.sel = { kind: 'all', id: null };
   if(LIB.sel.kind === 'space' && (G.activeCategoryFilter || !catById(LIB.sel.id))) LIB.sel = { kind: 'all', id: null };
   // detalhe de uma skill que deixou de existir
-  if(LIB.openId && !LIB.draft && !items().some(i => i.id === LIB.openId)) closeDetail();
+  if(LIB.openId && !LIB.draft && !scopeItems().some(i => i.id === LIB.openId)) closeDetail();
   // abre os pais da coleção escolhida
   if(LIB.sel.kind === 'folder'){ let f = folderById(LIB.sel.id), g = 0; while(f && f.parentId && g++ < 10){ LIB.open.add(f.parentId); f = folderById(f.parentId); } }
   const where = LIB.sel.kind === 'folder' ? folderPath(LIB.sel.id).join(' › ') : (LIB.sel.kind === 'fav' ? 'Favoritos' : (LIB.sel.kind === 'space' ? ((catById(LIB.sel.id) || {}).name || '') : 'Todos os itens'));

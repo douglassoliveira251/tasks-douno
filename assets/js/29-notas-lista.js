@@ -444,6 +444,8 @@ export function renderNotes(){
 
 /* ---------- Computador largo: coluna com a lista de notas (prévia) e filtros no topo da página ---------- */
 const SORTS = [['updated', 'Atualização'], ['created', 'Criação'], ['title', 'Título'], ['manual', 'Manual']];
+/* a ordem escolhida fica salva (state.notesSort) e vale depois de atualizar a página */
+const sortKey = () => (SORTS.some(x => x[0] === G.state.notesSort) ? G.state.notesSort : 'updated');
 
 function fmtNoteWhen(ts){
   if(!ts) return '';
@@ -467,7 +469,7 @@ function buildNotesListCol(matches, noteOrderOf, withFilters){
   const tagIds = NOTAS_UI.tagFilter;
   let list = scopedNotes(matches);
   if(tagIds.length) list = list.filter(n => (n.tagIds || []).some(id => tagIds.includes(id)));
-  const by = NOTAS_UI.sort;
+  const by = sortKey();
   const cmp = {
     updated: (a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0),
     created: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
@@ -508,12 +510,12 @@ function renderNotesFilters(){
   G.state.notes.filter(n => !n.archived && (!G.activeCategoryFilter || n.categoryId === G.activeCategoryFilter)).forEach(n => (n.tagIds || []).forEach(id => usedTagIds.add(id)));
   const tags = G.state.tags.filter(t => usedTagIds.has(t.id));
   NOTAS_UI.tagFilter = NOTAS_UI.tagFilter.filter(id => usedTagIds.has(id));
-  const curSort = (SORTS.find(x => x[0] === NOTAS_UI.sort) || SORTS[0])[1];
+  const curSort = (SORTS.find(x => x[0] === sortKey()) || SORTS[0])[1];
   const wrap = document.createElement('div');
   wrap.className = 'notes-filters';
   wrap.innerHTML = `
     <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="sort">${icon('rows')}<span><i class="nf-k">Ordenar:</i> <b>${curSort}</b></span>${icon('caret-down')}</button>
-      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${SORTS.map(([k, l]) => `<label class="tag-filter-row"><input type="radio" name="notesSort" value="${k}" ${NOTAS_UI.sort === k ? 'checked' : ''}>${l}</label>`).join('')}</div></div>
+      <div class="tag-filter-popover" data-popover="sort" style="display:none;">${SORTS.map(([k, l]) => `<button type="button" class="tag-filter-row sort-opt${sortKey() === k ? ' on' : ''}" data-sort="${k}" role="menuitemradio" aria-checked="${sortKey() === k}">${l}${sortKey() === k ? icon('check') : ''}</button>`).join('')}</div></div>
     <div class="tag-filter-control"><button type="button" class="tag-filter-btn" data-pop="tags">${icon('tag')}<span>Tags${NOTAS_UI.tagFilter.length ? ' · ' + NOTAS_UI.tagFilter.length : ''}</span></button>
       <div class="tag-filter-popover" data-popover="tags" style="display:none;">${tags.length ? tags.map(t => `<label class="tag-filter-row"><input type="checkbox" data-tag="${t.id}" ${NOTAS_UI.tagFilter.includes(t.id) ? 'checked' : ''}><span class="cat-swatch" style="background:${t.color}"></span>${escapeHtml(t.name)}</label>`).join('') : '<div style="font-size:12px;color:var(--ink-faint);padding:4px 2px;">Nenhuma tag em uso nas notas</div>'}
         <button type="button" class="filter-clear-btn" data-clear="tags" ${NOTAS_UI.tagFilter.length ? '' : 'disabled'}>Limpar filtro</button></div></div>`;
@@ -528,7 +530,7 @@ function renderNotesFilters(){
     };
   });
   wrap.querySelectorAll('[data-popover]').forEach(p => p.addEventListener('click', e => e.stopPropagation()));
-  wrap.querySelectorAll('input[name="notesSort"]').forEach(r => r.addEventListener('change', () => { NOTAS_UI.sort = r.value; renderNotes(); }));
+  wrap.querySelectorAll('[data-sort]').forEach(b => { b.onclick = () => { G.state.notesSort = b.dataset.sort; NOTAS_UI.sort = b.dataset.sort; markDirty(); }; });
   wrap.querySelectorAll('input[data-tag]').forEach(c => c.addEventListener('change', () => {
     const id = c.dataset.tag;
     NOTAS_UI.tagFilter = c.checked ? NOTAS_UI.tagFilter.concat(id) : NOTAS_UI.tagFilter.filter(x => x !== id);

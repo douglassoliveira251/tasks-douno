@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { deleteEventFromOutlook, refreshOutlookStatus, syncEventToOutlook } from './03-outlook.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
-import { catById, escapeHtml, todayStr, uid } from './10-helpers.js';
+import { catById, dateToStr, escapeHtml, todayStr, uid } from './10-helpers.js';
 import { openConfirmPortal, renderTaskLinkPicker, renderUnifiedTagPicker } from './13-portais-de-tarefa.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { closeTagsPortal, ensureTagsPortal, openMoveGroupPortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
@@ -75,7 +75,7 @@ export function downloadEventAsICS(ev){
   setTimeout(() => { try{ URL.revokeObjectURL(url); }catch(e){} }, 1000);
 }
 
-export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
+export function openEventComposer(existingEvent, defaultDate, prefillTaskId, defaultStart){
   const isEditing = !!existingEvent;
   const defaultTimes = nextRoundedHourTimes();
   /* Edita uma cópia (rascunho): mudar tags/campos e fechar sem salvar não altera a
@@ -88,6 +88,12 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     linkedTaskId: null, description:'', createdAt: Date.now()
   };
   if(ev.endDate === undefined) ev.endDate = ev.date;
+  /* clicou numa faixa de horário da grade: começa nesse horário (e dura 1 h, sem passar da meia-noite) */
+  if(!isEditing && defaultStart && /^\d{2}:\d{2}$/.test(defaultStart)){
+    ev.startTime = defaultStart;
+    const em = Math.min(timeToMinutes(defaultStart) + 60, 23 * 60 + 59);
+    ev.endTime = String(Math.floor(em / 60)).padStart(2, '0') + ':' + String(em % 60).padStart(2, '0');
+  }
   if(!isEditing && prefillTaskId){
     const t = G.state.tasks.find(x => x.id === prefillTaskId);
     if(t){
@@ -344,6 +350,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
       modal.querySelector('#evEndDate').value = modal.querySelector('#evDate').value;
       modal.querySelector('#evEndTime').value = String(Math.floor(endMin / 60)).padStart(2, '0') + ':' + String(endMin % 60).padStart(2, '0');
       if(ev.allDay){ modal.querySelector('#evAllDay').checked = false; ev.allDay = false; syncTimeFieldsVisibility(); }
+      if(typeof recalcDur === 'function'){ recalcDur(); applyEvMin(); }
       refreshDurChips();
     };
   });
@@ -360,15 +367,34 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     ev.allDay = e.target.checked;
     syncTimeFieldsVisibility();
   });
-  modal.querySelector('#evDate').addEventListener('change', e => {
-    modal.querySelector('#evEndDate').value = e.target.value;
-  });
-  modal.querySelector('#evStartTime').addEventListener('change', e => {
-    const endInput = modal.querySelector('#evEndTime');
-    if(e.target.value && !endInput.value){
-      endInput.value = addOneHourToTime(e.target.value);
-    }
-  });
+  /* Início e fim andam juntos: mudar o início desloca o fim na mesma duração; o fim nunca fica antes do início */
+  const evF = { d: modal.querySelector('#evDate'), t: modal.querySelector('#evStartTime'), ed: modal.querySelector('#evEndDate'), et: modal.querySelector('#evEndTime') };
+  const msOf = (d, t) => d ? new Date(d + 'T' + (t || '00:00') + ':00').getTime() : NaN;
+  const putEnd = (ms) => {
+    const x = new Date(ms);
+    evF.ed.value = dateToStr(x);
+    if(!ev.allDay || evF.et.value) evF.et.value = String(x.getHours()).padStart(2, '0') + ':' + String(x.getMinutes()).padStart(2, '0');
+  };
+  let evDur = 3600000;
+  const recalcDur = () => { const d = msOf(evF.ed.value, evF.et.value) - msOf(evF.d.value, evF.t.value); if(isFinite(d) && d >= 0) evDur = d; };
+  const applyEvMin = () => { evF.ed.min = evF.d.value || ''; evF.et.min = (evF.ed.value && evF.ed.value === evF.d.value) ? (evF.t.value || '') : ''; };
+  recalcDur(); applyEvMin();
+  const onStartChange = () => {
+    if(!evF.d.value) return;
+    if(!evF.t.value && !ev.allDay){ evF.ed.value = evF.d.value; applyEvMin(); return; }
+    if(!ev.allDay && evF.t.value && !evF.et.value){ evDur = 3600000; }
+    putEnd(msOf(evF.d.value, evF.t.value) + evDur);
+    applyEvMin();
+  };
+  const onEndChange = () => {
+    const s0 = msOf(evF.d.value, evF.t.value), e0 = msOf(evF.ed.value || evF.d.value, evF.et.value);
+    if(isFinite(s0) && (!isFinite(e0) || e0 < s0)){ putEnd(s0); }
+    recalcDur(); applyEvMin();
+  };
+  evF.d.addEventListener('change', onStartChange);
+  evF.t.addEventListener('change', onStartChange);
+  evF.ed.addEventListener('change', onEndChange);
+  evF.et.addEventListener('change', onEndChange);
 
   const evRecurrenceTrigger = modal.querySelector('#evRecurrenceTrigger');
   evRecurrenceTrigger.onclick = (e) => {
@@ -395,6 +421,7 @@ export function openEventComposer(existingEvent, defaultDate, prefillTaskId){
     modal.querySelector('#evEndTime').value = ev.endTime || '';
     modal.querySelector('#evAllDay').checked = !!ev.allDay;
     syncTimeFieldsVisibility();
+    recalcDur(); applyEvMin();
     renderEvTagsSelected();
   }
 

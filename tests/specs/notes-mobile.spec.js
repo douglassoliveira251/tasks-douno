@@ -98,7 +98,7 @@ test.describe('Notas no computador largo', () => {
     await page.locator('.notes-list-item', { hasText: 'Redesenho do app' }).click();
     expect(await page.evaluate(() => activeNoteId)).toBe('n2');
     await page.locator('.notes-filters [data-pop="sort"]').click();
-    await page.locator('input[name="notesSort"][value="title"]').check();
+    await page.locator('.notes-filters [data-sort="title"]').click();
     const titulos = await page.locator('.notes-list-item .nli-top b').allTextContents();
     expect(titulos).toEqual(['Alinhamento semanal', 'Redesenho do app']);
   });

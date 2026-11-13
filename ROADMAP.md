@@ -59,6 +59,15 @@ Pontos a conversar:
 - Quais indicadores o dashboard de evolução mostra (concluídas por período, atrasos, projetos, constância)?
 - Como fica no celular e no modo escuro.
 
+### Cadastro de pessoas (backlog, 12/11/2026)
+Cadastro de pessoas com e-mails e contatos, além de aniversário e datas especiais, para notificar automaticamente.
+
+Pontos a conversar:
+- Campos: nome, e-mails, telefones, aniversário, outras datas especiais (casamento, contratação etc.), relação/empresa, observações.
+- Notificações: quando avisar (no dia, com antecedência), onde (sino, resumo por e-mail, Foco) e se pode virar agenda ou tarefa automática.
+- Ligação com o que já existe: sugerir as pessoas ao convidar para uma agenda (hoje há só o histórico de e-mails) e vincular tarefas/agendas a uma pessoa.
+- Se mora na Biblioteca como novo tipo ou em tela própria; privacidade e exportar/importar contatos.
+
 ## Próximos passos sugeridos
 1. Estabilizar as correções em andamento.
 2. Biblioteca: avaliar as propostas de layout em imagem (árvore de coleções, tipos, tela de skill) e fechar a primeira entrega (Links).
