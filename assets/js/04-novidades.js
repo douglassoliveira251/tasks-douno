@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.54.1', date:'13/11/2026', title:'Check da etapa concluída de volta', text:'O check verde e a linha esverdeada da etapa concluída voltaram. O que mudou foi só o texto: em 100% a barra mostra 100% do lado de fora, em vez de Concluído.' },
   { version:'3.54.0', date:'13/11/2026', title:'Etapa concluída mais simples', text:'Saiu o check verde e a linha esverdeada da etapa concluída. Agora a barra da etapa mostra 100% do lado de fora, como nas outras porcentagens.' },
   { version:'3.53.1', date:'13/11/2026', title:'Check da etapa concluída menor', text:'O círculo com check na frente do nome da etapa concluída ficou menor, para não chamar tanta atenção.' },
   { version:'3.53.0', date:'13/11/2026', title:'Etapas mais limpas, com % e conclusão', text:'Na linha do tempo do projeto: a barra da etapa mostra a porcentagem de avanço (e Concluído quando chega a 100%); a etapa concluída ganha um check verde antes do nome e a linha fica esverdeada; a coluna das etapas ficou mais larga com o detalhe menor, numa linha só; e a etapa recolhida mostra só o nome. O que você recolhe fica salvo ao sair e voltar.' },

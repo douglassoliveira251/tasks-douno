@@ -1,3 +1,6 @@
+## [3.54.1] - 2026-11-13 21:00
+- Projetos, linha do tempo: o check verde (15 px) e a linha esverdeada da etapa concluída voltaram (removidos por engano na 3.54.0). Mantido: "100%" do lado de fora da barra no lugar de "Concluído".
+
 ## [3.54.0] - 2026-11-13 20:00
 - Projetos, linha do tempo: removidos o check e a linha esverdeada da etapa concluída; em 100% a barra mostra "100%" do lado de fora (no lugar de "Concluído"). A frase "Concluída em dd/mm" continua no detalhe.
 

@@ -549,8 +549,8 @@ export function renderProjectDetail(view, p){
           const txt = pct + '%';
           const outside = pct >= 100 || w < 46;
           const lab = `<span class="gantt-pct${pct >= 45 && !outside ? ' on' : ''}${outside ? ' out' : ''}"${!outside && pct < 45 ? ` style="padding-left:calc(${pct}% + 6px)"` : ''}>${txt}</span>`;
-          return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}${collapsed ? ' collapsed' : ''}" data-id="${sg.id}">
-            <div class="gl"><b>${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${escapeHtml(sg.name)}</b><small>${detail}</small></div>
+          return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}${collapsed ? ' collapsed' : ''}${isDone ? ' stage-done' : ''}" data-id="${sg.id}">
+            <div class="gl"><b>${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${isDone ? `<span class="stage-okc" title="Etapa concluída">${icon('check')}</span>` : ''}${escapeHtml(sg.name)}</b><small>${detail}</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;" title="${pct}% concluído"><div class="fill" style="width:${pct}%"></div>${lab}</div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
           </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (G.ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}
