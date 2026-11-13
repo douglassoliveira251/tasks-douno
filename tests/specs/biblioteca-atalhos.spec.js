@@ -53,3 +53,20 @@ test('Biblioteca: atalho de skill abre a skill; some quando não há favoritos o
   await page.evaluate(() => { const c = state.categories[0].id; state.libItems[0].favorite = true; state.categories = state.categories.concat([{ id: 'c9', name: 'Outro', color: '#B04A6F' }]); activeCategoryFilter = 'c9'; render(); });
   await expect(page.locator('.lib-quick')).toHaveCount(0); // o favorito é de outro espaço
 });
+
+test('Atalho de página HTML abre direto em nova aba (/app/pagina/<id>), sem passar pela tela da Biblioteca', async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'library' });
+  await page.evaluate(() => {
+    const c = state.categories[0].id;
+    state.libFolders = [];
+    state.libItems = [{ id: 'h1', type: 'html', title: 'Relatório de vendas', html: '<html><body><b id="x">Olá</b></body></html>', fileName: 'r.html', size: 40, favorite: true, folderId: null, categoryId: c, createdAt: 1, updatedAt: 1 }];
+    localStorage.setItem('tyvraTasksState', JSON.stringify(state));
+    render();
+  });
+  const [nova] = await Promise.all([context.waitForEvent('page'), page.locator('[data-quick="h1"]').click()]);
+  await nova.waitForLoadState();
+  expect(new URL(nova.url()).pathname).toBe('/app/pagina/h1');
+  await expect(nova.frameLocator('#pageOnly iframe').locator('#x')).toHaveText('Olá');
+  await expect(page.locator('#hFrame')).toHaveCount(0); // a Biblioteca continua na lista
+});

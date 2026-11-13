@@ -1,3 +1,6 @@
+## [3.49.2] - 2026-11-13 09:00
+- Biblioteca, atalhos: clicar num atalho de página HTML abre direto em nova aba (/app/pagina/<id>); links abrem o site e skills abrem na Biblioteca.
+
 ## [3.49.1] - 2026-11-13 08:00
 - Biblioteca: limite de cada página HTML aumentado de 1 MB para 1,5 MB (mensagens e teste atualizados).
 - Biblioteca: o conteúdo subiu cerca de 30px no computador (menos respiro no topo e removida uma barra vazia que ocupava espaço); no celular, 14px.

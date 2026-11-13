@@ -1142,7 +1142,7 @@ function quickHtml(){
     else if(it.type === 'html'){ bg = '#C77700'; mark = 'H'; kind = ' t'; }
     else { bg = '#8A5CC2'; mark = icon('file-text'); kind = ' t'; }
     const name = it.title || (it.type === 'link' ? hostOf(it.url) : 'Sem título');
-    return `<button type="button" class="lib-qchip${kind}" data-quick="${it.id}" title="${escapeHtml(name)}${it.type === 'link' ? ' (abre o site)' : ''}"><i style="background:${bg}">${mark}</i><span>${escapeHtml(name)}</span></button>`;
+    return `<button type="button" class="lib-qchip${kind}" data-quick="${it.id}" title="${escapeHtml(name)}${it.type === 'link' ? ' (abre o site)' : (it.type === 'html' ? ' (abre em nova aba)' : '')}"><i style="background:${bg}">${mark}</i><span>${escapeHtml(name)}</span></button>`;
   };
   return `<div class="lib-quick" aria-label="Atalhos (favoritos)"><div class="lib-qlbl">${STAR_ON}<span>Atalhos</span></div><div class="lib-qrow${edit ? ' org' : ''}">${(edit ? all : all.slice(0, QUICK_MAX)).map(chip).join('')}${!edit && all.length > QUICK_MAX ? `<button type="button" class="lib-qmore" id="libQAll">Ver todos (${all.length}) ›</button>` : ''}</div><button type="button" class="lib-qord${edit ? ' on' : ''}" id="libQOrder" title="${edit ? 'Concluir a ordenação' : 'Ordenar os atalhos'}" aria-pressed="${edit}">${edit ? icon('check') + '<span>Concluir</span>' : icon('rows') + '<span>Ordenar</span>'}</button></div>${edit ? '<div class="lib-qhint">Arraste os atalhos para mudar a ordem (ou use as setas ← →).</div>' : ''}`;
 }
@@ -1174,7 +1174,7 @@ export function renderLibrary(){
   bindTree(view.querySelector('#libTree'), () => render(), repaintTree);
   view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
-  view.querySelectorAll('[data-quick]').forEach(b => { b.onclick = () => { if(LIB.qEdit) return; const it = items().find(x => x.id === b.dataset.quick); if(!it) return; if(it.type === 'link') window.open(it.url, '_blank', 'noopener,noreferrer'); else openDetail(it.id); }; });
+  view.querySelectorAll('[data-quick]').forEach(b => { b.onclick = () => { if(LIB.qEdit) return; const it = items().find(x => x.id === b.dataset.quick); if(!it) return; if(it.type === 'link') window.open(it.url, '_blank', 'noopener,noreferrer'); else if(it.type === 'html') openHtmlTab(it); else openDetail(it.id); }; });
   bindQuickOrder(view);
   const qAll = view.querySelector('#libQAll'); if(qAll) qAll.onclick = () => { LIB.sel = { kind: 'fav', id: null }; LIB.type = null; closeDetail(); render(); };
   const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
