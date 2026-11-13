@@ -1,3 +1,6 @@
+## [3.52.0] - 2026-11-13 16:00
+- Projetos: ordem manual das etapas. Alça em cada etapa (linha do tempo e lista de etapas do celular) para arrastar, com linha azul indicando onde cai; setas do teclado movem uma posição. A ordem fica em p.stageOrder, vale no resumo e no relatório, etapa nova entra no fim e "voltar à ordem por data" restaura o automático. Arrastar rola a tela sozinho perto da borda.
+
 ## [3.51.0] - 2026-11-13 15:00
 - Projetos, linha do tempo: a barra de cada tarefa virou um medidor com a porcentagem de avanço (subtarefas concluídas). Parte escura = feito, número dentro da barra (fora, à direita, em barras curtas). Concluída = 100%; sem subtarefas = 0%.
 

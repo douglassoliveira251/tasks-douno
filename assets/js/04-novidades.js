@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.52.0', date:'13/11/2026', title:'Ordem manual das etapas do projeto', text:'Em Projetos, cada etapa tem agora uma alça (seis pontinhos): arraste para escolher a ordem, na linha do tempo e também na lista de etapas do celular. A ordem fica salva e vale no resumo e no relatório. Para voltar ao automático, use Voltar à ordem por data.' },
   { version:'3.51.0', date:'13/11/2026', title:'Porcentagem de avanço nas tarefas do projeto', text:'Na linha do tempo do projeto, a barra de cada tarefa agora mostra o quanto foi feito: a parte escura é o avanço (subtarefas concluídas) e o número fica dentro. Tarefa sem nada feito mostra 0%.' },
   { version:'3.50.1', date:'13/11/2026', title:'Projeto não volta mais ao topo', text:'Em Projetos, ao abrir uma tarefa (ou marcar uma etapa) a tela do projeto agora fica onde estava, sem subir para o topo. Dá para ir de uma tarefa para a seguinte sem rolar de novo.' },
   { version:'3.50.0', date:'13/11/2026', title:'Concluir subtarefa põe a tarefa em andamento', text:'Ao marcar uma subtarefa como concluída, a tarefa que ainda estava como Não iniciado passa sozinha para Em andamento. Tarefas em outro status não mudam.' },

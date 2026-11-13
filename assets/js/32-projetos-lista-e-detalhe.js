@@ -4,7 +4,8 @@ import { catById, escapeHtml, fmtDate, todayStr, uid } from './10-helpers.js';
 import { renderTaskPanel } from './17-painel-lateral-render.js';
 import { closeAllTaskMenus, ensureTaskMenuPortal } from './13-portais-de-tarefa.js';
 import { MONTH_LABELS, addDaysStr } from './25-calendario.js';
-import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor, openStageEditor, projectById, projectColor, projectIconSvg, projectStatus, projectsInScope, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
+import { gripHtml, makeSortable, startAutoScroll } from './56-arrastar-ordem.js';
+import { STAGE_STATE_LABELS, clampToStage, defaultProjectTab, openProjectEditor, openStageEditor, orderedStages, projectById, projectColor, projectIconSvg, projectStatus, projectsInScope, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
 import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
@@ -82,7 +83,7 @@ export function renderProjectList(view){
     const nLate = tc.list.filter(t => !t.done && t.dueDate && t.dueDate < today).length;
     const nSoon = tc.list.filter(t => !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= soonLim).length;
     const daysLeft = st.end ? Math.round((new Date(st.end + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
-    const stages = (p.stages || []).slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999'));
+    const stages = orderedStages(p);
     const open = tc.list.filter(t => !t.done).sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999')).slice(0, 3);
     const kp = (v, l, color) => `<div class="pl-kp"><b${color ? ` style="color:${color}"` : ''}>${v}</b><small>${l}</small></div>`;
     panelHtml = `
@@ -147,10 +148,78 @@ function renderProjectFilters(counts){
 }
 document.addEventListener('click', () => { document.querySelectorAll('.proj-filters [data-popover]').forEach(p => { p.style.display = 'none'; }); });
 
+/* Ordem manual das etapas: guarda os ids na ordem escolhida (todas as etapas do projeto). "voltar à ordem por data" apaga. */
+function saveStageOrder(p, ids){ p.stageOrder = ids; markDirty(); }
+const stageOrderChip = p => (Array.isArray(p.stageOrder) && p.stageOrder.length) ? '<span class="stage-manual">Ordem manual · <button type="button" id="stageOrderReset">voltar à ordem por data</button></span>' : '';
+function bindStageOrderReset(root, p){
+  const b = root.querySelector('#stageOrderReset');
+  if(b) b.onclick = (e) => { e.stopPropagation(); delete p.stageOrder; markDirty(); };
+}
+/* Arrastar etapa na linha do tempo: a alça leva a etapa com as tarefas dela; uma linha azul mostra onde vai cair. */
+function bindStageDrag(body, p){
+  const wrap = body.querySelector('.gantt-body');
+  if(!wrap) return;
+  const heads = () => Array.from(wrap.querySelectorAll(':scope > .gantt-row[data-id]'));
+  const blockOf = head => { const els = [head]; let n = head.nextElementSibling; while(n && !n.matches('.gantt-row[data-id], .gantt-loose, .gantt-today')){ els.push(n); n = n.nextElementSibling; } return els; };
+  const apply = (ids, from, to) => { // to = posição de entrada (antes da etapa 'to' da lista original)
+    const id = ids.splice(from, 1)[0];
+    ids.splice(to > from ? to - 1 : to, 0, id);
+    saveStageOrder(p, ids);
+  };
+  wrap.querySelectorAll('.gantt-row[data-id] .drag-grip').forEach(grip => {
+    grip.addEventListener('click', e => e.stopPropagation());
+    grip.addEventListener('pointerdown', e => {
+      if(e.button !== undefined && e.button !== 0) return;
+      e.preventDefault(); e.stopPropagation();
+      const head = grip.closest('.gantt-row');
+      const hs = heads(), from = hs.indexOf(head);
+      const blocks = hs.map(blockOf);
+      blocks[from].forEach(el => el.classList.add('stage-dragging'));
+      wrap.classList.add('sorting');
+      const line = document.createElement('div'); line.className = 'stage-dropline'; line.style.display = 'none'; wrap.appendChild(line);
+      const auto = startAutoScroll(wrap);
+      let to = from;
+      const move = ev => {
+        auto.update(ev.clientY);
+        let slot = hs.length;
+        for(let i = 0; i < hs.length; i++){ const r = hs[i].getBoundingClientRect(); if(ev.clientY < r.top + r.height / 2){ slot = i; break; } }
+        to = slot;
+        const last = blocks[hs.length - 1];
+        const y = slot < hs.length ? hs[slot].getBoundingClientRect().top : last[last.length - 1].getBoundingClientRect().bottom;
+        line.style.top = (y - wrap.getBoundingClientRect().top) + 'px';
+        line.style.display = (slot === from || slot === from + 1) ? 'none' : 'block';
+      };
+      const end = (ev) => {
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', end);
+        document.removeEventListener('pointercancel', end);
+        auto.stop(); line.remove(); wrap.classList.remove('sorting');
+        blocks[from].forEach(el => el.classList.remove('stage-dragging'));
+        if(ev && ev.type === 'pointercancel') return;
+        if(to !== from && to !== from + 1) apply(hs.map(h => h.dataset.id), from, to);
+      };
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', end);
+      document.addEventListener('pointercancel', end);
+    });
+    grip.addEventListener('keydown', e => {
+      if(e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      const hs = heads(), i = hs.indexOf(grip.closest('.gantt-row')), j = i + (e.key === 'ArrowUp' ? -1 : 1);
+      if(i < 0 || j < 0 || j >= hs.length) return;
+      const ids = hs.map(h => h.dataset.id);
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      saveStageOrder(p, ids);
+      const sid = grip.closest('.gantt-row').dataset.id;
+      setTimeout(() => { const g = document.querySelector('.gantt-row[data-id="' + sid + '"] .drag-grip'); if(g) g.focus(); }, 0);
+    });
+  });
+}
+
 export function renderProjectDetail(view, p){
   const st = projectStatus(p);
   const today = todayStr();
-  const stages = p.stages.slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999')); // etapas sem datas ficam por último
+  const stages = orderedStages(p); // por data (sem datas por último), ou a ordem manual do projeto
   const nextLabel = st.next ? `${escapeHtml(st.next.name)} · ${fmtDate(st.next.end)}` : '—';
   let slip = '';
   if(p.endDate && st.end && st.end > p.endDate){
@@ -370,12 +439,15 @@ export function renderProjectDetail(view, p){
       const isToday = !t.done && t.dueDate === today;
       return `<div class="pe-task" data-task-id="${t.id}"><i class="pe-cb ${t.done ? 'done' : ''}"></i><span class="pe-tt ${t.done ? 'done' : ''}">${escapeHtml(t.title || 'Sem título')}</span><small class="${late ? 'late' : isToday ? 'today' : ''}">${t.dueDate ? (isToday ? 'Hoje' : fmtDate(t.dueDate)) : ''}</small></div>`;
     };
-    body.innerHTML = '<div class="pe-list">' + groups.map(({ sg, tks }) => {
+    body.innerHTML = stageOrderChip(p) + '<div class="pe-list">' + groups.map(({ sg, tks }) => {
       const pct = stagePercent(p, sg), state_ = stageState(p, sg);
-      return `<div class="pe-card" data-id="${sg.id}"><div class="pe-head"><div class="pe-hl"><b>${escapeHtml(sg.name)}</b><span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]}</span><span class="pe-pct">${pct}%</span></div><div class="proj-bar"><i style="width:${pct}%"></i></div></div>${tks.map(taskRow).join('')}</div>`;
+      return `<div class="pe-card" data-id="${sg.id}"><div class="pe-head"><div class="pe-hl">${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<b>${escapeHtml(sg.name)}</b><span class="proj-chip ${state_ === 'atrasada' ? 'late' : state_ === 'concluida' ? 'ok' : ''}">${STAGE_STATE_LABELS[state_]}</span><span class="pe-pct">${pct}%</span></div><div class="proj-bar"><i style="width:${pct}%"></i></div></div>${tks.map(taskRow).join('')}</div>`;
     }).join('') + (loose.length ? `<div class="pe-card"><div class="pe-head"><div class="pe-hl"><b>Sem etapa</b></div></div>${loose.map(taskRow).join('')}</div>` : '') + '</div>';
     body.querySelectorAll('.pe-task').forEach(el => { el.onclick = () => { G.activeTaskId = el.dataset.taskId; G.creatingNewTask = false; render(); }; });
     body.querySelectorAll('.pe-head').forEach(h => { h.onclick = () => h.parentElement.classList.toggle('closed'); });
+    body.querySelectorAll('.pe-head .drag-grip').forEach(g => g.addEventListener('click', e => e.stopPropagation()));
+    if(stages.length > 1) makeSortable(body.querySelector('.pe-list'), { rowSel: '.pe-card', onReorder: ids => saveStageOrder(p, ids) });
+    bindStageOrderReset(body, p);
     return;
   }
 
@@ -448,6 +520,7 @@ export function renderProjectDetail(view, p){
     <div class="gantt-tools">
       <span class="gantt-seg">${Object.keys(ZOOMS).map(k => `<button type="button" data-zoom="${k}" class="${G.ganttZoom === k ? 'on' : ''}">${ZOOMS[k].label}</button>`).join('')}</span>
       ${fit ? '' : `<span class="gantt-nav"><button type="button" id="ganttPrev" aria-label="Voltar no tempo">${chev('M15 6l-6 6 6 6')}</button><button type="button" id="ganttToday" class="txt">Hoje</button><button type="button" id="ganttNext" aria-label="Avançar no tempo">${chev('M9 6l6 6-6 6')}</button></span>`}
+      ${stageOrderChip(p)}
       <span class="gantt-filters">
         <button type="button" data-gfilter="all" class="${G.ganttFilter === 'all' ? 'on' : ''}">Todas</button>
         <button type="button" data-gfilter="late" class="${G.ganttFilter === 'late' ? 'on' : ''}">Atrasadas <b class="late">${nLate}</b></button>
@@ -465,7 +538,7 @@ export function renderProjectDetail(view, p){
           const tks = stageTasks(p, sg).filter(pass);
           const collapsed = projectCollapsedStages.has(sg.id);
           return `<div class="gantt-row${sg.id === G.selectedStageId ? ' selected' : ''}" data-id="${sg.id}">
-            <div class="gl"><b><button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
+            <div class="gl"><b>${stages.length > 1 ? gripHtml('Arrastar para reordenar a etapa') : ''}<button type="button" class="gantt-toggle ${collapsed ? 'closed' : ''}" data-toggle="${sg.id}" aria-label="Recolher/expandir tarefas">${icon('caret-down')}</button>${escapeHtml(sg.name)}</b><small>${STAGE_STATE_LABELS[state_]}${sg.end ? ' · prazo ' + fmtDate(sg.end) : ''} · ${stageTasks(p, sg).filter(t => t.done).length}/${stageTasks(p, sg).length} tarefas</small></div>
             <div class="gantt-track">${(sg.start || sg.end) ? `<div class="gantt-bar ${state_}" style="left:${a}px; width:${w}px;"><div class="fill" style="width:${pct}%"></div><span>${pct}%</span></div>` : `<span class="gantt-nodates">Defina o prazo de uma tarefa para a etapa ganhar datas</span>`}</div>
           </div>` + (collapsed ? '' : sortByStart(tks).map(t => ganttTaskRow(t, state_, pos)).join('') + (G.ganttFilter === 'all' ? ganttAddRow(sg.id) : ''));
         }).join('')}
@@ -491,6 +564,8 @@ export function renderProjectDetail(view, p){
     body.querySelector('#ganttPrev').onclick = () => wrapEl.scrollBy({ left: -(wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
     body.querySelector('#ganttNext').onclick = () => wrapEl.scrollBy({ left: (wrapEl.clientWidth - glW) * 0.7, behavior: 'smooth' });
   }
+  bindStageDrag(body, p);
+  bindStageOrderReset(body, p);
   body.querySelectorAll('.gantt-row[data-id]').forEach(r => { r.onclick = () => { G.selectedStageId = G.selectedStageId === r.dataset.id ? null : r.dataset.id; render(); }; });
   body.querySelectorAll('.gantt-add-input').forEach(inp => {
     inp.addEventListener('click', (e) => e.stopPropagation());

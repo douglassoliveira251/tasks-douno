@@ -2,7 +2,7 @@ import { G } from './globais.js';
 import { catById, escapeHtml, fmtDate, todayStr } from './10-helpers.js';
 import { PRIORITY_CONFIG } from './12-render-tasks.js';
 import { MONTH_LABELS } from './25-calendario.js';
-import { STAGE_STATE_LABELS, projectColor, projectIconSvg, projectStatus, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
+import { STAGE_STATE_LABELS, orderedStages, projectColor, projectIconSvg, projectStatus, sortByStart, stagePercent, stageState, stageTasks, taskProgress } from './31-projetos.js';
 
 /* ===== Relatório do projeto (impressão/PDF e planilha CSV) ===== */
 export function taskStatusLabel(t){
@@ -14,7 +14,7 @@ export function taskStatusLabel(t){
 export function buildProjectReportData(p){
   const today = todayStr();
   const st = projectStatus(p);
-  const stages = (p.stages || []).slice().sort((a, b) => (a.start || a.end || '9999').localeCompare(b.start || b.end || '9999'));
+  const stages = orderedStages(p);
   const cat = catById(p.categoryId);
   const rows = [];
   const stageBlocks = stages.map(sg => {

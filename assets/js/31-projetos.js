@@ -27,6 +27,17 @@ export function sortByStart(list){
   return list.slice().sort((a, b) => taskStartKey(a).localeCompare(taskStartKey(b)) || (a.dueDate || '9999').localeCompare(b.dueDate || '9999') || (a.createdAt || 0) - (b.createdAt || 0));
 }
 
+/* Ordem das etapas: por padrão pela data de início (sem datas, no fim). Se o projeto tem ordem manual
+   (p.stageOrder, ids na ordem escolhida), ela vale; etapa nova ou fora da lista entra depois, por data. */
+export function stageDateKey(sg){ return sg.start || sg.end || '9999'; }
+export function orderedStages(p){
+  const list = (p.stages || []).slice().sort((a, b) => stageDateKey(a).localeCompare(stageDateKey(b)));
+  const order = Array.isArray(p.stageOrder) ? p.stageOrder : null;
+  if(!order || !order.length) return list;
+  const pos = id => { const i = order.indexOf(id); return i < 0 ? order.length : i; };
+  return list.map((sg, i) => ({ sg, i })).sort((a, b) => pos(a.sg.id) - pos(b.sg.id) || a.i - b.i).map(x => x.sg);
+}
+
 export function projectById(id){ return id ? (G.state.projects || []).find(p => p.id === id) : null; }
 export function projectsInScope(){
   return (G.state.projects || []).filter(p => !G.activeCategoryFilter || p.categoryId === G.activeCategoryFilter);

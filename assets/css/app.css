@@ -4709,3 +4709,19 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .gantt-task-mark:has(.gantt-pct.out){overflow:visible;}
 .gantt-pct.out{inset:auto; left:calc(100% + 6px); top:50%; transform:translateY(-50%); padding:0; color:var(--ink-soft);}
 .gantt-task-mark.done .gantt-pct{color:#fff;}
+
+/* ===== v3.52.0 — ordem manual das etapas do projeto ===== */
+.stage-manual{display:inline-flex; align-items:center; gap:5px; margin-left:auto; font-size:11.5px; font-weight:700; color:var(--primary); background:color-mix(in srgb, var(--primary) 12%, transparent); border-radius:99px; padding:4px 10px; white-space:nowrap;}
+.stage-manual button{all:unset; cursor:pointer; text-decoration:underline; font-weight:700;}
+.stage-manual button:focus-visible{outline:2px solid var(--primary); outline-offset:2px; border-radius:4px;}
+.stage-manual + .gantt-filters{margin-left:0;}
+.pe-list{margin-top:0;}
+.proj-body > .stage-manual, #prjBody > .stage-manual{margin:0 0 10px;}
+.gantt-row .gl .drag-grip{width:18px; height:24px; margin:0 -2px 0 -6px;}
+.gantt-row .gl .drag-grip svg{width:12px; height:12px;}
+@media (max-width:768px){ .gantt-row .gl .drag-grip{width:22px; height:32px; margin-left:-8px;} }
+.pe-hl .drag-grip{margin-left:-6px;}
+.stage-dragging{opacity:.5;}
+.stage-dropline{position:absolute; left:0; right:0; height:4px; margin-top:-2px; border-radius:3px; background:var(--primary); z-index:12; pointer-events:none;}
+.pe-card.dragging{box-shadow:0 8px 24px rgba(27,33,48,.16); position:relative; z-index:2;}
+.sorting .gantt-row{cursor:grabbing;}

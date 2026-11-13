@@ -9,6 +9,33 @@ export function gripHtml(label = 'Arrastar para reordenar'){
   return `<button type="button" class="drag-grip" title="${label}" aria-label="${label}">${GRIP_SVG}</button>`;
 }
 
+/* Rolagem automática enquanto se arrasta perto da borda de cima/baixo da tela (lista alta, celular).
+   Use: const sc = startAutoScroll(elementoDentroDaTela); sc.update(clientY) a cada movimento; sc.stop() ao soltar. */
+function scrollParent(el){
+  for(let n = el && el.parentElement; n; n = n.parentElement){
+    const oy = getComputedStyle(n).overflowY;
+    if((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 2) return n;
+  }
+  return null;
+}
+export function startAutoScroll(el){
+  let y = null, raf = 0;
+  const host = scrollParent(el);
+  const tick = () => {
+    raf = requestAnimationFrame(tick);
+    if(y == null) return;
+    const top = host ? host.getBoundingClientRect().top : 0;
+    const bottom = host ? host.getBoundingClientRect().bottom : window.innerHeight;
+    const edge = 64;
+    const dir = y < top + edge ? -1 : (y > bottom - edge ? 1 : 0);
+    if(!dir) return;
+    const step = 10 * dir;
+    if(host) host.scrollTop += step; else window.scrollBy(0, step);
+  };
+  raf = requestAnimationFrame(tick);
+  return { update(v){ y = v; }, stop(){ cancelAnimationFrame(raf); } };
+}
+
 /* container: elemento pai das linhas. rowSel: seletor das linhas. Cada linha tem data-id e (opcional) um .drag-grip.
    onReorder(ids): chamado ao soltar, com os ids das linhas arrastáveis na nova ordem (só se mudou). */
 export function makeSortable(container, { rowSel, onReorder }){
@@ -26,7 +53,9 @@ export function makeSortable(container, { rowSel, onReorder }){
       const before = idsOf().join('|');
       row.classList.add('dragging');
       container.classList.add('sorting');
+      const auto = startAutoScroll(container);
       const move = ev => {
+        auto.update(ev.clientY);
         const rows = rowsOf().filter(r => r !== row);
         const y = ev.clientY;
         let placed = false;
@@ -43,6 +72,7 @@ export function makeSortable(container, { rowSel, onReorder }){
         document.removeEventListener('pointermove', move);
         document.removeEventListener('pointerup', end);
         document.removeEventListener('pointercancel', end);
+        auto.stop();
         row.classList.remove('dragging');
         container.classList.remove('sorting');
         const after = idsOf();
