@@ -1,3 +1,6 @@
+## [3.51.0] - 2026-11-13 15:00
+- Projetos, linha do tempo: a barra de cada tarefa virou um medidor com a porcentagem de avanço (subtarefas concluídas). Parte escura = feito, número dentro da barra (fora, à direita, em barras curtas). Concluída = 100%; sem subtarefas = 0%.
+
 ## [3.50.1] - 2026-11-13 14:00
 - Correção (Projetos): abrir uma tarefa, marcar uma etapa ou mudar o filtro refazia a tela e zerava a rolagem, levando o projeto ao topo. Agora o render guarda a rolagem da tela e devolve, se continua no mesmo projeto. Teste reproduz o salto (cerca de 1000 px antes da correção) no computador e no celular.
 

@@ -4695,3 +4695,17 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 /* ===== v3.49.1 — Biblioteca: topo mais próximo do cabeçalho ===== */
 #libraryView{padding-top:6px;}
 @media (max-width:768px){ #libraryView{padding-top:4px;} }
+
+/* ===== v3.51.0 — barra da tarefa na linha do tempo vira medidor com % ===== */
+.gantt-task-mark, .gantt-task-mark.todo, .gantt-task-mark.prog, .gantt-task-mark.done{
+  height:18px; top:9px; border-radius:9px; overflow:hidden; display:block; padding:0;
+  background:color-mix(in srgb, var(--pc) 20%, transparent);
+}
+.gantt-wrap.fit .gantt-task-mark{top:6px;}
+.gantt-task-mark .gantt-fill{position:absolute; left:0; top:0; bottom:0; background:var(--pc); border-radius:9px 0 0 9px;}
+.gantt-task-mark.done .gantt-fill{border-radius:9px;}
+.gantt-pct{position:absolute; inset:0; display:flex; align-items:center; padding:0 7px; font-size:10.5px; font-weight:800; line-height:1; color:var(--ink); white-space:nowrap;}
+.gantt-pct.on{color:#fff;}
+.gantt-task-mark:has(.gantt-pct.out){overflow:visible;}
+.gantt-pct.out{inset:auto; left:calc(100% + 6px); top:50%; transform:translateY(-50%); padding:0; color:var(--ink-soft);}
+.gantt-task-mark.done .gantt-pct{color:#fff;}

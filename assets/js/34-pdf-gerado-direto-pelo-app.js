@@ -241,20 +241,25 @@ export function ganttTaskRow(t, stageStateKey, pos){
   let mark = '', endPx = 0;
   const es = effectiveStart(t);
   const startLbl = (es.source === 'own' ? 'Início ' : 'Criada em ') + fmtDate(es.date);
-  const check = t.done ? icon('check') : '';
+  /* a barra é um medidor: a parte cheia é o avanço (subtarefas concluídas) e o número fica dentro dela.
+     Em barra curta o número vai para fora, à direita; abaixo de 45% ele fica logo depois da parte cheia. */
+  const pct = Math.round(taskProgress(t) * 100);
+  const bar = (from, w, title) => {
+    endPx = from + w;
+    const outside = w < 46;
+    const lab = `<span class="gantt-pct${pct >= 45 && !outside ? ' on' : ''}${outside ? ' out' : ''}"${!outside && pct < 45 ? ` style="padding-left:calc(${pct}% + 6px)"` : ''}>${pct}%</span>`;
+    if(outside) endPx += 34;
+    return `<div class="gantt-task-mark ${vis}" style="left:${from}px; width:${w}px;" title="${title} · ${pct}% concluído"><i class="gantt-fill" style="width:${pct}%"></i>${lab}</div>`;
+  };
   if(t.dueDate){
     const end = pos(t.dueDate);
     const from = es.date <= t.dueDate ? pos(es.date) : Math.max(end - 12, 0);
-    const w = Math.max(end - from, 12);
-    endPx = from + w;
-    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}px; width:${w}px;" title="${startLbl} · Prazo ${fmtDate(t.dueDate)}">${check}</div>`;
+    mark = bar(from, Math.max(end - from, 12), `${startLbl} · Prazo ${fmtDate(t.dueDate)}`);
   } else {
     /* sem prazo: a barra vai do início (ou criação) até hoje */
     const from = pos(es.date);
     const to = es.date < today ? pos(today) : from;
-    const w = Math.max(to - from, 12);
-    endPx = from + w;
-    mark = `<div class="gantt-task-mark ${vis}" style="left:${from}px; width:${w}px;" title="${startLbl} · sem prazo">${check}</div>`;
+    mark = bar(from, Math.max(to - from, 12), `${startLbl} · sem prazo`);
   }
   /* alerta de prazo (só tarefa aberta): atrasada em vermelho, hoje ou até 3 dias em laranja */
   let pill = '';
