@@ -1,3 +1,8 @@
+## [3.49.0] - 2026-11-13 02:00
+- Biblioteca: arrastar a linha de um item (alça de seis pontos) até uma coleção ou um espaço na lateral move o item; Esc cancela. Soltar fora não muda nada.
+- Biblioteca: Mover para… no menu de link, skill e página HTML (lista de coleções de todos os espaços; serve no celular, onde a alça não aparece).
+- Atalhos: botão Ordenar liga o modo de organizar (mostra todos os favoritos; arrastar ou setas ← →). A ordem fica salva (state.libQuickOrder); favoritos novos entram depois dos ordenados.
+
 ## [3.48.2] - 2026-11-13 01:00
 - Revisão geral (celular e computador, claro e escuro): sem erros de console e sem rolagem lateral em nenhuma tela.
 - Correção: a janela de notificações no celular saía cortada pela esquerda; agora ocupa a largura da tela.

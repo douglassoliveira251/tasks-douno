@@ -4655,3 +4655,37 @@ mark.lib-hit.cur{background:#FF9F43; outline:2px solid #FF9F43;}
 @media (max-width:768px){ .cal-week-alldayrow .cal-allday-seg .cal-evb-meta{display:none;} }
 
 @media (max-width:768px){ .topbar-notif-wrap .notif-dropdown{position:fixed; left:8px; right:8px; top:52px; width:auto; max-width:none; max-height:calc(100vh - 130px); overflow-y:auto;} }
+
+/* ===== v3.49.0 — Biblioteca: arrastar item para coleção, "Mover para…", ordem manual dos atalhos ===== */
+.lib-rgrip{width:22px; height:32px; border:0; background:transparent; color:var(--ink-faint); cursor:grab; display:inline-flex; align-items:center; justify-content:center; flex:none; padding:0; margin-left:-6px; touch-action:none; opacity:.55; border-radius:6px;}
+.lib-row:hover .lib-rgrip, .lib-rgrip:focus-visible{opacity:1;}
+.lib-rgrip:hover{background:var(--surface-2); color:var(--ink);} .lib-rgrip:active{cursor:grabbing;}
+.lib-row-drag{opacity:.45;}
+.lib-ghost{position:fixed; z-index:2000; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:99px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; box-shadow:0 8px 20px rgba(15,23,42,.3);}
+body.lib-dragging{cursor:grabbing; user-select:none;}
+body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{transition:background .1s;}
+#libTree .drop-on{background:color-mix(in srgb, var(--primary) 16%, var(--surface)) !important; outline:2px dashed var(--primary); outline-offset:-2px; border-radius:8px;}
+.lib-move-list{max-height:52vh; overflow-y:auto; display:flex; flex-direction:column; gap:2px; margin:0 0 6px;}
+.lib-move-list .lib-combo-opt{display:flex; align-items:center; gap:8px; width:100%;}
+.lib-move-list .lib-combo-opt svg{width:15px; height:15px; color:var(--ink-faint); flex:none;}
+.lib-move-list .lib-dot{width:9px; height:9px; border-radius:50%; flex:none;}
+.lib-qord{display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 10px; border:1px solid var(--border); border-radius:99px; background:var(--surface); color:var(--ink-soft); font:inherit; font-size:11.5px; font-weight:800; cursor:pointer; flex:none;}
+.lib-qord svg{width:13px; height:13px;} .lib-qord:hover{border-color:var(--primary); color:var(--ink);}
+.lib-qord.on{background:var(--primary); border-color:var(--primary); color:#fff;}
+.lib-qrow.org{flex-wrap:wrap; overflow:visible;}
+.lib-qrow.org .lib-qchip{cursor:grab; touch-action:none; border-style:dashed; user-select:none;}
+.lib-qrow.org .lib-qchip.dragging{opacity:.5; cursor:grabbing;}
+.lib-quick{flex-wrap:wrap;} .lib-qhint{flex:1 1 100%; font-size:11.5px; color:var(--ink-soft); margin:-4px 0 4px 2px;}
+.lib-quick .lib-qrow{flex:1 1 0;}
+@media (max-width:768px){
+  .lib-rgrip{display:none;}
+  .lib-quick{flex-direction:row; flex-wrap:wrap; align-items:center;}
+  .lib-qlbl{flex:1 1 auto;} .lib-qrow{order:3; flex:1 1 100%;} .lib-qord{order:2;}
+}
+
+#libMoveOverlay .modal{max-width:none; padding:22px 22px 18px;}
+@media (max-width:768px){
+  #libMoveOverlay{align-items:flex-end; padding:0;}
+  #libMoveOverlay .modal{width:100%; border-radius:18px 18px 0 0; max-height:92vh; overflow-y:auto; padding:18px 16px 20px;}
+  .lib-quick .lib-qrow{order:3; flex:1 1 100%;}
+}

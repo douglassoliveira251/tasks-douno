@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.49.0', date:'13/11/2026', title:'Arrastar para coleções e ordem dos atalhos', text:'Na Biblioteca, arraste um item pela alça (seis pontinhos) até uma coleção da lateral para movê-lo. No menu da linha há também Mover para…, que funciona no celular. Nos atalhos, o botão Ordenar deixa arrastar (ou usar as setas) para escolher a ordem, que fica salva.' },
   { version:'3.48.2', date:'13/11/2026', title:'Revisão geral do celular', text:'Revisão de todas as telas no celular e no computador: as notificações não ficam mais cortadas na lateral, a semana do calendário não mostra mais texto quebrado nas agendas e o voltar das Configurações ficou legível no modo escuro.' },
   { version:'3.48.1', date:'13/11/2026', title:'Ordenar dos Projetos', text:'Em Projetos, o Ordenar agora escolhe pela linha (sem seletor) e a escolha fica salva depois de atualizar a página, igual às Notas.' },
   { version:'3.48.0', date:'12/11/2026', title:'Atalhos rápidos na Biblioteca', text:'No topo da Biblioteca há uma faixa de atalhos com os seus favoritos: links abrem o site, skills e páginas HTML abrem o item. Mostra até 6 (links primeiro) e o resto fica em Ver todos. Para colocar algo ali, favorite com a estrela.' },

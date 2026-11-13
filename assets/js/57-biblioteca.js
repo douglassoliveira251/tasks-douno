@@ -8,6 +8,7 @@ import { icon } from './icones.js';
 import { render } from './48-render-principal.js';
 import { renderMarkdown } from './58-markdown.js';
 import { pageUrl } from './49-rotas.js';
+import { GRIP_SVG } from './56-arrastar-ordem.js';
 
 /* ===================== BIBLIOTECA =====================
    Central de recursos. Cada item tem um tipo (por ora só "link"); as COLEÇÕES são pastas (até 3 níveis), cada espaço com a sua.
@@ -34,7 +35,7 @@ export const LIB_TYPES = [
   { key: 'check', label: 'Checklists', ico: icon('list-numbers') },
 ];
 
-const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null, pending: null, find: '', findIdx: 0 };
+const LIB = { sel: { kind: 'all', id: null }, type: null, q: '', open: new Set(), sheetOpen: false, openId: null, editing: false, draft: null, pending: null, find: '', findIdx: 0, qEdit: false };
 
 /* ---------- dados ---------- */
 const folders = () => (Array.isArray(G.state.libFolders) ? G.state.libFolders : (G.state.libFolders = []));
@@ -221,9 +222,10 @@ function openFolderMenu(btn, f){
 function openItemMenu(btn, it){
   if(it.type === 'skill') return openSkillMenu(btn, it);
   if(it.type === 'html') return openHtmlMenu(btn, it);
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir site</button><button type="button" class="task-menu-item" data-m="edit">Ver e editar</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir site</button><button type="button" class="task-menu-item" data-m="edit">Ver e editar</button><button type="button" class="task-menu-item" data-m="move">Mover para…</button><button type="button" class="task-menu-item" data-m="copy">Copiar endereço</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => window.open(it.url, '_blank', 'noopener,noreferrer'),
     edit: () => openDetail(it.id),
+    move: () => openMoveDialog(it),
     copy: () => { try{ navigator.clipboard.writeText(it.url).then(() => showToast('Endereço copiado.')); }catch(e){} },
     del: () => openConfirmPortal(btn, 'Excluir este item da Biblioteca? Essa ação não pode ser desfeita.', () => { G.state.libItems = items().filter(x => x.id !== it.id); markDirty(); }),
   });
@@ -437,6 +439,7 @@ function paintMain(view){
   host.querySelectorAll('[data-imenu]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.imenu); if(it) openItemMenu(b, it); }; });
   host.querySelectorAll('[data-web]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.web); if(it) window.open(it.url, '_blank', 'noopener,noreferrer'); }; });
   host.querySelectorAll('[data-dl]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); const it = items().find(x => x.id === b.dataset.dl); if(it) (it.type === 'html' ? exportHtml(it) : exportSkill(it)); }; });
+  bindItemDrag(host);
   host.querySelectorAll('[data-showp]').forEach(b => { b.onclick = (e) => { e.stopPropagation(); openDetail(b.dataset.showp); }; });
   host.querySelectorAll('.lib-row').forEach(r => { r.onclick = (e) => { if(e.target.closest('a,button')) return; const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); }; r.onkeydown = (e) => { if(e.key === 'Enter' && e.target === r){ e.preventDefault(); const it = items().find(x => x.id === r.dataset.item); if(it) openDetail(it.id); } }; });
 }
@@ -571,8 +574,9 @@ function openOverwriteDialog(it, r){
 }
 
 function openSkillMenu(btn, it){
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="exp">Exportar .md</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="exp">Exportar .md</button><button type="button" class="task-menu-item" data-m="edit">Editar</button><button type="button" class="task-menu-item" data-m="move">Mover para…</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => openDetail(it.id),
+    move: () => openMoveDialog(it),
     exp: () => exportSkill(it),
     edit: () => { LIB.openId = it.id; LIB.editing = true; LIB.draft = null; LIB.pending = null; render(); },
     del: () => deleteSkill(it, btn),
@@ -925,10 +929,11 @@ function deleteHtml(it, anchor){
   });
 }
 function openHtmlMenu(btn, it){
-  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="tab">Abrir em nova aba</button><button type="button" class="task-menu-item" data-m="edit">Editar dados</button><button type="button" class="task-menu-item" data-m="rep">Substituir arquivo</button><button type="button" class="task-menu-item" data-m="dl">Baixar .html</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
+  openMenu(btn, `<button type="button" class="task-menu-item" data-m="open">Abrir</button><button type="button" class="task-menu-item" data-m="tab">Abrir em nova aba</button><button type="button" class="task-menu-item" data-m="edit">Editar dados</button><button type="button" class="task-menu-item" data-m="move">Mover para…</button><button type="button" class="task-menu-item" data-m="rep">Substituir arquivo</button><button type="button" class="task-menu-item" data-m="dl">Baixar .html</button><button type="button" class="task-menu-item" data-m="del" style="color:var(--danger)">Excluir</button>`, {
     open: () => openDetail(it.id),
     tab: () => openHtmlTab(it),
     edit: () => openHtmlModal(it),
+    move: () => openMoveDialog(it),
     rep: () => replaceHtmlFile(it),
     dl: () => exportHtml(it),
     del: () => deleteHtml(it, btn),
@@ -1000,12 +1005,137 @@ function openTypePicker(){
   setTimeout(() => { const c = modal.querySelector('.lib-opt.cur'); if(c) c.focus(); }, 30);
 }
 
+/* ===================== ARRASTAR ITEM PARA COLEÇÃO · MOVER PARA… · ORDEM DOS ATALHOS ===================== */
+function moveItemTo(it, { folderId, spaceId }){
+  const f = folderId ? folderById(folderId) : null;
+  it.folderId = f ? f.id : null;
+  it.categoryId = f ? f.categoryId : (spaceId || it.categoryId);
+  it.updatedAt = Date.now();
+  if(f) LIB.open.add(f.id);
+  markDirty();
+  const sp = catById(it.categoryId);
+  showToast('Movido para ' + (f ? folderPath(f.id).join(' › ') : (sp ? sp.name + ' (sem coleção)' : 'sem coleção')) + '.');
+}
+
+/* "Mover para…": lista de coleções (todos os espaços, ou só o escolhido no topo); serve também no celular, onde a árvore fica numa janela */
+function openMoveDialog(it){
+  const ov = ensureProjectOverlay('libMoveOverlay');
+  const modal = ov.firstElementChild;
+  const spaces = G.activeCategoryFilter && catById(G.activeCategoryFilter) ? [catById(G.activeCategoryFilter)] : G.state.categories;
+  let rows = '';
+  spaces.forEach(sp => {
+    const cur = it.categoryId === sp.id && !it.folderId;
+    rows += `<button type="button" class="lib-combo-opt lib-mv-sp${cur ? ' on' : ''}" data-sp="${sp.id}"><i class="lib-dot" style="background:${sp.color || 'var(--ink-faint)'}"></i>${escapeHtml(sp.name)} · sem coleção</button>`;
+    const fs = folders().filter(f => f.categoryId === sp.id);
+    const walk = (pid, d) => childrenOf(pid, fs).forEach(f => {
+      if(d <= LIB_MAX_DEPTH) rows += `<button type="button" class="lib-combo-opt${it.folderId === f.id ? ' on' : ''}" data-fo="${f.id}" style="padding-left:${14 + d * 14}px">${icon('folder')}<span>${escapeHtml(f.name)}</span></button>`;
+      walk(f.id, d + 1);
+    });
+    walk(null, 1);
+  });
+  modal.className = 'modal nm nm-560 lib-pick';
+  modal.innerHTML = `<div class="lib-pick-t">Mover para…</div><div class="lib-pick-s">${escapeHtml(it.title || 'Item')}</div><div class="lib-move-list">${rows}</div><div class="lib-pick-f"><button type="button" class="btn ghost small" id="libMvCancel">Cancelar</button></div>`;
+  ov.classList.add('show');
+  const close = () => closeOv(ov);
+  modal.querySelector('#libMvCancel').onclick = close;
+  modal.querySelectorAll('[data-sp]').forEach(b => { b.onclick = () => { close(); moveItemTo(it, { folderId: null, spaceId: b.dataset.sp }); }; });
+  modal.querySelectorAll('[data-fo]').forEach(b => { b.onclick = () => { close(); moveItemTo(it, { folderId: b.dataset.fo }); }; });
+  ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
+}
+
+/* arrastar a linha (pela alça) até uma coleção da lateral (ou até o nome de um espaço, para tirar da coleção) */
+function bindItemDrag(host){
+  host.querySelectorAll('.lib-row[data-item]').forEach(row => {
+    const it = items().find(x => x.id === row.dataset.item);
+    if(!it) return;
+    row.insertAdjacentHTML('afterbegin', `<button type="button" class="lib-rgrip" title="Arraste até uma coleção da lateral" aria-label="Arrastar para uma coleção">${GRIP_SVG}</button>`);
+    const grip = row.querySelector('.lib-rgrip');
+    grip.onclick = (e) => e.stopPropagation();
+    grip.addEventListener('pointerdown', (e) => {
+      if(e.button !== undefined && e.button !== 0) return;
+      e.preventDefault(); e.stopPropagation();
+      const ghost = document.createElement('div');
+      ghost.className = 'lib-ghost'; ghost.textContent = it.title || 'Item';
+      document.body.appendChild(ghost);
+      document.body.classList.add('lib-dragging');
+      row.classList.add('lib-row-drag');
+      let target = null;
+      const targetAt = (x, y) => { const el = document.elementFromPoint(x, y); return el ? el.closest('#libTree [data-folder], #libTree .lib-space[data-space]') : null; };
+      const move = (ev) => {
+        ghost.style.left = (ev.clientX + 12) + 'px'; ghost.style.top = (ev.clientY + 10) + 'px';
+        const t = targetAt(ev.clientX, ev.clientY);
+        if(t !== target){ if(target) target.classList.remove('drop-on'); target = t; if(target) target.classList.add('drop-on'); }
+      };
+      const done = (apply) => {
+        document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', cancel); document.removeEventListener('keydown', key);
+        ghost.remove(); document.body.classList.remove('lib-dragging'); row.classList.remove('lib-row-drag');
+        const t = target; if(t) t.classList.remove('drop-on');
+        if(apply && t){ if(t.dataset.folder) moveItemTo(it, { folderId: t.dataset.folder }); else moveItemTo(it, { folderId: null, spaceId: t.dataset.space }); }
+      };
+      const up = () => done(true), cancel = () => done(false), key = (ev) => { if(ev.key === 'Escape') done(false); };
+      document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', cancel); document.addEventListener('keydown', key);
+      move(e);
+    });
+  });
+}
+
+/* ordem dos atalhos: "Ordenar" liga o modo de organizar (todos os favoritos, arrastar ou setas ← →) */
+function bindQuickOrder(view){
+  const btn = view.querySelector('#libQOrder');
+  if(btn) btn.onclick = () => { LIB.qEdit = !LIB.qEdit; render(); };
+  const row = view.querySelector('.lib-qrow.org');
+  if(!row) return;
+  const chips = () => Array.from(row.querySelectorAll('.lib-qchip'));
+  const save = (ids) => { G.state.libQuickOrder = ids; markDirty(); };
+  chips().forEach(chip => {
+    chip.addEventListener('pointerdown', (e) => {
+      if(e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      const before = chips().map(c => c.dataset.quick).join('|');
+      chip.classList.add('dragging');
+      const move = (ev) => {
+        const others = chips().filter(c => c !== chip);
+        let placed = false;
+        for(const c of others){
+          const b = c.getBoundingClientRect();
+          if(ev.clientY < b.top || (ev.clientY <= b.bottom && ev.clientX < b.left + b.width / 2)){ if(c.previousElementSibling !== chip) row.insertBefore(chip, c); placed = true; break; }
+        }
+        if(!placed && others.length){ const last = others[others.length - 1]; if(last.nextElementSibling !== chip) row.insertBefore(chip, last.nextSibling); }
+      };
+      const end = () => {
+        document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', end); document.removeEventListener('pointercancel', end);
+        chip.classList.remove('dragging');
+        const after = chips().map(c => c.dataset.quick);
+        if(after.join('|') !== before) save(after);
+      };
+      document.addEventListener('pointermove', move); document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+    });
+    chip.addEventListener('keydown', (e) => {
+      if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      const ids = chips().map(c => c.dataset.quick), i = ids.indexOf(chip.dataset.quick), j = i + (e.key === 'ArrowLeft' ? -1 : 1);
+      if(j < 0 || j >= ids.length) return;
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      const id = chip.dataset.quick;
+      save(ids);
+      setTimeout(() => { const c = document.querySelector('.lib-qchip[data-quick="' + id + '"]'); if(c) c.focus(); }, 0);
+    });
+  });
+}
+
 /* faixa de atalhos: os favoritados (links primeiro) com abertura em 1 clique; mostra até 6 e o resto vai em "Ver todos" */
 const QUICK_MAX = 6;
 function quickHtml(){
   if(LIB.openId) return '';
-  const all = scopeItems().filter(i => i.favorite).sort((a, b) => (a.type === 'link' ? 0 : 1) - (b.type === 'link' ? 0 : 1) || (b.updatedAt || 0) - (a.updatedAt || 0));
+  const ord = Array.isArray(G.state.libQuickOrder) ? G.state.libQuickOrder : [];
+  const all = scopeItems().filter(i => i.favorite).sort((a, b) => {
+    const ia = ord.indexOf(a.id), ib = ord.indexOf(b.id);
+    if(ia >= 0 && ib >= 0) return ia - ib;
+    if(ia >= 0) return -1; if(ib >= 0) return 1;
+    return (a.type === 'link' ? 0 : 1) - (b.type === 'link' ? 0 : 1) || (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
   if(!all.length) return '';
+  const edit = !!LIB.qEdit;
   const chip = (it) => {
     let bg, mark, kind = '';
     if(it.type === 'link'){ const h = hostOf(it.url); bg = colorOf(h); mark = escapeHtml((it.title || h || '?').trim().charAt(0).toUpperCase()); }
@@ -1014,7 +1144,7 @@ function quickHtml(){
     const name = it.title || (it.type === 'link' ? hostOf(it.url) : 'Sem título');
     return `<button type="button" class="lib-qchip${kind}" data-quick="${it.id}" title="${escapeHtml(name)}${it.type === 'link' ? ' (abre o site)' : ''}"><i style="background:${bg}">${mark}</i><span>${escapeHtml(name)}</span></button>`;
   };
-  return `<div class="lib-quick" aria-label="Atalhos (favoritos)"><div class="lib-qlbl">${STAR_ON}<span>Atalhos</span></div><div class="lib-qrow">${all.slice(0, QUICK_MAX).map(chip).join('')}${all.length > QUICK_MAX ? `<button type="button" class="lib-qmore" id="libQAll">Ver todos (${all.length}) ›</button>` : ''}</div></div>`;
+  return `<div class="lib-quick" aria-label="Atalhos (favoritos)"><div class="lib-qlbl">${STAR_ON}<span>Atalhos</span></div><div class="lib-qrow${edit ? ' org' : ''}">${(edit ? all : all.slice(0, QUICK_MAX)).map(chip).join('')}${!edit && all.length > QUICK_MAX ? `<button type="button" class="lib-qmore" id="libQAll">Ver todos (${all.length}) ›</button>` : ''}</div><button type="button" class="lib-qord${edit ? ' on' : ''}" id="libQOrder" title="${edit ? 'Concluir a ordenação' : 'Ordenar os atalhos'}" aria-pressed="${edit}">${edit ? icon('check') + '<span>Concluir</span>' : icon('rows') + '<span>Ordenar</span>'}</button></div>${edit ? '<div class="lib-qhint">Arraste os atalhos para mudar a ordem (ou use as setas ← →).</div>' : ''}`;
 }
 
 export function renderLibrary(){
@@ -1046,7 +1176,8 @@ export function renderLibrary(){
   bindTree(view.querySelector('#libTree'), () => render(), repaintTree);
   view.querySelectorAll('[data-type]').forEach(b => { if(b.disabled) return; b.onclick = () => { LIB.type = LIB.type === b.dataset.type ? null : b.dataset.type; closeDetail(); render(); }; });
   view.querySelector('#libMFolder').onclick = () => openTreeSheet();
-  view.querySelectorAll('[data-quick]').forEach(b => { b.onclick = () => { const it = items().find(x => x.id === b.dataset.quick); if(!it) return; if(it.type === 'link') window.open(it.url, '_blank', 'noopener,noreferrer'); else openDetail(it.id); }; });
+  view.querySelectorAll('[data-quick]').forEach(b => { b.onclick = () => { if(LIB.qEdit) return; const it = items().find(x => x.id === b.dataset.quick); if(!it) return; if(it.type === 'link') window.open(it.url, '_blank', 'noopener,noreferrer'); else openDetail(it.id); }; });
+  bindQuickOrder(view);
   const qAll = view.querySelector('#libQAll'); if(qAll) qAll.onclick = () => { LIB.sel = { kind: 'fav', id: null }; LIB.type = null; closeDetail(); render(); };
   const imp = view.querySelector('#libImport'); if(imp) imp.onclick = () => pickMarkdownFiles();
   /* a busca mora no topo, à esquerda do botão Novo (mesma faixa dos filtros das outras telas) */
