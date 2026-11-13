@@ -1,3 +1,6 @@
+## [3.50.0] - 2026-11-13 13:00
+- Tarefas: marcar uma subtarefa como concluída muda a tarefa de Não iniciado para Em andamento automaticamente. Desmarcar não volta o status; tarefas em Em andamento ou Concluída não mudam.
+
 ## [3.49.5] - 2026-11-13 12:00
 - Correção (modo escuro, painel da tarefa): a caixa do Retomar em tinha fundo igual ao do campo, e o título ficava dentro dela, diferente do Prazo. Agora a caixa é transparente e o título tem a mesma cor do Prazo. Teste confere caixa, campo e título nos dois temas, no computador e no celular.
 

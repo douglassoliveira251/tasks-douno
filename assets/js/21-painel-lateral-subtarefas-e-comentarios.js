@@ -33,7 +33,10 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
       const t = getOrCreateActiveTask(); if(!t) return;
       const sub = t.subtasks.find(s => s.id === st.id);
       if(sub){
+        const wasDone = sub.done;
         toggleSubtaskDone(t, sub);
+        /* concluir uma subtarefa implica que a tarefa já está em andamento */
+        if(!wasDone && sub.done && (t.status || 'nao_iniciado') === 'nao_iniciado' && !t.done) t.status = 'em_andamento';
         markDirty();
       }
     };
