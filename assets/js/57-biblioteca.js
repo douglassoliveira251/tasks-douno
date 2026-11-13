@@ -485,6 +485,8 @@ function skillRow(it){
 }
 
 function openDetail(id){ LIB.openId = id; LIB.editing = false; LIB.draft = null; LIB.pending = null; render(); window.scrollTo(0, 0); }
+/* abre um item da Biblioteca direto no detalhe (usado pela documentação do projeto) */
+export function openLibraryItem(id){ LIB.sel = { kind: 'all', id: null }; LIB.type = null; LIB.q = ''; G.currentView = 'library'; openDetail(id); }
 function closeDetail(){ LIB.openId = null; LIB.editing = false; LIB.draft = null; LIB.pending = null; }
 
 function copyText(text, msg){

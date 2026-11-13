@@ -10,6 +10,7 @@ import { ganttTaskRow, openProjectMenu } from './34-pdf-gerado-direto-pelo-app.j
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
 import { GANTT } from './estado-ui.js';
+import { DOCS_UI, projectDocsCount, renderProjectDocs } from './61-documentacao-projeto.js';
 
 export function renderProjects(){
   const view = document.getElementById('projectsView');
@@ -260,8 +261,9 @@ export function renderProjectDetail(view, p){
   const chips = projectChipsHtml(st) || `<span class="proj-chip">${st.pct > 0 ? 'Em andamento' : 'Não iniciado'}</span>`;
   const endTxt = p.endDate ? fmtDate(p.endDate) : (st.end ? fmtDate(st.end) : '—');
   const stat = (v, of, l, color) => `<div><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b><small>${l}</small></div>`;
+  const nDocs = projectDocsCount(p);
   const isMobileP = window.matchMedia('(max-width:768px)').matches;
-  const tabNow = !isMobileP ? 'timeline' : (G.projectTab === 'etapas' ? 'etapas' : 'timeline');
+  const tabNow = !isMobileP ? 'timeline' : (G.projectTab === 'etapas' ? 'etapas' : (G.projectTab === 'docs' ? 'docs' : 'timeline'));
   const kp = (v, of, l, color) => `<div class="pd-kp"><small>${l}</small><b${color ? ` style="color:${color}"` : ''}>${v}${of != null ? `<span>/${of}</span>` : ''}</b></div>`;
   const daysLeft = (p.endDate || st.end) ? Math.round((new Date((p.endDate || st.end) + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) : null;
   view.innerHTML = `
@@ -285,6 +287,7 @@ export function renderProjectDetail(view, p){
           <span class="pd-tabs">
             <button type="button" class="proj-tab pd-tab-etapas ${tabNow === 'etapas' ? 'on' : ''}" data-tab="etapas">Etapas</button>
             <button type="button" class="proj-tab ${tabNow === 'timeline' ? 'on' : ''}" data-tab="timeline">Linha do tempo</button>
+            <button type="button" class="proj-tab pd-tab-docs ${tabNow === 'docs' ? 'on' : ''}" data-tab="docs">Docs${nDocs ? ' · ' + nDocs : ''}</button>
           </span>
           <button type="button" class="prj-act" id="prjEditTop">${icon('pencil-simple')}Editar</button>
           <button type="button" class="prj-act" id="prjAddStage">${icon('stack')}Nova etapa</button>
@@ -299,7 +302,8 @@ export function renderProjectDetail(view, p){
     </div>
       <aside class="proj-side ${selStage ? '' : 'is-resumo'}">
         ${selStage ? stageSideHtml : `
-        <div class="proj-side-label">Resumo</div>
+        <div class="pside-tabs" role="tablist"><button type="button" role="tab" class="${DOCS_UI.sideTab !== 'docs' ? 'on' : ''}" data-stab="resumo">Resumo</button><button type="button" role="tab" class="${DOCS_UI.sideTab === 'docs' ? 'on' : ''}" data-stab="docs">Documentação${nDocs ? '<i>' + nDocs + '</i>' : ''}</button></div>
+        ${DOCS_UI.sideTab === 'docs' ? '<div id="pdocSide"></div>' : `
         <div class="proj-side-desc">
           <div class="proj-side-label" style="margin-top:0;">Descrição</div>
           <div class="proj-desc-row" id="prjDescRow"></div>
@@ -326,7 +330,7 @@ export function renderProjectDetail(view, p){
             return `<div class="proj-side-task" data-task-id="${t.id}"><i class="${t.dueDate && t.dueDate < today ? 'late' : ''}"></i><div><b>${escapeHtml(t.title || 'Sem título')}</b><small>${sg ? escapeHtml(sg.name) + ' · ' : ''}${t.dueDate ? 'prazo ' + fmtDate(t.dueDate) : 'sem prazo'}</small></div></div>`;
           }).join('');
         })()}
-        </div>`}
+        </div>`}`}
       </aside>
     </div>`;
   if(G.activeTaskId || G.creatingNewTask){
@@ -370,6 +374,9 @@ export function renderProjectDetail(view, p){
     more.onclick = (e) => { e.stopPropagation(); const open = text.classList.toggle('open'); more.textContent = open ? 'Ver menos' : 'Ver mais'; };
   }
   renderProjectDesc(false);
+  view.querySelectorAll('.pside-tabs [data-stab]').forEach(b => { b.onclick = () => { DOCS_UI.sideTab = b.dataset.stab; render(); }; });
+  const pdocSide = view.querySelector('#pdocSide');
+  if(pdocSide) renderProjectDocs(pdocSide, p);
   const sideBack = view.querySelector('#stgSideBack');
   if(sideBack) sideBack.onclick = () => { G.selectedStageId = null; render(); };
   const sideEdit = view.querySelector('#stgSideEdit');
@@ -425,6 +432,8 @@ export function renderProjectDetail(view, p){
   };
   view.querySelectorAll('.proj-tab').forEach(b => { b.onclick = () => { G.projectTab = b.dataset.tab; render(); }; });
   const body = view.querySelector('#prjBody');
+
+  if(tabNow === 'docs'){ renderProjectDocs(body, p); return; }
 
   if(!stages.length){
     body.innerHTML = '<div class="empty-state"><p>Este projeto ainda não tem etapas. Use "+ Etapa" para começar.</p></div>';

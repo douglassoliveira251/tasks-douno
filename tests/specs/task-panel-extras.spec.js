@@ -20,3 +20,16 @@ test('prazo traz 08:00 e subtarefa concluída vai pro fim e volta', async ({ pag
   await page.locator('.tp-subtask-row').last().locator('.task-check').click();
   expect(await titles()).toEqual(['Um', 'Dois', 'Três']);
 });
+
+test('Prioridade é obrigatória: clicar de novo na marcada não desmarca', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => { state.tasks = [{ id: 'pr1', title: 'Tarefa P', done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, categoryId: state.categories[0].id, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, { id: 'pr2', title: 'Sem prioridade', done: false, status: 'nao_iniciado', priority: null, dueDate: null, categoryId: state.categories[0].id, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 2 }]; activeTaskId = 'pr1'; render(); });
+  const alta = page.locator('.tp-priority-btn[data-p="alta"]');
+  await alta.click();
+  await expect(alta).toHaveClass(/active/);
+  await page.locator('.tp-priority-btn[data-p="alta"]').click();
+  await expect(page.locator('.tp-priority-btn.active')).toHaveCount(1);
+  await expect(page.locator('.tp-priority-btn[data-p="alta"]')).toHaveClass(/active/);
+  expect(await page.evaluate(() => state.tasks[0].priority)).toBe('alta');
+});

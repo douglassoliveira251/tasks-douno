@@ -73,6 +73,7 @@ export function normalizeState(){
     if(n.linkedTaskId === undefined) n.linkedTaskId = null;
     if(n.pinnedAt === undefined) n.pinnedAt = n.pinned ? (n.updatedAt || Date.now()) : null;
   });
+  G.state.tasks.forEach(t => { if(!['baixa','media','alta','critica'].includes(t.priority)) t.priority = 'media'; }); // prioridade é obrigatória
   G.state.tasks.forEach(t => {
     if(t.description === undefined) t.description = '';
     if(t.dueTime === undefined) t.dueTime = null;

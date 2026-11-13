@@ -26,7 +26,7 @@ test.describe('Celular sem Visão geral e Projetos sem aba Lista', () => {
       state.tasks = [];
       currentView = 'projects'; activeProjectId = 'p1'; projectTab = 'lista'; render();
     });
-    await expect(page.locator('.proj-tab')).toHaveCount(2);
+    await expect(page.locator('.proj-tab')).toHaveCount(3); // Etapas, Linha do tempo e Docs
     await expect(page.locator('.proj-tab[data-tab="lista"]')).toHaveCount(0);
     await expect(page.locator('.proj-tab[data-tab="timeline"]')).toHaveClass(/on/);
     await page.screenshot({ path: 'test-results/projeto-mobile-abas.png' });

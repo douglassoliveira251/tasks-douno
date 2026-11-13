@@ -3715,7 +3715,7 @@
   }
 
   /* v3.17.0: projeto no celular — cabeçalho de duas linhas, seletor Etapas / Linha do tempo / Lista, etapas em cartões e botão flutuante de tarefa */
-  .pd-msub, .pd-mbar, .pd-tab-etapas{display:none;}
+  .pd-msub, .pd-mbar, .pd-tab-etapas, .pd-tab-docs{display:none;}
   .pe-list{display:flex; flex-direction:column; gap:10px;}
   .pe-card{border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden;}
   .pe-head{padding:11px 13px; cursor:pointer;}
@@ -3746,7 +3746,7 @@
     .pd-mbar{grid-area:bar; display:block; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden;}
     .pd-mbar i{display:block; height:100%; background:var(--primary); border-radius:3px;}
     .pd-tabs{grid-area:seg; display:flex; gap:2px; background:var(--surface-2); border-radius:10px; padding:3px; margin-top:2px;}
-    .pd-head .pd-tabs .proj-tab, .pd-head .pd-tabs .pd-tab-etapas{display:flex; flex:1; justify-content:center; height:30px; padding:0; border:0; box-shadow:none; background:transparent; border-radius:8px; font-size:12px;}
+    .pd-head .pd-tabs .proj-tab, .pd-head .pd-tabs .pd-tab-etapas, .pd-head .pd-tabs .pd-tab-docs{display:flex; flex:1; justify-content:center; height:30px; padding:0; border:0; box-shadow:none; background:transparent; border-radius:8px; font-size:12px;}
     .pd-head .pd-tabs .proj-tab.on{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.1);}
     .pd-head #prjAddTask{position:fixed; right:16px; bottom:calc(74px + env(safe-area-inset-bottom, 0px)); z-index:40; height:46px; padding:0 18px; border-radius:23px; font-size:13px; font-weight:700; box-shadow:0 6px 16px rgba(47,95,158,.4);}
     .pd-head #prjAddTask svg{width:15px; height:15px;}
@@ -4752,3 +4752,41 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .stage-okc{display:inline-grid; place-items:center; width:15px; height:15px; border-radius:50%; background:#2f9e6a; color:#fff; flex:none;}
 .stage-okc svg{width:9px; height:9px;}
 @media (max-width:768px){ .stage-okc{display:none;} }
+
+/* v3.55.0: documentação do projeto (aba no painel à direita e Docs no celular) */
+.pside-tabs{display:flex; border-bottom:1px solid var(--border); margin:-2px 0 10px;}
+.pside-tabs button{border:0; background:none; padding:8px 14px; font:inherit; font-size:12.5px; color:var(--ink-faint); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;}
+.pside-tabs button.on{color:var(--primary); font-weight:700; border-bottom-color:var(--primary);}
+.pside-tabs i{font-style:normal; background:color-mix(in srgb,var(--primary) 14%,transparent); color:var(--primary); border-radius:99px; padding:1px 7px; font-size:10px; margin-left:5px;}
+.pdoc-bar{display:flex; gap:6px; align-items:center; margin-bottom:6px; flex-wrap:wrap;}
+.pdoc-chip{border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); border-radius:99px; padding:3px 11px; font:inherit; font-size:11.5px; cursor:pointer;}
+.pdoc-chip.on{background:var(--ink); color:var(--surface); border-color:var(--ink);}
+.pdoc-add{margin-left:auto; display:inline-flex; align-items:center; gap:5px; border:0; background:none; color:var(--primary); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; padding:4px 2px;}
+.pdoc-add svg{width:14px; height:14px;}
+.pdoc .proj-side-label em{text-transform:none; letter-spacing:0; font-weight:400; font-style:normal;}
+.pdoc-it{display:flex; gap:10px; align-items:center; padding:8px 4px; border-bottom:1px solid var(--border); cursor:pointer; border-radius:8px;}
+.pdoc-it:hover{background:var(--surface-2);}
+.pdoc-ti{width:28px; height:28px; border-radius:8px; display:grid; place-items:center; flex:none; background:var(--surface-2); color:var(--ink-soft);}
+.pdoc-ti svg{width:15px; height:15px;}
+.pdoc-ti.t-link{background:#e0ecfb; color:#2f5d9e;} .pdoc-ti.t-skill{background:#efe3fb; color:#7a4fb3;} .pdoc-ti.t-html, .pdoc-ti.t-file{background:#fde9d2; color:#b5651d;} .pdoc-ti.t-note{background:#fff3c4; color:#8a6d00;}
+[data-theme="dark"] .pdoc-ti[class*="t-"]{background:var(--surface-2); color:var(--ink-soft);}
+.pdoc-tx{min-width:0; flex:1;}
+.pdoc-tx b{display:block; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pdoc-tx small{color:var(--ink-faint); font-size:11px;}
+.pdoc-x{border:0; background:none; color:var(--ink-faint); cursor:pointer; padding:4px; border-radius:6px; display:grid; place-items:center;}
+.pdoc-x svg{width:14px; height:14px;} .pdoc-x:hover{color:var(--danger); background:var(--surface);}
+.pdoc-from{font-size:10px; background:var(--surface-2); color:var(--ink-soft); border-radius:99px; padding:2px 8px; white-space:nowrap; max-width:42%; overflow:hidden; text-overflow:ellipsis;}
+.pdoc-empty{padding:8px 0;}
+.modal.pdoc-pick{width:min(520px,calc(100vw - 24px)); padding:18px; box-sizing:border-box;}
+.pdoc-pt{font-size:16px; font-weight:700; margin-bottom:10px;}
+.pdoc-tabs{display:flex; gap:4px; background:var(--surface-2); border-radius:10px; padding:3px; width:max-content; margin-bottom:10px;}
+.pdoc-tabs button{border:0; background:none; padding:6px 14px; border-radius:8px; font:inherit; font-size:12.5px; color:var(--ink-soft); cursor:pointer;}
+.pdoc-tabs button.on{background:var(--surface); color:var(--ink); font-weight:700; box-shadow:0 1px 2px rgba(15,23,42,.1);}
+.pdoc-search{display:flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:10px; padding:0 10px; margin-bottom:8px;}
+.pdoc-search svg{width:15px; height:15px; color:var(--ink-faint);}
+.pdoc-search input{flex:1; border:0; outline:0; background:none; padding:9px 0; font:inherit; font-size:13px; color:var(--ink);}
+.pdoc-list{max-height:min(340px,48vh); overflow:auto;}
+.pdoc-pr{display:flex; gap:10px; align-items:center; padding:7px 4px; border-bottom:1px solid var(--border); cursor:pointer;}
+.pdoc-pr input{width:16px; height:16px; flex:none; accent-color:var(--primary);}
+.pdoc-foot{display:flex; justify-content:flex-end; gap:8px; margin-top:12px;}
+@media (max-width:768px){ #prjBody .pdoc{padding:2px 2px 80px;} }

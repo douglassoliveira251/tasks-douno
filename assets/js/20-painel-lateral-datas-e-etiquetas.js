@@ -101,7 +101,9 @@ export function bindTpPriorityAndTags(panel, task){
   panel.querySelectorAll('.tp-priority-btn').forEach(btn => {
     btn.onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;
-      t.priority = (t.priority === btn.dataset.p) ? null : btn.dataset.p;
+      /* a prioridade é obrigatória: clicar de novo na que já está marcada não desmarca */
+      if(t.priority === btn.dataset.p) return;
+      t.priority = btn.dataset.p;
       markDirty();
     };
   });

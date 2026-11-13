@@ -1,3 +1,9 @@
+## [3.55.1] - 2026-11-13 22:30
+- Correção (painel da tarefa): clicar na prioridade já marcada desmarcava e deixava a tarefa sem prioridade. Agora a prioridade é obrigatória: o clique repetido mantém a seleção. Tarefas já salvas sem prioridade viram Média ao carregar.
+
+## [3.55.0] - 2026-11-13 22:00
+- Projetos: painel à direita com abas Resumo | Documentação (celular: aba Docs). Associar itens da Biblioteca e anotações ao projeto (p.docs), com seletor com busca e várias marcações; filtros Tudo/Biblioteca/Notas; abrir o item leva ao detalhe; desassociar pelo ✕; item apagado some da lista. "Vindo das tarefas" (só leitura): notas ligadas às tarefas do projeto e anexos das tarefas, com a tarefa de origem. Novo módulo 61-documentacao-projeto.js.
+
 ## [3.54.1] - 2026-11-13 21:00
 - Projetos, linha do tempo: o check verde (15 px) e a linha esverdeada da etapa concluída voltaram (removidos por engano na 3.54.0). Mantido: "100%" do lado de fora da barra no lugar de "Concluído".
 

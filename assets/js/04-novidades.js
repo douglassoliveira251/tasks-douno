@@ -4,6 +4,8 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.55.1', date:'13/11/2026', title:'Prioridade sempre marcada', text:'Na tarefa, clicar de novo na prioridade que já está marcada não desmarca mais: toda tarefa tem sempre uma prioridade. Tarefas antigas sem prioridade passam a Média.' },
+  { version:'3.55.0', date:'13/11/2026', title:'Documentação do projeto', text:'No painel à direita do projeto agora há duas abas: Resumo e Documentação. Em Documentação você associa itens da Biblioteca (links, skills, páginas) e anotações ao projeto, com busca e várias marcações de uma vez. Embaixo aparecem, só para leitura, as notas e anexos que já estão nas tarefas, com a tarefa de origem. No celular, é a aba Docs.' },
   { version:'3.54.1', date:'13/11/2026', title:'Check da etapa concluída de volta', text:'O check verde e a linha esverdeada da etapa concluída voltaram. O que mudou foi só o texto: em 100% a barra mostra 100% do lado de fora, em vez de Concluído.' },
   { version:'3.54.0', date:'13/11/2026', title:'Etapa concluída mais simples', text:'Saiu o check verde e a linha esverdeada da etapa concluída. Agora a barra da etapa mostra 100% do lado de fora, como nas outras porcentagens.' },
   { version:'3.53.1', date:'13/11/2026', title:'Check da etapa concluída menor', text:'O círculo com check na frente do nome da etapa concluída ficou menor, para não chamar tanta atenção.' },
