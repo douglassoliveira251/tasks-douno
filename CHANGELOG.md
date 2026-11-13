@@ -1,3 +1,10 @@
+## [3.48.2] - 2026-11-13 01:00
+- Revisão geral (celular e computador, claro e escuro): sem erros de console e sem rolagem lateral em nenhuma tela.
+- Correção: a janela de notificações no celular saía cortada pela esquerda; agora ocupa a largura da tela.
+- Correção: na semana do calendário (celular) as agendas mostravam horário quebrado letra por letra; o horário foi escondido nos blocos estreitos.
+- Correção: o voltar das Configurações (celular) estava com pouco contraste no modo escuro.
+- Testes: smoke das telas e das janelas/menus (erro de console e rolagem lateral).
+
 ## [3.48.1] - 2026-11-13 00:10
 - Projetos: Ordenar escolhe clicando na linha (sem seletor) e a escolha fica salva (state.projectSort).
 - Correção: as linhas do Ordenar (Notas e Projetos) estavam com a fonte grande; voltaram ao tamanho dos outros filtros (13px).

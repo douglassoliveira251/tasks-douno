@@ -4644,3 +4644,14 @@ mark.lib-hit.cur{background:#FF9F43; outline:2px solid #FF9F43;}
   .lib-quick{flex-direction:column; align-items:stretch; gap:6px;}
   .lib-qchip{height:36px;}
 }
+
+/* ===== v3.48.2 — revisão: contraste do voltar das Configurações no escuro; semana no celular sem o texto quebrado ===== */
+.settings-m-back button{color:var(--primary-dark,var(--primary)) !important;}
+@media (max-width:768px){
+  .cal-week-daycol .cal-event-block-timed .cal-evb-meta{display:none;}
+  .cal-week-daycol .cal-event-block-timed .cal-event-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+}
+
+@media (max-width:768px){ .cal-week-alldayrow .cal-allday-seg .cal-evb-meta{display:none;} }
+
+@media (max-width:768px){ .topbar-notif-wrap .notif-dropdown{position:fixed; left:8px; right:8px; top:52px; width:auto; max-width:none; max-height:calc(100vh - 130px); overflow-y:auto;} }

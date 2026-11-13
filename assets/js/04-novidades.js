@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.48.2', date:'13/11/2026', title:'Revisão geral do celular', text:'Revisão de todas as telas no celular e no computador: as notificações não ficam mais cortadas na lateral, a semana do calendário não mostra mais texto quebrado nas agendas e o voltar das Configurações ficou legível no modo escuro.' },
   { version:'3.48.1', date:'13/11/2026', title:'Ordenar dos Projetos', text:'Em Projetos, o Ordenar agora escolhe pela linha (sem seletor) e a escolha fica salva depois de atualizar a página, igual às Notas.' },
   { version:'3.48.0', date:'12/11/2026', title:'Atalhos rápidos na Biblioteca', text:'No topo da Biblioteca há uma faixa de atalhos com os seus favoritos: links abrem o site, skills e páginas HTML abrem o item. Mostra até 6 (links primeiro) e o resto fica em Ver todos. Para colocar algo ali, favorite com a estrela.' },
   { version:'3.47.0', date:'12/11/2026', title:'Agenda, Notas e skills mais práticas', text:'Ao clicar numa faixa de horário do calendário, a agenda já abre com esse horário. Mudar o início desloca o fim e o fim nunca fica antes do início. Em Notas, o Ordenar escolhe pela linha e fica salvo. Na skill há busca dentro do texto, o botão Copiar saiu e o Excluir ficou vermelho. Trocar de espaço fecha a skill aberta de outro espaço.' },
