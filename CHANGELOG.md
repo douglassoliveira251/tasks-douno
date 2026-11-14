@@ -1,3 +1,6 @@
+## [3.56.2] - 2026-11-14 11:00
+- Tarefa (celular): o campo Retomar em não quebra mais a linha em "em 2 dias".
+
 ## [3.56.1] - 2026-11-14 10:00
 - Foco: a fila agora inclui as tarefas com a data de retomar até hoje (retomada de hoje e retomadas vencidas), além das atrasadas e com prazo hoje. Rótulos: Retomar hoje / Retomada vencida. Retomadas no futuro não entram. A contagem de progresso do dia continua só com prazo hoje.
 

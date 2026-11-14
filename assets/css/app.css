@@ -4790,3 +4790,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .pdoc-pr input{width:16px; height:16px; flex:none; accent-color:var(--primary);}
 .pdoc-foot{display:flex; justify-content:flex-end; gap:8px; margin-top:12px;}
 @media (max-width:768px){ #prjBody .pdoc{padding:2px 2px 80px;} }
+
+/* v3.56.2: "Retomar em" no celular: data e "em 2 dias" ficam numa linha só (antes quebrava) */
+.tp-follow-trigger-label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
+.tp-follow-trigger em{white-space:nowrap;}

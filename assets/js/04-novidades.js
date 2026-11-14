@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.56.2', date:'14/11/2026', title:'Retomar em sem quebra', text:'No celular, a data de Retomar em e o "em 2 dias" ficam numa linha só, sem quebrar o campo.' },
   { version:'3.56.1', date:'14/11/2026', title:'Foco também com retomadas', text:'O Foco agora inclui as tarefas para retomar hoje e as retomadas vencidas, além das atrasadas e com prazo hoje. Elas aparecem com a etiqueta Retomar hoje ou Retomada vencida.' },
   { version:'3.56.0', date:'14/11/2026', title:'Foco como tela inicial no celular', text:'No celular, o app agora abre direto no Foco, com o que importa para hoje. Para ver o app completo, toque em Foco no topo para desligar (ao abrir de novo, volta para o Foco).' },
   { version:'3.55.1', date:'13/11/2026', title:'Prioridade sempre marcada', text:'Na tarefa, clicar de novo na prioridade que já está marcada não desmarca mais: toda tarefa tem sempre uma prioridade. Tarefas antigas sem prioridade passam a Média.' },
