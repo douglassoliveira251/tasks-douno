@@ -1,3 +1,6 @@
+## [3.56.4] - 2026-11-14 13:00
+- Tarefa: o Prazo usa o calendário do app (Cancelar / OK) no lugar do calendário nativo, com Remover prazo no rodapé e os limites da etapa. Retomar em continua com o mesmo calendário.
+
 ## [3.56.3] - 2026-11-14 12:00
 - Tarefa: Retomar em > Personalizada abre um calendário do app (Cancelar / OK) no lugar do calendário nativo. O menu ganha 30 dias. Remover retomada segue no menu do campo.
 - Celular: a data do Prazo deixa de ser cortada.

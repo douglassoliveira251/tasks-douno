@@ -1,6 +1,6 @@
 import { G } from './globais.js';
 import { markDirty, persistOnly } from './08-persistencia.js';
-import { DEFAULT_DUE_TIME, todayStr } from './10-helpers.js';
+import { DEFAULT_DUE_TIME, escapeHtml, todayStr } from './10-helpers.js';
 import { renderUnifiedTagPicker } from './13-portais-de-tarefa.js';
 import { closeTagsPortal, ensureTagsPortal, positionTagsPortalNear } from './15-portais-de-grupo-e-etiquetas.js';
 import { getOrCreateActiveTask } from './16-painel-lateral-de-tarefa.js';
@@ -31,7 +31,7 @@ export function bindTpDates(panel, task){
     document.getElementById('tpFollowCustom').onclick = () => {
       PAINEL_TAREFA.tpFollowOpen = false;
       fMenu.hidden = true;
-      openFollowCal(document.getElementById('tpFollowDate').value || '');
+      pickFollow(document.getElementById('tpFollowDate').value || '');
     };
     const tpFollowDate = document.getElementById('tpFollowDate');
     tpFollowDate.addEventListener('change', e => {
@@ -76,7 +76,11 @@ export function bindTpDates(panel, task){
       const m = document.getElementById('tpStartPop'); if(m) m.hidden = true;
     });
   }
-  document.getElementById('tpDate').addEventListener('change', e => {
+  const dueInp = document.getElementById('tpDate');
+  /* o calendário próprio substitui o nativo: o toque não abre o seletor do aparelho */
+  dueInp.addEventListener('mousedown', e => e.preventDefault());
+  dueInp.addEventListener('click', () => pickDue(dueInp.value || '', dueInp));
+  dueInp.addEventListener('change', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     const v = e.target.value || null;
     if(v && !dateInStageRange(t, v)){
@@ -95,13 +99,15 @@ export function bindTpDates(panel, task){
   });
 }
 
-/* Calendário próprio do "Retomar em" (no lugar do calendário nativo): dia escolhido + Cancelar / OK. Limpar fica no menu do campo. */
+/* Calendário próprio (sem o nativo): dia escolhido + Cancelar / OK. Usado em Retomar em (Personalizada) e no Prazo.
+   opts: { title, min, max (AAAA-MM-DD ou ''), onPick(ymd|null), clearLabel (texto do botão de limpar, opcional) } */
 const FCAL_MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-function openFollowCal(current){
+export function openFollowCal(current, opts = {}){
   let sel = current || todayStr();
   let view = sel.slice(0, 7);
+  const min = opts.min || '', max = opts.max || '';
   let ov = document.getElementById('tpFcalOv');
-  if(!ov){ ov = document.createElement('div'); ov.id = 'tpFcalOv'; ov.className = 'overlay'; ov.innerHTML = '<div class="modal tp-fcal" role="dialog" aria-label="Escolher data para retomar"></div>'; document.body.appendChild(ov); }
+  if(!ov){ ov = document.createElement('div'); ov.id = 'tpFcalOv'; ov.className = 'overlay'; ov.innerHTML = '<div class="modal tp-fcal" role="dialog"></div>'; document.body.appendChild(ov); }
   const modal = ov.firstElementChild;
   const close = () => ov.classList.remove('show');
   const paint = () => {
@@ -112,26 +118,43 @@ function openFollowCal(current){
     for(let i = 0; i < first; i++) cells += '<span class="tp-fcal-pad"></span>';
     for(let d = 1; d <= days; d++){
       const ymd = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-      cells += '<button type="button" class="tp-fcal-day' + (ymd === sel ? ' sel' : '') + (ymd === today ? ' today' : '') + '" data-d="' + ymd + '" aria-pressed="' + (ymd === sel) + '">' + d + '</button>';
+      const off = (min && ymd < min) || (max && ymd > max);
+      cells += '<button type="button" class="tp-fcal-day' + (ymd === sel ? ' sel' : '') + (ymd === today ? ' today' : '') + '" data-d="' + ymd + '"' + (off ? ' disabled' : '') + ' aria-pressed="' + (ymd === sel) + '">' + d + '</button>';
     }
-    modal.innerHTML = '<div class="tp-fcal-t">Retomar em</div>' +
+    modal.innerHTML = '<div class="tp-fcal-t">' + escapeHtml(opts.title || 'Data') + '</div>' +
       '<div class="tp-fcal-h"><button type="button" class="tp-fcal-nav" data-nav="-1" aria-label="Mês anterior">‹</button><b>' + FCAL_MESES[m - 1].replace(/^./, c => c.toUpperCase()) + ' ' + y + '</b><button type="button" class="tp-fcal-nav" data-nav="1" aria-label="Próximo mês">›</button></div>' +
       '<div class="tp-fcal-w"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>' +
       '<div class="tp-fcal-g">' + cells + '</div>' +
-      '<div class="tp-fcal-f"><button type="button" class="tp-fcal-cancel" id="tpFcalCancel">Cancelar</button><button type="button" class="tp-fcal-ok" id="tpFcalOk">OK</button></div>';
+      '<div class="tp-fcal-f">' + (opts.clearLabel ? '<button type="button" class="tp-fcal-clear" id="tpFcalClear">' + escapeHtml(opts.clearLabel) + '</button>' : '<span></span>') + '<span class="tp-fcal-btns"><button type="button" class="tp-fcal-cancel" id="tpFcalCancel">Cancelar</button><button type="button" class="tp-fcal-ok" id="tpFcalOk">OK</button></span></div>';
     modal.querySelectorAll('[data-nav]').forEach(b => { b.onclick = () => { const [yy, mm] = view.split('-').map(Number); const d = new Date(yy, mm - 1 + Number(b.dataset.nav), 1); view = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); paint(); }; });
     modal.querySelectorAll('[data-d]').forEach(b => { b.onclick = () => { sel = b.dataset.d; paint(); }; });
     modal.querySelector('#tpFcalCancel').onclick = close;
-    modal.querySelector('#tpFcalOk').onclick = () => {
-      const t = getOrCreateActiveTask(); if(t){ t.followUpDate = sel; markDirty(); }
-      close();
-    };
+    const clr = modal.querySelector('#tpFcalClear');
+    if(clr) clr.onclick = () => { opts.onPick && opts.onPick(null); close(); };
+    modal.querySelector('#tpFcalOk').onclick = () => { opts.onPick && opts.onPick(sel); close(); };
   };
   ov.onclick = (e) => { if(e.target === ov) close(); };
   ov.onkeydown = (e) => { if(e.key === 'Escape') close(); };
   paint();
   ov.classList.add('show');
-  setTimeout(() => { const b = modal.querySelector('.tp-fcal-day.sel'); if(b) b.focus(); }, 30);
+  setTimeout(() => { const b = modal.querySelector('.tp-fcal-day.sel') || modal.querySelector('.tp-fcal-day:not([disabled])'); if(b) b.focus(); }, 30);
+}
+
+/* Data de retomar: o calendário fica no lugar do nativo; limpar está no menu do campo */
+function pickFollow(current){
+  openFollowCal(current, { title: 'Retomar em', onPick: (v) => { const t = getOrCreateActiveTask(); if(t){ t.followUpDate = v; markDirty(); } } });
+}
+
+/* Prazo: mesmo calendário; respeita as datas da etapa e a hora padrão, igual ao campo */
+function pickDue(current, inp){
+  openFollowCal(current, { title: 'Prazo', min: inp.min, max: inp.max, clearLabel: 'Remover prazo', onPick: (v) => applyDue(v, inp) });
+}
+function applyDue(v, inp){
+  const t = getOrCreateActiveTask(); if(!t) return;
+  if(v && !dateInStageRange(t, v)){ flashStageRangeWarning(t); return; }
+  t.dueDate = v;
+  if(v && !t.dueTime){ t.dueTime = DEFAULT_DUE_TIME; document.getElementById('tpTime').value = DEFAULT_DUE_TIME; }
+  markDirty();
 }
 
 /* Prioridade e etiquetas. */

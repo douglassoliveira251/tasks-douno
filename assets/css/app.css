@@ -4823,3 +4823,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   .tp-follow-trigger em{margin-left:2px;}
   .tp-follow-trigger .tp-status-chevron{display:none;}
 }
+.tp-fcal-clear{border:0; background:none; font:inherit; font-size:13px; font-weight:600; color:var(--danger); padding:10px 4px; cursor:pointer; margin-right:auto;}
+.tp-fcal-btns{display:flex; gap:6px;}
+.tp-fcal-day:disabled{color:var(--ink-faint); opacity:.45; cursor:default; background:none;}
+.tp-fcal-f{align-items:center;}
