@@ -1,3 +1,6 @@
+## [3.56.1] - 2026-11-14 10:00
+- Foco: a fila agora inclui as tarefas com a data de retomar até hoje (retomada de hoje e retomadas vencidas), além das atrasadas e com prazo hoje. Rótulos: Retomar hoje / Retomada vencida. Retomadas no futuro não entram. A contagem de progresso do dia continua só com prazo hoje.
+
 ## [3.56.0] - 2026-11-14 09:00
 - Celular: o app sempre abre no Foco (tela principal). O botão Foco desliga só até fechar o app; deixa de guardar a escolha no aparelho. No computador nada muda. Testes: gotoApp desliga o Foco por padrão (foco: true para abrir nele).
 

@@ -168,3 +168,28 @@ test('Foco: no celular o app abre direto no Foco; no computador abre normal', as
   await page.evaluate(() => { closeLoginGate(); render(); });
   await expect(page.locator('body')).not.toHaveClass(/foco-on/);
 });
+
+test('Foco: tarefa para retomar hoje (ou retomada vencida) entra na fila; retomar no futuro não', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await gotoApp(page, { view: 'tasks', foco: true });
+  await page.evaluate(() => {
+    const c = state.categories[0].id, hoje = todayStr();
+    const t = (id, title, ex) => Object.assign({ id, title, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: c, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1, recurrence: 'none' }, ex);
+    state.tasks = [
+      t('r1', 'Retomar proposta', { followUpDate: hoje }),
+      t('r2', 'Retomada vencida', { followUpDate: addDaysStr(hoje, -3) }),
+      t('r3', 'Retomar só semana que vem', { followUpDate: addDaysStr(hoje, 6) }),
+    ];
+    state.events = [];
+    render();
+  });
+  await expect(page.locator('.fc-main .fc-title')).toHaveText('Retomada vencida');
+  await expect(page.locator('.fc-main .fc-tag.late')).toContainText('Retomada vencida');
+  await expect(page.locator('.fc-li')).toHaveCount(1);
+  await expect(page.locator('.fc-li')).toContainText('Retomar proposta');
+  await expect(page.locator('#focoView')).not.toContainText('Retomar só semana que vem');
+  // a retomada de hoje também aparece como fila (sem prazo, a etiqueta é Retomar hoje)
+  await page.locator('#fcDone').click();
+  await expect(page.locator('.fc-main .fc-title')).toHaveText('Retomar proposta');
+  await expect(page.locator('.fc-main .fc-tags').first()).toContainText('Retomar hoje');
+});

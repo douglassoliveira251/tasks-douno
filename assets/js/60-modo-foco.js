@@ -34,14 +34,23 @@ const inSpace = (x) => !G.activeCategoryFilter || x.categoryId === G.activeCateg
 const toMin = (hhmm) => { const m = /^(\d{1,2}):(\d{2})/.exec(hhmm || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
 const prioOf = (t) => t.priority || 'media';
 
-/* tarefas de hoje e atrasadas, na ordem em que devem ser feitas */
+/* tipo da linha no Foco: atrasada (prazo passou), hoje (prazo hoje) ou retomar ("Retomar em" chegou; sem prazo para hoje) */
+function kindOf(t, today){
+  if(t.dueDate && t.dueDate < today) return 'late';
+  if(t.dueDate && t.dueDate === today) return 'today';
+  return 'resume';
+}
+
+/* tarefas com prazo até hoje, ou com a data de retomar até hoje, na ordem em que devem ser feitas */
 function poolOf(today){
-  const list = G.state.tasks.filter(t => !t.done && inSpace(t) && t.dueDate && t.dueDate <= today);
+  const list = G.state.tasks.filter(t => !t.done && inSpace(t) && ((t.dueDate && t.dueDate <= today) || (t.followUpDate && t.followUpDate <= today)));
+  const rank = { late: 0, today: 1, resume: 2 };
   list.sort((a, b) => {
-    const ao = a.dueDate < today ? 0 : 1, bo = b.dueDate < today ? 0 : 1;
-    if(ao !== bo) return ao - bo;
-    if(ao === 0 && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1;
-    if(ao === 1){ const at = a.dueTime || '99:99', bt = b.dueTime || '99:99'; if(at !== bt) return at < bt ? -1 : 1; }
+    const ka = kindOf(a, today), kb = kindOf(b, today);
+    if(ka !== kb) return rank[ka] - rank[kb];
+    if(ka === 'late' && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1;
+    if(ka === 'resume' && (a.followUpDate || '') !== (b.followUpDate || '')) return (a.followUpDate || '') < (b.followUpDate || '') ? -1 : 1;
+    if(ka === 'today'){ const at = a.dueTime || '99:99', bt = b.dueTime || '99:99'; if(at !== bt) return at < bt ? -1 : 1; }
     const pw = (PRIO_W[prioOf(a)] ?? 2) - (PRIO_W[prioOf(b)] ?? 2);
     if(pw) return pw;
     return (a.createdAt || 0) - (b.createdAt || 0);
@@ -94,8 +103,10 @@ const ring = (pct, size, inner, label, color) => `<div class="fc-ring" style="--
 function whenText(t, today){
   const proj = t.projectId ? projectById(t.projectId) : null;
   let when;
-  if(t.dueDate < today){ when = 'Venceu ' + (t.dueDate === addDaysStr(today, -1) ? 'ontem' : fmtDate(t.dueDate)); }
-  else when = 'Vence hoje' + (t.dueTime ? ' · ' + t.dueTime : '');
+  const k = kindOf(t, today);
+  if(k === 'late'){ when = 'Venceu ' + (t.dueDate === addDaysStr(today, -1) ? 'ontem' : fmtDate(t.dueDate)); }
+  else if(k === 'today') when = 'Vence hoje' + (t.dueTime ? ' · ' + t.dueTime : '');
+  else when = 'Retomar ' + (t.followUpDate < today ? 'desde ' + fmtDate(t.followUpDate) : 'hoje') + (t.dueDate ? ' · prazo ' + fmtDate(t.dueDate) : '');
   return [when, proj ? proj.name : ''].filter(Boolean).join(' · ');
 }
 
@@ -118,7 +129,7 @@ function html(today){
         <button type="button" class="fc-btn fc-gho" id="fcExit" style="width:100%">Sair do Foco</button></div>`;
     }
     const next = tasks.filter(t => !t.done && t.dueDate && t.dueDate > today).sort((a, b) => (a.dueDate + (a.dueTime || '')).localeCompare(b.dueDate + (b.dueTime || '')))[0];
-    return `<div class="fc-cen"><div class="fc-sun">☀</div><div class="fc-big">Nada para hoje</div><div class="fc-mm">Você não tem tarefas atrasadas nem com prazo hoje.</div>
+    return `<div class="fc-cen"><div class="fc-sun">☀</div><div class="fc-big">Nada para hoje</div><div class="fc-mm">Você não tem tarefas atrasadas, com prazo hoje ou para retomar hoje.</div>
       ${next ? `<button type="button" class="fc-card fc-next" data-open="${next.id}"><span class="fc-mm">Próxima tarefa com data</span><b>${escapeHtml(next.title || 'Sem título')}</b><span class="fc-mm">${fmtDate(next.dueDate)}${next.dueTime ? ' · ' + next.dueTime : ''}</span></button>` : ''}
       <button type="button" class="fc-btn fc-pri" id="fcNew" style="width:100%">+ Nova tarefa para hoje</button></div>`;
   }
@@ -135,15 +146,17 @@ function html(today){
       <div class="fc-acts"><button type="button" class="fc-btn fc-pri" id="fcAck" style="flex:1">Entendi</button><button type="button" class="fc-btn fc-gho" id="fcAgenda" style="width:132px; white-space:nowrap">Abrir agenda</button></div></div>`;
   } else {
     const t = queue[0]; rest = queue.slice(1);
-    const late = t.dueDate < today, pr = prioOf(t);
+    const kd = kindOf(t, today), pr = prioOf(t);
+    const rv = kd === 'resume' && t.followUpDate < today ? 'Retomada vencida' : 'Retomar hoje';
+    const late = kd === 'late' || rv === 'Retomada vencida';
     const cat = catById(t.categoryId);
-    card = `<div class="fc-card fc-main"><div class="fc-tags"><span class="fc-tag${late ? ' late' : ''}">${late ? 'Atrasada' : 'Hoje'}${pr === 'alta' || pr === 'critica' ? ' · ' + PRIO_LABEL[pr] : ''}</span>${cat ? `<span class="fc-tag">${escapeHtml(cat.name)}</span>` : ''}</div>
+    card = `<div class="fc-card fc-main"><div class="fc-tags"><span class="fc-tag${late ? ' late' : ''}">${kd === 'late' ? 'Atrasada' : (kd === 'today' ? 'Hoje' : rv)}${pr === 'alta' || pr === 'critica' ? ' · ' + PRIO_LABEL[pr] : ''}</span>${cat ? `<span class="fc-tag">${escapeHtml(cat.name)}</span>` : ''}</div>
       <button type="button" class="fc-title fc-link" data-open="${t.id}">${escapeHtml(t.title || 'Sem título')}</button>
       <div class="fc-mm fc-meta">${escapeHtml(whenText(t, today))}</div>
       <div class="fc-acts"><button type="button" class="fc-btn fc-pri" id="fcDone" style="flex:1">✓ Concluir</button><button type="button" class="fc-btn fc-gho" id="fcLater" style="width:96px">Adiar</button></div></div>
       ${queue.length > 1 ? '<button type="button" class="fc-skip" id="fcSkip">Pular para a próxima</button>' : ''}`;
   }
-  const list = rest.slice(0, 6).map(t => `<div class="fc-li"><button type="button" class="fc-chk" data-done="${t.id}" aria-label="Concluir ${escapeHtml(t.title || 'tarefa')}"></button><button type="button" class="fc-lt" data-open="${t.id}"><b>${escapeHtml(t.title || 'Sem título')}</b><span class="${t.dueDate < today ? 'late' : ''}">${t.dueDate < today ? 'Atrasada' : (t.dueTime ? 'Hoje · ' + t.dueTime : 'Hoje')}</span></button></div>`).join('');
+  const list = rest.slice(0, 6).map(t => `<div class="fc-li"><button type="button" class="fc-chk" data-done="${t.id}" aria-label="Concluir ${escapeHtml(t.title || 'tarefa')}"></button><button type="button" class="fc-lt" data-open="${t.id}"><b>${escapeHtml(t.title || 'Sem título')}</b><span class="${kindOf(t, today) === 'late' || (kindOf(t, today) === 'resume' && t.followUpDate < today) ? 'late' : ''}">${kindOf(t, today) === 'late' ? 'Atrasada' : (kindOf(t, today) === 'resume' ? (t.followUpDate < today ? 'Retomada vencida' : 'Retomar') : (t.dueTime ? 'Hoje · ' + t.dueTime : 'Hoje'))}</span></button></div>`).join('');
   return `<div class="fc-date">${escapeHtml(dateTxt)}</div><div class="fc-h">Agora</div>${card}
     ${rest.length ? `<div class="fc-sec">Depois · ${rest.length}</div>${list}${rest.length > 6 ? `<div class="fc-mm fc-more">e mais ${rest.length - 6}</div>` : ''}` : ''}${foot}`;
 }
