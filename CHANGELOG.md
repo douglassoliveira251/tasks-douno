@@ -1,3 +1,6 @@
+## [3.56.0] - 2026-11-14 09:00
+- Celular: o app sempre abre no Foco (tela principal). O botão Foco desliga só até fechar o app; deixa de guardar a escolha no aparelho. No computador nada muda. Testes: gotoApp desliga o Foco por padrão (foco: true para abrir nele).
+
 ## [3.55.1] - 2026-11-13 22:30
 - Correção (painel da tarefa): clicar na prioridade já marcada desmarcava e deixava a tarefa sem prioridade. Agora a prioridade é obrigatória: o clique repetido mantém a seleção. Tarefas já salvas sem prioridade viram Média ao carregar.
 

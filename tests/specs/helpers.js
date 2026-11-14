@@ -5,9 +5,11 @@
  *
  * `seenVersion` marca as novidades como já vistas, pra o painel não abrir por
  * cima dos testes; passe null pra testar a primeira abertura. */
-export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0', onboarding = false } = {}) {
+export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0', onboarding = false, foco = false } = {}) {
   // roda a cada navegação, então só aplica na primeira (um reload no meio do
   // teste não pode desfazer o "já visto" gravado pelo próprio app)
+  // o celular abre sempre no Foco; nos testes fica desligado, a menos que o teste peça (foco: true)
+  if (!foco) await page.addInitScript(() => { window.__semFoco = true; });
   await page.addInitScript(([v, onb]) => {
     try {
       if (sessionStorage.getItem('__seeded')) return;
@@ -21,6 +23,7 @@ export async function gotoApp(page, { view = 'tasks', seenVersion = '999.0.0', o
   await page.waitForFunction(() => typeof render === 'function');
   await page.evaluate((view) => {
     closeLoginGate();
+    if (!window.__semFoco) return; // aberto no Foco: não mexe na tela
     currentView = view;
     document.documentElement.setAttribute('data-theme', 'light');
     render();

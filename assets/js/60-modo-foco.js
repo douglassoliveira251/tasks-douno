@@ -10,8 +10,8 @@ import { render } from './48-render-principal.js';
 
 /* ===================== MODO FOCO (só no celular) =====================
    Um botão no topo liga/desliga. Ligado, o app mostra só o dia de hoje: a tarefa de agora em destaque (ou a reunião que
-   está chegando), as próximas embaixo e o progresso do dia. A escolha de ligar fica no aparelho (localStorage), não vai
-   para a nuvem: no computador o app continua normal. */
+   está chegando), as próximas embaixo e o progresso do dia. No celular o app SEMPRE abre no Foco (é a tela principal); o botão desliga
+   só até fechar o app. Não vai para a nuvem: no computador o app continua normal. */
 const KEY = 'dounoFoco';
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -19,7 +19,7 @@ const PRIO_LABEL = { critica: 'Crítica', alta: 'Alta', media: 'Média', baixa: 
 const PRIO_W = { critica: 0, alta: 1, media: 2, baixa: 3 };
 const MEETING_AHEAD_MIN = 30; // a reunião toma o lugar do cartão faltando tanto tempo
 
-try{ G.focoMode = localStorage.getItem(KEY) === '1'; }catch(e){ G.focoMode = false; }
+G.focoMode = !window.__semFoco; // abre sempre no Foco (os testes automáticos desligam com window.__semFoco)
 const FOCO = { skipped: [], ack: new Set(), sheet: false };
 
 export const focoActive = () => !!(isMobileViewport() && G.focoMode && !G.activeTaskId && !G.creatingNewTask);

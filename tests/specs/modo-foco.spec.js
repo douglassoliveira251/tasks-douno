@@ -25,7 +25,7 @@ const prepara = async (page, extra) => {
   }, extra ? extra.toString() : null);
 };
 
-test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, esconde o menu e lembra a escolha', async ({ page }) => {
+test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, esconde o menu', async ({ page }) => {
   await prepara(page);
   await expect(page.locator('#focoBtn')).toBeVisible();
   await ligar(page);
@@ -36,7 +36,6 @@ test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, esco
   await expect(page.locator('.fc-li')).toHaveCount(2);
   await expect(page.locator('.fc-foot')).toContainText('0 de 2 feitas hoje');
   await page.screenshot({ path: 'test-results/foco-tarefa.png' });
-  expect(await page.evaluate(() => localStorage.getItem('dounoFoco'))).toBe('1');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
   // desligar volta ao app
   await page.click('#focoBtn');
@@ -146,4 +145,26 @@ test('Foco: respeita o espaço escolhido e o modo escuro', async ({ page }) => {
   await page.evaluate(() => { activeCategoryFilter = null; document.documentElement.setAttribute('data-theme', 'dark'); render(); });
   await page.waitForTimeout(600);
   await page.screenshot({ path: 'test-results/foco-escuro.png' });
+});
+
+test('Foco: no celular o app abre direto no Foco; no computador abre normal', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await gotoApp(page, { view: 'tasks', foco: true });
+  await expect(page.locator('body')).toHaveClass(/foco-on/);
+  await expect(page.locator('.nav')).toBeHidden();
+  await expect(page.locator('#focoBtn')).toHaveAttribute('aria-pressed', 'true');
+  await page.screenshot({ path: 'test-results/foco-abre-m.png' });
+  // desligar leva ao app; recarregar abre no Foco de novo
+  await page.click('#focoBtn');
+  await expect(page.locator('body')).not.toHaveClass(/foco-on/);
+  await page.reload();
+  await page.waitForFunction(() => typeof render === 'function');
+  await page.evaluate(() => { closeLoginGate(); render(); });
+  await expect(page.locator('body')).toHaveClass(/foco-on/);
+  // computador: abre normal
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.reload();
+  await page.waitForFunction(() => typeof render === 'function');
+  await page.evaluate(() => { closeLoginGate(); render(); });
+  await expect(page.locator('body')).not.toHaveClass(/foco-on/);
 });
