@@ -4794,3 +4794,32 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 /* v3.56.2: "Retomar em" no celular: data e "em 2 dias" ficam numa linha só (antes quebrava) */
 .tp-follow-trigger-label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
 .tp-follow-trigger em{white-space:nowrap;}
+
+/* v3.56.3: calendário próprio do "Retomar em" (Cancelar / OK) e prazo que cabe no celular */
+.modal.tp-fcal{width:min(340px, calc(100vw - 32px)); padding:16px 16px 12px; border-radius:18px; background:var(--surface); color:var(--ink);}
+.tp-fcal-t{font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--ink-faint); margin-bottom:6px;}
+.tp-fcal-h{display:flex; align-items:center; justify-content:space-between; margin:0 2px 10px; font-size:15px;}
+.tp-fcal-h b{font-weight:700;}
+.tp-fcal-nav{border:0; background:none; color:var(--primary); font-size:20px; width:34px; height:34px; border-radius:50%; cursor:pointer;}
+.tp-fcal-nav:hover{background:var(--surface-2);}
+.tp-fcal-w, .tp-fcal-g{display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; text-align:center;}
+.tp-fcal-w span{font-size:11px; color:var(--ink-faint); padding:4px 0; font-weight:600;}
+.tp-fcal-day{border:0; background:none; color:var(--ink); font:inherit; font-size:13.5px; height:36px; border-radius:50%; cursor:pointer; padding:0;}
+.tp-fcal-day:hover{background:var(--surface-2);}
+.tp-fcal-day.today{box-shadow:inset 0 0 0 1px var(--primary);}
+.tp-fcal-day.sel{background:var(--primary); color:#fff; font-weight:700;}
+.tp-fcal-f{display:flex; justify-content:flex-end; gap:6px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border);}
+.tp-fcal-cancel, .tp-fcal-ok{border:0; background:none; font:inherit; font-size:14px; font-weight:700; padding:10px 14px; border-radius:10px; cursor:pointer;}
+.tp-fcal-cancel{color:var(--ink-soft);}
+.tp-fcal-ok{color:var(--primary);}
+.tp-fcal-ok:hover, .tp-fcal-cancel:hover{background:var(--surface-2);}
+@media (max-width:768px){
+  .tp-box .tp-row2 .tp-date-input{font-size:11.5px; letter-spacing:-.04em; padding-right:0;}
+  .tp-box .tp-row2 .tp-date-input::-webkit-calendar-picker-indicator{margin-left:0; padding:0; width:12px;}
+  .tp-box .tp-row2 .tp-time-input{flex:0 0 60px;}
+}
+@media (max-width:768px){
+  .tp-follow-trigger{font-size:13px; gap:6px;}
+  .tp-follow-trigger em{margin-left:2px;}
+  .tp-follow-trigger .tp-status-chevron{display:none;}
+}

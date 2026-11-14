@@ -75,7 +75,7 @@ export function nextMondayStr(){
   return addDaysStr(todayStr(), add);
 }
 PAINEL_TAREFA.tpFollowOpen = false;
-export const FOLLOW_PRESETS = [[0,'Hoje'],[1,'Amanhã'],[3,'3 dias'],[7,'7 dias'],[15,'15 dias']];
+export const FOLLOW_PRESETS = [[0,'Hoje'],[1,'Amanhã'],[3,'3 dias'],[7,'7 dias'],[15,'15 dias'],[30,'30 dias']];
 export function followWeekday(d){
   return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' }).replace('.', '');
 }

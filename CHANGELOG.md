@@ -1,3 +1,7 @@
+## [3.56.3] - 2026-11-14 12:00
+- Tarefa: Retomar em > Personalizada abre um calendário do app (Cancelar / OK) no lugar do calendário nativo. O menu ganha 30 dias. Remover retomada segue no menu do campo.
+- Celular: a data do Prazo deixa de ser cortada.
+
 ## [3.56.2] - 2026-11-14 11:00
 - Tarefa (celular): o campo Retomar em não quebra mais a linha em "em 2 dias".
 
