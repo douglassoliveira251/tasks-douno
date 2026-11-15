@@ -24,6 +24,8 @@ test('Agenda (dia): clique na grade preenche o início e o fim (+1 h)', async ({
   await gotoApp(page, { view: 'calendar' });
   await page.evaluate(() => { state.events = []; calendarView = 'day'; calendarFocusDate = todayStr(); render(); });
   const grid = page.locator('.cal-dayA-grid');
+  // o ponto das 14h precisa estar na tela (em telas baixas a grade rola): centraliza a grade antes de medir
+  await grid.evaluate(el => el.scrollIntoView({ block: 'center' }));
   const bb = await grid.boundingBox();
   // 56 px por hora: y = 14h37 => 14*56 + 37/60*56
   const y = bb.y + 14 * 56 + Math.round(37 / 60 * 56);
