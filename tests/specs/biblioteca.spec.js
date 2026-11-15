@@ -76,6 +76,7 @@ test('Biblioteca: o quadro de tipos fecha com Esc e marca Skill quando o tipo Sk
   await page.click('.lib-types [data-type="skill"]');
   await page.click('#newBtn');
   await expect(page.locator('#libPickOverlay .lib-opt.cur')).toHaveAttribute('data-new', 'skill');
+  await expect(page.locator('#libPickOverlay .lib-opt.cur')).toBeFocused(); // o foco entra no quadro antes do Esc
   await page.keyboard.press('Escape');
   await expect(page.locator('#libPickOverlay')).not.toHaveClass(/show/);
 });

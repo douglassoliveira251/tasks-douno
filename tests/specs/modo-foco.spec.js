@@ -89,7 +89,10 @@ test('Foco: título abre os detalhes e ao fechar volta ao Foco', async ({ page }
   await expect(page.locator('body')).toHaveClass(/foco-on/);
 });
 
+// a reunião é criada 20 min à frente do relógio: perto da meia-noite cairia no dia seguinte (CI roda em UTC)
+const pertoDaMeiaNoite = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() > 1420; };
 test('Foco: reunião chegando toma o lugar do cartão; Entendi dispensa', async ({ page }) => {
+  test.skip(pertoDaMeiaNoite(), 'faltam menos de 20 min para meia-noite');
   await prepara(page, () => {
     const d = new Date(Date.now() + 20 * 60000); // começa em 20 min
     const hh = (x) => String(x.getHours()).padStart(2, '0') + ':' + String(x.getMinutes()).padStart(2, '0');
