@@ -1,3 +1,6 @@
+## [3.57.1] - 2026-11-14 16:00
+- Celular: botão Foco flutuante acima da barra de baixo (sai do topo). No Foco, a barra de baixo flutua sobre o conteúdo com seis abas (Foco marcado); tocar em outra aba sai do Foco. Desligar segue no topo.
+
 ## [3.57.0] - 2026-11-14 15:00
 - Foco (celular): o progresso do dia fica em destaque acima da primeira tarefa. O botão do topo vira Desligar; à direita ficam lupa, sino e Desligar; o perfil (com o menu) foi para a esquerda, ao lado do logo.
 

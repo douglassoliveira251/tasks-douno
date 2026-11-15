@@ -174,6 +174,8 @@ let timer = null;
 export function renderFoco(){
   const view = document.getElementById('focoView');
   if(!view) return;
+  const navF = document.getElementById('navFocoBtn');
+  if(navF){ navF.classList.toggle('active', !!G.focoMode); navF.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); if(!navF.dataset.bound){ navF.dataset.bound = '1'; navF.onclick = () => setFoco(true); } }
   const btn = document.getElementById('focoBtn');
   if(btn){ btn.classList.toggle('on', !!G.focoMode); btn.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); const lb = btn.querySelector('span'); if(lb) lb.textContent = G.focoMode ? 'Desligar' : 'Foco'; btn.title = G.focoMode ? 'Sair do modo Foco' : 'Modo Foco: só o dia de hoje'; btn.setAttribute('aria-label', G.focoMode ? 'Desligar modo Foco' : 'Modo Foco'); if(!btn.dataset.bound){ btn.dataset.bound = '1'; btn.onclick = () => setFoco(!G.focoMode); } }
   const on = focoActive();

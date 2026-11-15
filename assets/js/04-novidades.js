@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.57.1', date:'14/11/2026', title:'Foco flutuante', text:'No celular, o botão Foco fica flutuando acima da barra de baixo. No Foco, a barra de baixo aparece flutuando sobre o conteúdo, com a aba Foco marcada: tocar em outra aba sai do modo. O Desligar continua no topo.' },
   { version:'3.57.0', date:'14/11/2026', title:'Foco: topo e progresso', text:'No Foco, o progresso do dia (0 de 2 feitas hoje) fica em destaque logo acima da primeira tarefa. O botão no topo passa a ser Desligar, com a lupa e o sino à direita; o perfil foi para o lado do logo.' },
   { version:'3.56.5', date:'14/11/2026', title:'Prazo sem seletor nativo', text:'Tocar no Prazo abre só o calendário do app. O seletor padrão do aparelho não aparece mais.' },
   { version:'3.56.4', date:'14/11/2026', title:'Calendário também no Prazo', text:'O Prazo agora usa o mesmo calendário do app, com Cancelar e OK. Dá para remover o prazo pelo próprio calendário. As datas da etapa continuam valendo.' },

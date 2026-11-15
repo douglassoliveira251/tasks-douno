@@ -16,6 +16,7 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
     if(panel && document.activeElement && panel.contains(document.activeElement) && typeof document.activeElement.blur === 'function'){
       document.activeElement.blur();
     }
+    G.focoMode = false; // tocar numa aba do app sai do Foco
     G.currentView = btn.dataset.view;
     G.activeTaskId = null;
     G.creatingNewTask = false;

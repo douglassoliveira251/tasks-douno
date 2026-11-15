@@ -25,11 +25,12 @@ const prepara = async (page, extra) => {
   }, extra ? extra.toString() : null);
 };
 
-test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, esconde o menu', async ({ page }) => {
+test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, mostra a barra com Foco marcado', async ({ page }) => {
   await prepara(page);
   await expect(page.locator('#focoBtn')).toBeVisible();
   await ligar(page);
-  await expect(page.locator('.nav')).toBeHidden();
+  await expect(page.locator('.nav')).toBeVisible(); // barra flutuante com a aba Foco marcada
+  await expect(page.locator('.nav-foco-item')).toHaveClass(/active/);
   await expect(page.locator('.fc-main .fc-title')).toHaveText('Revisar proposta do cliente');
   await expect(page.locator('.fc-main .fc-tag.late')).toContainText('Atrasada · Alta');
   await expect(page.locator('.fc-sec')).toContainText('Depois · 2');
@@ -154,7 +155,8 @@ test('Foco: no celular o app abre direto no Foco; no computador abre normal', as
   await page.setViewportSize({ width: 390, height: 800 });
   await gotoApp(page, { view: 'tasks', foco: true });
   await expect(page.locator('body')).toHaveClass(/foco-on/);
-  await expect(page.locator('.nav')).toBeHidden();
+  await expect(page.locator('.nav')).toBeVisible(); // barra flutuante com a aba Foco marcada
+  await expect(page.locator('.nav-foco-item')).toHaveClass(/active/);
   await expect(page.locator('#focoBtn')).toHaveAttribute('aria-pressed', 'true');
   await page.screenshot({ path: 'test-results/foco-abre-m.png' });
   // desligar leva ao app; recarregar abre no Foco de novo
@@ -213,4 +215,16 @@ test('Foco (celular): progresso do dia acima da primeira tarefa; topo com perfil
   expect(r.x + r.width).toBeLessThanOrEqual(390 - 8); // o Desligar não encosta na borda
   await page.screenshot({ path: 'test-results/foco-topo-m.png' });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
+
+test('Foco (celular): botão Foco flutua acima da barra; no Foco a barra aparece e tocar numa aba sai do Foco', async ({ page }) => {
+  await prepara(page);
+  const b = await page.locator('#focoBtn').boundingBox();
+  expect(b.y + b.height).toBeLessThan(844 - 60); // acima da barra
+  await page.locator('#navFocoBtn').click();
+  await expect(page.locator('body')).toHaveClass(/foco-on/);
+  await expect(page.locator('.nav')).toBeVisible();
+  await page.locator('.nav-item[data-view="notes"]').click();
+  await expect(page.locator('body')).not.toHaveClass(/foco-on/);
+  expect(await page.evaluate(() => currentView)).toBe('notes');
 });

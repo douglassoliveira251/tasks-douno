@@ -4556,7 +4556,6 @@
   .topnav .space-selector-name{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
   .foco-btn.on{background:var(--primary); border-color:var(--primary); color:#fff;}
   .foco-btn:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
-  body.foco-on .nav{display:none;}
   body.foco-on .app{padding-bottom:0;}
   body.foco-on .main > .topbar{display:none;}
   body.foco-on #focoView{display:block; padding:12px 16px calc(90px + env(safe-area-inset-bottom, 0px)); min-height:calc(100vh - 56px);}
@@ -4851,3 +4850,18 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 /* progresso do dia em destaque, logo acima da primeira tarefa */
 .fc-foot.fc-foot-top{margin:4px 0 12px; padding:10px 12px; border-radius:14px; background:var(--surface-2); border:1px solid var(--border); font-size:13px; font-weight:700; color:var(--ink);}
 .fc-foot.fc-foot-top .fc-ring, .fc-foot.fc-foot-top svg{flex:none;}
+
+/* v3.57.1: Foco flutuante. Normal: botão Foco aéreo acima da barra. Foco: a barra de baixo flutua sobre o conteúdo (6 abas, Foco marcado). */
+.nav-foco-item{display:none;}
+@media (max-width:768px){
+  .nav-foco-item{display:flex;}
+  body:not(.foco-on) #focoBtn{position:fixed; right:14px; bottom:calc(72px + env(safe-area-inset-bottom, 0px)); z-index:46; height:44px; padding:0 16px 0 13px; font-size:14px; border:0; border-radius:99px; background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(15,23,42,.28);}
+  body:not(.foco-on) #focoBtn svg{width:18px; height:18px;}
+  body:not(.foco-on) #focoBtn span{color:#fff;}
+  body.foco-on .nav{display:flex; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); height:64px; padding:0 6px; border:1px solid var(--border); border-radius:22px; box-shadow:0 10px 28px rgba(15,23,42,.18); z-index:46; background:var(--surface);}
+  body.foco-on .nav-item{font-size:10px;}
+  body.foco-on .nav-item svg{width:20px; height:20px;}
+  body.foco-on .nav-item.nav-foco-item.active{color:var(--primary);}
+  body.foco-on .nav-item.active::after{display:none;}
+  body.foco-on .nav-foco-item.active::after{display:block;}
+}
