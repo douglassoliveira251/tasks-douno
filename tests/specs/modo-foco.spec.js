@@ -25,12 +25,12 @@ const prepara = async (page, extra) => {
   }, extra ? extra.toString() : null);
 };
 
-test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro, mostra a barra com Foco marcado', async ({ page }) => {
+test('Foco: botão só no celular; ligar mostra a tarefa atrasada primeiro e mantém a barra de baixo das outras telas', async ({ page }) => {
   await prepara(page);
   await expect(page.locator('#focoBtn')).toBeVisible();
   await ligar(page);
-  await expect(page.locator('.nav')).toBeVisible(); // barra flutuante com a aba Foco marcada
-  await expect(page.locator('.nav-foco-item')).toHaveClass(/active/);
+  await expect(page.locator('.nav')).toBeVisible(); // a mesma barra das outras telas
+  await expect(page.locator('.nav-item:visible')).toHaveCount(5); // sem item Foco
   await expect(page.locator('.fc-main .fc-title')).toHaveText('Revisar proposta do cliente');
   await expect(page.locator('.fc-main .fc-tag.late')).toContainText('Atrasada · Alta');
   await expect(page.locator('.fc-sec')).toContainText('Depois · 2');
@@ -155,8 +155,7 @@ test('Foco: no celular o app abre direto no Foco; no computador abre normal', as
   await page.setViewportSize({ width: 390, height: 800 });
   await gotoApp(page, { view: 'tasks', foco: true });
   await expect(page.locator('body')).toHaveClass(/foco-on/);
-  await expect(page.locator('.nav')).toBeVisible(); // barra flutuante com a aba Foco marcada
-  await expect(page.locator('.nav-foco-item')).toHaveClass(/active/);
+  await expect(page.locator('.nav')).toBeVisible();
   await expect(page.locator('#focoBtn')).toHaveAttribute('aria-pressed', 'true');
   await page.screenshot({ path: 'test-results/foco-abre-m.png' });
   // desligar leva ao app; recarregar abre no Foco de novo
@@ -199,29 +198,29 @@ test('Foco: tarefa para retomar hoje (ou retomada vencida) entra na fila; retoma
   await expect(page.locator('.fc-main .fc-tags').first()).toContainText('Retomar hoje');
 });
 
-test('Foco (celular): progresso do dia acima da primeira tarefa; topo com perfil à esquerda e Desligar sozinho à direita', async ({ page }) => {
+test('Foco (celular): progresso do dia acima da primeira tarefa; topo sem avatar e com Sair do foco à direita', async ({ page }) => {
   await prepara(page);
   await ligar(page);
   const foot = await page.locator('.fc-foot-top').boundingBox();
   const card = await page.locator('.fc-main').boundingBox();
   expect(foot.y).toBeLessThan(card.y);
-  await expect(page.locator('#focoBtn')).toHaveText('Desligar');
+  await expect(page.locator('#focoBtn')).toHaveText('Sair do foco');
+  await expect(page.locator('#topbarAvatarWrap')).toBeHidden();
   const x = async (sel) => (await page.locator(sel).boundingBox()).x;
-  expect(await x('#topbarAvatarWrap')).toBeLessThan(await x('#searchWrap'));
   expect(await x('#focoBtn')).toBeGreaterThan(await x('#topbarNotifWrap'));
   await expect(page.locator('#searchWrap')).toBeVisible();
   await expect(page.locator('#topbarNotifWrap')).toBeVisible();
   const r = await page.locator('#focoBtn').boundingBox();
-  expect(r.x + r.width).toBeLessThanOrEqual(390 - 8); // o Desligar não encosta na borda
+  expect(r.x + r.width).toBeLessThanOrEqual(390 - 8); // o Sair do foco não encosta na borda
   await page.screenshot({ path: 'test-results/foco-topo-m.png' });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
 
-test('Foco (celular): botão Foco flutua acima da barra; no Foco a barra aparece e tocar numa aba sai do Foco', async ({ page }) => {
+test('Foco (celular): botão Foco flutua acima da barra; no Foco a barra é a das outras telas e tocar numa aba sai do Foco', async ({ page }) => {
   await prepara(page);
   const b = await page.locator('#focoBtn').boundingBox();
   expect(b.y + b.height).toBeLessThan(844 - 60); // acima da barra
-  await page.locator('#navFocoBtn').click();
+  await page.click('#focoBtn');
   await expect(page.locator('body')).toHaveClass(/foco-on/);
   await expect(page.locator('.nav')).toBeVisible();
   await page.locator('.nav-item[data-view="notes"]').click();

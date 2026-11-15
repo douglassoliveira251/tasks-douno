@@ -4836,7 +4836,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   body.foco-on .topnav{display:flex; align-items:center; gap:8px; padding-left:12px !important; padding-right:12px !important;}
   body.foco-on .topnav .tn-right{display:contents;}
   body.foco-on .topnav .tn-brand{order:0;}
-  body.foco-on #topbarAvatarWrap{order:1;}
+  body.foco-on #topbarAvatarWrap{display:none !important;}
   body.foco-on .tn-right .space-selector-wrap{position:static !important; transform:none !important; left:auto !important; top:auto !important; margin:0 auto 0 0 !important; order:2;}
   body.foco-on #searchWrap{order:3;}
   body.foco-on #topbarNotifWrap{order:4;}
@@ -4844,24 +4844,18 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   body.foco-on .save-error-badge{display:none !important;}
   body.foco-on .tn-right #spaceSelectorBtn{width:auto !important; max-width:none !important; padding:0 6px 0 4px !important;}
   body.foco-on .tn-right #spaceSelectorBtn .space-selector-name{max-width:58px !important;}
-  body.foco-on #focoBtn{padding:0 9px !important;}
+  body.foco-on #focoBtn{height:34px; padding:0 11px 0 9px !important; gap:5px; font-size:12.5px; font-weight:700; border-radius:99px; background:rgba(220,38,38,.10) !important; border:1px solid rgba(220,38,38,.35) !important; color:#DC2626 !important; box-shadow:none;}
+  body.foco-on #focoBtn svg{width:14px; height:14px;}
+  body.foco-on #focoBtn span{color:#DC2626 !important;}
   body.foco-on #topbarAvatarWrap .topbar-profile-name, body.foco-on #topbarAvatarWrap .topbar-profile-chevron{display:none !important;}
 }
 /* progresso do dia em destaque, logo acima da primeira tarefa */
 .fc-foot.fc-foot-top{margin:4px 0 12px; padding:10px 12px; border-radius:14px; background:var(--surface-2); border:1px solid var(--border); font-size:13px; font-weight:700; color:var(--ink);}
 .fc-foot.fc-foot-top .fc-ring, .fc-foot.fc-foot-top svg{flex:none;}
 
-/* v3.57.1: Foco flutuante. Normal: botão Foco aéreo acima da barra. Foco: a barra de baixo flutua sobre o conteúdo (6 abas, Foco marcado). */
-.nav-foco-item{display:none;}
+/* v3.57.2: botão Foco aéreo acima da barra (fora do Foco). No Foco a barra de baixo é a mesma das outras telas; Sair do foco fica no topo, avermelhado. */
 @media (max-width:768px){
-  .nav-foco-item{display:flex;}
   body:not(.foco-on) #focoBtn{position:fixed; right:14px; bottom:calc(72px + env(safe-area-inset-bottom, 0px)); z-index:46; height:44px; padding:0 16px 0 13px; font-size:14px; border:0; border-radius:99px; background:var(--primary); color:#fff; box-shadow:0 8px 20px rgba(15,23,42,.28);}
   body:not(.foco-on) #focoBtn svg{width:18px; height:18px;}
   body:not(.foco-on) #focoBtn span{color:#fff;}
-  body.foco-on .nav{display:flex; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); height:64px; padding:0 6px; border:1px solid var(--border); border-radius:22px; box-shadow:0 10px 28px rgba(15,23,42,.18); z-index:46; background:var(--surface);}
-  body.foco-on .nav-item{font-size:10px;}
-  body.foco-on .nav-item svg{width:20px; height:20px;}
-  body.foco-on .nav-item.nav-foco-item.active{color:var(--primary);}
-  body.foco-on .nav-item.active::after{display:none;}
-  body.foco-on .nav-foco-item.active::after{display:block;}
 }

@@ -170,14 +170,13 @@ function sheetHtml(today){
     <button type="button" class="fc-btn fc-gho" id="fcSheetX" style="width:100%; margin-top:6px">Cancelar</button></div></div>`;
 }
 
+const FOCO_X_ICON = '<path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>';
 let timer = null;
 export function renderFoco(){
   const view = document.getElementById('focoView');
   if(!view) return;
-  const navF = document.getElementById('navFocoBtn');
-  if(navF){ navF.classList.toggle('active', !!G.focoMode); navF.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); if(!navF.dataset.bound){ navF.dataset.bound = '1'; navF.onclick = () => setFoco(true); } }
   const btn = document.getElementById('focoBtn');
-  if(btn){ btn.classList.toggle('on', !!G.focoMode); btn.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); const lb = btn.querySelector('span'); if(lb) lb.textContent = G.focoMode ? 'Desligar' : 'Foco'; btn.title = G.focoMode ? 'Sair do modo Foco' : 'Modo Foco: só o dia de hoje'; btn.setAttribute('aria-label', G.focoMode ? 'Desligar modo Foco' : 'Modo Foco'); if(!btn.dataset.bound){ btn.dataset.bound = '1'; btn.onclick = () => setFoco(!G.focoMode); } }
+  if(btn){ btn.classList.toggle('on', !!G.focoMode); btn.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); const lb = btn.querySelector('span'); if(lb) lb.textContent = G.focoMode ? 'Sair do foco' : 'Foco'; const ic = btn.querySelector('svg'); if(ic){ if(!btn.dataset.ico) btn.dataset.ico = ic.innerHTML; ic.innerHTML = G.focoMode ? FOCO_X_ICON : btn.dataset.ico; } btn.title = G.focoMode ? 'Sair do modo Foco' : 'Modo Foco: só o dia de hoje'; btn.setAttribute('aria-label', G.focoMode ? 'Sair do modo Foco' : 'Modo Foco'); if(!btn.dataset.bound){ btn.dataset.bound = '1'; btn.onclick = () => setFoco(!G.focoMode); } }
   const on = focoActive();
   document.body.classList.toggle('foco-on', on);
   if(timer){ clearInterval(timer); timer = null; }

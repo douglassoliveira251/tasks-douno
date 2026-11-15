@@ -1,3 +1,6 @@
+## [3.57.2] - 2026-11-15 10:00
+- Foco (celular): sem avatar no topo; a barra de baixo é a mesma das outras telas (sem o item Foco, que liga só pelo botão flutuante). O botão Desligar passou a Sair do foco, avermelhado.
+
 ## [3.57.1] - 2026-11-14 16:00
 - Celular: botão Foco flutuante acima da barra de baixo (sai do topo). No Foco, a barra de baixo flutua sobre o conteúdo com seis abas (Foco marcado); tocar em outra aba sai do Foco. Desligar segue no topo.
 
