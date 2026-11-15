@@ -61,9 +61,10 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   await gotoApp(page, { view: 'tasks' });
   await page.evaluate(seed, 2);
   const antes = await page.evaluate(() => state.tasks[0].dueDate);
-  await page.locator('#tpDate').click();
+  await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   const cal = page.locator('.modal.tp-fcal');
   await expect(cal).toBeVisible();
+  expect(await page.evaluate(() => document.activeElement && document.activeElement.id)).not.toBe('tpDate'); // nada de seletor nativo
   await expect(cal.locator('.tp-fcal-t')).toHaveText('Prazo');
   await expect(cal.locator('#tpFcalClear')).toHaveText('Remover prazo');
   // Cancelar não muda
@@ -71,14 +72,14 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBe(antes);
   // escolhe um dia e OK
-  await page.locator('#tpDate').click();
+  await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   const alvo = await page.evaluate(() => addDaysStr(todayStr(), 9));
   await page.locator(`.tp-fcal-day[data-d="${alvo}"]`).click();
   await page.locator('#tpFcalOk').click();
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBe(alvo);
   // remover prazo pelo próprio calendário
-  await page.locator('#tpDate').click();
+  await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   await page.locator('#tpFcalClear').click();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBeNull();
 });

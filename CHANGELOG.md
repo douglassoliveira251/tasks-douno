@@ -1,3 +1,6 @@
+## [3.56.5] - 2026-11-14 14:00
+- Tarefa (celular): o Prazo deixa de abrir o seletor nativo do aparelho (com Configurar); o toque na data abre só o calendário do app. O horário segue no campo dele.
+
 ## [3.56.4] - 2026-11-14 13:00
 - Tarefa: o Prazo usa o calendário do app (Cancelar / OK) no lugar do calendário nativo, com Remover prazo no rodapé e os limites da etapa. Retomar em continua com o mesmo calendário.
 

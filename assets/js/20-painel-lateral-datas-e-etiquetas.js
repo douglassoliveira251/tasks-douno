@@ -77,9 +77,9 @@ export function bindTpDates(panel, task){
     });
   }
   const dueInp = document.getElementById('tpDate');
-  /* o calendário próprio substitui o nativo: o toque não abre o seletor do aparelho */
-  dueInp.addEventListener('mousedown', e => e.preventDefault());
-  dueInp.addEventListener('click', () => pickDue(dueInp.value || '', dueInp));
+  /* o calendário próprio substitui o nativo: o campo da data não recebe o toque (pointer-events none no CSS),
+     e o toque na área da data abre o calendário do app. O horário continua no campo dele. */
+  dueInp.parentElement.addEventListener('click', (e) => { if(e.target.closest('.tp-time-input')) return; pickDue(dueInp.value || '', dueInp); });
   dueInp.addEventListener('change', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
     const v = e.target.value || null;

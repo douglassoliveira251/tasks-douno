@@ -4827,3 +4827,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .tp-fcal-btns{display:flex; gap:6px;}
 .tp-fcal-day:disabled{color:var(--ink-faint); opacity:.45; cursor:default; background:none;}
 .tp-fcal-f{align-items:center;}
+/* o campo de data do Prazo não recebe o toque (abre o calendário do app); o horário segue normal */
+#tpDate{pointer-events:none;}
+#tpDate ~ .tp-time-input{pointer-events:auto;}
+.tp-row2:has(#tpDate){cursor:pointer;}
