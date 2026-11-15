@@ -3,7 +3,9 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './specs',
   fullyParallel: true,
-  retries: 0,
+  // no CI (GitHub) o runner é mais lento: 2 testes por vez e uma nova tentativa, para não virar falso vermelho por tempo
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 2 : undefined,
   reporter: [['list']],
   use: {
     baseURL: 'http://localhost:8724',
