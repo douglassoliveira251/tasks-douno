@@ -1,3 +1,6 @@
+## [3.57.0] - 2026-11-14 15:00
+- Foco (celular): o progresso do dia fica em destaque acima da primeira tarefa. O botão do topo vira Desligar; à direita ficam lupa, sino e Desligar; o perfil (com o menu) foi para a esquerda, ao lado do logo.
+
 ## [3.56.5] - 2026-11-14 14:00
 - Tarefa (celular): o Prazo deixa de abrir o seletor nativo do aparelho (com Configurar); o toque na data abre só o calendário do app. O horário segue no campo dele.
 

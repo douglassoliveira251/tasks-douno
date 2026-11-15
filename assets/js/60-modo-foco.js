@@ -120,7 +120,7 @@ function html(today){
   const totalHoje = abertasHoje + feitas;
   const pct = totalHoje ? Math.round(feitas / totalHoje * 100) : 0;
   const meet = meetingNow(today);
-  const foot = totalHoje ? `<div class="fc-foot">${ring(pct, 44, 34, feitas + '/' + totalHoje)}<span>${feitas} de ${totalHoje} feitas hoje</span></div>` : '';
+  const foot = totalHoje ? `<div class="fc-foot fc-foot-top">${ring(pct, 44, 34, feitas + '/' + totalHoje)}<span>${feitas} de ${totalHoje} feitas hoje</span></div>` : '';
 
   if(!queue.length && !meet){
     if(feitas > 0){
@@ -157,8 +157,8 @@ function html(today){
       ${queue.length > 1 ? '<button type="button" class="fc-skip" id="fcSkip">Pular para a próxima</button>' : ''}`;
   }
   const list = rest.slice(0, 6).map(t => `<div class="fc-li"><button type="button" class="fc-chk" data-done="${t.id}" aria-label="Concluir ${escapeHtml(t.title || 'tarefa')}"></button><button type="button" class="fc-lt" data-open="${t.id}"><b>${escapeHtml(t.title || 'Sem título')}</b><span class="${kindOf(t, today) === 'late' || (kindOf(t, today) === 'resume' && t.followUpDate < today) ? 'late' : ''}">${kindOf(t, today) === 'late' ? 'Atrasada' : (kindOf(t, today) === 'resume' ? (t.followUpDate < today ? 'Retomada vencida' : 'Retomar') : (t.dueTime ? 'Hoje · ' + t.dueTime : 'Hoje'))}</span></button></div>`).join('');
-  return `<div class="fc-date">${escapeHtml(dateTxt)}</div><div class="fc-h">Agora</div>${card}
-    ${rest.length ? `<div class="fc-sec">Depois · ${rest.length}</div>${list}${rest.length > 6 ? `<div class="fc-mm fc-more">e mais ${rest.length - 6}</div>` : ''}` : ''}${foot}`;
+  return `<div class="fc-date">${escapeHtml(dateTxt)}</div><div class="fc-h">Agora</div>${foot}${card}
+    ${rest.length ? `<div class="fc-sec">Depois · ${rest.length}</div>${list}${rest.length > 6 ? `<div class="fc-mm fc-more">e mais ${rest.length - 6}</div>` : ''}` : ''}`;
 }
 
 function sheetHtml(today){
@@ -175,7 +175,7 @@ export function renderFoco(){
   const view = document.getElementById('focoView');
   if(!view) return;
   const btn = document.getElementById('focoBtn');
-  if(btn){ btn.classList.toggle('on', !!G.focoMode); btn.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); if(!btn.dataset.bound){ btn.dataset.bound = '1'; btn.onclick = () => setFoco(!G.focoMode); } }
+  if(btn){ btn.classList.toggle('on', !!G.focoMode); btn.setAttribute('aria-pressed', G.focoMode ? 'true' : 'false'); const lb = btn.querySelector('span'); if(lb) lb.textContent = G.focoMode ? 'Desligar' : 'Foco'; btn.title = G.focoMode ? 'Sair do modo Foco' : 'Modo Foco: só o dia de hoje'; btn.setAttribute('aria-label', G.focoMode ? 'Desligar modo Foco' : 'Modo Foco'); if(!btn.dataset.bound){ btn.dataset.bound = '1'; btn.onclick = () => setFoco(!G.focoMode); } }
   const on = focoActive();
   document.body.classList.toggle('foco-on', on);
   if(timer){ clearInterval(timer); timer = null; }

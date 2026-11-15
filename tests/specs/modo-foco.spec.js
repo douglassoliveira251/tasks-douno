@@ -196,3 +196,21 @@ test('Foco: tarefa para retomar hoje (ou retomada vencida) entra na fila; retoma
   await expect(page.locator('.fc-main .fc-title')).toHaveText('Retomar proposta');
   await expect(page.locator('.fc-main .fc-tags').first()).toContainText('Retomar hoje');
 });
+
+test('Foco (celular): progresso do dia acima da primeira tarefa; topo com perfil à esquerda e Desligar sozinho à direita', async ({ page }) => {
+  await prepara(page);
+  await ligar(page);
+  const foot = await page.locator('.fc-foot-top').boundingBox();
+  const card = await page.locator('.fc-main').boundingBox();
+  expect(foot.y).toBeLessThan(card.y);
+  await expect(page.locator('#focoBtn')).toHaveText('Desligar');
+  const x = async (sel) => (await page.locator(sel).boundingBox()).x;
+  expect(await x('#topbarAvatarWrap')).toBeLessThan(await x('#searchWrap'));
+  expect(await x('#focoBtn')).toBeGreaterThan(await x('#topbarNotifWrap'));
+  await expect(page.locator('#searchWrap')).toBeVisible();
+  await expect(page.locator('#topbarNotifWrap')).toBeVisible();
+  const r = await page.locator('#focoBtn').boundingBox();
+  expect(r.x + r.width).toBeLessThanOrEqual(390 - 8); // o Desligar não encosta na borda
+  await page.screenshot({ path: 'test-results/foco-topo-m.png' });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
