@@ -1,3 +1,6 @@
+## [3.59.4] - 2026-11-16 19:30
+- Resumo: no cartão de ritmo, número de concluídas maior (38 px), indicadores um pouco mais baixos e gráfico mais alto.
+
 ## [3.59.3] - 2026-11-16 18:30
 - Resumo: cartão de ritmo bem mais baixo. Saldo da fila, ritmo médio e hoje ficam ao lado do número grande; a legenda vai para o título; atrasadas, vencem hoje, retomar, sem prazo e sem retomada ficam numa linha no rodapé.
 

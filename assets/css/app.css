@@ -4887,9 +4887,9 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .dv-lseg button:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
 .dv-lc-row{display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap;}
 .dv-lc-top{display:flex; align-items:baseline; gap:8px; min-width:0;}
-.dv-lc-big b{font-family:var(--font-display); font-size:28px; font-weight:600; letter-spacing:-.045em; line-height:1;}
-.dv-lc-cap{font-size:11.5px; color:var(--ink-soft); font-weight:600;}
-.dv-lc-kpis{display:flex;}
+.dv-lc-big b{font-family:var(--font-display); font-size:38px; font-weight:600; letter-spacing:-.045em; line-height:1;}
+.dv-lc-cap{font-size:12px; color:var(--ink-soft); font-weight:600;}
+.dv-lc-kpis{display:flex; margin-bottom:-3px; padding-top:8px;}
 .dv-lc-kpis .k{padding:0 12px; border-left:1px solid var(--border); display:flex; flex-direction:column; gap:1px;}
 .dv-lc-kpis .k:first-child{border-left:0;} .dv-lc-kpis .k:last-child{padding-right:0;}
 .dv-lc-kpis .cap{font-size:10.5px; color:var(--ink-soft); font-weight:700;}
