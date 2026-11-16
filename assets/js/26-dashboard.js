@@ -259,11 +259,11 @@ export function renderDashboard(){
       ${onboardingCardHtml()}
       <div class="dv-r1">
         <section class="dv-card dv-hero dv-lc">
-          <div class="dv-eb"><span>RITMO</span><span class="dv-lc-sub">concluídas × criadas</span>
+          <h3>${icon('trend-up')}Ritmo <span class="dv-lc-sub">concluídas × criadas</span>
             ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
             <span class="sp"></span>
             <span class="dv-lseg" role="tablist" aria-label="Período do gráfico">${lcSegs.map(([k, l]) => `<button type="button" role="tab" data-per="${k}" aria-selected="${PAINEL_INICIO.periodo === k}" class="${PAINEL_INICIO.periodo === k ? 'on' : ''}">${l}</button>`).join('')}</span>
-          </div>
+          </h3>
           <div class="dv-lc-grid">
             <div class="dv-lc-main">
               <div class="dv-lc-top"><span class="dv-lc-big"><b>${lcDone}</b></span><span class="dv-lc-cap">concluídas contra ${lcNew} criadas · ${lcPerNome}</span></div>

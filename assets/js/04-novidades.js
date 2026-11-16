@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.59.2', date:'16/11/2026', title:'Gráfico do Resumo no padrão compacto', text:'O cartão de ritmo agora usa o mesmo título e espaçamento dos demais cartões do Resumo, com número e filtro menores.' },
   { version:'3.59.1', date:'16/11/2026', title:'Gráfico do Resumo mais compacto', text:'O gráfico de ritmo voltou para a mesma linha de Status das tarefas e Compromissos, com o gráfico e os indicadores menores para caber.' },
   { version:'3.59.0', date:'16/11/2026', title:'Resumo: gráfico de ritmo no topo', text:'O topo do Resumo agora é um gráfico de linha com o que você concluiu e o que foi criado, comparado ao período anterior. Troque entre Semana, Mês e Trimestre no próprio gráfico. Ao lado, o saldo da fila, o ritmo por dia e o andamento de hoje, com atalhos para atrasadas, vencem hoje e retomar.' },
   { version:'3.58.3', date:'16/11/2026', title:'Cartão Hoje: barra ajustada', text:'A barra por cores do cartão Hoje não corta mais o texto quando um grupo é muito maior que os outros (por exemplo 6 atrasadas e 38 para retomar).' },

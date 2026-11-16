@@ -4870,20 +4870,20 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 }
 
 /* v3.59.0: topo do Resumo vira um gráfico de linha (concluídas × criadas) com filtro Semana, Mês e Trimestre */
-.dv-hero.dv-lc{--lc-line:var(--primary); --lc-new:#E8A33D; padding:14px 16px 12px; min-width:0;}
+.dv-hero.dv-lc{--lc-line:var(--primary); --lc-new:#E8A33D; padding:12px 14px; min-width:0;}
 [data-theme="dark"] .dv-hero.dv-lc{--lc-line:#6AA8FF;}
-.dv-lc .dv-eb{display:flex; align-items:center; gap:8px; margin-bottom:6px; text-transform:uppercase;}
-.dv-lc .dv-eb .sp{flex:1;}
-.dv-lc-sub{text-transform:none; letter-spacing:0; font-weight:600; font-size:11.5px; color:var(--ink-faint);}
-.dv-lseg{display:inline-flex; background:var(--surface-2); border-radius:999px; padding:3px; gap:2px; letter-spacing:0; text-transform:none;}
-.dv-lseg button{border:0; background:transparent; font:inherit; font-size:11px; font-weight:700; padding:3px 11px; border-radius:999px; color:var(--ink-soft); cursor:pointer;}
+.dv-lc h3 .sp{flex:1;}
+.dv-lc h3 .dv-tag{font-family:var(--font-body, inherit);}
+.dv-lc-sub{font-family:var(--font-body, inherit); font-weight:600; font-size:11.5px; color:var(--ink-faint);}
+.dv-lseg{display:inline-flex; background:var(--surface-2); border-radius:999px; padding:2px; gap:1px;}
+.dv-lseg button{border:0; background:transparent; font:inherit; font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; color:var(--ink-soft); cursor:pointer;}
 .dv-lseg button:hover{color:var(--ink);}
 .dv-lseg button.on{background:var(--primary); color:#fff;}
 .dv-lseg button:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
 .dv-lc-grid{display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:16px;}
 .dv-lc-main{min-width:0;}
 .dv-lc-top{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;}
-.dv-lc-big b{font-family:var(--font-display); font-size:34px; font-weight:600; letter-spacing:-.045em; line-height:1;}
+.dv-lc-big b{font-family:var(--font-display); font-size:28px; font-weight:600; letter-spacing:-.045em; line-height:1;}
 .dv-lc-cap{font-size:11.5px; color:var(--ink-soft); font-weight:600;}
 .dv-lc-chart{width:100%; min-height:146px; margin-top:2px;}
 .dv-lc-chart svg{display:block; max-width:100%;}
@@ -4927,7 +4927,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   .dv-lc-big b{font-size:38px;}
   .dv-lc-r{grid-template-columns:1fr; gap:10px;}
   .dv-lc-r .k{padding-bottom:10px; border-bottom:1px solid var(--border);} .dv-lc-r .k:last-child{border-bottom:0; padding-bottom:0;}
-  .dv-lc .dv-eb{flex-wrap:wrap;}
+  .dv-lc h3{flex-wrap:wrap;}
   .dv-lseg{order:5; width:100%; margin-top:6px;} .dv-lseg button{flex:1;}
   .dv-lc-sub{display:none;}
 }

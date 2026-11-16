@@ -1,3 +1,6 @@
+## [3.59.2] - 2026-11-16 17:30
+- Resumo: cartão de ritmo no padrão compacto dos outros cartões (mesmo título com ícone, mesmo espaçamento, número e filtro menores).
+
 ## [3.59.1] - 2026-11-16 17:00
 - Resumo (desktop): o gráfico de ritmo volta a ocupar só o lugar do antigo cartão Hoje, na mesma linha de Status das tarefas e Compromissos, com gráfico e indicadores menores.
 
