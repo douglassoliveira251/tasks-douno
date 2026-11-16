@@ -116,3 +116,39 @@ test.describe('Pesquisa', () => {
     await expect(page.locator('.task-panel')).toBeVisible();
   });
 });
+
+test('Pesquisa: título muito longo não estica a lista; recorta em volta do termo com … e destaca', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const longo = 'Revisar e consolidar todos os documentos do projeto de reforma da casa de praia incluindo contratos, plantas, orçamentos, cronograma físico-financeiro e as autorizações da prefeitura antes da reunião final com a diretoria';
+    const t = (id, title) => ({ id, title, done: false, status: 'nao_iniciado', priority: 'media', dueDate: today, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 });
+    state.tasks = [t('c1', 'Reunião sobre o orçamento da obra'), t('c2', longo), t('c3', 'A'.repeat(200) + ' orçamento final')];
+    currentView = 'tasks'; render();
+  });
+  await page.locator('#searchInput').fill('orçamento');
+  await expect(page.locator('.sr-row')).toHaveCount(3);
+  const box = await page.locator('#searchResultsDropdown').boundingBox();
+  expect(box.width).toBeLessThanOrEqual(620);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(1440);
+  // título curto fica inteiro; longo vira trecho com … e o termo destacado
+  await expect(page.locator('.sr-row[data-id="c1"] .sr-title')).toHaveText('Reunião sobre o orçamento da obra');
+  const longo = page.locator('.sr-row[data-id="c2"] .sr-title');
+  await expect(longo).toContainText('…');
+  await expect(longo.locator('.sr-mark')).toHaveText('orçamento');
+  expect((await longo.innerText()).length).toBeLessThanOrEqual(64);
+  await expect(longo).toHaveAttribute('title', /Revisar e consolidar todos os documentos/); // título inteiro no tooltip
+  await expect(page.locator('.sr-row[data-id="c3"] .sr-title .sr-mark')).toHaveText('orçamento');
+  await page.screenshot({ path: 'test-results/busca-titulo-longo-d.png' });
+  // celular: também cabe
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('#searchInput').fill('orçamentos');
+  await page.locator('#searchInput').fill('orçamento');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await expect(page.locator('.sr-row[data-id="c1"] .sr-title .sr-mark')).toBeVisible();
+  const cel = await page.evaluate(() => { const m = document.querySelector('.sr-row[data-id="c1"] .sr-title .sr-mark').getBoundingClientRect(), t = document.querySelector('.sr-row[data-id="c1"] .sr-title').getBoundingClientRect(); return m.right <= t.right + 1; });
+  expect(cel).toBe(true); // o trecho destacado aparece inteiro, não fica escondido pelas reticências
+  await page.screenshot({ path: 'test-results/busca-titulo-longo-m.png' });
+});

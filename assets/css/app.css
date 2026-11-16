@@ -4913,3 +4913,12 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   .dv-h2-tiles{display:none;}
   .dv-h2 .dv-eb{gap:6px;}
 }
+
+/* v3.58.1: a lista da pesquisa tem largura fixa; título longo não estica mais a caixa */
+#searchResultsDropdown{width:min(620px, calc(100vw - 32px)); min-width:0; max-width:calc(100vw - 32px); overflow-x:hidden; box-sizing:border-box;}
+.sr-row{min-width:0;}
+.sr-main{overflow:hidden;}
+.sr-snip, .sr-meta{overflow-wrap:anywhere;}
+@media (max-width:768px){
+  #searchResultsDropdown{width:auto; max-width:none;}
+}

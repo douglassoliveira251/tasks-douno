@@ -1,3 +1,6 @@
+## [3.58.1] - 2026-11-16 12:00
+- Pesquisa: a lista de resultados tem largura fixa. Títulos longos são recortados em volta do trecho encontrado (destacado) e o restante vira "…", com o nome inteiro no tooltip. Antes a lista esticava e saía da tela.
+
 ## [3.58.0] - 2026-11-16 10:00
 - Resumo (desktop): novo cartão Hoje com o total de itens que pedem atenção, barra de composição (atrasadas, vencem hoje, para retomar, clicável), prioridades abertas e mini-KPIs (feitas hoje, em andamento, sem prazo, sem retomada). Sai o gráfico dos 14 dias.
 

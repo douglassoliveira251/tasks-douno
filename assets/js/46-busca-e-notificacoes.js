@@ -60,6 +60,24 @@ export function highlightTerm(text, term){
   if(i < 0) return escapeHtml(raw);
   return escapeHtml(raw.slice(0, i)) + '<mark class="sr-mark">' + escapeHtml(raw.slice(i, i + t.length)) + '</mark>' + escapeHtml(raw.slice(i + t.length));
 }
+/* Título na lista da pesquisa: cabe numa janela fixa de caracteres. Se o nome é maior, mostra o trecho em volta do termo
+   encontrado (destacado) e troca o resto por "…", em vez de esticar a lista. O título inteiro fica no tooltip. */
+export const SR_TITLE_MAX = 60, SR_TITLE_MAX_CEL = 30; // janela no computador / no celular (a caixa é mais estreita)
+export function clipHighlight(text, term, max = (window.innerWidth <= 768 ? SR_TITLE_MAX_CEL : SR_TITLE_MAX)){
+  const raw = String(text || '');
+  if(raw.length <= max) return highlightTerm(raw, term);
+  const t = term.trim();
+  const i = t ? fold(raw).indexOf(fold(t)) : -1;
+  let start = 0;
+  if(i > 0){
+    start = Math.max(0, i - Math.round(max * 0.3));
+    const need = Math.min(raw.length, i + t.length);
+    if(start + max < need) start = Math.max(0, need - max);
+  }
+  const end = Math.min(raw.length, start + max);
+  start = Math.max(0, end - max);
+  return (start > 0 ? '…' : '') + highlightTerm(raw.slice(start, end), term) + (end < raw.length ? '…' : '');
+}
 export function searchSnippet(note, term){
   const body = stripHtml(note.body || '');
   const i = fold(body).indexOf(fold(term.trim()));
@@ -192,7 +210,7 @@ export function renderSearchResultsDropdown(){
       return `<div class="sr-row ${sec.done ? 'done' : ''} ${sec.past ? 'past' : ''} ${i === searchActiveIdx ? 'on' : ''}" data-kind="${k.icon}" data-id="${it.id}" data-i="${i}">
         <span class="sr-ic ${k.cls}">${k.svg}</span>
         <span class="sr-main">
-          <span class="sr-title">${highlightTerm(it.title || 'Sem título', term)}</span>
+          <span class="sr-title" title="${escapeHtml(it.title || 'Sem título')}">${clipHighlight(it.title || 'Sem título', term)}</span>
           ${info.snip ? `<span class="sr-snip">${highlightTerm(info.snip, term)}</span>` : ''}
           <span class="sr-meta">${info.meta}</span>
         </span>
