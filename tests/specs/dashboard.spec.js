@@ -4,7 +4,7 @@ import { gotoApp, novoItem } from './helpers.js';
 const seed = () => {
   const cat = state.categories[0].id, today = todayStr();
   const t = (id, title, extra) => Object.assign({ id, title, done: false, status: 'nao_iniciado', priority: 'alta', dueDate: today, dueTime: '09:00', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now() - 1000 }, extra);
-  state.tasks = [t('a', 'Hoje 1'), t('b', 'Hoje 2', { followUpDate: today }), t('c', 'Atrasada', { dueDate: addDaysStr(today, -2) }), t('d', 'Feita', { done: true, status: 'concluida', completedAt: Date.now() - 3600000 })];
+  state.tasks = [t('a', 'Hoje 1'), t('b', 'Hoje 2', { dueDate: addDaysStr(today, 2), followUpDate: today }), t('c', 'Atrasada', { dueDate: addDaysStr(today, -2) }), t('d', 'Feita', { done: true, status: 'concluida', completedAt: Date.now() - 3600000 })];
   state.projects = [{ id: 'p1', name: 'Casa', categoryId: cat, stages: [{ id: 's1', name: 'E1', start: addDaysStr(today, -10), end: addDaysStr(today, -1) }], startDate: today, endDate: '', createdAt: 1 }];
   state.events = [{ id: 'e1', title: 'Reunião', date: today, endDate: today, startTime: '15:00', endTime: '16:00', allDay: false, categoryId: cat, tagIds: [], recurrence: 'none', recurrenceInterval: 1, linkedTaskId: null, description: '', createdAt: 1 }];
   currentView = 'dashboard'; render();
@@ -15,9 +15,11 @@ test.describe('Resumo', () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(seed);
-    await expect(page.locator('.dv-big')).toContainText('2');
-    await expect(page.locator('.dv-hero')).toContainText('para retomar');
-    await expect(page.locator('.dv-hero')).toContainText('1 atrasada');
+    await expect(page.locator('.dv-h2-big b')).toHaveText('3'); // 1 atrasada + 1 vence hoje + 1 para retomar
+    await expect(page.locator('.dv-h2-seg.o')).toContainText('Atrasadas');
+    await expect(page.locator('.dv-h2-seg.d')).toContainText('Vencem hoje');
+    await expect(page.locator('.dv-h2-seg.r')).toContainText('Retomar');
+    await expect(page.locator('.dv-h2-t').first()).toContainText('Feitas hoje');
     await expect(page.locator('.dv-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.dv-pr')).toContainText('Casa');
     await expect(page.locator('.dv-agenda')).toContainText('Reunião');
@@ -135,10 +137,10 @@ test('Resumo: indicadores de tarefas sem data', async ({ page }) => {
     state.tasks = [t('1', today, today), t('2', null, today), t('3', today, null), t('4', null, null), t('5', null, null)];
     render();
   });
-  await expect(page.locator('.dv-stats .link[data-nodate="due"] b')).toHaveText('3');
-  await expect(page.locator('.dv-stats .link[data-nodate="follow"] b')).toHaveText('3');
+  await expect(page.locator('.dv-h2-t[data-nodate="due"] b')).toHaveText('3');
+  await expect(page.locator('.dv-h2-t[data-nodate="follow"] b')).toHaveText('3');
   // clicar no indicador abre as tarefas agrupadas pelo critério correspondente
-  await page.locator('.dv-stats .link[data-nodate="due"]').click();
+  await page.locator('.dv-h2-t[data-nodate="due"]').click();
   expect(await page.evaluate(() => [currentView, taskGroupMode])).toEqual(['tasks', 'periodo']);
 });
 
@@ -170,9 +172,9 @@ test('tabela de tarefas junta prazo e retomada: quem é para retomar hoje aparec
   await expect(page.locator('.dv-tr[data-task-id="r"] .dv-ret')).toBeVisible();
   await expect(page.locator('.dv-tr[data-task-id="p"] .dv-ret')).toHaveCount(0);
   await expect(page.locator('.dv-tr[data-task-id="r"]')).toContainText('↻ Hoje');
-  await page.locator('[data-aba="proximas"]').click();
+  await page.locator('.dv-seg [data-aba="proximas"]').click();
   await expect(page.locator('.dv-tr[data-task-id="f"] .dv-ret')).toBeVisible();
-  await page.locator('[data-aba="atrasadas"]').click();
+  await page.locator('.dv-seg [data-aba="atrasadas"]').click();
   await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
 });
 
@@ -231,4 +233,24 @@ test('botão "+" é contextual: + Item na Visão geral (menu) e + Tarefa/Nota/Ev
   await page.locator('#newBtn').click();
   expect(await page.evaluate(() => creatingNewTask)).toBe(true);
   await expect(page.locator('.view-mode-toggle button[disabled]')).toHaveCount(1); // Kanban ainda desativado
+});
+
+test('cartão Hoje: clicar na barra por cores abre o grupo na tabela; sem pendências mostra Tudo em dia', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, title, extra) => Object.assign({ id, title, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    state.tasks = [t('o', 'Atrasada por prazo', { dueDate: addDaysStr(today, -1), priority: 'critica' }), t('p', 'Hoje', { dueDate: today })];
+    render();
+  });
+  await expect(page.locator('.dv-h2-big b')).toHaveText('2');
+  await expect(page.locator('.dv-h2-pri')).toContainText('1 crítica');
+  await page.locator('.dv-h2-seg.o').click();
+  await expect(page.locator('.dv-seg a.on')).toHaveText('Atrasadas');
+  await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
+  await page.screenshot({ path: 'test-results/hoje-kpi-d.png' });
+  await page.evaluate(() => { state.tasks = []; render(); });
+  await expect(page.locator('.dv-h2-big b')).toHaveText('0');
+  await expect(page.locator('.dv-h2-seg.ok')).toContainText('Tudo em dia');
 });

@@ -1,3 +1,6 @@
+## [3.58.0] - 2026-11-16 10:00
+- Resumo (desktop): novo cartão Hoje com o total de itens que pedem atenção, barra de composição (atrasadas, vencem hoje, para retomar, clicável), prioridades abertas e mini-KPIs (feitas hoje, em andamento, sem prazo, sem retomada). Sai o gráfico dos 14 dias.
+
 ## [3.57.2] - 2026-11-15 10:00
 - Foco (celular): sem avatar no topo; a barra de baixo é a mesma das outras telas (sem o item Foco, que liga só pelo botão flutuante). O botão Desligar passou a Sair do foco, avermelhado.
 

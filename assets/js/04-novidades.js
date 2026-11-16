@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.58.0', date:'16/11/2026', title:'Resumo: novo cartão Hoje', text:'O cartão Hoje do Resumo agora mostra quantos itens pedem atenção (atrasadas, vencem hoje e para retomar) numa barra por cores, com um clique para ver cada grupo. Abaixo, o progresso do dia, as em andamento e os alertas de tarefas sem prazo ou sem retomada.' },
   { version:'3.57.2', date:'15/11/2026', title:'Foco mais limpo', text:'No celular, o Foco não mostra mais o seu avatar no topo. A barra de baixo é a mesma das outras telas, sem o item Foco (o botão flutuante liga o Foco). O botão para sair agora se chama Sair do foco e fica avermelhado.' },
   { version:'3.57.1', date:'14/11/2026', title:'Foco flutuante', text:'No celular, o botão Foco fica flutuando acima da barra de baixo. No Foco, a barra de baixo aparece flutuando sobre o conteúdo, com a aba Foco marcada: tocar em outra aba sai do modo. O Desligar continua no topo.' },
   { version:'3.57.0', date:'14/11/2026', title:'Foco: topo e progresso', text:'No Foco, o progresso do dia (0 de 2 feitas hoje) fica em destaque logo acima da primeira tarefa. O botão no topo passa a ser Desligar, com a lupa e o sino à direita; o perfil foi para o lado do logo.' },

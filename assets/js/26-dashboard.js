@@ -58,15 +58,11 @@ export function renderDashboard(){
   const noFollow = open.filter(t => !t.followUpDate);
   const todayEvents = eventsOnDate(scopeEvents, todayS);
   const inProgress = open.filter(t => t.status === 'em_andamento');
-  const openPct = scopeTasks.length ? Math.round(open.length / scopeTasks.length * 100) : 0;
   const pctOf = n => open.length ? Math.round(n / open.length * 100) : 0;
 
   const completedLast7 = completed.filter(t => t.completedAt && t.completedAt >= now - 7 * DAY);
   const completedPrev7 = completed.filter(t => t.completedAt && t.completedAt >= now - 14 * DAY && t.completedAt < now - 7 * DAY);
-  const trend7 = completedLast7.length - completedPrev7.length;
 
-  const followToday = open.filter(t => t.followUpDate && t.followUpDate <= todayS)
-    .sort((x, y) => (x.followUpDate || '').localeCompare(y.followUpDate || ''));
   const upcomingTasks = open.filter(t => t.dueDate && t.dueDate >= todayS && t.dueDate <= addDaysStr(todayS, 7))
     .sort((x, y) => (x.dueDate + (x.dueTime || '99:99')).localeCompare(y.dueDate + (y.dueTime || '99:99')));
   const prStatus = (G.state.projects || []).filter(p => !G.dashboardSpace || p.categoryId === G.dashboardSpace).map(p => ({ p, st: projectStatus(p) }));
@@ -100,27 +96,6 @@ export function renderDashboard(){
     else if(i === 0) continue;
     else break;
   }
-
-  /* últimos 14 dias (gráfico do cartão Hoje) */
-  const dayLabels = [], dayCounts = [];
-  for(let i = 13; i >= 0; i--){
-    const dStr = addDaysStr(todayS, -i);
-    dayLabels.push(dStr.slice(8, 10) + '/' + dStr.slice(5, 7));
-    dayCounts.push(completed.filter(t => t.completedAt && dateOfDay(t.completedAt) === dStr).length);
-  }
-  const heroChart = (() => {
-    const W = 250, H = 78, n = dayCounts.length, mx = Math.max(1, ...dayCounts) + 1;
-    const px = dayCounts.map((_, i) => 8 + i * (W - 16) / (n - 1));
-    const py = dayCounts.map(v => H - 18 - v / mx * (H - 30));
-    const line = px.map((x, i) => x.toFixed(1) + ',' + py[i].toFixed(1)).join(' ');
-    const base = H - 18;
-    const labs = [[0, dayLabels[0]], [3, dayLabels[3]], [6, dayLabels[6]], [9, dayLabels[9]], [13, 'Hoje']].map(([i, l]) => `<text x="${px[i].toFixed(1)}" y="${H - 4}" font-size="9.5" text-anchor="${i === 0 ? 'start' : (i === 13 ? 'end' : 'middle')}" fill="var(--ink-faint)">${l}</text>`).join('');
-    const grid = [0, .5, 1].map(f => `<line x1="8" x2="${W - 8}" y1="${(H - 18 - f * (H - 30)).toFixed(1)}" y2="${(H - 18 - f * (H - 30)).toFixed(1)}" stroke="var(--border)"/>`).join('');
-    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Tarefas concluídas nos últimos 14 dias"><defs><linearGradient id="dvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".28"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>${grid}
-      <polygon points="${line} ${px[n - 1].toFixed(1)},${base} ${px[0].toFixed(1)},${base}" fill="url(#dvg)"/>
-      <polyline points="${line}" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-      <circle cx="${px[n - 1].toFixed(1)}" cy="${py[n - 1].toFixed(1)}" r="3.5" fill="var(--surface)" stroke="var(--primary)" stroke-width="2"/>${labs}</svg>`;
-  })();
 
   /* ---- status das tarefas (rosca) ---- */
   const stOver = overdue.length;
@@ -258,9 +233,17 @@ export function renderDashboard(){
   }
   /* celular: anel com o andamento do dia e indicadores em grade */
   const feitasHoje = completed.filter(t => t.completedAt && dateOfDay(t.completedAt) === todayS).length;
-  const diaTotal = dueToday.length + feitasHoje;
+  /* cartão Hoje: o que pede atenção agora, sem repetir a mesma tarefa em dois grupos */
+  const retomar = open.filter(t => t.followUpDate && t.followUpDate <= todayS && !(t.dueDate && t.dueDate <= todayS));
+  const atencao = overdue.length + dueToday.length + retomar.length;
+  const diaTotal = atencao + feitasHoje;
   const diaPct = diaTotal ? Math.round(feitasHoje / diaTotal * 100) : 0;
-  const ringHtml = diaTotal ? `<div class="dv-ring" role="img" aria-label="${diaPct}% do dia concluído"><svg width="62" height="62" viewBox="0 0 62 62" style="transform:rotate(-90deg)"><circle cx="31" cy="31" r="26" fill="none" stroke="var(--surface-2)" stroke-width="7"/><circle cx="31" cy="31" r="26" fill="none" stroke="var(--primary)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(diaPct * 1.634).toFixed(1)} 164"/></svg><b>${diaPct}%</b></div>` : '';
+  const critN = open.filter(t => t.priority === 'critica').length;
+  const altaN = open.filter(t => t.priority === 'alta').length;
+  const trendPct = completedPrev7.length ? Math.round((completedLast7.length - completedPrev7.length) / completedPrev7.length * 100) : null;
+  const dateTxt = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const heroSeg = (cls, n, label, aba) => n ? `<button type="button" class="dv-h2-seg ${cls}" style="flex:${n}" data-aba="${aba}" title="Ver na lista de tarefas"><span>${label}</span><b>${n}</b></button>` : '';
+  const heroTile = (ic_, cls, label, n, small, pct, color, nodate) => `<div class="dv-h2-t${nodate ? ' link' : ''}"${nodate ? ` data-nodate="${nodate}" role="button" tabindex="0" title="Ver tarefas"` : ''}><div class="top"><span class="ic ${cls}">${icon(ic_)}</span>${label}</div><div class="v"><b>${n}</b><small>${small}</small></div><span class="mb"><i style="width:${pct}%; background:${color}"></i></span></div>`;
   const kpiTile = (ic_, cls, n, lbl) => `<div class="dv-kt ${cls}"><span class="ki">${icon(ic_)}</span><div><b>${n}</b><small>${lbl}</small></div></div>`;
   const alertRow = (kind, ic_, n, one, many) => n ? `<div class="dv-al" data-nodate="${kind}" role="button" tabindex="0"><span class="ai">${icon(ic_)}</span><b>${n} ${n === 1 ? one : many}</b>${icon('caret-right')}</div>` : '';
   const chart = wk.map((v, i) => `<div class="dv-col${i === wkToday ? ' today' : ''}" title="${wkLabels[i]}: ${v}"><span class="n">${v || ''}</span><i style="height:${v ? Math.max(5, Math.round(v / wkMax * 96)) : 4}px"></i><span class="l">${wkLabels[i]}</span></div>`).join('');
@@ -269,26 +252,22 @@ export function renderDashboard(){
     <div class="dv">
       ${onboardingCardHtml()}
       <div class="dv-r1">
-        <section class="dv-card dv-hero">
-          <div class="dv-eb"><span>HOJE</span>
-            ${followToday.length ? `<span class="dv-tag warn">${icon('repeat')} ${followToday.length} para retomar</span>` : ''}
-            ${overdue.length ? `<span class="dv-tag late">${overdue.length} atrasada${overdue.length > 1 ? 's' : ''}</span>` : ''}
+        <section class="dv-card dv-hero dv-h2">
+          <div class="dv-eb"><span>HOJE</span><span class="dv-h2-date">${dateTxt}</span>
             ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
+            <span class="sp"></span>${diaTotal ? `<span class="dv-h2-pill">${feitasHoje} de ${diaTotal} feitas · ${diaPct}%</span>` : ''}
           </div>
-          <div class="dv-hero-top">
-            <div>
-              <div class="dv-big"><b>${dueToday.length}</b><span>tarefa${dueToday.length === 1 ? '' : 's'} para hoje</span></div>
-              <div class="dv-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} nos últimos 7 dias${trend7 ? ' (' + (trend7 > 0 ? '+' : '') + trend7 + ' vs. semana anterior)' : ''}</div>
-            </div>
-            <div class="dv-hero-chart">${heroChart}</div>
-            ${ringHtml}
+          <div class="dv-h2-top">
+            <div class="dv-h2-big"><b>${atencao}</b><span>${atencao === 1 ? 'item pede sua atenção hoje' : (atencao ? 'itens pedem sua atenção hoje' : 'nada pedindo atenção hoje')}</span></div>
+            <div class="dv-h2-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} em 7 dias${trendPct !== null ? ` <span class="${trendPct >= 0 ? 'up' : 'dn'}">${trendPct >= 0 ? '▲' : '▼'} ${Math.abs(trendPct)}%</span>` : ''}</div>
           </div>
-          <div class="dv-stats">
-            <div><small>Concluídas 7d</small><b>${completedLast7.length}</b></div>
-            <div><small>Em andamento</small><b>${inProgress.length}</b></div>
-            <div><small>Abertas</small><b>${open.length}</b><span class="dv-bar"><u style="width:${openPct}%; background:var(--primary)"></u></span></div>
-            <div class="link" data-nodate="due" title="Ver tarefas sem prazo"><small>Sem prazo</small><b class="${noDue.length ? 'amb' : ''}">${noDue.length}</b><span class="dv-bar"><u style="width:${pctOf(noDue.length)}%; background:#E8A33D"></u></span></div>
-            <div class="link" data-nodate="follow" title="Ver tarefas sem data de retomada"><small>Sem retomada</small><b class="${noFollow.length ? 'amb' : ''}">${noFollow.length}</b><span class="dv-bar"><u style="width:${pctOf(noFollow.length)}%; background:#E8A33D"></u></span></div>
+          <div class="dv-h2-bar">${atencao ? heroSeg('o', overdue.length, 'Atrasadas', 'atrasadas') + heroSeg('d', dueToday.length, 'Vencem hoje', 'hoje') + heroSeg('r', retomar.length, 'Retomar', 'hoje') : '<div class="dv-h2-seg ok"><span>Tudo em dia</span></div>'}</div>
+          <div class="dv-h2-pri"><span><i class="c"></i>${critN} crítica${critN === 1 ? '' : 's'}</span><span><i class="a"></i>${altaN} alta${altaN === 1 ? '' : 's'}</span><span class="r">Prioridade das tarefas abertas</span></div>
+          <div class="dv-h2-tiles">
+            ${heroTile('check-square', 'grn', 'Feitas hoje', feitasHoje, 'de ' + diaTotal, diaPct, 'var(--ok)')}
+            ${heroTile('clock', 'blu', 'Em andamento', inProgress.length, open.length + ' aberta' + (open.length === 1 ? '' : 's'), pctOf(inProgress.length), 'var(--primary)')}
+            ${heroTile('calendar-blank', 'amb', 'Sem prazo', noDue.length, pctOf(noDue.length) + '% do total', pctOf(noDue.length), '#E8A33D', 'due')}
+            ${heroTile('repeat', 'amb', 'Sem retomada', noFollow.length, pctOf(noFollow.length) + '% do total', pctOf(noFollow.length), '#E8A33D', 'follow')}
           </div>
         </section>
         <section class="dv-mkpis">
