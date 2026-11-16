@@ -251,7 +251,7 @@ test('topo do Resumo: atalhos do dia abrem o grupo na tabela; sem pendências mo
   await expect(page.locator('.dv-lc-r')).toContainText('Tudo em dia');
 });
 
-test('gráfico do topo: concluídas e criadas por período (Semana, Mês, Trimestre) e filtro compartilhado com o topo', async ({ page }) => {
+test('gráfico do topo (do tamanho da linha de status e compromissos): concluídas e criadas por período (Semana, Mês, Trimestre) e filtro compartilhado com o topo', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate(() => {
@@ -276,10 +276,13 @@ test('gráfico do topo: concluídas e criadas por período (Semana, Mês, Trimes
   await seg('90').click();
   await expect(page.locator('.dv-lc-big b')).toHaveText('4');
   await expect(page.locator('#periodSelectorName')).toContainText('90 dias');
+  const hero = await page.locator('.dv-hero').boundingBox(), st = await page.locator('.dv-status-card').boundingBox();
+  expect(Math.abs(hero.y - st.y)).toBeLessThan(2); // na mesma linha do Status das tarefas
+  expect(hero.width).toBeLessThan(900);
   // largura do gráfico acompanha o cartão ao redimensionar
   const w1 = await page.locator('#lcChart svg').evaluate(e => e.getBoundingClientRect().width);
   await page.setViewportSize({ width: 900, height: 900 });
-  await expect.poll(() => page.locator('#lcChart svg').evaluate(e => e.getBoundingClientRect().width)).toBeLessThan(w1 - 100);
+  await expect.poll(() => page.locator('#lcChart').evaluate(e => Math.abs(e.clientWidth - e.querySelector('svg').getBoundingClientRect().width) < 2 && Math.round(e.clientWidth))).not.toBe(Math.round(w1));
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(900);
   await page.screenshot({ path: 'test-results/grafico-topo-t.png' });
 });

@@ -1,3 +1,6 @@
+## [3.59.1] - 2026-11-16 17:00
+- Resumo (desktop): o gráfico de ritmo volta a ocupar só o lugar do antigo cartão Hoje, na mesma linha de Status das tarefas e Compromissos, com gráfico e indicadores menores.
+
 ## [3.59.0] - 2026-11-16 16:00
 - Resumo (desktop): o cartão Hoje dá lugar a um gráfico de linha no topo (concluídas × criadas × período anterior) com filtro Semana, Mês e Trimestre, ligado ao filtro de período da barra. Ao lado: saldo da fila, ritmo médio e andamento de hoje, com atalhos para atrasadas, vencem hoje, retomar, sem prazo e sem retomada. Funciona nos temas claro e escuro.
 

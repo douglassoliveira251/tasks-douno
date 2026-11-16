@@ -95,7 +95,7 @@ function smooth(pts){
 /* Desenha o gráfico dentro de `host` com a largura atual do elemento. */
 export function drawLineChart(host, s, uid){
   const w = Math.max(240, Math.round(host.clientWidth));
-  const h = w > 700 ? 200 : 160, padL = 26, padB = 22, padT = 16, padR = 8;
+  const h = 146, padL = 24, padB = 20, padT = 14, padR = 8;
   const iw = w - padL - padR, ih = h - padB - padT;
   const all = [].concat(s.done, s.created, s.prev).filter(v => v !== null);
   const ymax = niceMax(Math.max(1, ...all));
