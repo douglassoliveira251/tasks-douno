@@ -254,3 +254,24 @@ test('cartão Hoje: clicar na barra por cores abre o grupo na tabela; sem pendê
   await expect(page.locator('.dv-h2-big b')).toHaveText('0');
   await expect(page.locator('.dv-h2-seg.ok')).toContainText('Tudo em dia');
 });
+
+test('cartão Hoje: barra com grupos muito desiguais não corta o texto dos trechos pequenos', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await gotoApp(page, { view: 'dashboard' });
+  await page.evaluate(() => {
+    const cat = state.categories[0].id, today = todayStr();
+    const t = (id, extra) => Object.assign({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    const l = [];
+    for (let i = 0; i < 6; i++) l.push(t('o' + i, { dueDate: addDaysStr(today, -1 - i) }));
+    for (let i = 0; i < 6; i++) l.push(t('d' + i, { dueDate: today }));
+    for (let i = 0; i < 38; i++) l.push(t('r' + i, { followUpDate: today }));
+    state.tasks = l; render();
+  });
+  const segs = page.locator('.dv-h2-seg');
+  await expect(segs).toHaveCount(3);
+  const cortado = await segs.evaluateAll(els => els.map(e => e.scrollWidth > e.clientWidth + 1));
+  expect(cortado).toEqual([false, false, false]);
+  const barra = await page.locator('.dv-h2-bar').evaluate(e => e.scrollWidth <= e.clientWidth + 1);
+  expect(barra).toBe(true);
+  await page.screenshot({ path: 'test-results/hoje-barra-desigual.png' });
+});

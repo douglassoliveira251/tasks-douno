@@ -1,3 +1,6 @@
+## [3.58.3] - 2026-11-16 15:00
+- Resumo: a barra por cores do cartão Hoje não corta mais o texto dos trechos pequenos quando os grupos são muito desiguais.
+
 ## [3.58.2] - 2026-11-16 14:00
 - Página HTML em aba própria (/app/pagina/<id>): o aviso "Nova versão disponível" não aparece mais por cima da página nem recarrega a aba. No app normal o aviso segue igual.
 

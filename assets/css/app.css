@@ -4922,3 +4922,8 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 @media (max-width:768px){
   #searchResultsDropdown{width:auto; max-width:none;}
 }
+
+/* v3.58.3: barra do cartão Hoje com grupos muito desiguais (6, 6 e 38): cada trecho nunca fica menor que o próprio texto */
+.dv-h2-seg{min-width:max-content; overflow:visible; gap:10px;}
+.dv-h2-bar{overflow:hidden; border-radius:9px;}
+@media (max-width:768px){ .dv-h2-seg{min-width:max-content;} }

@@ -242,7 +242,7 @@ export function renderDashboard(){
   const altaN = open.filter(t => t.priority === 'alta').length;
   const trendPct = completedPrev7.length ? Math.round((completedLast7.length - completedPrev7.length) / completedPrev7.length * 100) : null;
   const dateTxt = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-  const heroSeg = (cls, n, label, aba) => n ? `<button type="button" class="dv-h2-seg ${cls}" style="flex:${n}" data-aba="${aba}" title="Ver na lista de tarefas"><span>${label}</span><b>${n}</b></button>` : '';
+  const heroSeg = (cls, n, label, aba) => n ? `<button type="button" class="dv-h2-seg ${cls}" style="flex:${n} 1 0" data-aba="${aba}" title="Ver na lista de tarefas"><span>${label}</span><b>${n}</b></button>` : '';
   const heroTile = (ic_, cls, label, n, small, pct, color, nodate) => `<div class="dv-h2-t${nodate ? ' link' : ''}"${nodate ? ` data-nodate="${nodate}" role="button" tabindex="0" title="Ver tarefas"` : ''}><div class="top"><span class="ic ${cls}">${icon(ic_)}</span>${label}</div><div class="v"><b>${n}</b><small>${small}</small></div><span class="mb"><i style="width:${pct}%; background:${color}"></i></span></div>`;
   const kpiTile = (ic_, cls, n, lbl) => `<div class="dv-kt ${cls}"><span class="ki">${icon(ic_)}</span><div><b>${n}</b><small>${lbl}</small></div></div>`;
   const alertRow = (kind, ic_, n, one, many) => n ? `<div class="dv-al" data-nodate="${kind}" role="button" tabindex="0"><span class="ai">${icon(ic_)}</span><b>${n} ${n === 1 ? one : many}</b>${icon('caret-right')}</div>` : '';

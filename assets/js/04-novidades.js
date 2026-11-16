@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.58.3', date:'16/11/2026', title:'Cartão Hoje: barra ajustada', text:'A barra por cores do cartão Hoje não corta mais o texto quando um grupo é muito maior que os outros (por exemplo 6 atrasadas e 38 para retomar).' },
   { version:'3.58.2', date:'16/11/2026', title:'Página HTML sem aviso de atualização', text:'Quando você abre uma página HTML da Biblioteca em uma aba própria, o aviso de nova versão do sistema não aparece mais por cima dela. No app normal o aviso continua.' },
   { version:'3.58.1', date:'16/11/2026', title:'Pesquisa com largura fixa', text:'A lista da pesquisa não estica mais quando o nome da tarefa é muito grande. O título é recortado em volta do trecho encontrado (destacado), com reticências no resto; passe o mouse para ver o nome inteiro.' },
   { version:'3.58.0', date:'16/11/2026', title:'Resumo: novo cartão Hoje', text:'O cartão Hoje do Resumo agora mostra quantos itens pedem atenção (atrasadas, vencem hoje e para retomar) numa barra por cores, com um clique para ver cada grupo. Abaixo, o progresso do dia, as em andamento e os alertas de tarefas sem prazo ou sem retomada.' },
