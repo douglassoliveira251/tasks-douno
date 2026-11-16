@@ -15,11 +15,10 @@ test.describe('Resumo', () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await gotoApp(page, { view: 'dashboard' });
     await page.evaluate(seed);
-    await expect(page.locator('.dv-h2-big b')).toHaveText('3'); // 1 atrasada + 1 vence hoje + 1 para retomar
-    await expect(page.locator('.dv-h2-seg.o')).toContainText('Atrasadas');
-    await expect(page.locator('.dv-h2-seg.d')).toContainText('Vencem hoje');
-    await expect(page.locator('.dv-h2-seg.r')).toContainText('Retomar');
-    await expect(page.locator('.dv-h2-t').first()).toContainText('Feitas hoje');
+    await expect(page.locator('.lc-chip.o')).toContainText(/1s*atrasadas/);
+    await expect(page.locator('.lc-chip.d')).toContainText(/1s*vencem hoje/);
+    await expect(page.locator('.lc-chip.r')).toContainText(/1s*retomar/);
+    await expect(page.locator('.dv-lc-r .k', { hasText: 'Hoje' })).toContainText('1 de 4 feitas');
     await expect(page.locator('.dv-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.dv-pr')).toContainText('Casa');
     await expect(page.locator('.dv-agenda')).toContainText('Reunião');
@@ -137,10 +136,10 @@ test('Resumo: indicadores de tarefas sem data', async ({ page }) => {
     state.tasks = [t('1', today, today), t('2', null, today), t('3', today, null), t('4', null, null), t('5', null, null)];
     render();
   });
-  await expect(page.locator('.dv-h2-t[data-nodate="due"] b')).toHaveText('3');
-  await expect(page.locator('.dv-h2-t[data-nodate="follow"] b')).toHaveText('3');
+  await expect(page.locator('.lc-nd [data-nodate="due"] b')).toHaveText('3');
+  await expect(page.locator('.lc-nd [data-nodate="follow"] b')).toHaveText('3');
   // clicar no indicador abre as tarefas agrupadas pelo critério correspondente
-  await page.locator('.dv-h2-t[data-nodate="due"]').click();
+  await page.locator('.lc-nd [data-nodate="due"]').click();
   expect(await page.evaluate(() => [currentView, taskGroupMode])).toEqual(['tasks', 'periodo']);
 });
 
@@ -235,7 +234,7 @@ test('botão "+" é contextual: + Item na Visão geral (menu) e + Tarefa/Nota/Ev
   await expect(page.locator('.view-mode-toggle button[disabled]')).toHaveCount(1); // Kanban ainda desativado
 });
 
-test('cartão Hoje: clicar na barra por cores abre o grupo na tabela; sem pendências mostra Tudo em dia', async ({ page }) => {
+test('topo do Resumo: atalhos do dia abrem o grupo na tabela; sem pendências mostra Tudo em dia', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate(() => {
@@ -244,34 +243,43 @@ test('cartão Hoje: clicar na barra por cores abre o grupo na tabela; sem pendê
     state.tasks = [t('o', 'Atrasada por prazo', { dueDate: addDaysStr(today, -1), priority: 'critica' }), t('p', 'Hoje', { dueDate: today })];
     render();
   });
-  await expect(page.locator('.dv-h2-big b')).toHaveText('2');
-  await expect(page.locator('.dv-h2-pri')).toContainText('1 crítica');
-  await page.locator('.dv-h2-seg.o').click();
+  await page.locator('.lc-chip.o').click();
   await expect(page.locator('.dv-seg a.on')).toHaveText('Atrasadas');
   await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
-  await page.screenshot({ path: 'test-results/hoje-kpi-d.png' });
   await page.evaluate(() => { state.tasks = []; render(); });
-  await expect(page.locator('.dv-h2-big b')).toHaveText('0');
-  await expect(page.locator('.dv-h2-seg.ok')).toContainText('Tudo em dia');
+  await expect(page.locator('.lc-chip')).toHaveCount(0);
+  await expect(page.locator('.dv-lc-r')).toContainText('Tudo em dia');
 });
 
-test('cartão Hoje: barra com grupos muito desiguais não corta o texto dos trechos pequenos', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
+test('gráfico do topo: concluídas e criadas por período (Semana, Mês, Trimestre) e filtro compartilhado com o topo', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await gotoApp(page, { view: 'dashboard' });
   await page.evaluate(() => {
-    const cat = state.categories[0].id, today = todayStr();
-    const t = (id, extra) => Object.assign({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: 1 }, extra);
+    const cat = state.categories[0].id, today = todayStr(), D = 86400000;
+    const t = (id, extra) => Object.assign({ id, title: 'T' + id, done: false, status: 'nao_iniciado', priority: 'media', dueDate: null, dueTime: '', categoryId: cat, tagIds: [], subtasks: [], comments: [], attachments: [], description: '', createdAt: Date.now() - 2 * D }, extra);
     const l = [];
-    for (let i = 0; i < 6; i++) l.push(t('o' + i, { dueDate: addDaysStr(today, -1 - i) }));
-    for (let i = 0; i < 6; i++) l.push(t('d' + i, { dueDate: today }));
-    for (let i = 0; i < 38; i++) l.push(t('r' + i, { followUpDate: today }));
+    for (let i = 0; i < 3; i++) l.push(t('d' + i, { done: true, status: 'concluida', completedAt: Date.now() - i * 60000 - 3600000, createdAt: Date.now() - 50 * D }));   // 3 hoje
+    l.push(t('v', { done: true, status: 'concluida', completedAt: Date.now() - 40 * D, createdAt: Date.now() - 41 * D })); // só entra no Trimestre
+    for (let i = 0; i < 5; i++) l.push(t('n' + i, { createdAt: Date.now() - 3600000 })); // 5 criadas hoje
     state.tasks = l; render();
   });
-  const segs = page.locator('.dv-h2-seg');
-  await expect(segs).toHaveCount(3);
-  const cortado = await segs.evaluateAll(els => els.map(e => e.scrollWidth > e.clientWidth + 1));
-  expect(cortado).toEqual([false, false, false]);
-  const barra = await page.locator('.dv-h2-bar').evaluate(e => e.scrollWidth <= e.clientWidth + 1);
-  expect(barra).toBe(true);
-  await page.screenshot({ path: 'test-results/hoje-barra-desigual.png' });
+  const seg = k => page.locator('.dv-lseg [data-per="' + k + '"]');
+  await expect(seg('mes')).toHaveClass(/on/);
+  await expect(page.locator('#lcChart svg path').first()).toBeVisible();
+  await expect(page.locator('.dv-lc-big b')).toHaveText('3');
+  await expect(page.locator('.dv-lc-cap')).toContainText('contra 5 criadas');
+  await expect(page.locator('.dv-lc-r .k', { hasText: 'Saldo da fila' })).toContainText('+2');
+  await seg('semana').click();
+  await expect(seg('semana')).toHaveClass(/on/);
+  await expect(page.locator('#periodSelectorName')).toContainText('7 dias'); // o filtro do topo acompanha
+  await expect(page.locator('.dv-lc-big b')).toHaveText('3');
+  await seg('90').click();
+  await expect(page.locator('.dv-lc-big b')).toHaveText('4');
+  await expect(page.locator('#periodSelectorName')).toContainText('90 dias');
+  // largura do gráfico acompanha o cartão ao redimensionar
+  const w1 = await page.locator('#lcChart svg').evaluate(e => e.getBoundingClientRect().width);
+  await page.setViewportSize({ width: 900, height: 900 });
+  await expect.poll(() => page.locator('#lcChart svg').evaluate(e => e.getBoundingClientRect().width)).toBeLessThan(w1 - 100);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(900);
+  await page.screenshot({ path: 'test-results/grafico-topo-t.png' });
 });

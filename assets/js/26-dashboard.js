@@ -10,6 +10,7 @@ import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
 import { bindOnboardingCard, onboardingCardHtml } from './51-primeiro-uso.js';
 import { PAINEL_INICIO, PERIODOS } from './estado-ui.js';
+import { bindLineChart, buildSeries } from './26-dashboard-grafico.js';
 
 /* ===================== DASHBOARD (Visão geral) ===================== */
 /* Período escolhido no filtro do topo: [início, fim] em AAAA-MM-DD e o período anterior, do mesmo tamanho. */
@@ -238,12 +239,17 @@ export function renderDashboard(){
   const atencao = overdue.length + dueToday.length + retomar.length;
   const diaTotal = atencao + feitasHoje;
   const diaPct = diaTotal ? Math.round(feitasHoje / diaTotal * 100) : 0;
-  const critN = open.filter(t => t.priority === 'critica').length;
-  const altaN = open.filter(t => t.priority === 'alta').length;
-  const trendPct = completedPrev7.length ? Math.round((completedLast7.length - completedPrev7.length) / completedPrev7.length * 100) : null;
-  const dateTxt = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-  const heroSeg = (cls, n, label, aba) => n ? `<button type="button" class="dv-h2-seg ${cls}" style="flex:${n} 1 0" data-aba="${aba}" title="Ver na lista de tarefas"><span>${label}</span><b>${n}</b></button>` : '';
-  const heroTile = (ic_, cls, label, n, small, pct, color, nodate) => `<div class="dv-h2-t${nodate ? ' link' : ''}"${nodate ? ` data-nodate="${nodate}" role="button" tabindex="0" title="Ver tarefas"` : ''}><div class="top"><span class="ic ${cls}">${icon(ic_)}</span>${label}</div><div class="v"><b>${n}</b><small>${small}</small></div><span class="mb"><i style="width:${pct}%; background:${color}"></i></span></div>`;
+  /* gráfico do topo: concluídas × criadas no período escolhido (Semana, Mês, Trimestre) */
+  const created = scopeTasks.concat(scopeLog);
+  const lcSeries = buildSeries(todayS, PAINEL_INICIO.periodo, completed, created);
+  const sumN = arr => arr.reduce((n, v) => n + (v || 0), 0);
+  const lcDone = sumN(lcSeries.done), lcNew = sumN(lcSeries.created);
+  const saldo = lcNew - lcDone;
+  const saldoTxt = (saldo > 0 ? '+' : (saldo < 0 ? '−' : '')) + Math.abs(saldo);
+  const saldoCap = saldo < 0 ? 'a fila diminuiu' : (saldo > 0 ? 'a fila cresceu' : 'a fila ficou igual');
+  const lcSegs = [['semana', 'Semana'], ['mes', 'Mês'], ['90', 'Trimestre']];
+  const lcPerNome = { semana: 'últimos 7 dias', mes: 'este mês', 30: 'últimos 30 dias', 90: 'últimos 90 dias' }[PAINEL_INICIO.periodo] || perDef.label;
+  const lcChip = (cls, n, label, aba) => n ? `<button type="button" class="lc-chip ${cls}" data-aba="${aba}" title="Ver na lista de tarefas"><b>${n}</b>${label}</button>` : '';
   const kpiTile = (ic_, cls, n, lbl) => `<div class="dv-kt ${cls}"><span class="ki">${icon(ic_)}</span><div><b>${n}</b><small>${lbl}</small></div></div>`;
   const alertRow = (kind, ic_, n, one, many) => n ? `<div class="dv-al" data-nodate="${kind}" role="button" tabindex="0"><span class="ai">${icon(ic_)}</span><b>${n} ${n === 1 ? one : many}</b>${icon('caret-right')}</div>` : '';
   const chart = wk.map((v, i) => `<div class="dv-col${i === wkToday ? ' today' : ''}" title="${wkLabels[i]}: ${v}"><span class="n">${v || ''}</span><i style="height:${v ? Math.max(5, Math.round(v / wkMax * 96)) : 4}px"></i><span class="l">${wkLabels[i]}</span></div>`).join('');
@@ -252,22 +258,25 @@ export function renderDashboard(){
     <div class="dv">
       ${onboardingCardHtml()}
       <div class="dv-r1">
-        <section class="dv-card dv-hero dv-h2">
-          <div class="dv-eb"><span>HOJE</span><span class="dv-h2-date">${dateTxt}</span>
+        <section class="dv-card dv-hero dv-lc">
+          <div class="dv-eb"><span>RITMO</span><span class="dv-lc-sub">concluídas × criadas</span>
             ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
-            <span class="sp"></span>${diaTotal ? `<span class="dv-h2-pill">${feitasHoje} de ${diaTotal} feitas · ${diaPct}%</span>` : ''}
+            <span class="sp"></span>
+            <span class="dv-lseg" role="tablist" aria-label="Período do gráfico">${lcSegs.map(([k, l]) => `<button type="button" role="tab" data-per="${k}" aria-selected="${PAINEL_INICIO.periodo === k}" class="${PAINEL_INICIO.periodo === k ? 'on' : ''}">${l}</button>`).join('')}</span>
           </div>
-          <div class="dv-h2-top">
-            <div class="dv-h2-big"><b>${atencao}</b><span>${atencao === 1 ? 'item pede sua atenção hoje' : (atencao ? 'itens pedem sua atenção hoje' : 'nada pedindo atenção hoje')}</span></div>
-            <div class="dv-h2-sub">${completedLast7.length} concluída${completedLast7.length === 1 ? '' : 's'} em 7 dias${trendPct !== null ? ` <span class="${trendPct >= 0 ? 'up' : 'dn'}">${trendPct >= 0 ? '▲' : '▼'} ${Math.abs(trendPct)}%</span>` : ''}</div>
-          </div>
-          <div class="dv-h2-bar">${atencao ? heroSeg('o', overdue.length, 'Atrasadas', 'atrasadas') + heroSeg('d', dueToday.length, 'Vencem hoje', 'hoje') + heroSeg('r', retomar.length, 'Retomar', 'hoje') : '<div class="dv-h2-seg ok"><span>Tudo em dia</span></div>'}</div>
-          <div class="dv-h2-pri"><span><i class="c"></i>${critN} crítica${critN === 1 ? '' : 's'}</span><span><i class="a"></i>${altaN} alta${altaN === 1 ? '' : 's'}</span><span class="r">Prioridade das tarefas abertas</span></div>
-          <div class="dv-h2-tiles">
-            ${heroTile('check-square', 'grn', 'Feitas hoje', feitasHoje, 'de ' + diaTotal, diaPct, 'var(--ok)')}
-            ${heroTile('clock', 'blu', 'Em andamento', inProgress.length, open.length + ' aberta' + (open.length === 1 ? '' : 's'), pctOf(inProgress.length), 'var(--primary)')}
-            ${heroTile('calendar-blank', 'amb', 'Sem prazo', noDue.length, pctOf(noDue.length) + '% do total', pctOf(noDue.length), '#E8A33D', 'due')}
-            ${heroTile('repeat', 'amb', 'Sem retomada', noFollow.length, pctOf(noFollow.length) + '% do total', pctOf(noFollow.length), '#E8A33D', 'follow')}
+          <div class="dv-lc-grid">
+            <div class="dv-lc-main">
+              <div class="dv-lc-top"><span class="dv-lc-big"><b>${lcDone}</b></span><span class="dv-lc-cap">concluídas contra ${lcNew} criadas · ${lcPerNome}</span></div>
+              <div class="dv-lc-chart" id="lcChart"></div>
+              <div class="dv-lc-leg"><span><i class="a"></i>Concluídas</span><span><i class="b"></i>Criadas</span><span><i class="c"></i>Período anterior</span></div>
+            </div>
+            <div class="dv-lc-r">
+              <div class="k"><span class="cap">Saldo da fila</span><span class="v ${saldo < 0 ? 'good' : (saldo > 0 ? 'warn' : '')}">${saldoTxt}</span><span class="cap">${saldoCap}</span></div>
+              <div class="k"><span class="cap">Ritmo médio</span><span class="v">${avgPerDay.toFixed(1).replace('.', ',')}<small> /dia</small></span><span class="cap">${periodTrend !== null ? `<span class="${periodTrend >= 0 ? 'up' : 'dn'}">${periodTrend >= 0 ? '▲' : '▼'} ${Math.abs(periodTrend)}%</span> vs anterior` : 'sem período anterior'}</span></div>
+              <div class="k"><span class="cap">Hoje</span><span class="v">${feitasHoje}<small> de ${diaTotal} feitas</small></span>
+                <span class="lc-chips">${atencao ? lcChip('o', overdue.length, 'atrasadas', 'atrasadas') + lcChip('d', dueToday.length, 'vencem hoje', 'hoje') + lcChip('r', retomar.length, 'retomar', 'hoje') : '<span class="cap">Tudo em dia</span>'}</span>
+                <span class="lc-nd"><span data-nodate="due" role="button" tabindex="0" title="Ver tarefas"><b>${noDue.length}</b> sem prazo</span><span data-nodate="follow" role="button" tabindex="0" title="Ver tarefas"><b>${noFollow.length}</b> sem retomada</span></span></div>
+            </div>
           </div>
         </section>
         <section class="dv-mkpis">
@@ -360,6 +369,14 @@ export function renderDashboard(){
   const seeProjects = document.getElementById('rsSeeProjects');
   if(seeProjects) seeProjects.onclick = () => { G.activeProjectId = null; G.currentView = 'projects'; render(); };
 
+  bindLineChart(document.getElementById('lcChart'), lcSeries);
+  view.querySelectorAll('.dv-lseg [data-per]').forEach(el => {
+    el.onclick = () => {
+      PAINEL_INICIO.periodo = el.dataset.per;
+      try{ localStorage.setItem('dounoPeriodoPainel', PAINEL_INICIO.periodo); }catch(err){}
+      render();
+    };
+  });
   view.querySelectorAll('[data-aba]').forEach(el => {
     el.onclick = () => { PAINEL_INICIO.aba = el.dataset.aba; renderDashboard(); };
   });

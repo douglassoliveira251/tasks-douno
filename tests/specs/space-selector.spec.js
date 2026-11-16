@@ -58,10 +58,10 @@ test('Resumo tem filtro de espaço próprio, separado das demais telas', async (
   });
   // Resumo começa em "Todos", mesmo com a tela de tarefas filtrada em A
   await expect(page.locator('#spaceSelectorName')).toContainText('Todos');
-  await expect(page.locator('.dv-h2-t[data-nodate="due"] b')).toHaveText('3');
+  await expect(page.locator('.lc-nd [data-nodate="due"] b')).toHaveText('3');
   await page.locator('#spaceSelectorBtn').click();
   await page.locator('.space-selector-item[data-cat-id="c2"]').click();
-  await expect(page.locator('.dv-h2-t[data-nodate="due"] b')).toHaveText('2');
+  await expect(page.locator('.lc-nd [data-nodate="due"] b')).toHaveText('2');
   // as demais telas continuam no espaço anterior
   expect(await page.evaluate(() => activeCategoryFilter)).toBe('c1');
   await page.evaluate(() => { currentView = 'tasks'; render(); });

@@ -1,3 +1,6 @@
+## [3.59.0] - 2026-11-16 16:00
+- Resumo (desktop): o cartão Hoje dá lugar a um gráfico de linha no topo (concluídas × criadas × período anterior) com filtro Semana, Mês e Trimestre, ligado ao filtro de período da barra. Ao lado: saldo da fila, ritmo médio e andamento de hoje, com atalhos para atrasadas, vencem hoje, retomar, sem prazo e sem retomada. Funciona nos temas claro e escuro.
+
 ## [3.58.3] - 2026-11-16 15:00
 - Resumo: a barra por cores do cartão Hoje não corta mais o texto dos trechos pequenos quando os grupos são muito desiguais.
 

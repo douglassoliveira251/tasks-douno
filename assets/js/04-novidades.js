@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.59.0', date:'16/11/2026', title:'Resumo: gráfico de ritmo no topo', text:'O topo do Resumo agora é um gráfico de linha com o que você concluiu e o que foi criado, comparado ao período anterior. Troque entre Semana, Mês e Trimestre no próprio gráfico. Ao lado, o saldo da fila, o ritmo por dia e o andamento de hoje, com atalhos para atrasadas, vencem hoje e retomar.' },
   { version:'3.58.3', date:'16/11/2026', title:'Cartão Hoje: barra ajustada', text:'A barra por cores do cartão Hoje não corta mais o texto quando um grupo é muito maior que os outros (por exemplo 6 atrasadas e 38 para retomar).' },
   { version:'3.58.2', date:'16/11/2026', title:'Página HTML sem aviso de atualização', text:'Quando você abre uma página HTML da Biblioteca em uma aba própria, o aviso de nova versão do sistema não aparece mais por cima dela. No app normal o aviso continua.' },
   { version:'3.58.1', date:'16/11/2026', title:'Pesquisa com largura fixa', text:'A lista da pesquisa não estica mais quando o nome da tarefa é muito grande. O título é recortado em volta do trecho encontrado (destacado), com reticências no resto; passe o mouse para ver o nome inteiro.' },
