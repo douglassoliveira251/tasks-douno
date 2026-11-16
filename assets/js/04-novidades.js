@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.60.0', date:'16/11/2026', title:'Rosca maior e legenda do ritmo', text:'A rosca do Status das tarefas ficou maior e com a legenda mais à direita. No Ritmo, a legenda do gráfico foi para o rodapé, à direita, com amostras iguais às linhas, e o sem prazo e sem retomada vieram para perto dos atalhos do dia.' },
   { version:'3.59.4', date:'16/11/2026', title:'Ritmo: número e gráfico maiores', text:'No cartão de ritmo, o número de concluídas ficou maior, os indicadores desceram um pouco e o gráfico ganhou altura.' },
   { version:'3.59.3', date:'16/11/2026', title:'Ritmo mais baixo no Resumo', text:'Os indicadores do gráfico de ritmo agora ficam ao lado do número grande, a legenda subiu para o título e os atalhos do dia ficam numa linha no rodapé. O cartão ficou bem mais baixo, sobrando espaço para os demais.' },
   { version:'3.59.2', date:'16/11/2026', title:'Gráfico do Resumo no padrão compacto', text:'O cartão de ritmo agora usa o mesmo título e espaçamento dos demais cartões do Resumo, com número e filtro menores.' },

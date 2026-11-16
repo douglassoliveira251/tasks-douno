@@ -2618,10 +2618,10 @@
 
   /* status */
   .dv-status{display:flex; align-items:center; gap:14px; flex:1;}
-  .dv-donut{position:relative; width:98px; height:98px; flex:none;}
+  .dv-donut{position:relative; width:128px; height:128px; flex:none;}
   .dv-donut-c{position:absolute; inset:0; display:grid; place-content:center; text-align:center;}
-  .dv-donut-c b{font-family:var(--font-display); font-size:19px; letter-spacing:-.04em; line-height:1.1;}
-  .dv-donut-c small{font-size:10px; color:var(--ink-faint);}
+  .dv-donut-c b{font-family:var(--font-display); font-size:30px; letter-spacing:-.04em; line-height:1.1;}
+  .dv-donut-c small{font-size:11px; color:var(--ink-faint);}
   .dv-legend{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; font-size:12px;}
   .dv-legend > div{display:flex; align-items:center; gap:7px; white-space:nowrap;}
   .dv-legend i{width:8px; height:8px; border-radius:3px; flex:none;}
@@ -4925,3 +4925,15 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   .dv-lseg{order:5; width:100%; margin-top:4px;} .dv-lseg button{flex:1;}
   .dv-lc-sub.lgd{display:none;}
 }
+
+/* v3.60.0: rosca do Status maior (128 px) com a legenda mais à direita; legenda do Ritmo no rodapé, à direita */
+.dv-status-card .dv-status{gap:26px;}
+.dv-status-card .dv-legend{padding-left:6px;}
+.dv-lc-foot{flex-wrap:nowrap; gap:6px;}
+.dv-lc-foot .lc-chip{white-space:nowrap; padding:2px 6px; gap:3px; font-size:10px;} .dv-lc-foot .lc-chip b{font-size:12px;}
+.dv-lc-foot .lc-chips{flex-wrap:nowrap; gap:3px;}
+.dv-lc-foot .lc-nd{flex-wrap:nowrap; gap:0 6px; font-size:10px; padding-left:7px; border-left:1px solid var(--border);}
+.dv-lc-foot .lc-nd span{white-space:nowrap;}
+.dv-lc-leg{display:inline-flex; align-items:center; gap:7px; font-size:10.5px; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
+.dv-lc-leg span{display:inline-flex; align-items:center; gap:4px;} .dv-lc-leg svg{display:block;}
+@media (max-width:1280px){ .dv-lc-foot{flex-wrap:wrap;} }

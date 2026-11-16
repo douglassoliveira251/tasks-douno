@@ -1,3 +1,6 @@
+## [3.60.0] - 2026-11-16 20:30
+- Resumo: rosca do Status das tarefas maior (128 px) e legenda mais à direita. Ritmo: legenda do gráfico no rodapé, à direita, com amostras de linha; sem prazo e sem retomada ao lado dos atalhos do dia.
+
 ## [3.59.4] - 2026-11-16 19:30
 - Resumo: no cartão de ritmo, número de concluídas maior (38 px), indicadores um pouco mais baixos e gráfico mais alto.
 

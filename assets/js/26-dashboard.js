@@ -111,7 +111,7 @@ export function renderDashboard(){
   ];
   const stTotal = stBuckets.reduce((s, b) => s + b.n, 0);
   const donut = (() => {
-    const size = 98, sw = 13, r = (size - sw) / 2, c = 2 * Math.PI * r;
+    const size = 128, sw = 16, r = (size - sw) / 2, c = 2 * Math.PI * r;
     let off = 0;
     const segs = stBuckets.filter(b => b.n > 0).map(b => {
       const len = c * b.n / (stTotal || 1);
@@ -259,7 +259,7 @@ export function renderDashboard(){
       ${onboardingCardHtml()}
       <div class="dv-r1">
         <section class="dv-card dv-hero dv-lc">
-          <h3>${icon('trend-up')}Ritmo <span class="dv-lc-sub lgd"><i></i>Concluídas<i class="b"></i>Criadas<i class="c"></i>Período anterior</span>
+          <h3>${icon('trend-up')}Ritmo
             ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
             <span class="sp"></span>
             <span class="dv-lseg" role="tablist" aria-label="Período do gráfico">${lcSegs.map(([k, l]) => `<button type="button" role="tab" data-per="${k}" aria-selected="${PAINEL_INICIO.periodo === k}" class="${PAINEL_INICIO.periodo === k ? 'on' : ''}">${l}</button>`).join('')}</span>
@@ -275,8 +275,9 @@ export function renderDashboard(){
           <div class="dv-lc-chart" id="lcChart"></div>
           <div class="dv-lc-foot">
             <span class="lc-chips">${atencao ? lcChip('o', overdue.length, 'atrasadas', 'atrasadas') + lcChip('d', dueToday.length, 'vencem hoje', 'hoje') + lcChip('r', retomar.length, 'retomar', 'hoje') : '<span class="cap">Tudo em dia</span>'}</span>
-            <span class="sp"></span>
             <span class="lc-nd"><span data-nodate="due" role="button" tabindex="0" title="Ver tarefas"><b>${noDue.length}</b> sem prazo</span><span data-nodate="follow" role="button" tabindex="0" title="Ver tarefas"><b>${noFollow.length}</b> sem retomada</span></span>
+            <span class="sp"></span>
+            <span class="dv-lc-leg"><span><svg width="15" height="6" viewBox="0 0 15 6" aria-hidden="true"><line x1="1" y1="3" x2="14" y2="3" stroke="var(--lc-line)" stroke-width="3" stroke-linecap="round"/></svg>Concluídas</span><span><svg width="15" height="6" viewBox="0 0 15 6" aria-hidden="true"><line x1="1" y1="3" x2="14" y2="3" stroke="var(--lc-new)" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4"/></svg>Criadas</span><span><svg width="15" height="6" viewBox="0 0 15 6" aria-hidden="true"><line x1="1" y1="3" x2="14" y2="3" stroke="var(--ink-faint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 5"/></svg>Anterior</span></span>
           </div>
         </section>
         <section class="dv-mkpis">
