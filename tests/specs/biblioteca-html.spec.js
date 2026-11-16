@@ -182,3 +182,23 @@ test('Página HTML: substituir o arquivo mantém o mesmo endereço (/app/pagina/
   expect(new URL(aba.url()).pathname).toBe('/app/pagina/' + id);
   await expect(aba.frameLocator('#pageOnly iframe').locator('#v')).toHaveText('Versão 2');
 });
+
+test('Página HTML em aba própria: não mostra o aviso de nova versão, que segue valendo no app', async ({ page, context }) => {
+  await abrir(page);
+  await importar(page, 'relatorio.html', PAGINA);
+  await page.click('#hmSave');
+  await page.locator('.lib-row .lib-open').click();
+  await page.evaluate(() => localStorage.setItem('tyvraTasksState', JSON.stringify(state)));
+  const [aba] = await Promise.all([context.waitForEvent('page'), page.click('#hTab')]);
+  await aba.waitForLoadState();
+  await expect(aba.locator('#pageOnly iframe')).toHaveCount(1);
+  await aba.evaluate(() => { fetchPublishedVersion = async () => '99.0.0'; });
+  await aba.evaluate(() => checkForAppUpdate(true));
+  await aba.waitForTimeout(400);
+  await expect(aba.locator('#updateOverlay')).toHaveCount(0);
+  await expect(aba.locator('#pageOnly iframe')).toHaveCount(1); // a página segue na tela, sem recarregar
+  // o app normal continua avisando
+  await page.evaluate(() => { fetchPublishedVersion = async () => '99.0.0'; });
+  await page.evaluate(() => checkForAppUpdate(true));
+  await expect(page.locator('#updateOverlay')).toBeVisible();
+});

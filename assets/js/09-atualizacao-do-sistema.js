@@ -39,6 +39,7 @@ async function fetchPublishedVersion(){
 }
 export async function checkForAppUpdate(force){
   if(updatePromptShown || location.protocol === 'file:') return;
+  if(G.standalonePage) return; // aba própria de uma página HTML: nada de aviso de atualização por cima da página
   if(!force && Date.now() - lastUpdateCheck < 60000) return;
   lastUpdateCheck = Date.now();
   try{
@@ -52,7 +53,7 @@ function reloadForUpdate(){
   Promise.all(urls.map(u => fetch(u, { cache: 'reload' }).catch(() => {}))).then(() => location.reload());
 }
 export function showUpdatePrompt(remoteVersion){
-  if(updatePromptShown) return;
+  if(updatePromptShown || G.standalonePage) return;
   updatePromptShown = true;
   const ov = document.createElement('div');
   ov.className = 'overlay show update-overlay';

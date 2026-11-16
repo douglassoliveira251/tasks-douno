@@ -1,3 +1,6 @@
+## [3.58.2] - 2026-11-16 14:00
+- Página HTML em aba própria (/app/pagina/<id>): o aviso "Nova versão disponível" não aparece mais por cima da página nem recarrega a aba. No app normal o aviso segue igual.
+
 ## [3.58.1] - 2026-11-16 12:00
 - Pesquisa: a lista de resultados tem largura fixa. Títulos longos são recortados em volta do trecho encontrado (destacado) e o restante vira "…", com o nome inteiro no tooltip. Antes a lista esticava e saía da tela.
 
