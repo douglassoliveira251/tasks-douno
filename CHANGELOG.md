@@ -1,3 +1,6 @@
+## [3.59.3] - 2026-11-16 18:30
+- Resumo: cartão de ritmo bem mais baixo. Saldo da fila, ritmo médio e hoje ficam ao lado do número grande; a legenda vai para o título; atrasadas, vencem hoje, retomar, sem prazo e sem retomada ficam numa linha no rodapé.
+
 ## [3.59.2] - 2026-11-16 17:30
 - Resumo: cartão de ritmo no padrão compacto dos outros cartões (mesmo título com ícone, mesmo espaçamento, número e filtro menores).
 

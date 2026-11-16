@@ -259,24 +259,24 @@ export function renderDashboard(){
       ${onboardingCardHtml()}
       <div class="dv-r1">
         <section class="dv-card dv-hero dv-lc">
-          <h3>${icon('trend-up')}Ritmo <span class="dv-lc-sub">concluídas × criadas</span>
+          <h3>${icon('trend-up')}Ritmo <span class="dv-lc-sub lgd"><i></i>Concluídas<i class="b"></i>Criadas<i class="c"></i>Período anterior</span>
             ${lateProjects ? `<span class="dv-tag late">${lateProjects} projeto${lateProjects > 1 ? 's' : ''} em atraso</span>` : ''}
             <span class="sp"></span>
             <span class="dv-lseg" role="tablist" aria-label="Período do gráfico">${lcSegs.map(([k, l]) => `<button type="button" role="tab" data-per="${k}" aria-selected="${PAINEL_INICIO.periodo === k}" class="${PAINEL_INICIO.periodo === k ? 'on' : ''}">${l}</button>`).join('')}</span>
           </h3>
-          <div class="dv-lc-grid">
-            <div class="dv-lc-main">
-              <div class="dv-lc-top"><span class="dv-lc-big"><b>${lcDone}</b></span><span class="dv-lc-cap">concluídas contra ${lcNew} criadas · ${lcPerNome}</span></div>
-              <div class="dv-lc-chart" id="lcChart"></div>
-              <div class="dv-lc-leg"><span><i class="a"></i>Concluídas</span><span><i class="b"></i>Criadas</span><span><i class="c"></i>Período anterior</span></div>
+          <div class="dv-lc-row">
+            <div class="dv-lc-top"><span class="dv-lc-big"><b>${lcDone}</b></span><span class="dv-lc-cap">concluídas contra ${lcNew} criadas · ${lcPerNome}</span></div>
+            <div class="dv-lc-kpis">
+              <div class="k" title="${saldoCap}"><span class="cap">Saldo da fila</span><span class="v ${saldo < 0 ? 'good' : (saldo > 0 ? 'warn' : '')}">${saldoTxt}</span></div>
+              <div class="k"><span class="cap">Ritmo médio</span><span class="v">${avgPerDay.toFixed(1).replace('.', ',')}<small> /dia</small>${periodTrend !== null ? ` <small class="${periodTrend >= 0 ? 'up' : 'dn'}" title="vs período anterior">${periodTrend >= 0 ? '▲' : '▼'} ${Math.abs(periodTrend)}%</small>` : ''}</span></div>
+              <div class="k"><span class="cap">Hoje</span><span class="v">${feitasHoje}<small> de ${diaTotal} feitas</small></span></div>
             </div>
-            <div class="dv-lc-r">
-              <div class="k"><span class="cap">Saldo da fila</span><span class="v ${saldo < 0 ? 'good' : (saldo > 0 ? 'warn' : '')}">${saldoTxt}</span><span class="cap">${saldoCap}</span></div>
-              <div class="k"><span class="cap">Ritmo médio</span><span class="v">${avgPerDay.toFixed(1).replace('.', ',')}<small> /dia</small></span><span class="cap">${periodTrend !== null ? `<span class="${periodTrend >= 0 ? 'up' : 'dn'}">${periodTrend >= 0 ? '▲' : '▼'} ${Math.abs(periodTrend)}%</span> vs anterior` : 'sem período anterior'}</span></div>
-              <div class="k"><span class="cap">Hoje</span><span class="v">${feitasHoje}<small> de ${diaTotal} feitas</small></span>
-                <span class="lc-chips">${atencao ? lcChip('o', overdue.length, 'atrasadas', 'atrasadas') + lcChip('d', dueToday.length, 'vencem hoje', 'hoje') + lcChip('r', retomar.length, 'retomar', 'hoje') : '<span class="cap">Tudo em dia</span>'}</span>
-                <span class="lc-nd"><span data-nodate="due" role="button" tabindex="0" title="Ver tarefas"><b>${noDue.length}</b> sem prazo</span><span data-nodate="follow" role="button" tabindex="0" title="Ver tarefas"><b>${noFollow.length}</b> sem retomada</span></span></div>
-            </div>
+          </div>
+          <div class="dv-lc-chart" id="lcChart"></div>
+          <div class="dv-lc-foot">
+            <span class="lc-chips">${atencao ? lcChip('o', overdue.length, 'atrasadas', 'atrasadas') + lcChip('d', dueToday.length, 'vencem hoje', 'hoje') + lcChip('r', retomar.length, 'retomar', 'hoje') : '<span class="cap">Tudo em dia</span>'}</span>
+            <span class="sp"></span>
+            <span class="lc-nd"><span data-nodate="due" role="button" tabindex="0" title="Ver tarefas"><b>${noDue.length}</b> sem prazo</span><span data-nodate="follow" role="button" tabindex="0" title="Ver tarefas"><b>${noFollow.length}</b> sem retomada</span></span>
           </div>
         </section>
         <section class="dv-mkpis">

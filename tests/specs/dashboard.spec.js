@@ -18,7 +18,7 @@ test.describe('Resumo', () => {
     await expect(page.locator('.lc-chip.o')).toContainText(/1s*atrasadas/);
     await expect(page.locator('.lc-chip.d')).toContainText(/1s*vencem hoje/);
     await expect(page.locator('.lc-chip.r')).toContainText(/1s*retomar/);
-    await expect(page.locator('.dv-lc-r .k', { hasText: 'Hoje' })).toContainText('1 de 4 feitas');
+    await expect(page.locator('.dv-lc-kpis .k', { hasText: 'Hoje' })).toContainText('1 de 4 feitas');
     await expect(page.locator('.dv-hero')).toContainText('projeto em atraso');
     await expect(page.locator('.dv-pr')).toContainText('Casa');
     await expect(page.locator('.dv-agenda')).toContainText('Reunião');
@@ -248,7 +248,7 @@ test('topo do Resumo: atalhos do dia abrem o grupo na tabela; sem pendências mo
   await expect(page.locator('.dv-tr[data-task-id="o"]')).toBeVisible();
   await page.evaluate(() => { state.tasks = []; render(); });
   await expect(page.locator('.lc-chip')).toHaveCount(0);
-  await expect(page.locator('.dv-lc-r')).toContainText('Tudo em dia');
+  await expect(page.locator('.dv-lc-foot')).toContainText('Tudo em dia');
 });
 
 test('gráfico do topo (do tamanho da linha de status e compromissos): concluídas e criadas por período (Semana, Mês, Trimestre) e filtro compartilhado com o topo', async ({ page }) => {
@@ -268,7 +268,7 @@ test('gráfico do topo (do tamanho da linha de status e compromissos): concluíd
   await expect(page.locator('#lcChart svg path').first()).toBeVisible();
   await expect(page.locator('.dv-lc-big b')).toHaveText('3');
   await expect(page.locator('.dv-lc-cap')).toContainText('contra 5 criadas');
-  await expect(page.locator('.dv-lc-r .k', { hasText: 'Saldo da fila' })).toContainText('+2');
+  await expect(page.locator('.dv-lc-kpis .k', { hasText: 'Saldo da fila' })).toContainText('+2');
   await seg('semana').click();
   await expect(seg('semana')).toHaveClass(/on/);
   await expect(page.locator('#periodSelectorName')).toContainText('7 dias'); // o filtro do topo acompanha
