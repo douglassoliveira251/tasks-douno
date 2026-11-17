@@ -1,3 +1,6 @@
+## [3.60.1] - 2026-11-17
+- Calendário de prazo e retomar: dias do mês anterior e do próximo aparecem mais claros; clicar escolhe a data e abre aquele mês.
+
 ## [3.60.0] - 2026-11-16 20:30
 - Resumo: rosca do Status das tarefas maior (128 px) e legenda mais à direita. Ritmo: legenda do gráfico no rodapé, à direita, com amostras de linha; sem prazo e sem retomada ao lado dos atalhos do dia.
 

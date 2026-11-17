@@ -4937,3 +4937,10 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 .dv-lc-leg{display:inline-flex; align-items:center; gap:7px; font-size:10.5px; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
 .dv-lc-leg span{display:inline-flex; align-items:center; gap:4px;} .dv-lc-leg svg{display:block;}
 @media (max-width:1280px){ .dv-lc-foot{flex-wrap:wrap;} }
+
+/* v3.60.1: calendário de prazo e retomar mostra os dias do mês vizinho, mais claros; clicar abre aquele mês */
+.tp-fcal-oth{border:0; background:none; color:var(--ink-faint); font:inherit; font-size:13.5px; height:36px; border-radius:50%; cursor:pointer; padding:0; opacity:.6;}
+.tp-fcal-oth:hover{background:var(--surface-2); opacity:1;}
+.tp-fcal-oth.today{box-shadow:inset 0 0 0 1px var(--primary);}
+.tp-fcal-oth.sel{background:var(--primary); color:#fff; font-weight:700; opacity:1;}
+.tp-fcal-oth:disabled{opacity:.25; cursor:default; background:none;}

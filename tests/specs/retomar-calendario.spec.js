@@ -83,3 +83,32 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   await page.locator('#tpFcalClear').click();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBeNull();
 });
+
+test('Calendário: dias do mês vizinho aparecem claros; clicar escolhe a data e abre aquele mês', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(seed, 2);
+  await page.locator('#tpFollowTrigger').click();
+  await page.locator('#tpFollowCustom').click();
+  const cal = page.locator('.modal.tp-fcal');
+  // abre em um mês cujo fim não fecha a semana: 30/11/2026 cai numa segunda, então sobram dias de dezembro
+  await page.evaluate(() => document.querySelector('#tpFcalOv'));
+  const total = await cal.locator('.tp-fcal-day, .tp-fcal-oth').count();
+  expect(total % 7).toBe(0);
+  const outros = await cal.locator('.tp-fcal-oth').count();
+  if (outros) {
+    const viewAntes = await cal.locator('.tp-fcal-h b').innerText();
+    const alvo = cal.locator('.tp-fcal-oth:not([disabled])').last();
+    const ymd = await alvo.getAttribute('data-d');
+    await page.screenshot({ path: 'test-results/calendario-vizinho-m.png' });
+    await alvo.click();
+    await expect(cal.locator('.tp-fcal-h b')).not.toHaveText(viewAntes);
+    await expect(cal.locator(`.tp-fcal-day.sel[data-d="${ymd}"]`)).toHaveCount(1);
+    await page.locator('#tpFcalOk').click();
+    expect(await page.evaluate(() => state.tasks[0].followUpDate)).toBe(ymd);
+    // reabrir: abre no mês da data escolhida
+    await page.locator('#tpFollowTrigger').click();
+    await page.locator('#tpFollowCustom').click();
+    await expect(cal.locator(`.tp-fcal-day.sel[data-d="${ymd}"]`)).toHaveCount(1);
+  }
+});

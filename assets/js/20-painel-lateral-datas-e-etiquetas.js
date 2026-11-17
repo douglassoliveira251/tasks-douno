@@ -115,19 +115,26 @@ export function openFollowCal(current, opts = {}){
     const first = new Date(y, m - 1, 1).getDay(), days = new Date(y, m, 0).getDate();
     const today = todayStr();
     let cells = '';
-    for(let i = 0; i < first; i++) cells += '<span class="tp-fcal-pad"></span>';
+    const fmt = (yy, mm, dd) => yy + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+    const isOff = (ymd) => (min && ymd < min) || (max && ymd > max);
+    /* dias do mês vizinho (mais claros): clicar escolhe a data e já abre aquele mês */
+    const oth = (yy, mm, dd) => { const ymd = fmt(yy, mm, dd); return '<button type="button" class="tp-fcal-oth' + (ymd === sel ? ' sel' : '') + (ymd === today ? ' today' : '') + '" data-d="' + ymd + '" data-go="1"' + (isOff(ymd) ? ' disabled' : '') + ' aria-pressed="' + (ymd === sel) + '">' + dd + '</button>'; };
+    const pm = new Date(y, m - 2, 1), pDays = new Date(y, m - 1, 0).getDate();
+    for(let i = first - 1; i >= 0; i--) cells += oth(pm.getFullYear(), pm.getMonth() + 1, pDays - i);
     for(let d = 1; d <= days; d++){
       const ymd = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
       const off = (min && ymd < min) || (max && ymd > max);
       cells += '<button type="button" class="tp-fcal-day' + (ymd === sel ? ' sel' : '') + (ymd === today ? ' today' : '') + '" data-d="' + ymd + '"' + (off ? ' disabled' : '') + ' aria-pressed="' + (ymd === sel) + '">' + d + '</button>';
     }
+    const nm = new Date(y, m, 1), resto = (7 - ((first + days) % 7)) % 7;
+    for(let d = 1; d <= resto; d++) cells += oth(nm.getFullYear(), nm.getMonth() + 1, d);
     modal.innerHTML = '<div class="tp-fcal-t">' + escapeHtml(opts.title || 'Data') + '</div>' +
       '<div class="tp-fcal-h"><button type="button" class="tp-fcal-nav" data-nav="-1" aria-label="Mês anterior">‹</button><b>' + FCAL_MESES[m - 1].replace(/^./, c => c.toUpperCase()) + ' ' + y + '</b><button type="button" class="tp-fcal-nav" data-nav="1" aria-label="Próximo mês">›</button></div>' +
       '<div class="tp-fcal-w"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>' +
       '<div class="tp-fcal-g">' + cells + '</div>' +
       '<div class="tp-fcal-f">' + (opts.clearLabel ? '<button type="button" class="tp-fcal-clear" id="tpFcalClear">' + escapeHtml(opts.clearLabel) + '</button>' : '<span></span>') + '<span class="tp-fcal-btns"><button type="button" class="tp-fcal-cancel" id="tpFcalCancel">Cancelar</button><button type="button" class="tp-fcal-ok" id="tpFcalOk">OK</button></span></div>';
     modal.querySelectorAll('[data-nav]').forEach(b => { b.onclick = () => { const [yy, mm] = view.split('-').map(Number); const d = new Date(yy, mm - 1 + Number(b.dataset.nav), 1); view = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); paint(); }; });
-    modal.querySelectorAll('[data-d]').forEach(b => { b.onclick = () => { sel = b.dataset.d; paint(); }; });
+    modal.querySelectorAll('[data-d]').forEach(b => { b.onclick = () => { sel = b.dataset.d; if(b.dataset.go) view = sel.slice(0, 7); paint(); }; });
     modal.querySelector('#tpFcalCancel').onclick = close;
     const clr = modal.querySelector('#tpFcalClear');
     if(clr) clr.onclick = () => { opts.onPick && opts.onPick(null); close(); };
