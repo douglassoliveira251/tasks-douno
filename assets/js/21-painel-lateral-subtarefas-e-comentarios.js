@@ -1,4 +1,5 @@
 import { markDirty } from './08-persistencia.js';
+import { bindMencoes, bindMencaoClicks, renderMencoes } from './62-mencoes.js';
 import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
@@ -84,7 +85,7 @@ export function bindTpComments(panel, task){
     row.className = 'tp-comment';
     const d = new Date(c.createdAt);
     row.innerHTML = `
-      <div class="tp-comment-text" contenteditable="false">${escapeHtml(c.text)}</div>
+      <div class="tp-comment-text" contenteditable="false">${renderMencoes(c.text)}</div>
       <div class="tp-comment-footer">
         <span class="tp-comment-meta">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
         <div class="tp-comment-actions">
@@ -94,10 +95,12 @@ export function bindTpComments(panel, task){
       </div>
     `;
     const textEl = row.querySelector('.tp-comment-text');
+    bindMencaoClicks(textEl);
     const editBtn = row.querySelector('.tp-comment-edit');
     editBtn.onclick = () => {
       const isEditing = textEl.getAttribute('contenteditable') === 'true';
       if(!isEditing){
+        { const t0 = getOrCreateActiveTask(); const c0 = t0 && (t0.comments || []).find(x => x.id === c.id); textEl.textContent = c0 ? c0.text : c.text; } /* volta ao texto cru (com @[#id Nome]) para editar */
         textEl.setAttribute('contenteditable', 'true');
         textEl.classList.add('editing');
         textEl.focus();
@@ -130,6 +133,7 @@ export function bindTpComments(panel, task){
   });
   {
     const ta = document.getElementById('tpNewComment');
+    bindMencoes(ta, () => task.id);
     const key = currentCommentKey();
     if(PAINEL_TAREFA.tpCommentDrafts[key]) ta.value = PAINEL_TAREFA.tpCommentDrafts[key];
     ta.addEventListener('input', () => {

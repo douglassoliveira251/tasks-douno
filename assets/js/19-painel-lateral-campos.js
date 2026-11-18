@@ -1,4 +1,5 @@
 import { G } from './globais.js';
+import { bindMencoes, bindMencaoClicks, hasMencao, renderMencoes } from './62-mencoes.js';
 import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, fmtDate, completeRecurring, todayStr, togglePinned, uid } from './10-helpers.js';
 import { downloadAttachment } from './12-render-tasks.js';
@@ -205,6 +206,24 @@ export function bindTpDescriptionAndAttachments(panel, task){
     const t = getOrCreateActiveTask(); if(!t) return;
     t.description = e.target.value; markDirty();
   });
+
+  /* @ cita outra tarefa. Parado (sem editar), o texto aparece com os chips clicáveis; clicar fora do chip volta a editar. */
+  bindMencoes(descEl, () => task.id);
+  const descView = document.createElement('div');
+  descView.className = 'tp-textarea tp-desc-view'; descView.id = 'tpDescView'; descView.tabIndex = 0;
+  descEl.insertAdjacentElement('afterend', descView);
+  const syncDesc = (editando) => {
+    const ver = !editando && hasMencao(descEl.value);
+    descView.style.display = ver ? '' : 'none';
+    descEl.style.display = ver ? 'none' : '';
+    if(ver) descView.innerHTML = renderMencoes(descEl.value);
+  };
+  const editaDesc = () => { syncDesc(true); descEl.focus(); descEl.setSelectionRange(descEl.value.length, descEl.value.length); growDesc(); };
+  bindMencaoClicks(descView);
+  descView.addEventListener('click', (e) => { if(!e.target.closest('[data-men-task]')) editaDesc(); });
+  descView.addEventListener('keydown', (e) => { if(e.target === descView && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); editaDesc(); } });
+  descEl.addEventListener('blur', () => syncDesc(false));
+  syncDesc(false);
 
   /* Mantido em memória local (não cria a tarefa nova no state só por abrir o
      painel) e só é commitado via getOrCreateActiveTask() quando o usuário de

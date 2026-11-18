@@ -1,3 +1,6 @@
+## [3.61.0] - 2026-11-18
+- Tarefa: citar outra tarefa com @ na descrição e nos comentários (busca por nome ou número; vira chip clicável que abre a tarefa).
+
 ## [3.60.1] - 2026-11-17
 - Calendário de prazo e retomar: dias do mês anterior e do próximo aparecem mais claros; clicar escolhe a data e abre aquele mês.
 
