@@ -30,6 +30,8 @@ export const PAINEL_TAREFA = {
   tpFollowOpen: undefined,
   tpStartOpen: undefined,
   tpCommentDrafts: undefined,
+  tpTab: 'det',
+  tpTabTask: null,
 };
 
 /* Linha do tempo do projeto (rolagem, ajuste e centralizar no hoje). */

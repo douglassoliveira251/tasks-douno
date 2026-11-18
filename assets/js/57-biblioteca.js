@@ -101,7 +101,7 @@ function visibleItems(){
   else if(kind === 'space') list = list.filter(i => i.categoryId === id);
   if(LIB.type) list = list.filter(i => i.type === LIB.type);
   const q = LIB.q.trim().toLowerCase();
-  if(q) list = list.filter(i => ((i.title || '') + ' ' + (i.url || '') + ' ' + (i.description || '') + ' ' + (i.type === 'skill' ? (i.content || '') : '') + ' ' + (i.fileName || '')).toLowerCase().includes(q));
+  if(q) list = list.filter(i => (i.title || '').toLowerCase().includes(q)); /* só pelo título; o texto de uma skill tem a busca própria dentro dela */
   return list.sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 /* itens da seleção (sem o filtro de tipo e busca), para contar por tipo */
@@ -1166,7 +1166,7 @@ export function renderLibrary(){
   if(top && !box){
     box = document.createElement('div');
     box.className = 'lib-search lib-topsearch';
-    box.innerHTML = `${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar na biblioteca…" aria-label="Buscar na biblioteca">`;
+    box.innerHTML = `${icon('magnifying-glass')}<input type="search" id="libSearch" placeholder="Buscar pelo título…" aria-label="Buscar pelo título">`;
     top.insertBefore(box, top.firstChild);
   }
   const search = box && box.querySelector('#libSearch');

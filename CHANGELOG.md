@@ -1,3 +1,10 @@
+## [3.62.1] - 2026-11-18
+- Biblioteca: a busca do topo procura só pelo título (não mais por endereço, descrição ou texto da skill). A busca no texto continua dentro da skill.
+
+## [3.62.0] - 2026-11-18
+- Tarefa: abas Detalhamento e Relacionados. Relacionados lista tarefas vinculadas (nos dois lados), notas e documentos (inclui itens da Biblioteca) e agenda, com × para tirar o vínculo.
+- @ vira link simples no texto (sem borda); tarefas citadas entram em Relacionados ao salvar.
+
 ## [3.61.0] - 2026-11-18
 - Tarefa: citar outra tarefa com @ na descrição e nos comentários (busca por nome ou número; vira chip clicável que abre a tarefa).
 

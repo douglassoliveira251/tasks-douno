@@ -144,7 +144,7 @@ document.addEventListener('click', (e) => {
   if(!taskPanelMouseDownOutside) return;
   const panel = document.querySelector('.task-panel');
   if(!panel || panel.contains(e.target)) return;
-  if(e.target.closest && e.target.closest('#tpFcalOv')) return; // calendário do Retomar em não fecha a tarefa
+  if(e.target.closest && (e.target.closest('#tpFcalOv') || e.target.closest('#trelOverlay'))) return; // calendário do Retomar em e seletor de vínculos não fecham a tarefa
   if(e.target.closest && (
     e.target.closest('.task-row') ||
     e.target.closest('.gantt-task') || e.target.closest('.gantt-add') || e.target.closest('.proj-side-task') ||

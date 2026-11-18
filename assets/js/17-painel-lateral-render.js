@@ -13,6 +13,7 @@ import { addDaysStr } from './25-calendario.js';
 import { projectById, stageRange } from './31-projetos.js';
 import { FOLLOW_PRESETS, effectiveStart, followRelative, followWeekday, nextMondayStr } from './35-templates-de-tarefa.js';
 import { PAINEL_TAREFA } from './estado-ui.js';
+import { bindTpRelacionados, relCount, relPaneHtml, tabAtual } from './63-relacionados.js';
 
 /* Painel lateral de tarefa. renderTaskPanel monta o HTML (taskPanelHtml) e liga cada área, na ordem:
    menu ⋮ (18), cabeçalho, espaço/agendas/notas, descrição/anexos (19), datas, prioridade/etiquetas (20),
@@ -36,6 +37,7 @@ export function renderTaskPanel(panel){
   bindTpPriorityAndTags(panel, task);
   bindTpRecurrenceAndSubtasks(panel, task);
   bindTpComments(panel, task);
+  bindTpRelacionados(panel, task);
 }
 
 export function taskPanelHtml(task){
@@ -77,6 +79,7 @@ export function taskPanelHtml(task){
       </div>
     </div>
 
+    ${(() => { const tab = tabAtual(task); return `<div class="tp-tabs" id="tpTabs" role="tablist"><button type="button" role="tab" data-tab="det" class="${tab === 'det' ? 'on' : ''}" aria-selected="${tab === 'det'}">Detalhamento</button><button type="button" role="tab" data-tab="rel" class="${tab === 'rel' ? 'on' : ''}" aria-selected="${tab === 'rel'}">Relacionados<span class="n">${relCount(task)}</span></button></div><div class="tp-pane" id="tpPaneDet"${tab === 'det' ? '' : ' hidden'}>`; })()}
     <div class="tp-dates">
       <div class="tp-box tp-follow tp-follow-box">
         <label class="tp-label">Retomar em</label>
@@ -165,19 +168,6 @@ export function taskPanelHtml(task){
       </div>
     </div>
 
-    <div class="tp-field tp-agenda-notes-row">
-      <div class="tp-agenda-notes-col" id="tpAgendaField">
-        <label class="tp-label">Agenda</label>
-        <div id="tpAgendaList"></div>
-        <button type="button" class="btn ghost small" id="tpAddAgendaBtn">+ Criar agenda</button>
-      </div>
-      <div class="tp-agenda-notes-col" id="tpNotesField">
-        <label class="tp-label">Notas</label>
-        <div id="tpNotesList"></div>
-        <button type="button" class="btn ghost small" id="tpAddNoteBtn">+ Criar nota</button>
-      </div>
-    </div>
-
     <div class="tp-field">
       <div style="display:flex; align-items:center; gap:6px;">
         <label class="tp-label" style="margin-bottom:0;">Anexos</label>
@@ -195,6 +185,8 @@ export function taskPanelHtml(task){
       </div>
       <div id="tpCommentList" style="margin-top:12px;"></div>
     </div>
+    </div>
+    ${relPaneHtml(task)}
     ${G.creatingNewTask ? '' : `<div class="tp-mobile-actions">
       <button type="button" class="tp-mact-sec" id="tpMobileComment">${icon('chat-circle')}<span>Comentar</span></button>
       <button type="button" class="tp-mact-pri${task.done ? ' done' : ''}" id="tpMobileDone">${icon('check')}<span>${task.done ? 'Reabrir tarefa' : 'Concluir tarefa'}</span></button>

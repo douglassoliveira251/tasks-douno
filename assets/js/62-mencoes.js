@@ -1,6 +1,7 @@
 import { G } from './globais.js';
 import { escapeHtml, fold, fmtDate } from './10-helpers.js';
 import { openTaskPanel } from './16-painel-lateral-de-tarefa.js';
+import { addRelatedTask } from './63-relacionados.js';
 
 /* ===================== CITAR TAREFAS COM @ =====================
    Na descrição e nos comentários da tarefa: digitar @ abre uma lista simples (sem título) que filtra a cada letra, pelo nome ou
@@ -10,6 +11,14 @@ const MENCAO_RE = /@\[#(\d{1,8})(?: ([^\]\n]*))?\]/g;
 const MAX_ITENS = 6;
 
 export const hasMencao = (text) => /@\[#\d/.test(String(text || ''));
+const idsCitados = (text) => { const out = []; let m; MENCAO_RE.lastIndex = 0; while((m = MENCAO_RE.exec(String(text || '')))) out.push(m[1]); return out; };
+
+/* Ao salvar um texto, as tarefas citadas agora (e não antes) viram tarefas relacionadas desta. */
+export function linkNovasMencoes(task, antes, depois){
+  if(!task) return;
+  const jaTinha = new Set(idsCitados(antes));
+  idsCitados(depois).filter(id => !jaTinha.has(id)).forEach(id => { const o = taskByShort(id); if(o) addRelatedTask(task, o.id); });
+}
 const taskByShort = (id) => G.state.tasks.find(t => t.shortId === id) || null;
 const limpaTitulo = (s) => String(s || '').replace(/[\]\[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
 
@@ -22,9 +31,9 @@ export function renderMencoes(text){
     out += escapeHtml(s.slice(last, m.index));
     const t = taskByShort(m[1]);
     if(t){
-      out += `<span class="men${t.done ? ' done' : ''}" role="button" tabindex="0" data-men-task="${escapeHtml(t.id)}" title="Abrir tarefa"><i>#${escapeHtml(t.shortId)}</i>${escapeHtml(t.title || 'Sem título')}</span>`;
+      out += `<span class="men${t.done ? ' done' : ''}" role="button" tabindex="0" data-men-task="${escapeHtml(t.id)}" title="Abrir tarefa">@${escapeHtml(t.title || 'Sem título')}</span>`;
     } else {
-      out += `<span class="men gone" title="Tarefa removida"><i>#${escapeHtml(m[1])}</i>${escapeHtml(m[2] || 'Tarefa removida')}</span>`;
+      out += `<span class="men gone" title="Tarefa removida">@${escapeHtml(m[2] || 'Tarefa removida')}</span>`;
     }
     last = m.index + m[0].length;
   }

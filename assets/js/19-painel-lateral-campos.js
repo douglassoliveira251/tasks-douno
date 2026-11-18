@@ -1,14 +1,10 @@
 import { G } from './globais.js';
-import { bindMencoes, bindMencaoClicks, hasMencao, renderMencoes } from './62-mencoes.js';
+import { bindMencoes, bindMencaoClicks, hasMencao, linkNovasMencoes, renderMencoes } from './62-mencoes.js';
 import { markDirty } from './08-persistencia.js';
 import { catById, escapeHtml, fmtDate, completeRecurring, todayStr, togglePinned, uid } from './10-helpers.js';
 import { downloadAttachment } from './12-render-tasks.js';
 import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
-import { fmtUpdatedAt } from './23-texto-rico-utilitarios.js';
-import { openNoteComposer } from './24-render-notes.js';
-import { eventColor } from './25-calendario.js';
-import { openEventComposer } from './28-calendario-eventos.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
 
@@ -115,85 +111,6 @@ export function bindTpSpaceAndLinks(panel, task){
     });
   };
 
-  let tpShowPastAgendas = false;
-  function agendaIsPast(ev){
-    const today = todayStr();
-    if(ev.recurrence && ev.recurrence !== 'none') return !!ev.recurrenceEndDate && ev.recurrenceEndDate < today;
-    return (ev.endDate || ev.date || '9999') < today;
-  }
-  function renderTpAgendaList(){
-    const box = document.getElementById('tpAgendaList');
-    if(!box) return;
-    const all = G.state.events.filter(ev => ev.linkedTaskId === task.id)
-      .sort((a,b) => (a.date||'').localeCompare(b.date||''));
-    const past = all.filter(agendaIsPast);
-    const linked = tpShowPastAgendas ? all : all.filter(ev => !agendaIsPast(ev));
-    if(all.length === 0){
-      box.innerHTML = '';
-      return;
-    }
-    const pastToggle = past.length
-      ? `<button type="button" class="tp-past-toggle" id="tpPastAgendasBtn">${tpShowPastAgendas ? 'Ocultar anteriores' : 'Mostrar ' + past.length + ' anterior' + (past.length > 1 ? 'es' : '')}</button>`
-      : '';
-    box.innerHTML = linked.map(ev => `
-      <div class="tp-task-agenda-row" data-event-id="${ev.id}">
-        <span class="dot" style="background:${eventColor(ev)}"></span>
-        <div class="tp-task-agenda-body">
-          <div class="tp-task-agenda-date">${fmtDate(ev.date)}${ev.startTime?' '+ev.startTime:''}</div>
-          <div class="tp-task-agenda-title">${escapeHtml(ev.title||'Sem título')}</div>
-        </div>
-      </div>
-    `).join('') + pastToggle;
-    const pastBtn = box.querySelector('#tpPastAgendasBtn');
-    if(pastBtn) pastBtn.onclick = (e) => { e.stopPropagation(); tpShowPastAgendas = !tpShowPastAgendas; renderTpAgendaList(); };
-    box.querySelectorAll('.tp-task-agenda-row').forEach(row => {
-      row.style.cursor = 'pointer';
-      row.onclick = () => {
-        const ev = G.state.events.find(x => x.id === row.dataset.eventId);
-        if(ev) openEventComposer(ev);
-      };
-    });
-  }
-  renderTpAgendaList();
-  document.getElementById('tpAddAgendaBtn').onclick = (e) => {
-    e.stopPropagation();
-    const t = getOrCreateActiveTask(); if(!t) return;
-    openEventComposer(null, t.dueDate || todayStr(), t.id);
-  };
-
-  function renderTpNotesList(){
-    const box = document.getElementById('tpNotesList');
-    if(!box) return;
-    const linked = G.state.notes.filter(n => n.linkedTaskId === task.id)
-      .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
-    if(linked.length === 0){
-      box.innerHTML = '';
-      return;
-    }
-    box.innerHTML = linked.map(n => `
-      <div class="tp-task-agenda-row" data-note-id="${n.id}">
-        <span class="dot" style="background:var(--ink-faint)"></span>
-        <span class="tp-task-agenda-date">${fmtUpdatedAt(n.updatedAt)}</span>
-        <span class="tp-task-agenda-title">${escapeHtml(n.title||'Sem título')}</span>
-      </div>
-    `).join('');
-    box.querySelectorAll('.tp-task-agenda-row').forEach(row => {
-      row.style.cursor = 'pointer';
-      row.onclick = () => {
-        const n = G.state.notes.find(x => x.id === row.dataset.noteId);
-        if(n){ G.currentView = 'notes'; render(); openNoteComposer(n); }
-      };
-    });
-  }
-  renderTpNotesList();
-  document.getElementById('tpAddNoteBtn').onclick = (e) => {
-    e.stopPropagation();
-    const t = getOrCreateActiveTask(); if(!t) return;
-    G.currentView = 'notes';
-    render();
-    openNoteComposer(null, t.id);
-  };
-
 }
 
 /* Descrição e anexos. */
@@ -204,7 +121,10 @@ export function bindTpDescriptionAndAttachments(panel, task){
   growDesc();
   document.getElementById('tpDesc').addEventListener('blur', e => {
     const t = getOrCreateActiveTask(); if(!t) return;
-    t.description = e.target.value; markDirty();
+    const antes = t.description || '';
+    t.description = e.target.value;
+    linkNovasMencoes(t, antes, t.description);
+    markDirty();
   });
 
   /* @ cita outra tarefa. Parado (sem editar), o texto aparece com os chips clicáveis; clicar fora do chip volta a editar. */

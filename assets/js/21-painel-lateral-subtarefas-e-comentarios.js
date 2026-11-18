@@ -1,5 +1,5 @@
 import { markDirty } from './08-persistencia.js';
-import { bindMencoes, bindMencaoClicks, renderMencoes } from './62-mencoes.js';
+import { bindMencoes, bindMencaoClicks, linkNovasMencoes, renderMencoes } from './62-mencoes.js';
 import { escapeHtml, uid } from './10-helpers.js';
 import { openRecurrencePortal } from './14-portal-de-recorrencia.js';
 import { currentCommentKey, getOrCreateActiveTask, recurrenceSummaryLabel, saveCommentDrafts, toggleSubtaskDone } from './16-painel-lateral-de-tarefa.js';
@@ -115,7 +115,7 @@ export function bindTpComments(panel, task){
         textEl.classList.remove('editing');
         const t = getOrCreateActiveTask(); if(!t) return;
         const com = t.comments.find(x => x.id === c.id);
-        if(com){ com.text = textEl.textContent.trim(); markDirty(); }
+        if(com){ const antes = com.text || ''; com.text = textEl.textContent.trim(); linkNovasMencoes(t, antes, com.text); markDirty(); }
       }
     };
     textEl.addEventListener('keydown', e => {
@@ -150,6 +150,7 @@ export function bindTpComments(panel, task){
     const t = getOrCreateActiveTask(); if(!t) return;
     t.comments = t.comments || [];
     t.comments.push({ id: uid('cmt'), text, createdAt: Date.now() });
+    linkNovasMencoes(t, '', text);
     delete PAINEL_TAREFA.tpCommentDrafts[keyBefore];
     delete PAINEL_TAREFA.tpCommentDrafts[t.id];
     saveCommentDrafts();

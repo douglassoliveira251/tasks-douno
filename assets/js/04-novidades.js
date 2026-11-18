@@ -4,6 +4,8 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.62.1', date:'18/11/2026', title:'Busca da Biblioteca só pelo título', text:'A busca ao lado do botão Novo, na Biblioteca, agora procura somente no título dos itens. Para procurar dentro do texto de uma skill, use a busca que fica dentro dela.' },
+  { version:'3.62.0', date:'18/11/2026', title:'Aba Relacionados na tarefa', text:'O painel da tarefa ganhou duas abas: Detalhamento e Relacionados. Em Relacionados ficam, em lista, as tarefas vinculadas, as notas e documentos e a agenda, cada um com um × para tirar só o vínculo. As tarefas citadas com @ entram sozinhas, e o @ agora aparece como um link no texto.' },
   { version:'3.61.0', date:'18/11/2026', title:'Citar tarefas com @', text:'Na descrição e nos comentários da tarefa, digite @ e comece a escrever o nome ou o número de outra tarefa: uma lista aparece e, ao escolher, a tarefa fica citada no texto como um atalho que abre ela com um clique.' },
   { version:'3.60.1', date:'17/11/2026', title:'Calendário mostra o mês vizinho', text:'No calendário de prazo e de retomar, os dias do mês anterior e do próximo aparecem mais claros. Ao clicar em um deles, a data é escolhida e o calendário já abre aquele mês.' },
   { version:'3.60.0', date:'16/11/2026', title:'Rosca maior e legenda do ritmo', text:'A rosca do Status das tarefas ficou maior e com a legenda mais à direita. No Ritmo, a legenda do gráfico foi para o rodapé, à direita, com amostras iguais às linhas, e o sem prazo e sem retomada vieram para perto dos atalhos do dia.' },

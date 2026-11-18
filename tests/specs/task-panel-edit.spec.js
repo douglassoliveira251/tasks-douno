@@ -17,6 +17,7 @@ const seed = () => {
 test('agendas passadas ficam ocultas e podem ser mostradas', async ({ page }) => {
   await gotoApp(page, { view: 'tasks' });
   await page.evaluate(seed);
+  await page.locator('#tpTabs [data-tab="rel"]').click();
   const rows = page.locator('#tpAgendaList .tp-task-agenda-row');
   await expect(rows).toHaveCount(2); // Futura + a que repete
   await expect(page.locator('#tpAgendaList')).not.toContainText('Passada');

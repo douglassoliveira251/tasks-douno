@@ -241,7 +241,9 @@ test('Skills: editar, mover de coleção, buscar pelo conteúdo e excluir', asyn
     ];
     render();
   }, SK);
-  await page.fill('#libSearch', 'categoria');
+  await page.fill('#libSearch', 'categoria'); // está só no texto da skill: a busca do topo olha apenas o título
+  await expect(page.locator('.lib-row')).toHaveCount(0);
+  await page.fill('#libSearch', 'skill a');
   await expect(page.locator('.lib-row')).toHaveCount(1);
   await page.fill('#libSearch', '');
   await page.locator('[data-imenu="s1"]').click();

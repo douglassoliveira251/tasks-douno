@@ -234,12 +234,14 @@ test('Biblioteca: excluir coleção sobe itens e subcoleções para o nível de 
   expect(r.n).toBe(4);
 });
 
-test('Biblioteca: busca filtra por título, endereço e descrição', async ({ page }) => {
+test('Biblioteca: a busca do topo filtra só pelo título (não pelo endereço nem pela descrição)', async ({ page }) => {
   await open(page);
   await page.evaluate(seed);
-  await page.fill('#libSearch', 'suporte');
+  await page.fill('#libSearch', 'chamados');
   await expect(page.locator('.lib-row')).toHaveCount(1);
   await expect(page.locator('.lib-row .lib-tt')).toHaveText('Chamados');
+  await page.fill('#libSearch', 'suporte'); // só no endereço/descrição
+  await expect(page.locator('.lib-empty')).toContainText('Nada encontrado');
   await page.fill('#libSearch', 'zzzz');
   await expect(page.locator('.lib-empty')).toContainText('Nada encontrado');
   await page.fill('#libSearch', '');
