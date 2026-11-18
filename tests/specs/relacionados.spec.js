@@ -76,7 +76,7 @@ test('× em nota e agenda só desfaz o vínculo; vincular item da Biblioteca e n
   expect(await page.evaluate(() => state.libItems.length)).toBe(1);
   // × na agenda
   await page.locator('#tpAgendaField .rl-x').click();
-  await expect(page.locator('#tpAgendaField')).toContainText('Nenhuma agenda vinculada');
+  await expect(page.locator('#tpAgendaField')).toContainText('Nenhuma agenda relacionada');
   expect(await page.evaluate(() => state.events.length)).toBe(1);
   expect(await page.evaluate(() => state.events[0].linkedTaskId)).toBeNull();
 });

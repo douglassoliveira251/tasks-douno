@@ -4964,7 +4964,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 
 /* v3.62.0: abas Detalhamento e Relacionados no painel da tarefa (tarefas, notas e documentos, agenda), em lista */
 .tp-pane{display:contents;} .tp-pane[hidden]{display:none;}
-.tp-tabs{display:flex; border-bottom:1px solid var(--border); margin:4px 0 2px;}
+.tp-tabs{display:flex; border-bottom:1px solid var(--border); margin:14px 0 16px;}
 .tp-tabs button{border:0; background:none; font:inherit; font-size:13px; font-weight:700; color:var(--ink-faint); padding:8px 14px; border-bottom:2px solid transparent; margin-bottom:-1px; display:inline-flex; align-items:center; gap:7px; cursor:pointer;}
 .tp-tabs button:hover{color:var(--ink);}
 .tp-tabs button.on{color:var(--primary); border-bottom-color:var(--primary);}

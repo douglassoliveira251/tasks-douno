@@ -1,3 +1,6 @@
+## [3.62.2] - 2026-11-18
+- Tarefa: mais espaço entre as abas e os campos Retomar em/Prazo; textos de lista vazia em Relacionados simplificados.
+
 ## [3.62.1] - 2026-11-18
 - Biblioteca: a busca do topo procura só pelo título (não mais por endereço, descrição ou texto da skill). A busca no texto continua dentro da skill.
 

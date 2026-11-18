@@ -201,7 +201,7 @@ export function bindTpRelacionados(panel, task){
   const tasks = relatedTasks(task);
   const bt = document.getElementById('tpRelTasks');
   bt.innerHTML = head('check-square', 'Tarefas relacionadas', tasks.length, addBtn('tpAddRelTask', 'Vincular')) +
-    (tasks.length ? '<div class="rl-list">' + tasks.map(taskRow).join('') + '</div>' : '<div class="rl-empty">Nenhuma tarefa relacionada. Digite @ na descrição ou nos comentários, ou use Vincular.</div>');
+    (tasks.length ? '<div class="rl-list">' + tasks.map(taskRow).join('') + '</div>' : '<div class="rl-empty">Nenhuma tarefa relacionada</div>');
   liga(bt);
   bt.querySelector('#tpAddRelTask').onclick = (e) => { e.stopPropagation(); pickTasks(task); };
   bt.querySelectorAll('.rl-row').forEach(row => {
@@ -217,7 +217,7 @@ export function bindTpRelacionados(panel, task){
   const docs = relatedDocs(task);
   const bd = document.getElementById('tpRelDocs');
   bd.innerHTML = head('file-text', 'Notas e documentos', docs.length, addBtn('tpAddNoteBtn', 'Nota') + addBtn('tpAddDocBtn', 'Vincular')) +
-    (docs.length ? '<div class="rl-list">' + docs.map(docRow).join('') + '</div>' : '<div class="rl-empty">Nenhuma nota ou documento. Crie uma nota ou vincule itens da Biblioteca.</div>');
+    (docs.length ? '<div class="rl-list">' + docs.map(docRow).join('') + '</div>' : '<div class="rl-empty">Nenhuma nota ou documento relacionado</div>');
   liga(bd);
   bd.querySelector('#tpAddNoteBtn').onclick = (e) => { e.stopPropagation(); const t = getOrCreateActiveTask(); if(!t) return; G.currentView = 'notes'; render(); openNoteComposer(null, t.id); };
   bd.querySelector('#tpAddDocBtn').onclick = (e) => { e.stopPropagation(); pickDocs(task); };
@@ -239,7 +239,7 @@ export function bindTpRelacionados(panel, task){
   ba.innerHTML = head('calendar-blank', 'Agenda', all.length, addBtn('tpAddAgendaBtn', 'Agendar')) +
     (all.length ? '<div id="tpAgendaList">' + shown.map(agendaRow).join('') +
       (past.length ? `<button type="button" class="tp-past-toggle" id="tpPastAgendasBtn">${mostraPassadas ? 'Ocultar anteriores' : 'Mostrar ' + past.length + ' anterior' + (past.length > 1 ? 'es' : '')}</button>` : '') + '</div>'
-      : '<div id="tpAgendaList"></div><div class="rl-empty">Nenhuma agenda vinculada.</div>');
+      : '<div id="tpAgendaList"></div><div class="rl-empty">Nenhuma agenda relacionada</div>');
   liga(ba);
   const pb = ba.querySelector('#tpPastAgendasBtn');
   if(pb) pb.onclick = (e) => { e.stopPropagation(); mostraPassadas = !mostraPassadas; bindTpRelacionados(panel, task); };

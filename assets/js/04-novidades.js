@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.62.2', date:'18/11/2026', title:'Aba Relacionados mais clara', text:'As abas da tarefa ganharam mais espaço antes de Retomar em e Prazo, e os textos de lista vazia em Relacionados ficaram mais curtos.' },
   { version:'3.62.1', date:'18/11/2026', title:'Busca da Biblioteca só pelo título', text:'A busca ao lado do botão Novo, na Biblioteca, agora procura somente no título dos itens. Para procurar dentro do texto de uma skill, use a busca que fica dentro dela.' },
   { version:'3.62.0', date:'18/11/2026', title:'Aba Relacionados na tarefa', text:'O painel da tarefa ganhou duas abas: Detalhamento e Relacionados. Em Relacionados ficam, em lista, as tarefas vinculadas, as notas e documentos e a agenda, cada um com um × para tirar só o vínculo. As tarefas citadas com @ entram sozinhas, e o @ agora aparece como um link no texto.' },
   { version:'3.61.0', date:'18/11/2026', title:'Citar tarefas com @', text:'Na descrição e nos comentários da tarefa, digite @ e comece a escrever o nome ou o número de outra tarefa: uma lista aparece e, ao escolher, a tarefa fica citada no texto como um atalho que abre ela com um clique.' },
