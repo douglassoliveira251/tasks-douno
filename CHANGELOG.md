@@ -1,3 +1,6 @@
+## [3.62.3] - 2026-11-18
+- Corrigida a rolagem: com o mouse sobre o painel da tarefa ou o Resumo do dia, a lista de tras nao rola mais junto.
+
 ## [3.62.2] - 2026-11-18
 - Tarefa: mais espaço entre as abas e os campos Retomar em/Prazo; textos de lista vazia em Relacionados simplificados.
 

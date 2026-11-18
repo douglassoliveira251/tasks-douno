@@ -5007,3 +5007,7 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
   .rl-btns{gap:4px;} .rl-add{padding:0 7px;}
   .rl-ag .rl-nm b{white-space:normal;}
 }
+
+/* v3.62.3: rolar com o mouse sobre o painel da tarefa ou o Resumo do dia nao arrasta mais a lista de tras */
+.task-panel, .day-summary{overscroll-behavior:contain;}
+.day-summary{overflow-y:auto;}
