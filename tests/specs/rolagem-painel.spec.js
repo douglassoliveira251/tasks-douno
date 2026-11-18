@@ -17,6 +17,7 @@ for (const sel of [false, true]) {
     await page.mouse.move(600, 500);
     await page.mouse.wheel(0, 500);
     await page.waitForTimeout(250);
-    expect(await page.evaluate(() => document.getElementById('tasksView').scrollTop)).toBeGreaterThan(0); // a lista continua rolando normalmente
+    expect(await page.evaluate(() => document.querySelector('.tasks-list-col').scrollTop)).toBeGreaterThan(0); // a lista rola dentro do próprio quadro
+    expect(await page.evaluate(() => document.getElementById('tasksView').scrollTop)).toBe(0); // e a tela não
   });
 }

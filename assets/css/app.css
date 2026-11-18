@@ -5011,3 +5011,11 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 /* v3.62.3: rolar com o mouse sobre o painel da tarefa ou o Resumo do dia nao arrasta mais a lista de tras */
 .task-panel, .day-summary{overscroll-behavior:contain;}
 .day-summary{overflow-y:auto;}
+
+/* v3.62.4: no desktop a lista de tarefas rola dentro do proprio quadro (o cabecalho, o painel e o Resumo do dia ficam parados);
+   antes a tela inteira rolava e, com a lista curta, sobrava um vazio grande embaixo */
+@media (min-width:1100px){
+  body[data-view="tasks"] #tasksView:has(.tasks-list-col){overflow:hidden; padding-bottom:0;}
+  body[data-view="tasks"] #tasksView:has(.tasks-list-col) > .tasks-layout{height:100%;}
+  body[data-view="tasks"] #tasksView:has(.tasks-list-col) .tasks-list-col{align-self:stretch; overflow-y:auto; overscroll-behavior:contain; padding-bottom:60px;}
+}

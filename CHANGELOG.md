@@ -1,3 +1,6 @@
+## [3.62.4] - 2026-11-18
+- Tarefas (desktop): so a lista rola, dentro do proprio quadro; cabecalho, painel e Resumo do dia ficam parados e nao sobra mais vazio embaixo da lista.
+
 ## [3.62.3] - 2026-11-18
 - Corrigida a rolagem: com o mouse sobre o painel da tarefa ou o Resumo do dia, a lista de tras nao rola mais junto.
 
