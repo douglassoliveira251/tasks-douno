@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.62.5', date:'20/11/2026', title:'Mais segurança no acesso', text:'O sistema ganhou proteções extras de navegação e passou a verificar a integridade dos componentes externos que carrega. Nada muda no uso do dia a dia.' },
   { version:'3.62.4', date:'18/11/2026', title:'Lista de tarefas rola no próprio quadro', text:'Na tela de Tarefas, o cabeçalho, o painel e o Resumo do dia ficam parados e só a lista rola, parando na última tarefa. Antes a tela inteira rolava e podia sobrar um vazio grande embaixo.' },
   { version:'3.62.3', date:'18/11/2026', title:'Rolagem do painel lateral', text:'Ao rolar com o mouse sobre o painel da tarefa ou sobre o Resumo do dia, a lista de tarefas ao lado não se move mais junto. A rolagem fica só dentro do painel.' },
   { version:'3.62.2', date:'18/11/2026', title:'Aba Relacionados mais clara', text:'As abas da tarefa ganharam mais espaço antes de Retomar em e Prazo, e os textos de lista vazia em Relacionados ficaram mais curtos.' },

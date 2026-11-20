@@ -8,11 +8,12 @@ import { icon } from './icones.js';
 import { GANTT } from './estado-ui.js';
 
 /* ===== PDF gerado direto pelo app (jsPDF + autoTable, carregados só quando necessário) ===== */
-export function loadScriptOnce(url){
+export function loadScriptOnce(url, integrity){
   return new Promise((resolve, reject) => {
     if(document.querySelector('script[data-lib="' + url + '"]')) return resolve();
     const sc = document.createElement('script');
     sc.src = url; sc.dataset.lib = url;
+    if(integrity){ sc.integrity = integrity; sc.crossOrigin = 'anonymous'; }
     sc.onload = () => resolve();
     sc.onerror = () => reject(new Error('Não foi possível carregar ' + url));
     document.head.appendChild(sc);
@@ -20,8 +21,8 @@ export function loadScriptOnce(url){
 }
 export async function ensurePdfLibs(){
   if(window.jspdf && window.jspdf.jsPDF && window.__autoTableReady) return;
-  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk');
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js', 'sha384-fCAW/rDWORTbQXSiB7mOg0QtQ5c+r0f544y6XoKjuVva0nMBlCpNUjiFeG5iMdS3');
   window.__autoTableReady = true;
 }
 export function hexToRgb(hex){

@@ -1,3 +1,6 @@
+## [3.62.5] - 2026-11-20
+- Segurança: cabeçalhos HTTP (nosniff, Referrer-Policy, frame-ancestors, Permissions-Policy) e scripts externos com versão fixa e verificação de integridade (SRI): supabase-js 2.119.2, jsPDF e autoTable.
+
 ## [3.62.4] - 2026-11-18
 - Tarefas (desktop): so a lista rola, dentro do proprio quadro; cabecalho, painel e Resumo do dia ficam parados e nao sobra mais vazio embaixo da lista.
 
