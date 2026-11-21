@@ -1,3 +1,6 @@
+## [3.62.6] - 2026-11-21
+- Sincronização: o salvamento confere só a versão da nuvem (updated_at) e baixa o estado completo apenas quando houve alteração em outro aparelho. Reduz cerca de metade do tráfego por salvamento.
+
 ## [3.62.5] - 2026-11-20
 - Segurança: cabeçalhos HTTP (nosniff, Referrer-Policy, frame-ancestors, Permissions-Policy) e scripts externos com versão fixa e verificação de integridade (SRI): supabase-js 2.119.2, jsPDF e autoTable.
 

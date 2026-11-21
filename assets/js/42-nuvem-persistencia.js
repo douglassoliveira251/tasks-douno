@@ -10,10 +10,11 @@ import { icon } from './icones.js';
 G.fetchCloudStateRow = fetchCloudStateRow; G.writeStateToCloud = writeStateToCloud; G.startCloudSession = startCloudSession;
 
 /* ===================== NUVEM: persistência ===================== */
-async function fetchCloudStateRow(){
+/* semData: só a versão (updated_at), sem baixar o estado inteiro; usado para conferir se a nuvem mudou */
+async function fetchCloudStateRow(semData){
   const { data, error } = await sbClient
     .from('taskin_state')
-    .select('data, updated_at')
+    .select(semData === true ? 'updated_at' : 'data, updated_at')
     .eq('user_id', G.cloudSession.user.id)
     .maybeSingle();
   if(error) throw error;
@@ -171,7 +172,16 @@ async function writeStateToCloud(){
   const uid = G.cloudSession.user.id;
   let mergedFromRemote = false;
   for(let attempt = 0; attempt < 4; attempt++){
-    const row = await G.fetchCloudStateRow();
+    /* confere só a versão da nuvem; o estado inteiro só é baixado se ela mudou */
+    let row = await G.fetchCloudStateRow(true);
+    if(row){
+      const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
+      if(changedRemotely){
+        const full = await G.fetchCloudStateRow();
+        if(!full) continue; // a linha sumiu no meio: recomeça
+        row = full;
+      }
+    }
     if(row && row.data && typeof row.data === 'object'){
       const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
       if(changedRemotely){

@@ -27,7 +27,7 @@ test('Retomar em: menu tem 30 dias; Personalizada abre o calendário do app (Can
   await page.locator('#tpFollowTrigger').click();
   await page.locator('#tpFollowCustom').click();
   const alvo = await page.evaluate(() => addDaysStr(todayStr(), 10));
-  await page.locator(`.tp-fcal-day[data-d="${alvo}"]`).click();
+  await page.locator(`.modal.tp-fcal button[data-d="${alvo}"]`).click();
   await page.locator('#tpFcalOk').click();
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].followUpDate)).toBe(alvo);
@@ -74,7 +74,7 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   // escolhe um dia e OK
   await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   const alvo = await page.evaluate(() => addDaysStr(todayStr(), 9));
-  await page.locator(`.tp-fcal-day[data-d="${alvo}"]`).click();
+  await page.locator(`.modal.tp-fcal button[data-d="${alvo}"]`).click();
   await page.locator('#tpFcalOk').click();
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBe(alvo);
