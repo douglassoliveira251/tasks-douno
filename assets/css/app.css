@@ -72,13 +72,15 @@
     --accent-light:#2A2516;
     --danger:#B84A40;
     --danger-light:#2F1F1E;
-    --priority-baixa:#4F7FC4;
+    /* barras de prioridade da lista = exatamente as cores do Resumo do dia (55-resumo-do-dia.js) */
+    --priority-baixa:#2E90FA;
     --priority-baixa-light:#16233A;
-    --priority-media:#4FA67E;
+    --priority-media:#12B76A;
     --priority-media-light:#15291F;
-    --priority-alta:#C08A3C;
+    --priority-alta:#F79009;
     --priority-alta-light:#2D2314;
-    --priority-critica:#E11D48; /* o mesmo vermelho do Resumo do dia, nos dois temas */
+    --priority-critica:#E11D48;
+    --overdue-ink:#C8143E; /* título, data e ícone de tarefa vencida: vermelho mais fechado, sem lavar no fundo escuro */
     --priority-critica-light:#321A22;
     --progress-ok:#2F8A63;
     --shadow-sm:none;
@@ -896,7 +898,7 @@
     font-weight:600;
   }
   .task-row.done .task-title{color:var(--ink-faint); text-decoration:line-through;}
-  .task-row.overdue .task-title{color:var(--priority-critica);}
+  .task-row.overdue .task-title{color:var(--overdue-ink, var(--priority-critica));}
   .task-status-label{
     font-style:italic; font-size:11px; color:var(--ink-faint); flex-shrink:0; white-space:nowrap;
   }
@@ -906,7 +908,7 @@
     white-space:nowrap;
   }
   .task-cal-badge svg{width:12px; height:12px; flex-shrink:0;}
-  .task-cal-badge.overdue{color:var(--priority-critica);}
+  .task-cal-badge.overdue{color:var(--overdue-ink, var(--priority-critica));}
   .task-subtask-badge{
     font-family:inherit; font-size:11.5px; color:var(--ink-faint); flex-shrink:0;
   }
@@ -4194,7 +4196,7 @@
   [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}
   [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:var(--priority-critica); color:#fff;}
   /* retomada vencida no escuro: fundo vermelho translúcido, letra rosa clara e borda fina (diferente do prazo vencido, que é sólido) */
-  [data-theme="dark"] .task-alert-ret.over{background:rgba(225,29,72,.18); color:#FF6B81; box-shadow:inset 0 0 0 1px rgba(255,107,129,.55);}
+  [data-theme="dark"] .task-alert-ret.over{background:rgba(225,29,72,.16); color:var(--overdue-ink); box-shadow:inset 0 0 0 1px rgba(225,29,72,.6);}
   [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
   [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
   [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}
