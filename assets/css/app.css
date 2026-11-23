@@ -46,6 +46,7 @@
     /* tarefa vencida: vermelho puro (sem o tom rosado do carmim da prioridade Crítica) */
     --overdue-pill:#DC2626;
     --overdue-ink:#DC2626;
+    --overdue-deep:#B91C1C; /* prazo vencido nas notificações: vermelho mais fechado */
     --radius:10px;
     --radius-sm:6px;
     --shadow-sm:0 1px 2px rgba(27,33,48,.06);
@@ -84,6 +85,7 @@
     --priority-alta-light:#2D2314;
     --priority-critica:#E11D48;
     --overdue-pill:#DC2626;
+    --overdue-deep:#C42024;
     --overdue-ink:#E5383B; /* no escuro: mesmo vermelho, um pouco mais claro para destacar do fundo */
     --priority-critica-light:#321A22;
     --progress-ok:#2F8A63;
@@ -375,7 +377,7 @@
   }
   .notif-dropdown{left:auto; right:0; width:340px; max-width:90vw;}
   .notif-dropdown-empty{padding:24px 10px; text-align:center; font-size:12.5px; color:var(--ink-faint);}
-  .search-result-row.notif-overdue .search-result-meta{color:var(--danger);}
+  .search-result-row.notif-overdue .search-result-meta{color:var(--overdue-deep);}
 
   .save-error-badge{
     display:none; align-items:center; gap:6px; padding:0 14px; height:38px; flex-shrink:0;

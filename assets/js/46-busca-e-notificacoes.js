@@ -360,7 +360,7 @@ export function renderNotifDropdown(){
     `;
   }
   dd.innerHTML =
-    group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--danger)', t => withFollow(t) + fmtDate(t.dueDate), 'notif-overdue') +
+    group('Atrasadas', overdueTasks, 'tasks', 'var(--danger-light)', 'var(--overdue-deep)', t => withFollow(t) + fmtDate(t.dueDate), 'notif-overdue') +
     group('Tarefas de hoje', todayTasks, 'tasks', 'var(--primary-light)', 'var(--primary)', t => withFollow(t) + (t.dueTime || '')) +
     group('Retomar hoje', followOnly, 'tasks', '#FFF1D6', '#8A5A00', t => fmtDate(t.followUpDate)) +
     group('Agenda de hoje', todayEvents, 'calendar', 'var(--priority-baixa-light)', 'var(--priority-baixa)', ev => ev.allDay ? '' : (ev.startTime||''), '', true);
