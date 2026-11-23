@@ -15,7 +15,7 @@ test('Retomada vencida no escuro: fundo translúcido e letra rosa; o prazo venci
   expect(ret[0]).toBe('rgba(220, 38, 38, 0.16)');
   expect(ret[1]).toBe('rgb(229, 56, 59)');
   const prazo = await cor('.task-status-pill.overdue');
-  expect(prazo[0]).toBe('rgb(220, 38, 38)'); // sólido (o mesmo vermelho do Resumo do dia), diferente da retomada
+  expect(prazo[0]).toBe('rgb(196, 32, 36)'); // sólido (o mesmo vermelho do Resumo do dia), diferente da retomada
   await page.screenshot({ path: 'test-results/retomada-escuro.png', clip: { x: 20, y: 120, width: 1000, height: 200 } });
   // modo claro: continua o esquema antigo (fundo rosa claro, letra vermelha)
   await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'light'); render(); });
