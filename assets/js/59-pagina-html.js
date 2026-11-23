@@ -1,5 +1,6 @@
 import { G } from './globais.js';
 import { escapeHtml } from './10-helpers.js';
+import { conteudoFaltando, hidratarItem } from './66-biblioteca-conteudo.js';
 
 /* ===================== PÁGINA HTML EM ABA PRÓPRIA =====================
    /app/pagina/<id> (ou #/pagina/<id> quando hospedado em subpasta) mostra só a página guardada na Biblioteca, ocupando a
@@ -15,6 +16,14 @@ export function renderStandalonePage(){
   if(!it){
     host.dataset.key = '';
     host.innerHTML = '<div class="po-msg"><b>Página não encontrada</b><span>Se você acabou de abrir, aguarde o carregamento. Se ela foi excluída, volte ao app e abra outra.</span><a href="' + escapeHtml(location.pathname.replace(/\/pagina\/.*$/, '') || '/') + '">Voltar ao app</a></div>';
+    return;
+  }
+  if(conteudoFaltando(it)){
+    host.dataset.key = '';
+    host.innerHTML = '<div class="po-msg"><b>Carregando a página…</b></div>';
+    hidratarItem(it).then(() => renderStandalonePage()).catch(() => {
+      host.innerHTML = '<div class="po-msg"><b>Não consegui carregar a página</b><span>Confira a conexão e recarregue.</span></div>';
+    });
     return;
   }
   const key = it.id + ':' + (it.updatedAt || 0);

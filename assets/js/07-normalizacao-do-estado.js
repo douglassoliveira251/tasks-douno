@@ -9,8 +9,11 @@ import { uid } from './10-helpers.js';
      (recebe o estado e o altera no lugar; deve poder rodar de novo sem estragar nada).
    - Uma cópia do sistema NÃO grava dados de formato mais novo que o seu: recusar a gravação evita que
      uma aba desatualizada desfaça uma migração feita por outra mais nova (veja writeStateToCloud). */
-export const SCHEMA_VERSION = 1;
-export const MIGRACOES = {};
+export const SCHEMA_VERSION = 2;
+/* formato 2: itens da Biblioteca (páginas HTML e skills) podem ter o texto na tabela library_contents (item.ref).
+   Não há o que converter aqui: a passagem do texto para a tabela é feita ao gravar na nuvem (66-biblioteca-conteudo.js);
+   subir o número é o que faz cópias antigas deste sistema pararem de gravar por cima. */
+export const MIGRACOES = { 2: () => {} };
 export function estadoMaisNovo(st){ return !!st && Number(st.schemaVersion) > SCHEMA_VERSION; }
 /* alvo e migracoes só mudam nos testes */
 export function aplicarMigracoes(st, alvo = SCHEMA_VERSION, migracoes = MIGRACOES){

@@ -7,6 +7,7 @@ import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { closeLoginGate } from './43-tela-de-login.js';
 import { loadUiSession, render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { enviarConteudos, serializarEstado } from './66-biblioteca-conteudo.js';
 G.fetchCloudStateRow = fetchCloudStateRow; G.writeStateToCloud = writeStateToCloud; G.startCloudSession = startCloudSession;
 
 /* ===================== NUVEM: persistência ===================== */
@@ -44,6 +45,7 @@ export function syncHash(value){
   return (h >>> 0).toString(36) + ':' + str.length;
 }
 export function makeSyncSnapshot(st){
+  st = serializarEstado(st); // vale o registro como é gravado, sem o texto que já está na tabela da Biblioteca
   const snap = { cols: {}, keys: {} };
   SYNC_COLLECTIONS.forEach(c => {
     const m = {};
@@ -55,11 +57,12 @@ export function makeSyncSnapshot(st){
 }
 export function mergeStates(base, local, remote){
   const out = {};
+  const localGravado = serializarEstado(local); // compara com a base do mesmo jeito que ela foi calculada
   const isStrArr = v => Array.isArray(v) && v.every(x => typeof x === 'string');
   const keys = new Set(Object.keys(local).concat(Object.keys(remote)).filter(k => !SYNC_COLLECTIONS.includes(k)));
   keys.forEach(k => {
     const hasL = k in local, hasR = k in remote;
-    const lh = hasL ? syncHash(local[k]) : null;
+    const lh = hasL ? syncHash(localGravado[k]) : null;
     const rh = hasR ? syncHash(remote[k]) : null;
     const bh = (base.keys && k in base.keys) ? base.keys[k] : null;
     const lChanged = lh !== bh, rChanged = rh !== bh;
@@ -210,17 +213,19 @@ async function writeStateToCloud(){
         cloudBaseUpdatedAt = row.updated_at;
       }
     }
+    /* textos grandes da Biblioteca sobem para a tabela antes de o registro principal deixar de levá-los */
+    await enviarConteudos(G.state);
     const stamp = new Date().toISOString();
     let result;
     if(row){
       result = await sbClient.from('taskin_state')
-        .update({ data: G.state, updated_at: stamp })
+        .update({ data: serializarEstado(G.state), updated_at: stamp })
         .eq('user_id', uid)
         .eq('updated_at', row.updated_at)
         .select('updated_at');
     } else {
       result = await sbClient.from('taskin_state')
-        .insert({ user_id: uid, data: G.state, updated_at: stamp })
+        .insert({ user_id: uid, data: serializarEstado(G.state), updated_at: stamp })
         .select('updated_at');
     }
     if(result.error) throw result.error;

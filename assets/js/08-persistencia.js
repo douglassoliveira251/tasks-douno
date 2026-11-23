@@ -5,6 +5,7 @@ import { normalizeState } from './07-normalizacao-do-estado.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { currentCommentKey, saveCommentDrafts } from './16-painel-lateral-de-tarefa.js';
 import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
+import { serializarEstado } from './66-biblioteca-conteudo.js';
 import { adoptCloudRow, showToast } from './42-nuvem-persistencia.js';
 import { render } from './48-render-principal.js';
 import { NOTAS_UI, PAINEL_TAREFA } from './estado-ui.js';
@@ -24,7 +25,7 @@ export function loadFromLocalStorage(){
 }
 
 export function saveToLocalStorage(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(G.state)); }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(serializarEstado(G.state))); }
   catch(e){ console.error('Erro ao salvar localStorage', e); }
 }
 

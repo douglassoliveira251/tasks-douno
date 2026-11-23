@@ -11,7 +11,7 @@ test.describe('Versão do formato dos dados', () => {
       return { v: state.schemaVersion, atual: SCHEMA_VERSION };
     });
     expect(r.v).toBe(r.atual);
-    expect(r.atual).toBe(1);
+    expect(r.atual).toBeGreaterThanOrEqual(1);
   });
 
   test('migrações rodam em ordem, uma vez, e carimbam a versão', async ({ page }) => {
@@ -55,9 +55,9 @@ test.describe('Versão do formato dos dados', () => {
       let erro = null;
       try { await writeStateToCloud(); } catch (e) { erro = e.codigo; }
       cloudSession = null; dirty = false;
-      return { versaoDepois, erro, chamouNuvem, avisou: !!document.querySelector('.undo-toast') };
+      return { versaoDepois, esperada: SCHEMA_VERSION + 5, erro, chamouNuvem, avisou: !!document.querySelector('.undo-toast') };
     });
-    expect(r.versaoDepois).toBe(6); // a versão mais nova é preservada
+    expect(r.versaoDepois).toBe(r.esperada); // a versão mais nova é preservada
     expect(r.erro).toBe('schema-novo');
     expect(r.chamouNuvem).toBe(0);  // nem chega a falar com a nuvem
     expect(r.avisou).toBe(true);
@@ -73,9 +73,9 @@ test.describe('Versão do formato dos dados', () => {
       let erro = null;
       try { await writeStateToCloud(); } catch (e) { erro = e.codigo; }
       cloudSession = null; dirty = false;
-      return { erro, local: state.schemaVersion };
+      return { erro, local: state.schemaVersion, atual: SCHEMA_VERSION };
     });
     expect(r.erro).toBe('schema-novo');
-    expect(r.local).toBe(1); // o estado local não foi trocado pelo mais novo
+    expect(r.local).toBe(r.atual); // o estado local não foi trocado pelo mais novo
   });
 });

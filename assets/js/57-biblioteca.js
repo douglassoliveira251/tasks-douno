@@ -9,6 +9,8 @@ import { render } from './48-render-principal.js';
 import { renderMarkdown } from './58-markdown.js';
 import { pageUrl } from './49-rotas.js';
 import { GRIP_SVG } from './56-arrastar-ordem.js';
+import { conteudoFaltando, hidratarItem, skillStats } from './66-biblioteca-conteudo.js';
+export { skillStats };
 
 /* ===================== BIBLIOTECA =====================
    Central de recursos. Cada item tem um tipo (por ora só "link"); as COLEÇÕES são pastas (até 3 níveis), cada espaço com a sua.
@@ -446,13 +448,9 @@ function paintMain(view){
 
 
 /* ===================== SKILLS (texto em Markdown) ===================== */
-export function skillStats(text){
-  const t = String(text || '');
-  if(!t.trim()) return { lines: 0, words: 0, chars: 0 };
-  const lines = t.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n').length;
-  const words = (t.match(/\S+/g) || []).length;
-  return { lines, words, chars: t.length };
-}
+/* skillStats vive em 66-biblioteca-conteudo.js (também é usado ao enviar o texto para a nuvem) */
+/* skill que ainda não foi aberta neste aparelho não tem o texto na memória: usa a contagem guardada */
+const statsDe = (it) => (typeof it.content === 'string' ? skillStats(it.content) : (it.stats || { lines: 0, words: 0, chars: 0 }));
 const fmtNum = (n) => n.toLocaleString('pt-BR');
 const fmtChars = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' mil' : String(n);
 const statsText = (st) => fmtNum(st.lines) + (st.lines === 1 ? ' linha' : ' linhas') + ' · ' + fmtNum(st.words) + (st.words === 1 ? ' palavra' : ' palavras') + ' · ' + fmtChars(st.chars) + ' caracteres';
@@ -467,7 +465,7 @@ const GLOBE_SVG = S16('<circle cx="8" cy="8" r="5.5"/><path d="M2.5 8h11M8 2.5c1
 const DOWN_SVG = S16('<path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M3 13.5h10"/>');
 
 function skillRow(it){
-  const st = skillStats(it.content);
+  const st = statsDe(it);
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
@@ -506,7 +504,8 @@ function slug(name){
   const base = String(name || 'skill').trim().replace(/\.(md|markdown|txt)$/i, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return (base || 'skill') + '.md';
 }
-function exportSkill(it){
+async function exportSkill(it){
+  try{ await hidratarItem(it); }catch(e){ showToast('Não consegui carregar o texto agora. Confira a conexão.'); return; }
   const blob = new Blob([it.content || ''], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -610,6 +609,17 @@ function paintDetail(view, host){
   const draft = LIB.draft;
   const it = draft || items().find(x => x.id === LIB.openId);
   if(!it){ closeDetail(); paintMain(view); return; }
+  /* texto na nuvem e ainda não trazido para cá: busca e desenha de novo */
+  if(!draft && conteudoFaltando(it)){
+    host.innerHTML = '<div class="lib-detail"><p class="lib-loading" role="status">Carregando…</p></div>';
+    hidratarItem(it).then(() => { if(LIB.openId === it.id) render(); }).catch((e) => {
+      console.error(e);
+      host.innerHTML = '<div class="lib-detail"><p class="lib-loading" role="alert">Não consegui carregar o conteúdo agora. Confira a conexão e <button type="button" class="btn ghost small" id="libRetry">tente de novo</button> ou <button type="button" class="btn ghost small" id="libBackErr">volte</button>.</p></div>';
+      const r = host.querySelector('#libRetry'); if(r) r.onclick = () => render();
+      const b = host.querySelector('#libBackErr'); if(b) b.onclick = () => { closeDetail(); render(); };
+    });
+    return;
+  }
   if(it.type === 'link') return paintLinkDetail(host, it);
   if(it.type === 'html') return paintHtmlDetail(host, it);
   const f = it.folderId ? folderById(it.folderId) : null;
@@ -809,7 +819,8 @@ function htmlRow(it){
   </div>`;
 }
 
-function exportHtml(it){
+async function exportHtml(it){
+  try{ await hidratarItem(it); }catch(e){ showToast('Não consegui carregar a página agora. Confira a conexão.'); return; }
   const blob = new Blob([it.html || ''], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

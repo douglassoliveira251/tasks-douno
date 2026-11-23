@@ -1,3 +1,6 @@
+## [3.64.0] - 2026-11-23
+- Biblioteca: o texto de páginas HTML e skills (a partir de 20 mil caracteres) passa a ficar na tabela library_contents, só do dono (RLS), e é carregado ao abrir o item. O registro principal leva só os metadados (ref, contagem da skill, tamanho da página). O texto sobe antes de sair do registro; se o envio falhar, continua dentro do item. Sem nuvem nada muda. Backup em arquivo inclui os textos. Formato dos dados passa a 2 (versões anteriores a 3.63.1 não têm a trava de gravação).
+
 ## [3.63.1] - 2026-11-23
 - Dados: o estado passa a guardar a versão do formato (schemaVersion; sem número = formato 1) e há uma estrutura de migrações versionadas. Uma cópia do sistema não grava dados de formato mais novo que o seu: recusa, avisa e oferece atualizar a página. Prepara mudanças futuras de formato sem risco de uma aba antiga desfazê-las.
 

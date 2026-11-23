@@ -7,6 +7,7 @@ import { idbSetHandle } from './40-indexeddb.js';
 import { writeStateToFile } from './41-vinculo-de-arquivo-base.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { estadoCompleto } from './66-biblioteca-conteudo.js';
 G.fetchPublishedVersion = fetchPublishedVersion; G.reloadForUpdate = reloadForUpdate;
 
 /* ===== Atualização do sistema =====
@@ -183,7 +184,10 @@ export async function saveFile(){
   }
 }
 
-export function downloadFallback(){
+export async function downloadFallback(){
+  /* o backup precisa levar o texto das páginas e skills da Biblioteca, que na nuvem ficam em outra tabela */
+  try{ await estadoCompleto(G.state); }
+  catch(e){ console.error(e); alert('Não consegui carregar todo o conteúdo da Biblioteca para o backup. Confira a conexão e tente de novo.'); return; }
   const blob = new Blob([JSON.stringify(G.state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
