@@ -30,3 +30,38 @@ create table public.outlook_tokens (
 );
 
 alter table public.outlook_tokens enable row level security;
+
+-- ---------------------------------------------------------------------------
+-- Etapa C (v3.64): conteudo grande da Biblioteca fora do registro principal.
+-- Paginas HTML e textos de skills ficam aqui; o taskin_state guarda so os
+-- metadados do item e o conteudo e carregado sob demanda. Idempotente: pode
+-- ser rodado mais de uma vez. Nao altera nem apaga nada de taskin_state.
+-- ---------------------------------------------------------------------------
+create table if not exists public.library_contents (
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  item_id    text not null,
+  kind       text not null check (kind in ('html', 'skill', 'text')),
+  content    text not null check (length(content) <= 8000000),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, item_id)
+);
+
+alter table public.library_contents enable row level security;
+
+drop policy if exists "library_contents select own" on public.library_contents;
+drop policy if exists "library_contents insert own" on public.library_contents;
+drop policy if exists "library_contents update own" on public.library_contents;
+drop policy if exists "library_contents delete own" on public.library_contents;
+
+create policy "library_contents select own" on public.library_contents
+  for select to authenticated using ((select auth.uid()) = user_id);
+create policy "library_contents insert own" on public.library_contents
+  for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "library_contents update own" on public.library_contents
+  for update to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+create policy "library_contents delete own" on public.library_contents
+  for delete to authenticated using ((select auth.uid()) = user_id);
+
+-- anon nao acessa nada desta tabela
+revoke all on public.library_contents from anon;
