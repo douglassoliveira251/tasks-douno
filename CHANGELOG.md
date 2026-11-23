@@ -1,3 +1,6 @@
+## [3.64.3] - 2026-11-23
+- Acessibilidade: contraste do texto secundário (--ink-faint #646D7A no claro e #8C93A0 no escuro; #94A3B8 fixo passou a usar o token), título de nível 1 do Calendário (só leitores de tela) e título da Ajuda como h2. Axe: 199 → cerca de 36 nós com contraste baixo.
+
 ## [3.64.2] - 2026-11-23
 - Acessibilidade (auditoria axe-core): aria-label nos botões só de ícone (fechar ajuda, ⋮ da tarefa, excluir subtarefa) e nos campos de prazo; título da tela com role heading nível 1; linhas da Biblioteca com role group em vez de button (continham botões). Sem mudança visual.
 
