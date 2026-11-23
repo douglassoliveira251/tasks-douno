@@ -43,6 +43,9 @@
     --priority-alta-light:#FFF6E9;
     --priority-critica:#E11D48;
     --priority-critica-light:#FEEDF0;
+    /* tarefa vencida: vermelho puro (sem o tom rosado do carmim da prioridade Crítica) */
+    --overdue-pill:#DC2626;
+    --overdue-ink:#DC2626;
     --radius:10px;
     --radius-sm:6px;
     --shadow-sm:0 1px 2px rgba(27,33,48,.06);
@@ -80,7 +83,8 @@
     --priority-alta:#F79009;
     --priority-alta-light:#2D2314;
     --priority-critica:#E11D48;
-    --overdue-ink:#C8143E; /* título, data e ícone de tarefa vencida: vermelho mais fechado, sem lavar no fundo escuro */
+    --overdue-pill:#DC2626;
+    --overdue-ink:#E5383B; /* no escuro: mesmo vermelho, um pouco mais claro para destacar do fundo */
     --priority-critica-light:#321A22;
     --progress-ok:#2F8A63;
     --shadow-sm:none;
@@ -707,7 +711,7 @@
   }
   .task-follow-pill svg{width:11px; height:11px;}
   .task-follow-pill.hoje{background:#F59E0B; color:#fff;}
-  .task-follow-pill.vencida{background:#FDE4E4; color:#E11D48;}
+  .task-follow-pill.vencida{background:#FDE4E4; color:var(--overdue-ink);}
   .tp-follow{display:flex; flex-direction:column; gap:7px;}
 
   .task-proj-pill{
@@ -898,7 +902,7 @@
     font-weight:600;
   }
   .task-row.done .task-title{color:var(--ink-faint); text-decoration:line-through;}
-  .task-row.overdue .task-title{color:var(--overdue-ink, var(--priority-critica));}
+  .task-row.overdue .task-title{color:var(--overdue-ink);}
   .task-status-label{
     font-style:italic; font-size:11px; color:var(--ink-faint); flex-shrink:0; white-space:nowrap;
   }
@@ -908,7 +912,7 @@
     white-space:nowrap;
   }
   .task-cal-badge svg{width:12px; height:12px; flex-shrink:0;}
-  .task-cal-badge.overdue{color:var(--overdue-ink, var(--priority-critica));}
+  .task-cal-badge.overdue{color:var(--overdue-ink);}
   .task-subtask-badge{
     font-family:inherit; font-size:11.5px; color:var(--ink-faint); flex-shrink:0;
   }
@@ -932,7 +936,7 @@
     font-family:inherit; font-size:11.5px; font-weight:700;
     padding:3px 9px; border-radius:20px; flex-shrink:0; white-space:nowrap;
   }
-  .task-status-pill.overdue{background:var(--priority-critica); color:#fff;}
+  .task-status-pill.overdue{background:var(--overdue-pill); color:#fff;}
   .task-status-pill.today{background:var(--priority-alta); color:#fff;}
 
   .task-menu-wrap{position:relative; flex-shrink:0;}
@@ -1076,7 +1080,7 @@
   .tp-top-flag{
     height:10px; margin:-24px -26px 22px;
   }
-  .tp-top-flag.overdue{background:var(--priority-critica);}
+  .tp-top-flag.overdue{background:var(--overdue-pill);}
   .tp-top-flag.today{background:var(--priority-alta);}
   .tp-top-flag.normal{background:var(--primary);}
 
@@ -3902,7 +3906,7 @@
   .task-alerts{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
   .task-row .task-alerts .task-alert{display:inline-flex; align-items:center; gap:5px; min-width:0; font-size:11px; font-weight:700; line-height:1.3; border-radius:6px; padding:3px 9px; white-space:nowrap; text-align:left;}
   .task-alert svg{width:13px; height:13px; flex:none;}
-  .task-alert-ret.over{background:color-mix(in srgb, var(--priority-critica) 12%, var(--surface)); color:var(--priority-critica); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--priority-critica) 35%, transparent);}
+  .task-alert-ret.over{background:color-mix(in srgb, var(--overdue-ink) 12%, var(--surface)); color:var(--overdue-ink); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--overdue-ink) 35%, transparent);}
   body[data-view="tasks"] .task-row-left .task-title-line .task-title{flex:0 1 auto; min-width:0;}
   @media (max-width:768px){
     .task-title-line{flex:1 1 100%;}
@@ -3936,7 +3940,7 @@
     body[data-view="tasks"] .task-meta .task-proj-pill{order:0; flex:0 1 auto; min-width:36px; max-width:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:1px 6px; margin:0; border-radius:5px;}
     body[data-view="tasks"] .task-meta .task-alert-m{display:inline-flex; flex:none; align-items:center; gap:3px; font-size:10px; font-weight:700; border-radius:4px; padding:1px 6px; white-space:nowrap; color:#fff;}
     .task-alert-m svg{width:10px; height:10px;}
-    .task-alert-m.over{background:var(--priority-critica);}
+    .task-alert-m.over{background:var(--overdue-pill);}
   }
 
   /* v3.26.0: celular, demais telas no mesmo espírito compacto de aplicativo (fontes pequenas, menos margem, controles mais baixos) */
@@ -4194,9 +4198,9 @@
   [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
   /* concluído, atraso */
   [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}
-  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:var(--priority-critica); color:#fff;}
+  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:var(--overdue-pill); color:#fff;}
   /* retomada vencida no escuro: fundo vermelho translúcido, letra rosa clara e borda fina (diferente do prazo vencido, que é sólido) */
-  [data-theme="dark"] .task-alert-ret.over{background:rgba(225,29,72,.16); color:var(--overdue-ink); box-shadow:inset 0 0 0 1px rgba(225,29,72,.6);}
+  [data-theme="dark"] .task-alert-ret.over{background:rgba(220,38,38,.16); color:var(--overdue-ink); box-shadow:inset 0 0 0 1px rgba(220,38,38,.6);}
   [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
   [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
   [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}

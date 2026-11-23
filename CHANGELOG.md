@@ -1,5 +1,6 @@
 ## [3.65.0] - 2026-11-23
 - Backup: cópia automática diária do estado na tabela state_backups (últimas 7 + 'pre-restauracao'), com lista e restauração em Configurações > Backup. Exige rodar o SQL de supabase/schema.sql (seção v3.65); sem a tabela o sistema segue normal.
+- Visual: tarefa vencida usa vermelho puro, sem o tom rosado: selo/bandeira #DC2626 e título/data/ícone #DC2626 (claro) e #E5383B (escuro, um pouco mais claro para destacar do fundo). As barras de prioridade seguem as cores do Resumo.
 - Visual: as barras de prioridade da lista usam exatamente as cores do Resumo do dia (tema escuro: #2E90FA, #12B76A, #F79009, #E11D48); título, data e ícone de vencida usam um vermelho mais fechado (--overdue-ink #C8143E no escuro).
 - Visual: o vermelho de tarefa vencida/crítica (título, data, barra lateral, selos e retomada vencida) passa a ser o mesmo #E11D48 do Resumo do dia, também no tema escuro (antes #C86580/#A8364A, mais opaco).
 - Biblioteca: limpeza de textos órfãos passa de 7 para 10 dias (maior que a retenção das cópias).
