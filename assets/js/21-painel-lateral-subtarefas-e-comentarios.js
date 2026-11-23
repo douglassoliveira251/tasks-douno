@@ -28,7 +28,7 @@ export function bindTpRecurrenceAndSubtasks(panel, task){
       ${st.done ? '<span class="drag-grip-spacer"></span>' : gripHtml('Arrastar para reordenar a subtarefa')}
       <div class="task-check ${st.done?'done':''}">${icon('check')}</div>
       <span class="tp-subtask-title" contenteditable="true" spellcheck="false">${escapeHtml(st.title)}</span>
-      <button type="button" class="tp-subtask-del">${icon('trash')}</button>
+      <button type="button" class="tp-subtask-del" aria-label="Excluir subtarefa">${icon('trash')}</button>
     `;
     row.querySelector('.task-check').onclick = () => {
       const t = getOrCreateActiveTask(); if(!t) return;

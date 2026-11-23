@@ -105,8 +105,8 @@ export function taskPanelHtml(task){
           <div class="tp-start-foot">${task.startDate ? '<button type="button" id="tpStartReset">Remover início</button>' : '<span></span>'}<span>${task.dueDate ? 'Prazo ' + fmtDate(task.dueDate) : 'Sem prazo'}</span></div>
         </div>`; })()}
         <div class="tp-row2">
-          <input type="date" class="tp-input tp-date-input" id="tpDate" value="${task.dueDate||''}" ${(() => { const r = stageRange(task); return r ? (r.start ? 'min="' + r.start + '" ' : '') + (r.end ? 'max="' + r.end + '"' : '') : ''; })()}>
-          <input type="time" class="tp-input tp-time-input" id="tpTime" value="${task.dueTime||''}">
+          <input type="date" class="tp-input tp-date-input" id="tpDate" aria-label="Data do prazo" value="${task.dueDate||''}" ${(() => { const r = stageRange(task); return r ? (r.start ? 'min="' + r.start + '" ' : '') + (r.end ? 'max="' + r.end + '"' : '') : ''; })()}>
+          <input type="time" class="tp-input tp-time-input" id="tpTime" aria-label="Hora do prazo" value="${task.dueTime||''}">
         </div>
       </div>
     </div>

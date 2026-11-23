@@ -176,7 +176,7 @@ function itemRow(it){
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
-  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir os dados do link ${escapeHtml(it.title || host)}">
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="group" aria-label="Abrir os dados do link ${escapeHtml(it.title || host)}">
     <div class="lib-av" style="background:${colorOf(host)}">${escapeHtml((it.title || host || '?').trim().charAt(0).toUpperCase())}</div>
     <div class="lib-mid">
       <div class="lib-tt">${escapeHtml(it.title || host)}</div>
@@ -469,7 +469,7 @@ function skillRow(it){
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
-  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir a skill ${escapeHtml(it.title || 'sem título')}">
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="group" aria-label="Abrir a skill ${escapeHtml(it.title || 'sem título')}">
     <div class="lib-typ">${icon('file-text')}</div>
     <div class="lib-mid">
       <div class="lib-tt">${escapeHtml(it.title || 'Sem título')}</div>
@@ -805,7 +805,7 @@ function htmlRow(it){
   const f = it.folderId ? folderById(it.folderId) : null;
   const sp = !G.activeCategoryFilter ? catById(it.categoryId) : null;
   const where = [sp ? sp.name : '', f ? folderPath(f.id).join(' › ') : ''].filter(Boolean).join(' › ');
-  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="button" aria-label="Abrir a página ${escapeHtml(it.title || 'sem título')}">
+  return `<div class="lib-row" data-item="${it.id}" tabindex="0" role="group" aria-label="Abrir a página ${escapeHtml(it.title || 'sem título')}">
     <div class="lib-av lib-av-html">HTML</div>
     <div class="lib-mid">
       <div class="lib-tt">${escapeHtml(it.title || 'Sem título')}</div>

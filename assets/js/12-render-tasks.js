@@ -532,7 +532,7 @@ export function renderTaskRow(t){
       <div class="task-alerts">${alertsHtml}</div>
       ${t.done ? '' : `<button type="button" class="task-pin-btn${t.pinned ? ' on' : ''}" title="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-label="${t.pinned ? 'Tirar dos favoritos' : 'Favoritar'}" aria-pressed="${t.pinned ? 'true' : 'false'}">${icon('star', t.pinned ? 'bold' : 'regular')}</button>`}
       <div class="task-menu-wrap">
-        <button class="task-menu-btn">${icon('dots-three-vertical')}</button>
+        <button class="task-menu-btn" type="button" aria-label="Mais opções da tarefa">${icon('dots-three-vertical')}</button>
       </div>
     </div>
   `;

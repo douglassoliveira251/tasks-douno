@@ -1,3 +1,6 @@
+## [3.64.2] - 2026-11-23
+- Acessibilidade (auditoria axe-core): aria-label nos botões só de ícone (fechar ajuda, ⋮ da tarefa, excluir subtarefa) e nos campos de prazo; título da tela com role heading nível 1; linhas da Biblioteca com role group em vez de button (continham botões). Sem mudança visual.
+
 ## [3.64.1] - 2026-11-23
 - Segurança: normalizeState() passa a sanitizar o estado (cores, horas, imagens e o HTML rico das notas, por lista de permitidos). Um backup JSON adulterado não executa mais código na origem do app. Texto válido não é reescrito.
 
