@@ -1,3 +1,6 @@
+## [3.63.1] - 2026-11-23
+- Dados: o estado passa a guardar a versão do formato (schemaVersion; sem número = formato 1) e há uma estrutura de migrações versionadas. Uma cópia do sistema não grava dados de formato mais novo que o seu: recusa, avisa e oferece atualizar a página. Prepara mudanças futuras de formato sem risco de uma aba antiga desfazê-las.
+
 ## [3.63.0] - 2026-11-23
 - Imagens: capturas coladas, anexos de tarefa e de comentário (PNG/JPEG) são reduzidos a no máximo 1600 px e gravados em JPEG (PNG com transparência continua PNG); o avatar passa a ser gravado em JPEG. GIF, SVG e imagens já leves não são alterados. Menos peso no registro enviado à nuvem a cada salvamento.
 

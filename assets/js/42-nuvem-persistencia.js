@@ -1,7 +1,7 @@
 import { G } from './globais.js';
 import { SYNC_BASE_KEY, SYNC_PENDING_KEY, claimLocalCache, sbClient } from './02-nuvem.js';
 import { applyTheme, handleOutlookRedirectFeedback } from './03-outlook.js';
-import { normalizeState } from './07-normalizacao-do-estado.js';
+import { estadoMaisNovo, normalizeState } from './07-normalizacao-do-estado.js';
 import { isEditingSomething, markDirty, saveToLocalStorage, scheduleAutoSave } from './08-persistencia.js';
 import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { closeLoginGate } from './43-tela-de-login.js';
@@ -167,8 +167,22 @@ export async function loadStateFromCloud(){
   }
 }
 
+/* Dados de um formato mais novo que o desta cópia do sistema: não grava (apagaria o que a versão nova
+   fez). Avisa uma vez e falha; o auto-save tenta de novo e passa a gravar quando a página é atualizada. */
+let avisouVersaoAntiga = false;
+function recusarGravacaoPorVersao(){
+  if(!avisouVersaoAntiga){
+    avisouVersaoAntiga = true;
+    showUndoToast('Seus dados foram atualizados por uma versão mais nova do sistema. Atualize a página para continuar salvando.', 'Atualizar', () => location.reload());
+  }
+  const e = new Error('Dados em formato mais novo que esta versão do sistema; gravação recusada.');
+  e.codigo = 'schema-novo';
+  throw e;
+}
+
 async function writeStateToCloud(){
   if(!G.cloudSession) return;
+  if(estadoMaisNovo(G.state)) recusarGravacaoPorVersao();
   const uid = G.cloudSession.user.id;
   let mergedFromRemote = false;
   for(let attempt = 0; attempt < 4; attempt++){
@@ -185,6 +199,7 @@ async function writeStateToCloud(){
     if(row && row.data && typeof row.data === 'object'){
       const changedRemotely = !cloudBaseUpdatedAt || Date.parse(row.updated_at) !== Date.parse(cloudBaseUpdatedAt);
       if(changedRemotely){
+        if(estadoMaisNovo(row.data)) recusarGravacaoPorVersao();
         const remote = normalizeRemoteData(row.data);
         const base = cloudBaseSnapshot || makeSyncSnapshot(remote);
         G.state = mergeStates(base, G.state, remote);

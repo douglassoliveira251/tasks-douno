@@ -1,7 +1,33 @@
 import { G } from './globais.js';
 import { uid } from './10-helpers.js';
 
+/* ===== Versão do formato dos dados =====
+   O estado inteiro é um JSON só, e cada aparelho/aba grava o que tem na memória. Para poder mudar o
+   formato com segurança (ex.: tirar conteúdo grande do registro), o estado carrega o número do formato
+   (schemaVersion). Dados sem número são o formato 1 (o que existia antes deste campo).
+   - Para mudar o formato: some 1 em SCHEMA_VERSION e escreva a migração em MIGRACOES[nova versão]
+     (recebe o estado e o altera no lugar; deve poder rodar de novo sem estragar nada).
+   - Uma cópia do sistema NÃO grava dados de formato mais novo que o seu: recusar a gravação evita que
+     uma aba desatualizada desfaça uma migração feita por outra mais nova (veja writeStateToCloud). */
+export const SCHEMA_VERSION = 1;
+export const MIGRACOES = {};
+export function estadoMaisNovo(st){ return !!st && Number(st.schemaVersion) > SCHEMA_VERSION; }
+/* alvo e migracoes só mudam nos testes */
+export function aplicarMigracoes(st, alvo = SCHEMA_VERSION, migracoes = MIGRACOES){
+  if(!st || typeof st !== 'object' || Number(st.schemaVersion) > alvo) return;
+  let v = Number(st.schemaVersion) || 1;
+  while(v < alvo){
+    const prox = v + 1;
+    try{ if(migracoes[prox]) migracoes[prox](st); }
+    catch(e){ console.error('Migração dos dados para o formato ' + prox + ' falhou; segue no formato ' + v, e); return; }
+    v = prox;
+    st.schemaVersion = v;
+  }
+  if(st.schemaVersion === undefined) st.schemaVersion = alvo;
+}
+
 export function normalizeState(){
+  aplicarMigracoes(G.state);
   if(!G.state.profile) G.state.profile = { name:'', email:'', avatar:null };
   if(!G.state.tags) G.state.tags = [];
   if(!Array.isArray(G.state.emailHistory)) G.state.emailHistory = [];
