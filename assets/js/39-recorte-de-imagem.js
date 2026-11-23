@@ -70,12 +70,13 @@ document.getElementById('applyCropBtn').onclick = () => {
   const canvas = document.createElement('canvas');
   canvas.width = CROP_SIZE; canvas.height = CROP_SIZE;
   const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, CROP_SIZE, CROP_SIZE); /* JPEG não tem transparência */
   ctx.save();
   ctx.translate(CROP_SIZE/2 + cropState.offX, CROP_SIZE/2 + cropState.offY);
   ctx.scale(total, total);
   ctx.drawImage(cropImgEl(), -cropState.natW/2, -cropState.natH/2);
   ctx.restore();
-  G.tempAvatarData = canvas.toDataURL('image/png');
+  G.tempAvatarData = canvas.toDataURL('image/jpeg', 0.85);
   const preview = document.getElementById('avatarPreview');
   if(preview) preview.innerHTML = avatarInnerHtml({ name: G.state.profile.name, avatar: G.tempAvatarData });
   document.getElementById('cropOverlay').classList.remove('show');

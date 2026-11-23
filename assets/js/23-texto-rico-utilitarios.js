@@ -1,5 +1,6 @@
 import { escapeHtml } from './10-helpers.js';
 import { icon } from './icones.js';
+import { otimizarImagem } from './64-imagens.js';
 
 export function fmtUpdatedAt(ts){
   if(!ts) return '';
@@ -20,8 +21,9 @@ export function attachFormattedPaste(targetEl){
       const file = imageItem.getAsFile();
       if(!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        document.execCommand('insertHTML', false, `<img src="${ev.target.result}" style="max-width:100%; border-radius:6px; margin:6px 0;">`);
+      reader.onload = async (ev) => {
+        const src = await otimizarImagem(ev.target.result);
+        document.execCommand('insertHTML', false, `<img src="${src}" style="max-width:100%; border-radius:6px; margin:6px 0;">`);
       };
       reader.readAsDataURL(file);
       return;

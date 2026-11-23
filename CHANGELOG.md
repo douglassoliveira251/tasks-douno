@@ -1,3 +1,6 @@
+## [3.63.0] - 2026-11-23
+- Imagens: capturas coladas, anexos de tarefa e de comentário (PNG/JPEG) são reduzidos a no máximo 1600 px e gravados em JPEG (PNG com transparência continua PNG); o avatar passa a ser gravado em JPEG. GIF, SVG e imagens já leves não são alterados. Menos peso no registro enviado à nuvem a cada salvamento.
+
 ## [3.62.6] - 2026-11-21
 - Sincronização: o salvamento confere só a versão da nuvem (updated_at) e baixa o estado completo apenas quando houve alteração em outro aparelho. Reduz cerca de metade do tráfego por salvamento.
 

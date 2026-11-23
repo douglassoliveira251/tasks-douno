@@ -9,6 +9,7 @@ import { buildRichToolbar } from './22-texto-rico.js';
 import { attachFormattedPaste, attachTabIndent, openNoteExportMenu } from './23-texto-rico-utilitarios.js';
 import { noteSpaceKey, renderNotes } from './29-notas-lista.js';
 import { icon } from './icones.js';
+import { otimizarImagem } from './64-imagens.js';
 import { NOTAS_UI } from './estado-ui.js';
 
 /* ===================== RENDER: NOTES ===================== */
@@ -154,8 +155,10 @@ export function buildNoteComposer(existingNote, prefillTaskId, forcedNotebookId)
   composer.querySelector('#composerAttachInput').addEventListener('change', e => {
     Array.from(e.target.files||[]).forEach(file => {
       const reader = new FileReader();
-      reader.onload = ev => {
-        attachments.push({ id: uid('att'), name: file.name, dataUrl: ev.target.result });
+      reader.onload = async ev => {
+        const dataUrl = await otimizarImagem(ev.target.result);
+        const virouJpeg = dataUrl.startsWith('data:image/jpeg') && file.type !== 'image/jpeg';
+        attachments.push({ id: uid('att'), name: virouJpeg ? file.name.replace(/.[^.]+$/, '') + '.jpg' : file.name, dataUrl });
         renderComposerAttachments();
       };
       reader.readAsDataURL(file);

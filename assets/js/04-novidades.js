@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.63.0', date:'23/11/2026', title:'Imagens mais leves', text:'Fotos coladas, anexos de imagem e a foto do perfil agora são reduzidos antes de serem guardados (no máximo 1600 px). Visualmente fica igual, mas o sistema sincroniza mais rápido e ocupa menos espaço na nuvem.' },
   { version:'3.62.6', date:'21/11/2026', title:'Salvamento mais leve', text:'Ao salvar, o sistema deixou de baixar todos os seus dados da nuvem só para conferir se algo mudou. Menos tráfego e salvamento mais rápido, principalmente no celular.' },
   { version:'3.62.5', date:'20/11/2026', title:'Mais segurança no acesso', text:'O sistema ganhou proteções extras de navegação e passou a verificar a integridade dos componentes externos que carrega. Nada muda no uso do dia a dia.' },
   { version:'3.62.4', date:'18/11/2026', title:'Lista de tarefas rola no próprio quadro', text:'Na tela de Tarefas, o cabeçalho, o painel e o Resumo do dia ficam parados e só a lista rola, parando na última tarefa. Antes a tela inteira rolava e podia sobrar um vazio grande embaixo.' },

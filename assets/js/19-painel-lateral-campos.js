@@ -7,6 +7,7 @@ import { openMoveGroupPortal } from './15-portais-de-grupo-e-etiquetas.js';
 import { getOrCreateActiveTask, openTaskPanel } from './16-painel-lateral-de-tarefa.js';
 import { render } from './48-render-principal.js';
 import { icon } from './icones.js';
+import { otimizarImagem } from './64-imagens.js';
 
 /* Nome, concluir e status. */
 export function bindTpHeader(panel, task){
@@ -183,8 +184,10 @@ export function bindTpDescriptionAndAttachments(panel, task){
         return;
       }
       const reader = new FileReader();
-      reader.onload = ev => {
-        tpAttachments.push({ id: uid('att'), name: file.name, type: file.type || '', dataUrl: ev.target.result });
+      reader.onload = async ev => {
+        const dataUrl = await otimizarImagem(ev.target.result);
+        const virouJpeg = dataUrl.startsWith('data:image/jpeg') && file.type !== 'image/jpeg';
+        tpAttachments.push({ id: uid('att'), name: virouJpeg ? file.name.replace(/.[^.]+$/, '') + '.jpg' : file.name, type: virouJpeg ? 'image/jpeg' : (file.type || ''), dataUrl });
         const t = getOrCreateActiveTask(); if(t) { t.attachments = tpAttachments; markDirty(); }
         renderTpAttachments();
       };
