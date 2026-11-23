@@ -1,3 +1,6 @@
+## [3.64.1] - 2026-11-23
+- Segurança: normalizeState() passa a sanitizar o estado (cores, horas, imagens e o HTML rico das notas, por lista de permitidos). Um backup JSON adulterado não executa mais código na origem do app. Texto válido não é reescrito.
+
 ## [3.64.0] - 2026-11-23
 - Biblioteca: o texto de páginas HTML e skills (a partir de 20 mil caracteres) passa a ficar na tabela library_contents, só do dono (RLS), e é carregado ao abrir o item. O registro principal leva só os metadados (ref, contagem da skill, tamanho da página). O texto sobe antes de sair do registro; se o envio falhar, continua dentro do item. Sem nuvem nada muda. Backup em arquivo inclui os textos. Formato dos dados passa a 2 (versões anteriores a 3.63.1 não têm a trava de gravação).
 

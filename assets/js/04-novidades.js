@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.64.1', date:'23/11/2026', title:'Importação de backup mais segura', text:'Ao abrir um backup ou receber dados da nuvem, o sistema agora confere cores, horários, imagens e o texto formatado das notas, e remove qualquer coisa que pudesse executar código. Nada muda no que você vê.' },
   { version:'3.64.0', date:'23/11/2026', title:'Biblioteca mais leve', text:'O conteúdo das páginas HTML e das skills grandes agora fica guardado à parte e só é carregado quando você abre o item. O sistema abre e salva bem mais rápido. Páginas e skills continuam iguais; ao abrir uma, aparece um "Carregando…" rápido.' },
   { version:'3.63.1', date:'23/11/2026', title:'Proteção dos seus dados entre versões', text:'Os dados agora levam o número do formato em que foram gravados. Se uma janela ou aparelho com versão antiga tentar salvar por cima de dados de uma versão mais nova, o sistema recusa, avisa e oferece atualizar a página, em vez de desfazer o trabalho da versão nova.' },
   { version:'3.63.0', date:'23/11/2026', title:'Imagens mais leves', text:'Fotos coladas, anexos de imagem e a foto do perfil agora são reduzidos antes de serem guardados (no máximo 1600 px). Visualmente fica igual, mas o sistema sincroniza mais rápido e ocupa menos espaço na nuvem.' },

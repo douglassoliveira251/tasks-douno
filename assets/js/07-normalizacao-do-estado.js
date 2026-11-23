@@ -1,5 +1,6 @@
 import { G } from './globais.js';
 import { uid } from './10-helpers.js';
+import { sanitizarEstado } from './67-sanitizar.js';
 
 /* ===== Versão do formato dos dados =====
    O estado inteiro é um JSON só, e cada aparelho/aba grava o que tem na memória. Para poder mudar o
@@ -31,6 +32,7 @@ export function aplicarMigracoes(st, alvo = SCHEMA_VERSION, migracoes = MIGRACOE
 
 export function normalizeState(){
   aplicarMigracoes(G.state);
+  sanitizarEstado(G.state); // backup ou nuvem adulterados não podem rodar código no app
   if(!G.state.profile) G.state.profile = { name:'', email:'', avatar:null };
   if(!G.state.tags) G.state.tags = [];
   if(!Array.isArray(G.state.emailHistory)) G.state.emailHistory = [];

@@ -1,5 +1,6 @@
 import { escapeHtml } from './10-helpers.js';
 import { icon } from './icones.js';
+import { sanitizarHtml } from './67-sanitizar.js';
 import { otimizarImagem } from './64-imagens.js';
 
 export function fmtUpdatedAt(ts){
@@ -138,7 +139,7 @@ export function exportNoteAsPdf(note){
     </style>
   </head><body>
     <div class="note-title">${escapeHtml(note.title || 'Sem título')}</div>
-    <div class="note-body">${note.body || ''}</div>
+    <div class="note-body">${sanitizarHtml(note.body || '')}</div>
   </body></html>`);
   win.document.close();
   win.focus();
