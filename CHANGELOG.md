@@ -1,3 +1,7 @@
+## [3.64.4] - 2026-11-23
+- Biblioteca: limpeza automática (1x por sessão, após salvar) dos textos em library_contents cujo item já não existe e que estão parados há mais de 7 dias.
+- Dados: avatar (123 → 10 KB) e um anexo (156 → 105 KB) já guardados foram reduzidos direto na nuvem, com backup prévio.
+
 ## [3.64.3] - 2026-11-23
 - Acessibilidade: contraste do texto secundário (--ink-faint #646D7A no claro e #8C93A0 no escuro; #94A3B8 fixo passou a usar o token), título de nível 1 do Calendário (só leitores de tela) e título da Ajuda como h2. Axe: 199 → cerca de 36 nós com contraste baixo.
 

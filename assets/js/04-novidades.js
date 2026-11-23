@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.64.4', date:'23/11/2026', title:'Biblioteca se mantém enxuta', text:'Textos de páginas e skills que ficaram guardados na nuvem depois de o item ser excluído agora são removidos automaticamente após 7 dias. A foto do perfil e um anexo grande já guardados também foram reduzidos, sem perda visível de qualidade.' },
   { version:'3.64.3', date:'23/11/2026', title:'Textos secundários mais legíveis', text:'Datas pequenas, rótulos de seção e textos de apoio ganharam um pouco mais de contraste, nos temas claro e escuro, para ficarem mais fáceis de ler. O resto do visual continua igual.' },
   { version:'3.64.2', date:'23/11/2026', title:'Acessibilidade', text:'Botões que só têm ícone (fechar, mais opções da tarefa, excluir subtarefa) e os campos de data e hora do prazo agora têm nome para leitores de tela. A tela também passou a ter um título de nível 1, e as linhas da Biblioteca deixaram de ser botões com botões dentro. Nada muda no visual.' },
   { version:'3.64.1', date:'23/11/2026', title:'Importação de backup mais segura', text:'Ao abrir um backup ou receber dados da nuvem, o sistema agora confere cores, horários, imagens e o texto formatado das notas, e remove qualquer coisa que pudesse executar código. Nada muda no que você vê.' },

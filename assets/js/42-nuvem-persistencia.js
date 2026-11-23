@@ -7,7 +7,7 @@ import { updateFileStatus } from './09-atualizacao-do-sistema.js';
 import { closeLoginGate } from './43-tela-de-login.js';
 import { loadUiSession, render } from './48-render-principal.js';
 import { icon } from './icones.js';
-import { enviarConteudos, serializarEstado } from './66-biblioteca-conteudo.js';
+import { enviarConteudos, serializarEstado, limparOrfaos } from './66-biblioteca-conteudo.js';
 G.fetchCloudStateRow = fetchCloudStateRow; G.writeStateToCloud = writeStateToCloud; G.startCloudSession = startCloudSession;
 
 /* ===================== NUVEM: persistência ===================== */
@@ -231,6 +231,7 @@ async function writeStateToCloud(){
     if(result.error) throw result.error;
     if(row && (!result.data || result.data.length === 0)) continue; // alguém gravou no meio: mescla de novo
     adoptCloudRow({ updated_at: (result.data && result.data[0] && result.data[0].updated_at) || stamp });
+    limparOrfaos(G.state); // sem await: é manutenção, não pode atrasar nem derrubar o salvamento
     if(mergedFromRemote){
       saveToLocalStorage();
       if(!isEditingSomething()) render();

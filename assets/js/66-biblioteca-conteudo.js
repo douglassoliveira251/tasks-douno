@@ -83,6 +83,29 @@ export async function enviarConteudos(st){
   }
 }
 
+/* Textos de itens que já não existem na Biblioteca (excluídos) ficam órfãos na tabela. Só apaga o que está parado há mais
+   de DIAS_ORFAO dias: dá tempo de outro aparelho ainda desatualizado enviar o item, e de desfazer uma exclusão por backup.
+   Roda no máximo uma vez por sessão, depois de uma gravação bem-sucedida. Nunca lança. Devolve quantas linhas apagou. */
+export const DIAS_ORFAO = 7;
+let orfaosVerificados = false;
+export function reiniciarLimpezaDeOrfaos(){ orfaosVerificados = false; }
+export async function limparOrfaos(st){
+  if(orfaosVerificados || !nuvemAtiva() || !st || !Array.isArray(st.libItems)) return 0;
+  orfaosVerificados = true;
+  try{
+    const uid = G.cloudSession.user.id;
+    const vivos = new Set(st.libItems.map(i => i.id));
+    const corte = new Date(Date.now() - DIAS_ORFAO * 86400000).toISOString();
+    const { data, error } = await sbClient.from('library_contents').select('item_id').eq('user_id', uid).lt('updated_at', corte);
+    if(error) throw error;
+    const ids = (data || []).map(r => r.item_id).filter(id => !vivos.has(id));
+    if(!ids.length) return 0;
+    const { error: e2 } = await sbClient.from('library_contents').delete().eq('user_id', uid).in('item_id', ids);
+    if(e2) throw e2;
+    return ids.length;
+  }catch(e){ console.error('Biblioteca: limpeza de textos órfãos falhou (sem prejuízo).', e); return 0; }
+}
+
 const podeEnxugar = (it) => {
   const c = campoDeConteudo(it);
   return !!(c && it.ref && typeof it[c] === 'string' && confirmado.get(it.id) === it[c]);
