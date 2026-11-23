@@ -9,6 +9,7 @@ import { avatarInnerHtml } from './30-perfil-e-configuracoes.js';
 import { openCropModal } from './39-recorte-de-imagem.js';
 import { bindDangerZone, dangerZoneHtml } from './52-excluir-conta.js';
 import { icon } from './icones.js';
+import { buscarBackup, guardarAntesDeRestaurar, listarBackups, CHAVE_ANTES_RESTAURAR, DIAS_GUARDADOS } from './68-backup-automatico.js';
 
 export function renderPersonalizationPanel(panel){
   const isDark = G.state.theme === 'dark';
@@ -88,6 +89,35 @@ export function importBackupFile(){
   input.click();
 }
 
+const fmtDia = (d) => d === CHAVE_ANTES_RESTAURAR ? 'Antes da última restauração' : d.split('-').reverse().join('/');
+export async function mostrarCopiasAutomaticas(box){
+  box.innerHTML = '<p class="settings-section-desc">Carregando…</p>';
+  let lista;
+  try{ lista = await listarBackups(); }
+  catch(e){ console.error(e); box.innerHTML = '<p class="settings-section-desc">Não consegui carregar as cópias agora. Confira a conexão.</p>'; return; }
+  if(!lista.length){ box.innerHTML = '<p class="settings-section-desc">Ainda não há cópias. A primeira é feita na próxima vez que o sistema salvar.</p>'; return; }
+  box.innerHTML = lista.map(b => `<div class="file-bar-name" style="display:flex; align-items:center; gap:12px; margin-bottom:8px; font-size:13px;">
+      <span style="flex:1;"><b>${escapeHtml(fmtDia(b.day))}</b> · ${b.tarefas} tarefas, ${b.notas} notas, ${b.agendas} agendas</span>
+      <button class="file-bar-btn" data-restaurar="${escapeHtml(b.day)}">Restaurar</button></div>`).join('');
+  box.querySelectorAll('[data-restaurar]').forEach(btn => { btn.onclick = () => restaurarCopia(btn.dataset.restaurar, box); });
+}
+async function restaurarCopia(dia, box){
+  if(!confirm('Restaurar a cópia de ' + fmtDia(dia) + '? Seus dados atuais serão substituídos por ela. Como estão agora ficam guardados em "Antes da última restauração", para você poder voltar.')) return;
+  try{
+    const dados = await buscarBackup(dia);
+    if(!(dados && dados.categories && Array.isArray(dados.tasks))) throw new Error('Cópia inválida.');
+    await guardarAntesDeRestaurar(G.state);
+    G.state = dados;
+    normalizeState();
+    applyTheme();
+    markDirty();
+    box.innerHTML = '<p class="settings-section-desc">Cópia restaurada. Os dados já estão sendo salvos na nuvem.</p>';
+  }catch(e){
+    console.error(e);
+    alert('Não consegui restaurar essa cópia. Nada foi alterado.');
+  }
+}
+
 export function renderFilePanel(panel){
   if(G.cloudSession){
     panel.innerHTML = `
@@ -100,9 +130,13 @@ export function renderFilePanel(panel){
         <button class="file-bar-btn primary" id="downloadBackupBtn">Baixar backup</button>
         <button class="file-bar-btn" id="importBackupBtn">Importar backup</button>
       </div>
+      <h3 class="settings-section-title" style="margin-top:28px;">Cópias automáticas</h3>
+      <p class="settings-section-desc">Uma vez por dia o sistema guarda uma cópia dos seus dados na nuvem (as últimas ${DIAS_GUARDADOS} ficam disponíveis). Use para voltar atrás depois de um engano.</p>
+      <div id="autoBackupBox"><button class="file-bar-btn" id="autoBackupBtn">Ver cópias</button></div>
     `;
     document.getElementById('downloadBackupBtn').onclick = downloadFallback;
     document.getElementById('importBackupBtn').onclick = importBackupFile;
+    document.getElementById('autoBackupBtn').onclick = () => mostrarCopiasAutomaticas(document.getElementById('autoBackupBox'));
     updateFileStatus();
     return;
   }

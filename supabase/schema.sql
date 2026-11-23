@@ -65,3 +65,36 @@ create policy "library_contents delete own" on public.library_contents
 
 -- anon nao acessa nada desta tabela
 revoke all on public.library_contents from anon;
+
+
+-- ---------------------------------------------------------------------------
+-- Copia de seguranca automatica (v3.65): uma copia por dia, as ultimas 7, mais a
+-- linha 'pre-restauracao' (como a conta estava antes da ultima restauracao).
+-- Pode ser rodado mais de uma vez. Nao altera nem apaga nada de taskin_state.
+-- ---------------------------------------------------------------------------
+create table if not exists public.state_backups (
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  day        text not null check (day ~ '^\d{4}-\d{2}-\d{2}$' or day = 'pre-restauracao'),
+  data       jsonb not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, day)
+);
+
+alter table public.state_backups enable row level security;
+
+drop policy if exists "state_backups select own" on public.state_backups;
+drop policy if exists "state_backups insert own" on public.state_backups;
+drop policy if exists "state_backups update own" on public.state_backups;
+drop policy if exists "state_backups delete own" on public.state_backups;
+
+create policy "state_backups select own" on public.state_backups
+  for select to authenticated using ((select auth.uid()) = user_id);
+create policy "state_backups insert own" on public.state_backups
+  for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "state_backups update own" on public.state_backups
+  for update to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+create policy "state_backups delete own" on public.state_backups
+  for delete to authenticated using ((select auth.uid()) = user_id);
+
+revoke all on public.state_backups from anon;

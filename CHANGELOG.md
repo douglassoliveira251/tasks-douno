@@ -1,3 +1,8 @@
+## [3.65.0] - 2026-11-23
+- Backup: cópia automática diária do estado na tabela state_backups (últimas 7 + 'pre-restauracao'), com lista e restauração em Configurações > Backup. Exige rodar o SQL de supabase/schema.sql (seção v3.65); sem a tabela o sistema segue normal.
+- Visual: o vermelho de tarefa vencida/crítica (título, data, barra lateral, selos e retomada vencida) passa a ser o mesmo #E11D48 do Resumo do dia, também no tema escuro (antes #C86580/#A8364A, mais opaco).
+- Biblioteca: limpeza de textos órfãos passa de 7 para 10 dias (maior que a retenção das cópias).
+
 ## [3.64.4] - 2026-11-23
 - Biblioteca: limpeza automática (1x por sessão, após salvar) dos textos em library_contents cujo item já não existe e que estão parados há mais de 7 dias.
 - Dados: avatar (123 → 10 KB) e um anexo (156 → 105 KB) já guardados foram reduzidos direto na nuvem, com backup prévio.

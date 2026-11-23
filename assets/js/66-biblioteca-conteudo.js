@@ -86,7 +86,7 @@ export async function enviarConteudos(st){
 /* Textos de itens que já não existem na Biblioteca (excluídos) ficam órfãos na tabela. Só apaga o que está parado há mais
    de DIAS_ORFAO dias: dá tempo de outro aparelho ainda desatualizado enviar o item, e de desfazer uma exclusão por backup.
    Roda no máximo uma vez por sessão, depois de uma gravação bem-sucedida. Nunca lança. Devolve quantas linhas apagou. */
-export const DIAS_ORFAO = 7;
+export const DIAS_ORFAO = 10; // maior que os 7 dias das cópias automáticas: uma cópia restaurada ainda encontra os textos
 let orfaosVerificados = false;
 export function reiniciarLimpezaDeOrfaos(){ orfaosVerificados = false; }
 export async function limparOrfaos(st){

@@ -103,7 +103,9 @@ test.describe('Gravação na nuvem com outra sessão no meio', () => {
       let clock = 1;
       const stamp = () => new Date(Date.UTC(2026, 9, 13, 12, 0, clock++)).toISOString();
       const fake = {
-        from() {
+        from(tabela) {
+          /* outras tabelas (cópia automática, textos da Biblioteca) não fazem parte deste cenário: respondem vazio */
+          if(tabela !== 'taskin_state'){ const inerte = new Proxy(function(){}, { get: (_, k) => (k === 'then' ? (r) => r({ data: [], error: null }) : () => inerte) }); return inerte; }
           const q = { _f: {}, _op: null, _payload: null };
           q.select = (cols) => { if(q._op === null){ q._op = 'select'; q._cols = cols; } else { q._returning = true; } return q; };
           q.eq = (k, v) => { q._f[k] = v; return q; };

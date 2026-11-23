@@ -78,7 +78,7 @@
     --priority-media-light:#15291F;
     --priority-alta:#C08A3C;
     --priority-alta-light:#2D2314;
-    --priority-critica:#C86580;
+    --priority-critica:#E11D48; /* o mesmo vermelho do Resumo do dia, nos dois temas */
     --priority-critica-light:#321A22;
     --progress-ok:#2F8A63;
     --shadow-sm:none;
@@ -705,7 +705,7 @@
   }
   .task-follow-pill svg{width:11px; height:11px;}
   .task-follow-pill.hoje{background:#F59E0B; color:#fff;}
-  .task-follow-pill.vencida{background:#FDE4E4; color:#C62828;}
+  .task-follow-pill.vencida{background:#FDE4E4; color:#E11D48;}
   .tp-follow{display:flex; flex-direction:column; gap:7px;}
 
   .task-proj-pill{
@@ -3280,7 +3280,7 @@
     .ds-kpi{background:var(--tpf); border-radius:6px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
     .ds-kpi small{font-size:11px; color:var(--ink-soft); font-weight:600;}
     .ds-kpi b{font-size:18px; font-weight:700; line-height:1;}
-    .ds-kpi b.bad{color:#C0453A;} .ds-kpi b.ok{color:#2B7A55;} .ds-kpi b.pri{color:var(--primary);}
+    .ds-kpi b.bad{color:var(--priority-critica);} .ds-kpi b.ok{color:#2B7A55;} .ds-kpi b.pri{color:var(--primary);}
     .ds-stack{display:flex; height:8px; border-radius:4px; overflow:hidden; gap:2px;} .ds-stack i{display:block; height:100%;}
     .ds-legend{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:5px; font-size:10.5px; color:var(--ink-soft);}
     .ds-task{display:flex; gap:9px; align-items:stretch; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--border); padding:7px 0; cursor:pointer; color:var(--ink);}
@@ -3900,7 +3900,7 @@
   .task-alerts{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
   .task-row .task-alerts .task-alert{display:inline-flex; align-items:center; gap:5px; min-width:0; font-size:11px; font-weight:700; line-height:1.3; border-radius:6px; padding:3px 9px; white-space:nowrap; text-align:left;}
   .task-alert svg{width:13px; height:13px; flex:none;}
-  .task-alert-ret.over{background:color-mix(in srgb, var(--danger) 12%, var(--surface)); color:var(--danger); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--danger) 30%, transparent);}
+  .task-alert-ret.over{background:color-mix(in srgb, var(--priority-critica) 12%, var(--surface)); color:var(--priority-critica); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--priority-critica) 35%, transparent);}
   body[data-view="tasks"] .task-row-left .task-title-line .task-title{flex:0 1 auto; min-width:0;}
   @media (max-width:768px){
     .task-title-line{flex:1 1 100%;}
@@ -4192,9 +4192,9 @@
   [data-theme="dark"] .tp-follow-trigger{color:var(--ink);}
   /* concluído, atraso */
   [data-theme="dark"] .task-check.done, [data-theme="dark"] .task-check-circle.done{background:var(--ok); border-color:var(--ok);}
-  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:#A8364A; color:#F4E8EA;}
+  [data-theme="dark"] .task-status-pill.overdue, [data-theme="dark"] .task-alert-m.over{background:var(--priority-critica); color:#fff;}
   /* retomada vencida no escuro: fundo vermelho translúcido, letra rosa clara e borda fina (diferente do prazo vencido, que é sólido) */
-  [data-theme="dark"] .task-alert-ret.over{background:rgba(255,107,129,.16); color:#FF9AAA; box-shadow:inset 0 0 0 1px rgba(255,107,129,.45);}
+  [data-theme="dark"] .task-alert-ret.over{background:rgba(225,29,72,.18); color:#FF6B81; box-shadow:inset 0 0 0 1px rgba(255,107,129,.55);}
   [data-theme="dark"] .tp-top-flag.normal{background:var(--primary);}
   [data-theme="dark"] .dv-tag.warn, [data-theme="dark"] .dv-ret{background:#2D2314; color:#C9A86A;}
   [data-theme="dark"] .dv-stats b.amb{color:#C9A86A;}

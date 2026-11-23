@@ -59,8 +59,9 @@ import * as m54 from './54-instalar-app.js';
 import * as m64 from './64-imagens.js';
 import * as m66 from './66-biblioteca-conteudo.js';
 import * as m67 from './67-sanitizar.js';
+import * as m68 from './68-backup-automatico.js';
 
-const modulos = [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, m20, m21, m22, m23, m24, m25, m26, m27, m28, m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m39, m40, m41, m42, m43, m44, m45, m46, m47, m48, m49, m50, m51, m52, m53, m54, m64, m66, m67];
+const modulos = [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, m20, m21, m22, m23, m24, m25, m26, m27, m28, m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m39, m40, m41, m42, m43, m44, m45, m46, m47, m48, m49, m50, m51, m52, m53, m54, m64, m66, m67, m68];
 for(const m of modulos){
   for(const [nome, valor] of Object.entries(m)){
     Object.defineProperty(window, nome, { value: valor, writable: true, configurable: true, enumerable: false });

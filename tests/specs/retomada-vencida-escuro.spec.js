@@ -12,13 +12,13 @@ test('Retomada vencida no escuro: fundo translúcido e letra rosa; o prazo venci
   });
   const cor = (sel) => page.evaluate((s) => { const e = document.querySelector(s); const cs = getComputedStyle(e); return [cs.backgroundColor, cs.color]; }, sel);
   const ret = await cor('.task-alert-ret.over');
-  expect(ret[0]).toBe('rgba(255, 107, 129, 0.16)');
-  expect(ret[1]).toBe('rgb(255, 154, 170)');
+  expect(ret[0]).toBe('rgba(225, 29, 72, 0.18)');
+  expect(ret[1]).toBe('rgb(255, 107, 129)');
   const prazo = await cor('.task-status-pill.overdue');
-  expect(prazo[0]).toBe('rgb(168, 54, 74)'); // sólido, diferente da retomada
+  expect(prazo[0]).toBe('rgb(225, 29, 72)'); // sólido (o mesmo vermelho do Resumo do dia), diferente da retomada
   await page.screenshot({ path: 'test-results/retomada-escuro.png', clip: { x: 20, y: 120, width: 1000, height: 200 } });
   // modo claro: continua o esquema antigo (fundo rosa claro, letra vermelha)
   await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'light'); render(); });
   const claro = await cor('.task-alert-ret.over');
-  expect(claro[0]).not.toBe('rgba(255, 107, 129, 0.16)');
+  expect(claro[0]).not.toBe('rgba(225, 29, 72, 0.18)');
 });
