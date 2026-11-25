@@ -1,3 +1,6 @@
+## [3.66.0] - 2026-11-25
+- Tarefas: endereços (http://, https://, www.) na descrição e nos comentários viram link clicável que abre em nova aba (noopener). Na descrição, o texto fica em modo leitura quando tem link ou citação; clicar fora do link volta a editar.
+
 ## [3.65.0] - 2026-11-23
 - Backup: cópia automática diária do estado na tabela state_backups (últimas 7 + 'pre-restauracao'), com lista e restauração em Configurações > Backup. Exige rodar o SQL de supabase/schema.sql (seção v3.65); sem a tabela o sistema segue normal.
 - Visual: tarefa vencida usa vermelho puro, sem o tom rosado: selo/bandeira #BE1E1E (claro) e #C42024 (escuro), mais fechados, e título/data/ícone #DC2626 (claro) e #E5383B (escuro, um pouco mais claro para destacar do fundo). As barras de prioridade seguem as cores do Resumo.

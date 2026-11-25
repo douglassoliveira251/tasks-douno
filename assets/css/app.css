@@ -4970,6 +4970,9 @@ body.lib-dragging #libTree [data-folder], body.lib-dragging #libTree .lib-space{
 [data-theme="dark"] .men{color:#9CC4FF;}
 .tp-desc-view{white-space:pre-wrap; word-break:break-word; min-height:88px; cursor:text; line-height:1.55;}
 .tp-comment-text .men{white-space:normal;}
+.auto-link{color:var(--primary); text-decoration:underline; text-underline-offset:2px; word-break:break-all; cursor:pointer;}
+.auto-link:hover{text-decoration-thickness:2px;}
+[data-theme="dark"] .auto-link{color:#9CC4FF;}
 
 /* v3.62.0: abas Detalhamento e Relacionados no painel da tarefa (tarefas, notas e documentos, agenda), em lista */
 .tp-pane{display:contents;} .tp-pane[hidden]{display:none;}

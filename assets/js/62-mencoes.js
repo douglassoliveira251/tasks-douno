@@ -22,13 +22,37 @@ export function linkNovasMencoes(task, antes, depois){
 const taskByShort = (id) => G.state.tasks.find(t => t.shortId === id) || null;
 const limpaTitulo = (s) => String(s || '').replace(/[\]\[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
 
-/* HTML (já escapado) do texto, com cada @[#id Nome] virando um chip. O nome mostrado é o atual da tarefa. */
+/* Endereços (http://, https:// ou www.) viram link que abre em outra aba. A pontuação final da frase não entra no link. */
+const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"']+/gi;
+export const hasLink = (text) => { URL_RE.lastIndex = 0; return URL_RE.test(String(text || '')); };
+function comLinks(raw){
+  let out = '', last = 0, m;
+  URL_RE.lastIndex = 0;
+  while((m = URL_RE.exec(raw))){
+    let url = m[0];
+    const fecha = { ')': '(', ']': '[' };
+    for(;;){
+      const c = url.slice(-1);
+      if(/[.,;:!?'"]/.test(c)) url = url.slice(0, -1);
+      else if(fecha[c] && url.split(c).length > url.split(fecha[c]).length) url = url.slice(0, -1);
+      else break;
+    }
+    if(!/^(?:https?:\/\/|www\.)[^\s]+/i.test(url) || /^(?:https?:\/\/|www\.)$/i.test(url)){ continue; }
+    const href = /^www\./i.test(url) ? 'https://' + url : url;
+    out += escapeHtml(raw.slice(last, m.index)) + `<a class="auto-link" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`;
+    last = m.index + url.length;
+    URL_RE.lastIndex = last;
+  }
+  return out + escapeHtml(raw.slice(last));
+}
+
+/* HTML (já escapado) do texto, com cada @[#id Nome] virando um chip e cada endereço virando link. O nome mostrado é o atual da tarefa. */
 export function renderMencoes(text){
   const s = String(text == null ? '' : text);
   let out = '', last = 0, m;
   MENCAO_RE.lastIndex = 0;
   while((m = MENCAO_RE.exec(s))){
-    out += escapeHtml(s.slice(last, m.index));
+    out += comLinks(s.slice(last, m.index));
     const t = taskByShort(m[1]);
     if(t){
       out += `<span class="men${t.done ? ' done' : ''}" role="button" tabindex="0" data-men-task="${escapeHtml(t.id)}" title="Abrir tarefa">@${escapeHtml(t.title || 'Sem título')}</span>`;
@@ -37,7 +61,7 @@ export function renderMencoes(text){
     }
     last = m.index + m[0].length;
   }
-  return out + escapeHtml(s.slice(last));
+  return out + comLinks(s.slice(last));
 }
 
 /* Clique (ou Enter) num chip abre a tarefa citada. */

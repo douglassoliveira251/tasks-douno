@@ -85,3 +85,37 @@ test('@ cita tarefa que foi removida: chip fica cinza e não abre nada', async (
   await expect(view.locator('.men.gone')).toContainText('Tarefa que sumiu');
   await expect(view.locator('.men:not(.gone)')).toContainText('Conciliação bancária - Matriz'); // mostra o nome atual
 });
+
+test('links na descrição e nos comentários viram link clicável em nova aba', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  const r = await page.evaluate(() => ({
+    a: renderMencoes('Veja https://exemplo.com/a?b=1, e www.site.com.br. (https://x.com/p_(1))'),
+    b: renderMencoes('sem link aqui'),
+    c: renderMencoes('javascript:alert(1) <b>x</b> http://a.com/"onmouseover="x'),
+  }));
+  expect(r.a).toContain('href="https://exemplo.com/a?b=1" target="_blank" rel="noopener noreferrer">https://exemplo.com/a?b=1</a>,');
+  expect(r.a).toContain('href="https://www.site.com.br"');
+  expect(r.a).toContain('href="https://x.com/p_(1)"');
+  expect(r.b).not.toContain('<a');
+  expect(r.c).not.toContain('<b>');
+  expect(r.c).not.toContain('href="javascript');
+  expect(r.c).not.toMatch(/ onmouseover=/);
+});
+
+test('descrição com link aparece em modo leitura e o clique no link não entra em edição', async ({ page }) => {
+  await gotoApp(page, { view: 'tasks' });
+  await page.evaluate(() => {
+    const c = state.categories[0].id;
+    state.tasks = [{ id: 'l1', shortId: '0001', title: 'T', done: false, status: 'em_andamento', priority: 'media', dueDate: addDaysStr(todayStr(), 2), dueTime: '', categoryId: c, tagIds: [], subtasks: [], comments: [{ id: 'c1', text: 'olhe https://exemplo.com/x', createdAt: 1 }], attachments: [], description: 'Doc: https://exemplo.com/doc', createdAt: 1, recurrence: 'none' }];
+    activeTaskId = 'l1'; creatingNewTask = false; render();
+  });
+  const link = page.locator('#tpDescView a.auto-link');
+  await expect(link).toHaveAttribute('href', 'https://exemplo.com/doc');
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(page.locator('.tp-comment-text a.auto-link')).toHaveAttribute('href', 'https://exemplo.com/x');
+  await page.evaluate(() => document.querySelector('#tpDescView a').addEventListener('click', e => e.preventDefault()));
+  await link.click();
+  await expect(page.locator('#tpDescView')).toBeVisible();
+  await page.locator('#tpDescView').click({ position: { x: 5, y: 60 } });
+  await expect(page.locator('#tpDesc')).toBeVisible();
+});

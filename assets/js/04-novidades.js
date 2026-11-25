@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.66.0', date:'25/11/2026', title:'Links clicáveis', text:'Endereços escritos na descrição e nos comentários das tarefas (http://, https:// ou www.) agora viram link e abrem o site em uma nova aba. Para editar a descrição, clique fora do link.' },
   { version:'3.65.0', date:'23/11/2026', title:'Cópias automáticas dos seus dados', text:'Uma vez por dia o sistema guarda uma cópia dos seus dados na nuvem e mantém as últimas 7. Em Configurações > Backup você vê as cópias e pode restaurar uma depois de um engano. Antes de restaurar, o estado atual também é guardado, para você poder voltar. O vermelho das tarefas vencidas ficou mais vivo e igual ao do Resumo do dia.' },
   { version:'3.64.4', date:'23/11/2026', title:'Biblioteca se mantém enxuta', text:'Textos de páginas e skills que ficaram guardados na nuvem depois de o item ser excluído agora são removidos automaticamente após 7 dias. A foto do perfil e um anexo grande já guardados também foram reduzidos, sem perda visível de qualidade.' },
   { version:'3.64.3', date:'23/11/2026', title:'Textos secundários mais legíveis', text:'Datas pequenas, rótulos de seção e textos de apoio ganharam um pouco mais de contraste, nos temas claro e escuro, para ficarem mais fáceis de ler. O resto do visual continua igual.' },
