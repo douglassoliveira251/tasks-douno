@@ -7,6 +7,13 @@ const seed = (off) => {
   activeTaskId = 'rc1'; render();
 };
 
+/* o dia pode cair no mês seguinte e não aparecer na grade aberta: avança o mês antes de clicar */
+async function escolherDia(page, ymd) {
+  const dia = page.locator(`.modal.tp-fcal button[data-d="${ymd}"]`);
+  if (!(await dia.count())) await page.locator('.modal.tp-fcal [data-nav="1"]').click();
+  await dia.click();
+}
+
 test('Retomar em: menu tem 30 dias; Personalizada abre o calendário do app (Cancelar / OK); Remover retomada limpa', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await gotoApp(page, { view: 'tasks' });
@@ -27,7 +34,7 @@ test('Retomar em: menu tem 30 dias; Personalizada abre o calendário do app (Can
   await page.locator('#tpFollowTrigger').click();
   await page.locator('#tpFollowCustom').click();
   const alvo = await page.evaluate(() => addDaysStr(todayStr(), 10));
-  await page.locator(`.modal.tp-fcal button[data-d="${alvo}"]`).click();
+  await escolherDia(page, alvo);
   await page.locator('#tpFcalOk').click();
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].followUpDate)).toBe(alvo);
@@ -74,7 +81,7 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   // escolhe um dia e OK
   await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   const alvo = await page.evaluate(() => addDaysStr(todayStr(), 9));
-  await page.locator(`.modal.tp-fcal button[data-d="${alvo}"]`).click();
+  await escolherDia(page, alvo);
   await page.locator('#tpFcalOk').click();
   await expect(cal).toBeHidden();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBe(alvo);
@@ -82,6 +89,10 @@ test('Prazo: abre o calendário do app (Cancelar / OK / Remover prazo), sem o na
   await page.locator('#tpDate').locator('..').click({ position: { x: 20, y: 8 } });
   await page.locator('#tpFcalClear').click();
   expect(await page.evaluate(() => state.tasks[0].dueDate)).toBeNull();
+  // a hora sai junto com a data, no dado e nos campos
+  expect(await page.evaluate(() => state.tasks[0].dueTime)).toBe('');
+  await expect(page.locator('#tpDate')).toHaveValue('');
+  await expect(page.locator('#tpTime')).toHaveValue('');
 });
 
 test('Calendário: dias do mês vizinho aparecem claros; clicar escolhe a data e abre aquele mês', async ({ page }) => {

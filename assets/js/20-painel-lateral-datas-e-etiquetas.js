@@ -90,6 +90,7 @@ export function bindTpDates(panel, task){
       return;
     }
     t.dueDate = v;
+    if(!v) limparHora(t);
     if(v && !t.dueTime){ t.dueTime = DEFAULT_DUE_TIME; document.getElementById('tpTime').value = DEFAULT_DUE_TIME; }
     markDirty();
   });
@@ -160,8 +161,14 @@ function applyDue(v, inp){
   const t = getOrCreateActiveTask(); if(!t) return;
   if(v && !dateInStageRange(t, v)){ flashStageRangeWarning(t); return; }
   t.dueDate = v;
+  if(!v){ limparHora(t); inp.value = ''; }
   if(v && !t.dueTime){ t.dueTime = DEFAULT_DUE_TIME; document.getElementById('tpTime').value = DEFAULT_DUE_TIME; }
   markDirty();
+}
+/* sem data não há hora: limpar o prazo limpa os dois */
+function limparHora(t){
+  t.dueTime = '';
+  const h = document.getElementById('tpTime'); if(h) h.value = '';
 }
 
 /* Prioridade e etiquetas. */

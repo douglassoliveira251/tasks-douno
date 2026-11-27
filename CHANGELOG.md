@@ -1,3 +1,6 @@
+## [3.66.1] - 2026-11-27
+- Tarefas: remover o prazo (botão do calendário ou apagando o campo) limpa a data e a hora.
+
 ## [3.66.0] - 2026-11-25
 - Tarefas: endereços (http://, https://, www.) na descrição e nos comentários viram link clicável que abre em nova aba (noopener). Na descrição, o texto fica em modo leitura quando tem link ou citação; clicar fora do link volta a editar.
 
