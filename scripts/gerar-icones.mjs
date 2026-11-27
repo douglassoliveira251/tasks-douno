@@ -36,6 +36,7 @@ const ICONES = {
   'gear': ['regular'],
   'info': ['regular'],
   'kanban': ['regular'],
+  'link': ['regular'],
   'briefcase': ['regular'],
   'graduation-cap': ['regular'],
   'house': ['regular'],

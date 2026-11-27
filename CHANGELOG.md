@@ -1,3 +1,6 @@
+## [3.66.2] - 2026-11-27
+- Visual: abas do painel da tarefa com ícones (Phosphor note-pencil e link); aba ativa com título em --ink e sublinhado azul.
+
 ## [3.66.1] - 2026-11-27
 - Tarefas: remover o prazo (botão do calendário ou apagando o campo) limpa a data e a hora.
 

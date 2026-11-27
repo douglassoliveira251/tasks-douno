@@ -79,7 +79,7 @@ export function taskPanelHtml(task){
       </div>
     </div>
 
-    ${(() => { const tab = tabAtual(task); return `<div class="tp-tabs" id="tpTabs" role="tablist"><button type="button" role="tab" data-tab="det" class="${tab === 'det' ? 'on' : ''}" aria-selected="${tab === 'det'}">Detalhamento</button><button type="button" role="tab" data-tab="rel" class="${tab === 'rel' ? 'on' : ''}" aria-selected="${tab === 'rel'}">Relacionados<span class="n">${relCount(task)}</span></button></div><div class="tp-pane" id="tpPaneDet"${tab === 'det' ? '' : ' hidden'}>`; })()}
+    ${(() => { const tab = tabAtual(task); return `<div class="tp-tabs" id="tpTabs" role="tablist"><button type="button" role="tab" data-tab="det" class="${tab === 'det' ? 'on' : ''}" aria-selected="${tab === 'det'}">${icon('note-pencil')}Detalhamento</button><button type="button" role="tab" data-tab="rel" class="${tab === 'rel' ? 'on' : ''}" aria-selected="${tab === 'rel'}">${icon('link')}Relacionados<span class="n">${relCount(task)}</span></button></div><div class="tp-pane" id="tpPaneDet"${tab === 'det' ? '' : ' hidden'}>`; })()}
     <div class="tp-dates">
       <div class="tp-box tp-follow tp-follow-box">
         <label class="tp-label">Retomar em</label>

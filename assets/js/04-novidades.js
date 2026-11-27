@@ -4,6 +4,7 @@
    APP_VERSION): é ela que decide se o painel abre sozinho e se a bolinha
    aparece no menu. */
 export const WHATS_NEW = [
+  { version:'3.66.2', date:'27/11/2026', title:'Abas da tarefa com ícones', text:'Detalhamento e Relacionados ganharam ícones. A aba selecionada mantém a linha azul, com o título na cor do texto principal.' },
   { version:'3.66.1', date:'27/11/2026', title:'Remover prazo limpa data e hora', text:'Ao remover o prazo de uma tarefa, o horário agora é apagado junto com a data.' },
   { version:'3.66.0', date:'25/11/2026', title:'Links clicáveis', text:'Endereços escritos na descrição e nos comentários das tarefas (http://, https:// ou www.) agora viram link e abrem o site em uma nova aba. Para editar a descrição, clique fora do link.' },
   { version:'3.65.0', date:'23/11/2026', title:'Cópias automáticas dos seus dados', text:'Uma vez por dia o sistema guarda uma cópia dos seus dados na nuvem e mantém as últimas 7. Em Configurações > Backup você vê as cópias e pode restaurar uma depois de um engano. Antes de restaurar, o estado atual também é guardado, para você poder voltar. O vermelho das tarefas vencidas ficou mais vivo e igual ao do Resumo do dia.' },
